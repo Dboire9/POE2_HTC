@@ -6,6 +6,8 @@ export type {
   OptimizedPlan, OptimizeOptions, OptimizeCostOptions, CostedPlan, AddCurrency,
   TierTarget, ParetoPlan, ParetoResult, OptimizeParetoOptions,
 } from './optimize.ts';
+export { NO_SPARE } from './slots.ts';
+export type { Spare } from './slots.ts';
 export { alternativesFromWhite, alternativesFromItem, compareCloseness } from './alternatives.ts';
 export { DEFAULT_MAX_NODES } from './alternatives.ts';
 export type {

@@ -17,7 +17,10 @@ import { useCallback, useEffect, useRef, useSyncExternalStore } from 'react';
 import type { PatchData } from '../../packages/engine/src/types.ts';
 import { isEssenceMod } from '../../packages/engine/src/probability.ts';
 import { RUNE_BY_ID } from '../../packages/engine/src/runes.ts';
+import type { Spare } from '../../packages/optimizer/src/slots.ts';
+import { NO_SPARE } from '../../packages/optimizer/src/slots.ts';
 import type { ItemModInput, TargetInput } from './engineTypes.ts';
+import { MAX_PER_SIDE } from './targetSlots.ts';
 import { PREFS_PREFIX } from './currencyPrefs';
 
 export interface LabState {
@@ -42,6 +45,8 @@ export interface LabState {
   readonly baseCost: string;
   /** Runes socketed on the item being crafted, by id (`packages/engine/src/runes.ts`). */
   readonly runes: readonly string[];
+  /** Positions on the finished item the player doesn't care about, per side (`Spare`). */
+  readonly spare: Spare;
 }
 
 export interface ItemTabState {
@@ -54,6 +59,8 @@ export interface ItemTabState {
   readonly target: readonly TargetInput[];
   /** Runes socketed in the item you hold, by id (`packages/engine/src/runes.ts`). */
   readonly runes: readonly string[];
+  /** Positions on the finished item the player doesn't care about, per side (`Spare`). */
+  readonly spare: Spare;
 }
 
 export interface Workspace {
@@ -67,11 +74,11 @@ export function defaultWorkspace(): Workspace {
     mode: 'plan',
     lab: {
       baseId: '', level: 82, targets: [], fractured: new Set(), pinned: new Set(), budget: '', baseCost: '',
-      runes: [],
+      runes: [], spare: NO_SPARE,
     },
     item: {
       baseId: '', level: 82, rarity: 'rare', prefixes: [], suffixes: [], subMode: 'check', target: [],
-      runes: [],
+      runes: [], spare: NO_SPARE,
     },
   };
 }
@@ -112,7 +119,17 @@ const FORMAT_SLOTS = 2;
  * links that actually name a rune pay for it.
  */
 const FORMAT_RUNES = 3;
-const READABLE: readonly number[] = [FORMAT_BASE, FORMAT_SLOTS, FORMAT_RUNES];
+/**
+ * A craft with a FREE SLOT, for the third time and the same reason.
+ *
+ * A free slot changes what "finished" means: the item may end up carrying a modifier nobody named. An
+ * old reader dropping `sp` would plan the strict craft instead and quote its cost — measured on the
+ * Sceptre this feature was built for, 366.84 ex against the 191.27 ex the link actually describes. A
+ * number that wrong is worse than no link at all, so links that use one are refused by builds that
+ * cannot read them, and only those links pay for it.
+ */
+const FORMAT_SPARE = 4;
+const READABLE: readonly number[] = [FORMAT_BASE, FORMAT_SLOTS, FORMAT_RUNES, FORMAT_SPARE];
 
 /**
  * Which top-level tab is showing.
@@ -135,6 +152,8 @@ const modeOf = (m: unknown): Mode =>
 /** `[modId, tierDisplay, slot?]`. The third element is present only on a target that has alternatives,
  *  which is what keeps a slot-free workspace byte-identical to what version 1 always wrote. */
 type WireTarget = readonly [string, number, number?];
+/** `[prefixes, suffixes]` — free slots per side. Written only when one of them is non-zero. */
+type WireSpare = readonly [number, number];
 type WireItemMod = readonly [string, number, 1?];
 
 interface Wire {
@@ -145,6 +164,8 @@ interface Wire {
     readonly f: readonly string[]; readonly p: readonly string[]; readonly bg: string;
     /** Socketed runes, by id. Written only when the craft uses one — see `FORMAT_RUNES`. */
     readonly ru?: readonly string[];
+    /** Free slots per side. Written only when the craft uses one — see `FORMAT_SPARE`. */
+    readonly sp?: WireSpare;
     /** Added after FORMAT 1 shipped, so links written before it simply lack the key — the decoder
      *  reads it as "" and the craft plans on the default. Bumping FORMAT would REJECT those links
      *  instead, which is a far worse trade for one optional field. */
@@ -155,6 +176,7 @@ interface Wire {
     readonly px: readonly WireItemMod[]; readonly sx: readonly WireItemMod[];
     readonly sm: 'c' | 'p'; readonly t: readonly WireTarget[];
     readonly ru?: readonly string[];
+    readonly sp?: WireSpare;
   };
 }
 
@@ -183,6 +205,7 @@ interface WireIn {
     readonly b: unknown; readonly lv: unknown; readonly t: readonly WireTargetIn[];
     readonly f: readonly string[]; readonly p: readonly string[]; readonly bg: unknown;
     readonly ru?: unknown;
+    readonly sp?: unknown;
     readonly bc?: unknown;
   };
   readonly i: {
@@ -190,6 +213,7 @@ interface WireIn {
     readonly px: readonly WireItemModIn[]; readonly sx: readonly WireItemModIn[];
     readonly sm: 'c' | 'p'; readonly t: readonly WireTargetIn[];
     readonly ru?: unknown;
+    readonly sp?: unknown;
   };
 }
 
@@ -287,11 +311,19 @@ export function encodeWorkspace(ws: Workspace): string {
       : [strip(base, x.modId), x.tierDisplay, x.slot]));
   const usesSlots = labSlots.size > 0 || itemSlots.size > 0;
   const usesRunes = ws.lab.runes.length > 0 || ws.item.runes.length > 0;
+  // Derived from the counts, not from whether the field is set — `{0,0}` IS "no free slots", and
+  // writing it would push every link to version 4 for a craft that means what version 1 already said.
+  const sp = (s: Spare): WireSpare | undefined =>
+    (s.prefixes > 0 || s.suffixes > 0 ? [s.prefixes, s.suffixes] : undefined);
+  const labSpare = sp(ws.lab.spare);
+  const itemSpare = sp(ws.item.spare);
   const im = (list: readonly ItemModInput[]): WireItemMod[] =>
     list.map((x) => (x.fractured ? [strip(ib, x.modId), x.tierDisplay, 1] : [strip(ib, x.modId), x.tierDisplay]));
 
   const wire: Wire = {
-    v: usesRunes ? FORMAT_RUNES : usesSlots ? FORMAT_SLOTS : FORMAT_BASE,
+    // Highest first: a craft using both a rune and a free slot must be refused by a reader that can
+    // read only one of them, so the version names the newest thing in the link rather than the first.
+    v: labSpare || itemSpare ? FORMAT_SPARE : usesRunes ? FORMAT_RUNES : usesSlots ? FORMAT_SLOTS : FORMAT_BASE,
     m: WIRE_MODE[ws.mode],
     l: {
       b: lb, lv: ws.lab.level, t: t(lb, ws.lab.targets, labSlots),
@@ -299,12 +331,14 @@ export function encodeWorkspace(ws: Workspace): string {
       p: [...ws.lab.pinned].map((id) => strip(lb, id)),
       bg: ws.lab.budget, bc: ws.lab.baseCost,
       ...(ws.lab.runes.length ? { ru: [...ws.lab.runes] } : {}),
+      ...(labSpare ? { sp: labSpare } : {}),
     },
     i: {
       b: ib, lv: ws.item.level, r: ws.item.rarity === 'magic' ? 'm' : 'r',
       px: im(ws.item.prefixes), sx: im(ws.item.suffixes),
       sm: ws.item.subMode === 'plan' ? 'p' : 'c', t: t(ib, ws.item.target, itemSlots),
       ...(ws.item.runes.length ? { ru: [...ws.item.runes] } : {}),
+      ...(itemSpare ? { sp: itemSpare } : {}),
     },
   };
   return toBase64Url(JSON.stringify(wire));
@@ -419,6 +453,21 @@ function decodeOrThrow(payload: string, data: PatchData): DecodeResult | null {
     }
     return out;
   };
+  /**
+   * The free slots a link names, held to what an item could actually have.
+   *
+   * A link is not a form: nothing stops `sp` carrying `[99, -1]`, `["a", {}]` or a fraction. Anything
+   * out of range is read as zero rather than dropped-and-reported, because unlike a rune id this is not
+   * a feature the build lacks — it is a number that was never legal. Three a side is the game's cap and
+   * the most a free slot could ever be worth; `Serle's Triumph` raises it to four suffixes, and the
+   * clamp stays at the base cap because the solver treats an unusable free slot as inert either way.
+   */
+  const spareOf = (raw: unknown): Spare => {
+    if (!Array.isArray(raw)) return NO_SPARE;
+    const one = (v: unknown): number =>
+      (typeof v === 'number' && Number.isInteger(v) && v >= 0 && v <= MAX_PER_SIDE ? v : 0);
+    return { prefixes: one((raw as unknown[])[0]), suffixes: one((raw as unknown[])[1]) };
+  };
   const ids = (base: string, list: readonly string[] | undefined): Set<string> => {
     const out = new Set<string>();
     for (const short of list ?? []) {
@@ -449,7 +498,7 @@ function decodeOrThrow(payload: string, data: PatchData): DecodeResult | null {
       lab: {
         baseId: lb, level: clampLevel(wire.l.lv, d.lab.level), targets: targets(lb, wire.l.t),
         fractured: oneFractured(ids(lb, wire.l.f)), pinned: ids(lb, wire.l.p), budget: clampText(wire.l.bg),
-        baseCost: clampText(wire.l.bc), runes: runeIds(wire.l.ru),
+        baseCost: clampText(wire.l.bc), runes: runeIds(wire.l.ru), spare: spareOf(wire.l.sp),
       },
       item: {
         baseId: ib, level: clampLevel(wire.i.lv, d.item.level), rarity: wire.i.r === 'm' ? 'magic' : 'rare',
@@ -465,7 +514,7 @@ function decodeOrThrow(payload: string, data: PatchData): DecodeResult | null {
           return { prefixes: cap(itemMods(ib, wire.i.px)), suffixes: cap(itemMods(ib, wire.i.sx)) };
         })(),
         subMode: wire.i.sm === 'p' ? 'plan' : 'check', target: targets(ib, wire.i.t),
-        runes: runeIds(wire.i.ru),
+        runes: runeIds(wire.i.ru), spare: spareOf(wire.i.sp),
       },
     },
     dropped,

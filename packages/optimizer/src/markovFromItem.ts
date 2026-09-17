@@ -31,7 +31,8 @@ import { limitsOf } from '../../engine/src/item.ts';
 import type { CurrencyPolicy, Prices } from './cost.ts';
 import { pricesForBase } from './cost.ts';
 import type { TierTarget } from './optimize.ts';
-import { slotIndexGroups } from './slots.ts';
+import type { Spare } from './slots.ts';
+import { NO_SPARE, slotIndexGroups } from './slots.ts';
 import type { ResolvedCandidate } from './markovSymmetry.ts';
 import {
   canonicalFilterFor, encoderFor, familiesOfTarget, mergeSlots, permutationClasses, slotMasksOf,
@@ -238,6 +239,13 @@ export interface MarkovOptions {
   /** Currencies the player doesn't have; the policy never plays one. */
   readonly policy?: CurrencyPolicy;
   /**
+   * Positions on the finished item the player doesn't care about — see `Spare` in markovState.ts.
+   *
+   * It widens the accepting set and nothing else: no extra states, no extra candidates, no change to
+   * what an action can do. Absent ⇒ `NO_SPARE`, which is the goal set this solver has always had.
+   */
+  readonly spare?: Spare;
+  /**
    * Carry the solved policy (`MarkovResult.routes`) on an exact result.
    *
    * Opt-in because it is the whole lattice: the Lab asks for it, to draw the route from any item the
@@ -277,6 +285,10 @@ export function markovFromItem(
   // What this item can hold. A socketed rune may have raised one of these, so every cap below reads
   // them rather than a constant.
   const limits = limitsOf(start.base);
+  // Positions the player said they don't care about. A free slot the side has no room for is inert
+  // rather than an error: `enumerateStates` never emits a state past the cap, so the widened accepting
+  // set simply has nothing extra to accept. That is why nothing validates `spare` against `limits`.
+  const spare = opts.spare ?? NO_SPARE;
   const fracturedIds = new Set([...start.prefixes, ...start.suffixes].filter((p) => p.fractured).map((p) => p.modId));
 
   // Resolve targets into the ordered list the bitmasks index: rollable normal mods, desecrated mods
@@ -452,10 +464,11 @@ export function markovFromItem(
    * `jp`/`js`, and junk is a bare count with no marker — so the model cannot tell it from any other
    * junk and will offer a Perfect Essence on an item that already carries one. Measured on a real
    * craft (a held `PerfectEssence_EssenceAbyss`, a `PerfectEssence_FireDamage` target): four states
-   * played a Perfect Essence with junk still on the item. The finished item is safe either way —
-   * `isAccepting` demands zero junk — but the ROUTE can be one the game refuses, and it is the cheap
-   * one, because the essence's own swap does some of the annulling for free. So the quoted cost comes
-   * in low.
+   * played a Perfect Essence with junk still on the item. The finished item is safe either way — the
+   * refusal below counts held crafted mods against the same cap, so no route can END past it, whether
+   * or not a free slot lets the stray ride along — but the ROUTE can be one the game refuses, and it is
+   * the cheap one, because the essence's own swap does some of the annulling for free. So the quoted
+   * cost comes in low.
    *
    * Only refused when an essence target is asked. With none, no perfect-essence action is ever built
    * (`perfectTargets` is empty), the held mod is ordinary junk, and the model is already right — a
@@ -578,16 +591,18 @@ export function markovFromItem(
    * rendered "≥ 0 ex" under the heading `True expected cost`. The step planner beside it has always
    * short-circuited this (`fromItem.ts`, the `steps: []` frontier) — only the MDP did the work.
    *
-   * `isAccepting` is the same predicate `goalKeys` is built from below, so this cannot disagree with
-   * the solver about what "finished" means: it already demands zero blocked, zero junk and Rare.
+   * `isAccepting` is the same predicate `goalKeys` is built from below — same `spare` and all — so this
+   * cannot disagree with the solver about what "finished" means: zero blocked, Rare, and no more junk
+   * than the free slots allow.
    *
-   * The node is built exactly as the graph BFS builds one, from `s0` rather than from constants —
-   * `isAccepting` guarantees the blocked and junk fields are empty, but deriving them keeps one
-   * construction instead of two that could drift apart. Start and goal are the same square, so there
+   * The node is built exactly as the graph BFS builds one, from `s0` rather than from constants. That
+   * mattered before as a way to keep one construction instead of two that could drift apart, and it
+   * matters more now: with a free slot the finished item may genuinely carry junk, so `junkPrefixes`
+   * and `junkSuffixes` are read off `s0` rather than assumed empty. Start and goal are the same square, so there
    * is nothing to walk: no edges, and an empty policy (which is also what a test can assert on to
    * prove the lattice was never built, without timing anything).
    */
-  if (isAccepting(s0, slotMasks)) {
+  if (isAccepting(s0, slotMasks, spare)) {
     return {
       expectedCost: 0,
       feasible: true,
@@ -642,16 +657,25 @@ export function markovFromItem(
    * solve reported the target unreachable. Filtering the lattice instead has both properties for free:
    * it can only ever name states that exist, and it accepts any one member per slot.
    *
-   * `isAccepting` still demands zero junk, zero blocked and Rare, so this is the same standard of
-   * "finished" as before — with every slot a singleton it reproduces the old set exactly, which the
-   * test suite asserts against a from-white craft.
+   * `isAccepting` still demands zero blocked and Rare, and no more junk than `spare` allows, so this is
+   * the same standard of "finished" as before — with every slot a singleton and no free slots it
+   * reproduces the old set exactly, which the test suite asserts against a from-white craft.
    */
   const goalKeys = new Set<StateKey>();
-  for (const k of allStates) if (isAccepting(decodeState(k), slotMasks)) goalKeys.add(k);
+  for (const k of allStates) if (isAccepting(decodeState(k), slotMasks, spare)) goalKeys.add(k);
   if (goalKeys.size === 0) return fail('no legal item satisfies every slot of this target');
-  // The canonical goal for display: `allStates` is enumerated present-ascending with FLAG_NONE first,
-  // so this is the *barest* finished item — the one that fills each slot once and carries nothing more.
-  const goalKey = [...goalKeys].find((k) => decodeState(k).flagged === FLAG_NONE) ?? [...goalKeys][0]!;
+  // The canonical goal for DISPLAY: the *barest* finished item — the one that fills each slot once and
+  // carries nothing more. `allStates` is enumerated present-ascending with FLAG_NONE first, which used
+  // to make the first FLAG_NONE hit that item by itself. Free slots break that: they admit goal states
+  // holding junk, and those sort no later than the clean one, so the empty junk fields are now asked for
+  // rather than relied upon. A junk-carrying goal is a perfectly good place to STOP — it just isn't the
+  // one to draw as "the item you're aiming at".
+  const bareGoal = (k: StateKey): boolean => {
+    const s = decodeState(k);
+    return s.flagged === FLAG_NONE && s.jp === 0 && s.js === 0;
+  };
+  const keys = [...goalKeys];
+  const goalKey = keys.find(bareGoal) ?? keys.find((k) => decodeState(k).flagged === FLAG_NONE) ?? keys[0]!;
   // The dominant cost of the whole solve: one full action set, with its outcome distribution, per
   // state. `allStates.length` is known before the loop, so progress here is genuinely linear.
   const report = opts.onProgress;

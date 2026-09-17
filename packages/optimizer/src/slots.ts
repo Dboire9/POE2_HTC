@@ -31,6 +31,32 @@
 import type { TierTarget } from './optimize.ts';
 
 /**
+ * FREE SLOTS — positions on the finished item whose contents are not checked.
+ *
+ * "Three prefixes I want, and I don't care what the last suffix is." A free slot may hold any mod or
+ * nothing at all, which is the whole difference from a slot with alternatives: alternatives enumerate
+ * what would satisfy you, a free slot says nothing has to.
+ *
+ * It is a COUNT PER SIDE and never a target, and that distinction is the reason this feature is cheap.
+ * A candidate costs a bit in `present`/`blocked` and doubles the lattice; the junk counters `jp`/`js`
+ * are already state axes that `enumerateStates` fills in, so a free slot adds no states at all — it
+ * only widens the accepting set, which makes the solve easier rather than harder. Naming every mod
+ * that would do instead costs the opposite: nine candidates is ~20,952 states against ~2,916 at six,
+ * and `MAX_CANDIDATES` refuses past that.
+ *
+ * Nothing else about the craft changes. `blocked` still has to be empty (see `isAccepting`), the side
+ * caps still bound what an item can hold, and a free slot the side has no room for is simply
+ * unreachable — `enumerateStates` never emits the state, so no caller has to check for it.
+ */
+export interface Spare {
+  readonly prefixes: number;
+  readonly suffixes: number;
+}
+
+/** No free slots — the finished item is exactly what was named, which is every craft that predates them. */
+export const NO_SPARE: Spare = { prefixes: 0, suffixes: 0 };
+
+/**
  * Indices of `targets`, grouped into slots, in order of first appearance.
  *
  * Keyed on `slot === undefined ? unique : slot` so an unslotted target can never collide with a

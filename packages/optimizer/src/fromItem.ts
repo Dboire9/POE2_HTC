@@ -20,7 +20,8 @@ import { limitsOf } from '../../engine/src/item.ts';
 import type { Prices } from './cost.ts';
 import { planExpectedCost, pricesForBase } from './cost.ts';
 import { combinations, orderedSelections, permutations } from './combinatorics.ts';
-import { expandSlots, itemLegalCombinations } from './slots.ts';
+import type { Spare } from './slots.ts';
+import { NO_SPARE, expandSlots, itemLegalCombinations } from './slots.ts';
 import type { OptimizeParetoOptions, ParetoPlan, ParetoResult, TierTarget } from './optimize.ts';
 import { mergeParetoRuns, paretoFrontier } from './optimize.ts';
 import { searchSkeletons } from './leverDp.ts';
@@ -153,6 +154,61 @@ function transformSequences(
 }
 
 /**
+ * Mods on `start` that `targetIds` does not want and a currency could remove, kept side by side.
+ *
+ * Fractured ("carved") mods are locked — never removed, so never junk. They stay on the item (kept
+ * whether or not they're in the target) and keep occupying their slot + family for the engine's math.
+ * A mod a FREE SLOT lets you leave behind ends up in exactly that position, which is why `keepSets`
+ * and the planner both read this one definition rather than each deciding what junk is.
+ */
+function removableJunk(start: ItemState, targetIds: readonly string[]): { prefixes: string[]; suffixes: string[] } {
+  const wanted = new Set(targetIds);
+  const loose = (placed: ItemState['prefixes']): string[] =>
+    placed.filter((m) => !wanted.has(m.modId) && !m.fractured).map((m) => m.modId);
+  return { prefixes: loose(start.prefixes), suffixes: loose(start.suffixes) };
+}
+
+/**
+ * Which junk a free slot lets a plan leave on the item — one set per way of choosing.
+ *
+ * Always includes the EMPTY set, and at `NO_SPARE` that is the only one, so a craft without free slots
+ * runs exactly the single search it always did and returns exactly the frontier it always did.
+ *
+ * Every subset up to the allowance, rather than "keep as many as you can", because keeping is not
+ * strictly better: a junk mod is also a Chaos-swap partner (`baseTransforms` pairs junk with missing),
+ * so leaving it can cost more than annulling it — which way round depends on the price sheet. Both are
+ * run and dominance decides, which is the same answer this planner gives every other either/or. The
+ * count is bounded by the item rather than by a cap: at most 2^3 per side, and in practice two or four,
+ * since a free slot can only exist where the side had room to spare.
+ *
+ * A set leaving too few sacrificial mods for the Perfect Essences is dropped rather than run — one
+ * removes a random mod as it adds, and the planner throws when there are not enough. The empty set
+ * always survives that filter, so a craft that really is short of them still throws for the caller.
+ */
+function keepSets(
+  data: PatchData, start: ItemState, targetIds: readonly string[], spare: Spare,
+): ReadonlySet<string>[] {
+  if (spare.prefixes === 0 && spare.suffixes === 0) return [new Set()];
+  const junk = removableJunk(start, targetIds);
+  const held = new Set([...start.prefixes, ...start.suffixes].map((m) => m.modId));
+  const perfects = targetIds
+    .filter((id) => !held.has(id) && resolveMod(data, id).source === 'perfect_essence').length;
+  const upTo = (ids: readonly string[], n: number): string[][] => {
+    const out: string[][] = [];
+    for (let k = 0; k <= Math.min(n, ids.length); k++) out.push(...combinations(ids, k));
+    return out;
+  };
+  const sets: ReadonlySet<string>[] = [];
+  for (const p of upTo(junk.prefixes, spare.prefixes)) {
+    for (const s of upTo(junk.suffixes, spare.suffixes)) {
+      if (junk.prefixes.length + junk.suffixes.length - p.length - s.length < perfects) continue;
+      sets.push(new Set([...p, ...s]));
+    }
+  }
+  return sets;
+}
+
+/**
  * Compute the (expected cost ↔ success probability) Pareto frontier for transforming `start` (an item
  * you already hold) into `targets`. See the file header for the model. Throws if `start` isn't Rare
  * or the target shape is illegal. When the item already IS the target, returns a single empty plan.
@@ -166,14 +222,32 @@ export function optimizeFromItem(
   // close to free, so the merged frontier surfaces "keep what you have" without being told to.
   const combos = itemLegalCombinations(expandSlots(targets),
     (id) => resolveMod(data, id).source === 'desecrated');
-  const one = (t: readonly TierTarget[], onProgress?: (d: number, n: number) => void): ParetoResult =>
-    fromItemForOneCraft(data, rawPrices, start, t, { ...opts, ...(onProgress ? { onProgress } : {}) });
-  if (combos.length > 1) return mergeParetoRuns(combos, one, opts.onProgress);
-  return one(combos[0] ?? targets);
+  /*
+   * …and a second thing a fixed sequence has to commit to, once the target has a free slot: whether to
+   * annul a junk mod the player said they don't care about, or leave it where it is.
+   *
+   * Which junk is even eligible depends on the slot combination — a mod is junk only relative to what
+   * that combination asks for — so the keep-sets are built per combination and the two dimensions are
+   * crossed rather than nested. `mergeParetoRuns` then runs each and re-filters the union, exactly as
+   * it does for slots alone; at `NO_SPARE` every combination yields the single empty keep-set and this
+   * reduces to the list it built before.
+   */
+  const spare = opts.spare ?? NO_SPARE;
+  const runs = combos.flatMap((t) =>
+    keepSets(data, start, t.map((x) => x.modId), spare).map((keep) => ({ targets: t, keep })));
+  const one = (
+    r: { targets: readonly TierTarget[]; keep: ReadonlySet<string> },
+    onProgress?: (d: number, n: number) => void,
+  ): ParetoResult =>
+    fromItemForOneCraft(data, rawPrices, start, r.targets, { ...opts, ...(onProgress ? { onProgress } : {}) }, r.keep);
+  if (runs.length > 1) return mergeParetoRuns(runs, one, opts.onProgress);
+  return one(runs[0] ?? { targets, keep: new Set() });
 }
 
 function fromItemForOneCraft(
   data: PatchData, rawPrices: Prices, start: ItemState, targets: readonly TierTarget[], opts: OptimizeParetoOptions,
+  /** Junk a free slot lets this plan leave on the item — see `keepSets`. Empty is the old behaviour. */
+  keep: ReadonlySet<string> = new Set(),
 ): ParetoResult {
   const policy = opts.policy;
   const prices = pricesForBase(rawPrices, start.base);
@@ -185,11 +259,13 @@ function fromItemForOneCraft(
   const currentSet = new Set(current);
   validateFromItemTarget(data, start.base, targetIds, currentSet);
   const tierOf = new Map(targets.map((t) => [t.modId, t.minTierIndex ?? 0]));
-  const targetSet = new Set(targetIds);
-  // Fractured ("carved") mods are locked — never removed, so never junk. They stay on the item (kept
-  // whether or not they're in the target) and keep occupying their slot + family for the engine's math.
-  const fractured = new Set([...start.prefixes, ...start.suffixes].filter((p) => p.fractured).map((p) => p.modId));
-  const junk = current.filter((id) => !targetSet.has(id) && !fractured.has(id)); // unwanted & removable → remove
+  // Junk is what the target doesn't want and a currency could take off. A mod in `keep` is one the
+  // player's free slot allows to stay, so it drops out of this list and is thereafter indistinguishable
+  // from a fractured mod: still on the item, still occupying its slot and family for the engine's math,
+  // simply never removed. Prefixes before suffixes, which is the order the plan enumeration has always
+  // seen and the reason an empty `keep` reproduces it exactly.
+  const loose = removableJunk(start, targetIds);
+  const junk = [...loose.prefixes, ...loose.suffixes].filter((id) => !keep.has(id));
   const missing = targetIds.filter((id) => !currentSet.has(id)); // wanted but not yet present → add
   // A perfect essence adds its guaranteed mod while removing one random mod, so a perfect target can
   // only be placed by sacrificing a junk mod. A desecrated target is added by a Desecration (boss omen)

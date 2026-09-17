@@ -10,6 +10,8 @@
 
 import type { EngineMod, TargetInput } from './engineTypes.ts';
 import { modFamilies } from './engineTypes.ts';
+import type { Spare } from '../../packages/optimizer/src/slots.ts';
+import { NO_SPARE } from '../../packages/optimizer/src/slots.ts';
 
 /** Most slots one side of an item can hold. The item's own limit, unchanged by alternatives. */
 export const MAX_PER_SIDE = 3;
@@ -56,6 +58,35 @@ export function slotCounts(
     prefix: slots.filter((s) => s.type === 'prefix').length,
     suffix: slots.filter((s) => s.type === 'suffix').length,
   };
+}
+
+/** The per-side limits a base imposes, which a socketed rune may have raised. */
+export interface SideLimits {
+  readonly prefixes: number;
+  readonly suffixes: number;
+  readonly crafted?: number;
+}
+
+/**
+ * Positions `side` has left, counting NAMED slots and FREE slots together.
+ *
+ * One definition, because two callers ask the same question for opposite reasons: `whyNotAdd` refuses
+ * a mod when the answer is 0, and the picker's "Any" row is offered while it is above it. They used to
+ * be one expression inlined in the guard, and the moment free slots existed that expression had to be
+ * read from two places — a free slot fills a position just as a named one does, so a side holding three
+ * named suffixes has no room for a free one and a side holding two has room for exactly one.
+ */
+export function roomOnSide(
+  side: 'prefix' | 'suffix',
+  targets: readonly TargetInput[],
+  modById: ReadonlyMap<string, EngineMod>,
+  opts: { readonly limits?: SideLimits; readonly spare?: Spare } = {},
+): number {
+  const counts = slotCounts(targets, modById);
+  const spare = opts.spare ?? NO_SPARE;
+  const used = side === 'prefix' ? counts.prefix + spare.prefixes : counts.suffix + spare.suffixes;
+  const cap = (side === 'prefix' ? opts.limits?.prefixes : opts.limits?.suffixes) ?? MAX_PER_SIDE;
+  return Math.max(0, cap - used);
 }
 
 /** A slot id no existing slot uses, for the next group. Ids are opaque — only equality matters. */
@@ -144,7 +175,18 @@ export function whyNotAdd(
      * The item's own limits, which a socketed rune may have raised: three a side and one crafted
      * modifier when absent. `crafted` counts Essences, Perfect Essences and Alloys together.
      */
-    readonly limits?: { readonly prefixes: number; readonly suffixes: number; readonly crafted?: number };
+    readonly limits?: SideLimits;
+    /**
+     * Free slots the player has already asked for, per side (`Spare`).
+     *
+     * They occupy positions on the finished item exactly as a named slot does, so they count toward the
+     * side cap — three named suffix slots plus a free one is four suffixes on a three-suffix base. The
+     * solver would make that free slot silently INERT (`enumerateStates` never emits a state past the
+     * cap), which is the right answer for a solver and the wrong one for a picker: the player would add
+     * a fourth thing, see it listed, and get a plan that ignored it. Refusing here is where the reason
+     * can be read.
+     */
+    readonly spare?: Spare;
   } = {},
 ): AddBlock {
   const slots = slotsOf(targets, modById);
@@ -156,10 +198,10 @@ export function whyNotAdd(
       return `This slot holds ${joining.type}es — an alternative has to sit on the same side`;
     }
   } else {
-    const counts = slotCounts(targets, modById);
-    const used = mod.type === 'prefix' ? counts.prefix : counts.suffix;
-    const cap = (mod.type === 'prefix' ? opts.limits?.prefixes : opts.limits?.suffixes) ?? MAX_PER_SIDE;
-    if (used >= cap) return `This side is full (max ${cap})`;
+    if (roomOnSide(mod.type, targets, modById, opts) === 0) {
+      const cap = (mod.type === 'prefix' ? opts.limits?.prefixes : opts.limits?.suffixes) ?? MAX_PER_SIDE;
+      return `This side is full (max ${cap})`;
+    }
   }
 
   // Families held by every OTHER slot. The slot being joined is exempt: its members are alternatives,

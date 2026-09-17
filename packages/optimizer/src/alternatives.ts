@@ -26,6 +26,7 @@ import type { CostCdfBounds } from './cost.ts';
 import { DEFAULT_COST_CELLS, planCostCdf, pricesForBase } from './cost.ts';
 import type { ParetoPlan, ParetoResult, TierTarget } from './optimize.ts';
 import { optimizePareto } from './optimize.ts';
+import type { Spare } from './slots.ts';
 import { expandSlots, itemLegalCombinations } from './slots.ts';
 import { optimizeFromItem } from './fromItem.ts';
 
@@ -95,6 +96,14 @@ export interface AlternativesOptions {
   onProgress?: (done: number, total: number) => void;
   /** Currencies the player doesn't have. Forwarded into every node's plan search. */
   policy?: CurrencyPolicy;
+  /**
+   * Positions on the finished item the player doesn't care about, forwarded into every node.
+   *
+   * A free slot makes the craft at the TOP of this lattice cheaper, so every relaxation below it is
+   * measured against the right starting point. It is not itself a relaxation and never appears as one:
+   * the lattice relaxes named slots, and a free slot names nothing to slide, swap or drop.
+   */
+  spare?: Spare;
 }
 
 export const DEFAULT_MAX_NODES = 200;
@@ -493,7 +502,8 @@ export function alternativesFromWhite(
     (id) => resolveMod(data, id).source === 'desecrated');
   const run = (d: readonly AlternativeTarget[], maxNodes: number): AlternativesResult => searchAlternatives(
     data, base, prices,
-    (targets) => optimizePareto(data, prices, base, targets, { level, ...(policy ? { policy } : {}) }),
+    (targets) => optimizePareto(data, prices, base, targets,
+      { level, ...(policy ? { policy } : {}), ...(opts.spare ? { spare: opts.spare } : {}) }),
     d, budget, { ...opts, maxNodes },
   );
   if (combos.length > 1) return mergeAlternativeRuns(combos, run, opts.maxNodes ?? DEFAULT_MAX_NODES);
@@ -518,7 +528,8 @@ export function alternativesFromItem(
     (id) => resolveMod(data, id).source === 'desecrated');
   const run = (d: readonly AlternativeTarget[], maxNodes: number): AlternativesResult => searchAlternatives(
     data, start.base, prices,
-    (targets) => optimizeFromItem(data, prices, start, targets, policy ? { policy } : {}),
+    (targets) => optimizeFromItem(data, prices, start, targets,
+      { ...(policy ? { policy } : {}), ...(opts.spare ? { spare: opts.spare } : {}) }),
     d, budget, { ...opts, maxNodes },
   );
   if (combos.length > 1) return mergeAlternativeRuns(combos, run, opts.maxNodes ?? DEFAULT_MAX_NODES);

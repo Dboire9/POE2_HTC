@@ -22,6 +22,9 @@ const filled = (): Workspace => ({
     budget: '600',
     baseCost: '2.5',
     runes: ['astrids-creativity'],
+    // No FREE SLOTS here on purpose: the version tests below strip the runes off this fixture and
+    // assert it falls back to version 1, which a free slot would silently prevent.
+    spare: { prefixes: 0, suffixes: 0 },
   },
   item: {
     baseId: 'Wands', level: 81, rarity: 'rare',
@@ -30,6 +33,7 @@ const filled = (): Workspace => ({
     subMode: 'plan',
     target: [{ modId: P[2]!, tierDisplay: 1 }],
     runes: ['serles-triumph'],
+    spare: { prefixes: 0, suffixes: 0 },
   },
 });
 

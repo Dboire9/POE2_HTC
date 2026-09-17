@@ -17,6 +17,7 @@ import type {
 } from './engineTypes.ts';
 import type { MarkovProgress } from '../../packages/optimizer/src/markovFromItem.ts';
 import type { CurrencyPolicy } from '../../packages/optimizer/src/cost.ts';
+import type { Spare } from '../../packages/optimizer/src/slots.ts';
 
 /**
  * The two computes the UI can ask for, each mirroring one existing Compute button:
@@ -41,6 +42,17 @@ interface ExcludingRequest {
    * beside a model built with them would be two answers to different questions.
    */
   readonly runes?: readonly string[];
+  /**
+   * Positions on the finished item the player said they don't care about — one count per side
+   * (`Spare`, packages/optimizer/src/slots.ts). A plain object of two numbers, so the worker message
+   * stays trivially structured-clone-safe.
+   *
+   * It changes what FINISHED means, so it goes everywhere `runes` goes and for the same reason: a
+   * frontier built without it beside a model built with it would be two answers to different questions.
+   * Which of them can act on it differs — see `OptimizeParetoOptions.spare` — but being TOLD is not
+   * optional for any of them.
+   */
+  readonly spare?: Spare;
   /**
    * The player's "how hard should I look?" limits (src/lib/searchEffort.ts). Plain numbers so the
    * worker message stays trivially structured-clone-safe, same reasoning as `excluded` above.
@@ -233,6 +245,10 @@ export function runSolve(eng: Engine, req: SolveRequest, onProgress?: (p: SolveP
   // which has no item, and the ITEM itself everywhere else (`buildItemState` applies them there).
   const runes = req.runes?.length ? req.runes : undefined;
   const runed = <T extends object>(o: T): T => (runes ? { ...o, runes } : o);
+  // Free slots, carried onto every planner's OPTIONS. Unlike runes there is no item half to this: a
+  // free slot describes the target, not the thing in your stash.
+  const spare = req.spare && (req.spare.prefixes > 0 || req.spare.suffixes > 0) ? req.spare : undefined;
+  const spared = <T extends object>(o: T): T => (spare ? { ...o, spare } : o);
   // Each limit goes to the planner that owns it: relaxed targets to the budget search, the clock to
   // the step planner. Absent ⇒ the planner's own default stands.
   //
@@ -291,14 +307,14 @@ export function runSolve(eng: Engine, req: SolveRequest, onProgress?: (p: SolveP
     const planOnProgress = onProgress
       ? { onProgress: (done: number, total: number): void => onProgress({ phase: 'plan', fraction: within(ITEM_PLAN, done, total) }) }
       : {};
-    const planOpts = withClock(withPolicy(planOnProgress));
+    const planOpts = spared(withClock(withPolicy(planOnProgress)));
     const plan = frontierOrReason(() => optimizeItem(eng, runed(req.item), req.targets,
       planShare === undefined ? planOpts : { ...planOpts, maxMillis: planShare }));
     // The honest expected cost + optimal-policy graph.
     const mdpReport = onProgress
       ? { onProgress: (p: MarkovProgress): void => onProgress({ phase: p.phase, fraction: within(ITEM_MDP, toFraction(p) * 1000, 1000) }) }
       : {};
-    const mdpOpts = withSweepLimit(withPolicy(mdpReport));
+    const mdpOpts = spared(withSweepLimit(withPolicy(mdpReport)));
     const remaining = clockLeft();
     const markov = markovOrReason(() => optimizeItemMarkov(eng, runed(req.item), req.targets,
       remaining === undefined ? mdpOpts : { ...mdpOpts, maxMillis: remaining }));
@@ -312,13 +328,13 @@ export function runSolve(eng: Engine, req: SolveRequest, onProgress?: (p: SolveP
   const emit = (phase: SolvePhase, span: Span) =>
     (done: number, total: number): void => onProgress?.({ phase, fraction: within(span, done, total) });
 
-  const planOpts = withClock(withPolicy(onProgress
+  const planOpts = spared(withClock(withPolicy(onProgress
     ? { onProgress: emit('plan', hasBudget ? LAB_PLAN_THEN_SEARCH : LAB_PLAN_ALONE) }
-    : {}));
+    : {})));
   const result = frontierOrReason(() => ('item' in from
     // The from-item planner has no progress reporting of its own yet; a carved craft therefore shows
     // no movement until the budget search starts.
-    ? optimizeItem(eng, runed(from.item), req.targets, withClock(withPolicy({})))
+    ? optimizeItem(eng, runed(from.item), req.targets, spared(withClock(withPolicy({}))))
     : optimize(eng, from.baseId, from.level, req.targets, runed(planOpts))));
 
   // The same push-forward model the Item tab uses. A white base is not an item you hold, so it gets the
@@ -334,7 +350,7 @@ export function runSolve(eng: Engine, req: SolveRequest, onProgress?: (p: SolveP
   // thing that made a 24-second solve feel like ten minutes in the first place.
   const mdpSpan = hasBudget ? LAB_MDP_THEN_SEARCH : LAB_MDP_ALONE;
   const mdpClock = clockLeft();
-  const markov = markovOrReason(() => optimizeItemMarkov(eng, mdpItem, req.targets, withSweepLimit(withPolicy({
+  const markov = markovOrReason(() => optimizeItemMarkov(eng, mdpItem, req.targets, spared(withSweepLimit(withPolicy({
     // …and the whole solved policy, so the Lab can draw the route from any item a player might buy
     // instead of a white base without solving again. From white only: a held or carved item has no
     // restart, so there is no "instead" to price, and the other solves stay the size they were.
@@ -343,7 +359,7 @@ export function runSolve(eng: Engine, req: SolveRequest, onProgress?: (p: SolveP
     ...(onProgress
       ? { onProgress: (pr: MarkovProgress): void => onProgress({ phase: pr.phase, fraction: within(mdpSpan, toFraction(pr) * 1000, 1000) }) }
       : {}),
-  }))));
+  })))));
 
   if (!hasBudget) {
     // The MODEL finishes the bar now, not planning — planning is the first ~30% of it. Reporting
@@ -354,7 +370,7 @@ export function runSolve(eng: Engine, req: SolveRequest, onProgress?: (p: SolveP
 
   // The slow half of a lab compute when a budget is set — every node it visits is a full Pareto run.
   const want = req.want ?? req.targets;
-  const altOpts = withNodeLimit(withPolicy(onProgress ? { onProgress: emit('alternatives', LAB_SEARCH) } : {}));
+  const altOpts = spared(withNodeLimit(withPolicy(onProgress ? { onProgress: emit('alternatives', LAB_SEARCH) } : {})));
   // The near-miss search runs the SAME planner per relaxed target, so it throws on the same shapes.
   // There is nowhere to carry a message here — `alts: null` already means "that question went
   // unanswered" — and it needs none: whatever the planner objected to, `result.reason` above is

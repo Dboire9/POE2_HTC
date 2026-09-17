@@ -17,6 +17,7 @@ import { ALCHEMY_MOD_COUNT, bossOmenAllowed, desecrationOmenForMod, isEssenceMod
 import type { CostBreakdown, CurrencyPolicy, Prices } from './cost.ts';
 import { cheapestEssenceLevel, essenceLevelOf, planExpectedCost, pricesForBase } from './cost.ts';
 import { combinations, permutations } from './combinatorics.ts';
+import type { Spare } from './slots.ts';
 import { expandSlots, itemLegalCombinations } from './slots.ts';
 import type { LeverCandidate } from './leverDp.ts';
 import { searchSkeletons } from './leverDp.ts';
@@ -219,6 +220,20 @@ export interface OptimizeParetoOptions {
   onProgress?: (done: number, total: number) => void;
   /** Currencies the player doesn't have; no returned plan may use one. */
   policy?: CurrencyPolicy;
+  /**
+   * Positions on the finished item the player doesn't care about (`Spare`, markovState.ts).
+   *
+   * READ BY `optimizeFromItem` ONLY, and that is not an oversight to tidy up. A plan here is a FIXED
+   * SEQUENCE in which every step names the mod it is aimed at, and a free slot cannot make such a
+   * sequence cheaper: an extra "anything" step has probability ~1 but still costs an orb, while a miss
+   * on a NAMED step is a miss whatever you were willing to tolerate elsewhere. The slack only pays when
+   * you can decide AFTER the roll which one was the spare, which is the MDP's job (`markovFromItem`)
+   * and not a route's.
+   *
+   * From an ITEM it does change the answer, because the decision it unlocks is made before any orb is
+   * spent: junk already on the item may be LEFT there rather than annulled off.
+   */
+  spare?: Spare;
 }
 
 /**
@@ -405,14 +420,20 @@ export function optimizePareto(
 const COMBO_TICKS = 100;
 
 /**
- * Run one expansion per slot combination and merge the frontiers into one.
+ * Run one expansion per combination and merge the frontiers into one.
  *
  * Shared by the from-white and from-item planners, which differ only in `run` — the merge itself is
- * the same question either way: of every route that satisfies the slots, which are worth listing?
+ * the same question either way: of every route that satisfies the target, which are worth listing?
+ *
+ * Generic in what a combination IS, because there are now two things a route has to commit to up
+ * front and they compose. Slot alternatives are one ("aim at Cold, or aim at Lightning"); which junk
+ * a free slot lets you leave on the item is the other ("annul that suffix, or live with it"). Both are
+ * choices a fixed sequence cannot defer, both are answered by running it each way and keeping what
+ * survives dominance, and neither needs the merge to know which it is looking at.
  */
-export function mergeParetoRuns(
-  combos: readonly (readonly TierTarget[])[],
-  run: (targets: readonly TierTarget[], onProgress?: (done: number, total: number) => void) => ParetoResult,
+export function mergeParetoRuns<T>(
+  combos: readonly T[],
+  run: (combo: T, onProgress?: (done: number, total: number) => void) => ParetoResult,
   report?: (done: number, total: number) => void,
 ): ParetoResult {
   const all: ParetoPlan[] = [];

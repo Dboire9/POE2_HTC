@@ -11,6 +11,8 @@
 
 import type { ItemState, Mod, PatchData } from '../../engine/src/types.ts';
 import { familiesOf, modTierWeight } from '../../engine/src/pool.ts';
+import type { Spare } from './slots.ts';
+import { NO_SPARE } from './slots.ts';
 
 /** Max prefixes (and suffixes) a Rare item can hold. */
 export const MAX_PER_SIDE = 3;
@@ -310,7 +312,7 @@ export function enumerateStates(
 }
 
 /**
- * The MDP's ACCEPTING CONDITION: every slot filled, and nothing else on the item.
+ * The MDP's ACCEPTING CONDITION: every slot filled, and nothing on the item but what you allowed.
  *
  * This replaced a precomputed set of literal goal keys built from `present === (1<<n)-1`. That form
  * could only express a CONJUNCTION — every named mod, all at once — which is exactly the assumption
@@ -319,15 +321,23 @@ export function enumerateStates(
  * once has four prefixes and `enumerateStates` (rightly) never emits it. The solve then reported the
  * goal unreachable.
  *
- * `blocked`, `jp` and `js` must all be zero, unchanged from before: the finished item is exactly what
- * was asked for, with no off-tier roll to annul and no junk riding along. Two members of one slot both
- * being present is fine and accepted — you wanted either, you got both — though on a target that fills
- * all six slots the side cap makes it unreachable anyway.
+ * `blocked` must be zero whatever `spare` says, and the asymmetry with junk is the point: a blocked bit
+ * is a NAMED target rolled below the tier you asked for. Its family is occupied and your goal is unmet,
+ * so it has to come off no matter how relaxed you are about the rest of the item. Junk is weight in a
+ * family you never named, which is exactly what a free slot is willing to carry.
  *
- * With every slot a singleton this is precisely the old goal set, which `markovFromItem` asserts.
+ * `jp`/`js` within `spare` are accepted. At the default `NO_SPARE` that is `=== 0` — the finished item
+ * is exactly what was asked for, with no off-tier roll to annul and no junk riding along — so every
+ * craft without free slots keeps precisely the goal set it had. Two members of one slot both being
+ * present is fine and accepted — you wanted either, you got both — though on a target that fills all
+ * six slots the side cap makes it unreachable anyway.
+ *
+ * With every slot a singleton and no free slots this is precisely the old goal set, which
+ * `markovFromItem` asserts.
  */
-export function isAccepting(s: McState, slotMasks: readonly number[]): boolean {
-  if (s.blocked !== 0 || s.jp !== 0 || s.js !== 0 || s.rarity !== 'rare') return false;
+export function isAccepting(s: McState, slotMasks: readonly number[], spare: Spare = NO_SPARE): boolean {
+  if (s.blocked !== 0 || s.rarity !== 'rare') return false;
+  if (s.jp > spare.prefixes || s.js > spare.suffixes) return false;
   for (const m of slotMasks) if ((s.present & m) === 0) return false;
   return true;
 }

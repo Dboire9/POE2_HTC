@@ -70,7 +70,7 @@ vi.mock('../../lib/engine', async (importOriginal) => {
   };
 });
 
-import ItemActions from './ItemActions';
+import ItemActions, { ItemWorth } from './ItemActions';
 
 async function loaded() {
   render(<ItemActions />);
@@ -555,6 +555,45 @@ describe('ItemActions — how far along your item really is', () => {
     await computeWith(withWorth({ expectedCost: 956 }));
     await waitFor(() => expect(panelHeading()).toBeInTheDocument());
     expect(screen.queryByText(/of this craft/i)).toBeNull();
+  });
+
+  /**
+   * In the unit of the True expected cost it sits under.
+   *
+   * The reported Sceptre's own figures: 725,254 ex expected — "1,733 div" at 418.4 — against 886,449.5
+   * from an empty Magic base. Formatted alone, the 161,195.5 ex difference fitted under the chaos
+   * ceiling and read "saves 3,321 chaos", one line below the div figure.
+   */
+  it('writes the saving in the unit of the cost above it', () => {
+    render(<ItemWorth
+      markov={withWorth({ expectedCost: 725_254, bareCost: 886_449.5 }) as never}
+      rates={{ chaos: 48.54, divine: 418.4 }}
+    />);
+    expect(screen.getByText(/has done 18\.2% of this craft/i)).toBeInTheDocument();
+    expect(screen.getByText('385 div')).toBeInTheDocument();
+    expect(screen.queryByText(/chaos/)).toBeNull();
+  });
+});
+
+// ── A step planner that declines says why ────────────────────────────────────
+describe('ItemActions — a declined step planner says why', () => {
+  /**
+   * Reported on a Magic Sceptre with two Alloys to add: the model answered, and the routes panel under
+   * it — opened by hand — said no route reached the target, "usually … more mods than fit, or a tier
+   * gated above the item level". Neither was the cause. This tab passes that hint on every render,
+   * and the hint used to outrank the planner's own reason, so a declined craft could never say why here.
+   */
+  it('shows the planner’s own reason under the routes, not the tab’s generic hint', async () => {
+    mocks.optimizeItem.mockImplementation(() => { throw new Error('because of its shape'); });
+    const user = userEvent.setup();
+    await loaded();
+    await user.click(screen.getByRole('button', { name: /Full plan to a target/i }));
+    await user.selectOptions(screen.getByRole('combobox', { name: /Add a target mod/i }), 'np');
+    await user.click(screen.getByRole('button', { name: /Compute plan/i }));
+    await user.click(await screen.findByRole('button', { name: /Step-by-step routes/i }));
+    expect(await screen.findByText(/because of its shape/)).toBeInTheDocument();
+    expect(screen.queryByText(/No route reaches this target from your item/)).toBeNull();
+    expect(screen.queryByText(/every path scored/i)).toBeNull();
   });
 });
 

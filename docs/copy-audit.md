@@ -365,3 +365,17 @@ panel beside it does better, which is the shape of claim this audit exists to ke
 | 53 | "poe2htc was updated since you opened this tab" | `AppUpdatedNotice.tsx` | **OK** | Shown only for `AppUpdated`, which `failureOf` (engineClient.ts) returns only when `servesNewerBuild` finds that the live `index.html` no longer loads this tab's hashed entry script. Every doubt — no hashed entry, a failed or non-OK probe — answers "not updated", so a real crash is never relabelled as this |
 | 54 | "the prices every morning" | `AppUpdatedNotice.tsx` | **OK** | `refresh-prices.yml` runs on cron `0 6 * * *` and merges to `main` (#26 landed 06:21 UTC on 2026-09-17, #27 06:22 on 09-18), and it renames `prices.json` and every chunk that names it. Phrased as an example ("updated often — the prices every morning"), because a code deploy has the same effect |
 | 55 | "Your targets are saved in this browser and come back with it" | `AppUpdatedNotice.tsx` | **OK, with the app's one standing exception** | Every workspace change is written to `localStorage` in `setWorkspace` → `persist`, and read back on load. The exception is storage the browser blocks (some private modes), where `persist` fails silently app-wide — not a claim this notice introduces. Verified end to end: a redeploy under an open tab, Reload, all three targets back |
+
+## A step planner that declines (2026-09-18)
+
+Reported from the Item tab: a Magic Sceptre holding two of its five targets, the other three including
+two Alloys, with the last suffix left free. The model answered — 1,733 div — and the routes panel under
+it said "No achievable plan — every path scored 0%" and "usually the target needs more mods than fit,
+or a tier gated above the item level". No path had been scored, and neither cause applied: the step
+planner had declined the craft, and its own sentence was never shown, because the tab's hint outranked it.
+
+| # | Claim | Where | Verdict | Traced to |
+|---|---|---|---|---|
+| 56 | "No step-by-step route for this craft." | `FrontierView.tsx`, and the Lab's live region | **OK** | Shown only when `result.reason` is set, which only `frontierOrReason` (solve.ts) sets — when the step planner threw before searching (`plansEvaluated: 0`). It replaces "every path scored 0%" in exactly that case, which claimed a search that never ran |
+| 57 | "The true expected cost above is worked out a different way and isn't limited to fixed routes: if it shows a number, the craft is reachable." | `FrontierView.tsx` | **OK, conditional by design** | The true-cost card renders only when the model is `applicable && feasible`, and `feasible` means a goal state is reachable from the start in its lattice. "If it shows a number" keeps the sentence true on a craft the model refused as well. On the reported craft it had answered 725,254 ex |
+| 58 | "an Alloy or Perfect Essence removes a random modifier as it adds its own, so a route needs a modifier you don't want on the item for each one to take instead" | `fromItem.ts`, rendered by `FrontierView.tsx` | **OK — a PLANNER LIMIT said as one** | "A route" is the step planner's fixed sequence: `transformSequences` pairs each perfect target with a junk mod ALREADY on the item (`orderedSelections(junk, …)`), and cannot roll one on first. The game half — removes a random modifier as it adds — is the Perfect Essence rule both planners implement; a Crystallisation omen narrows it to one side and it stays random there. The model has no such limit and rolls the throwaway itself, which row 57 points to |

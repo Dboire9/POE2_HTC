@@ -38,6 +38,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   site was updated and offers a **Reload**, which keeps your targets.
 - **A failed data download no longer breaks the page until you reload** — the next plan tries again —
   and when one fails, the message now names the file and the error instead of a JSON parse error.
+- **The Item tab's step-by-step routes never said why they had none.** When the step planner can't lay
+  out a craft, the panel showed a generic guess — "usually the target needs more mods than fit, or a
+  tier gated above the item level" — under a heading claiming every path had scored 0%. Reported on a
+  Magic Sceptre with two Alloys to add: an Alloy removes a random modifier as it adds its own, a
+  step route can only hand it one already on the item, and that item had none to spare. The panel now
+  gives that reason, names the Alloy, and points to the true expected cost above, which isn't limited to
+  fixed routes and had already answered the craft (1,733 div).
+- **"Your item has done X% of this craft" now uses the same unit as the cost above it.** It could read
+  "saves 3,321 chaos" one line under "1,733 div".
 
 ## [1.1.0] - 2026-09-16
 

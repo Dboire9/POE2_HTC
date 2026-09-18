@@ -462,8 +462,10 @@ const EngineLab: React.FC = () => {
 
   // What a screen reader should hear when a solve lands. Derived, not stored: it must never describe
   // a result that is no longer on screen.
+  // A planner that declined scored nothing, so it must not be announced as one whose every route scored
+  // zero — the same distinction FrontierView draws on screen, heard the same way.
   const outcome = !result ? '' : result.frontier.length === 0
-    ? 'No achievable plan — every route scored zero.'
+    ? (result.reason ? 'No step-by-step route for this craft.' : 'No achievable plan — every route scored zero.')
     : `${result.frontier.length} plan${result.frontier.length === 1 ? '' : 's'} found.`
       + (() => {
         // Whatever the top card says, said the same way. This is the one channel a screen-reader user

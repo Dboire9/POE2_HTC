@@ -37,6 +37,30 @@ describe('FrontierView — the empty state does not overclaim', () => {
     expect(screen.queryByText(/tier gated above the item/i)).toBeNull();
   });
 
+  /**
+   * …but a planner that DECLINED outranks the caller, because the caller's hint explains a search.
+   *
+   * Reported on the Item tab, which passes a hint on every render: a Magic Sceptre holding two of its
+   * five targets, the other three including two Alloys. The model answered (1,733 div); the step
+   * planner declined — every route draws an Alloy's removal from a mod already on the item, and this
+   * one had none to spare. The player saw neither fact. The heading said every path had scored 0%,
+   * which no path had, and the tab's "needs more mods than fit, or a tier gated above the item
+   * level" sat where the planner's own sentence belonged.
+   */
+  it('lets a declined planner’s own reason outrank the caller’s hint', () => {
+    const declined: EngineResult = {
+      ...empty, plansEvaluated: 0, reason: 'the step planner can’t lay out this craft: because of its shape',
+    };
+    render(<FrontierView result={declined} emptyHint={<p>Because of the thing.</p>} />);
+    expect(screen.getByText(/because of its shape/)).toBeInTheDocument();
+    expect(screen.queryByText('Because of the thing.')).toBeNull();
+    // It declined: it did not search and score everything at zero, and must not say it did.
+    expect(screen.getByText('No step-by-step route for this craft.')).toBeInTheDocument();
+    expect(screen.queryByText(/every path scored/i)).toBeNull();
+    // …and it sends the reader to the model, which is not limited to fixed routes.
+    expect(screen.getByText(/if it shows a number, the craft is reachable/i)).toBeInTheDocument();
+  });
+
   // Regression from the same sweep: "1 plans evaluated".
   // textContent has NO separators between elements, so this phrase is flanked by word characters on
   // both sides ("…orb strengthchecked 1 planNo achievable plan…"). Neither a leading nor a trailing

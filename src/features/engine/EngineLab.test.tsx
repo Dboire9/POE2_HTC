@@ -221,6 +221,19 @@ describe('EngineLab — the empty state gives the real reason', () => {
     // …and must own this as a planner limit, not tell the player the craft can't be done.
     expect(screen.getByText(/In game you can still do this/i)).toBeInTheDocument();
   });
+
+  // A planner that DECLINED scored nothing. The live region used to announce every such craft as
+  // "every route scored zero" — the claim the screen stopped making, still made to a screen reader.
+  it('announces a declined planner as declined, not as a search that scored zero', async () => {
+    mocks.optimize.mockImplementation(() => { throw new Error('because of its shape'); });
+    const user = userEvent.setup();
+    await loaded();
+    await user.click(addButton('Normal Prefix'));
+    await user.click(screen.getByRole('button', { name: /Find plans/i }));
+    const said = await screen.findByText('No step-by-step route for this craft.', { selector: '[role="status"]' });
+    expect(said).not.toHaveTextContent(/scored zero/);
+    expect(screen.getByText(/because of its shape/)).toBeInTheDocument(); // the planner's sentence, on screen
+  });
 });
 
 describe('EngineLab — work survives a tab switch', () => {

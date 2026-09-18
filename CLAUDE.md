@@ -967,7 +967,11 @@ React web app: user inputs target item (base + mods + tiers), gets optimal craft
   blanket catch; both carry the message through. `EngineResult.reason` outranks `FrontierView`'s generic
   "nothing this search tried worked", because a planner that DECLINED and a search that RAN and found
   nothing are different answers — telling the second reader to lower a tier is advice, telling the first
-  is a wrong diagnosis.
+  is a wrong diagnosis. **It outranks the caller's `emptyHint` too** (2026-09-18): every hint a tab
+  passes explains a search that RAN, and the Item tab passes one on EVERY render, so while the hint came
+  first a declined craft could never say why there. Reported on a Magic Sceptre with two Alloys to add
+  — 1,733 div of true expected cost above, and below it "every path scored 0%" plus "a tier gated above
+  the item level", neither true. A declined planner gets its own heading and points at the model.
 - **A held item's step-route card shows no expected-cost total.** `planExpectedCost` divides a real
   per-run cost by the plan's success chance, and at ~7e-13 that is billions of divine — right, and not
   a budget. `FrontierView`'s `freeRestart={false}` drops `expected` and `expectedAttempts` and shows

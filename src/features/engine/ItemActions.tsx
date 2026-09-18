@@ -21,7 +21,7 @@ import { SearchEffort, SearchEffortHint } from './SearchEffort';
 import { useField } from '../../lib/workspace';
 import { importToItem } from '../../lib/importItem';
 import { MIXED_TIER_NOTE, mixedTierAlternatives, nextSlotId, roomOnSide, slotsOf, whyNotAdd } from '../../lib/targetSlots';
-import { exactExalts, formatBoundedCost, formatCost, type Rates } from '../../lib/currency';
+import { exactExalts, formatBoundedCost, formatIn, pickUnit, type Rates } from '../../lib/currency';
 import FrontierView from './FrontierView';
 import PolicyGraph from './PolicyGraph';
 import PriceBasisNote from './PriceBasisNote';
@@ -66,8 +66,12 @@ const FOCUS_RING = 'focus-visible:outline-none focus-visible:ring-2 focus-visibl
  *    come off, and that is worth saying plainly rather than rendering as a negative percentage.
  *  - **State the obvious.** A bare start IS the baseline, so there is nothing to compare and the row
  *    does not appear — which is also what silences it on the Lab tab, where every craft starts bare.
+ *
+ * Its figure is written in the unit of the True expected cost it sits under. Formatted on its own it
+ * took whichever unit suited the smaller number, so a player read "saves 3,321 chaos" one line below
+ * "1,733 div" — the side-by-side conversion `pickUnit` exists to spare them.
  */
-const ItemWorth: React.FC<{ markov: EngineMarkovResult; rates?: Rates }> = ({ markov, rates }) => {
+export const ItemWorth: React.FC<{ markov: EngineMarkovResult; rates?: Rates }> = ({ markov, rates }) => {
   const bare = markov.bareCost;
   if (bare === undefined || markov.bound !== 'exact') return null;
   const start = markov.nodes.find((n) => n.isStart);
@@ -77,6 +81,7 @@ const ItemWorth: React.FC<{ markov: EngineMarkovResult; rates?: Rates }> = ({ ma
 
   const worth = bare - markov.expectedCost;
   const share = worth / bare;
+  const unit = pickUnit(markov.expectedCost, rates); // the headline's own choice, via formatBoundedCost
   return (
     <p className="rounded-md border border-border bg-muted/40 px-3 py-2 text-[11px] text-muted-foreground">
       {worth > 0 ? (
@@ -84,7 +89,7 @@ const ItemWorth: React.FC<{ markov: EngineMarkovResult; rates?: Rates }> = ({ ma
           <strong className="text-foreground">
             Your item has done {share < 0.001 ? 'under 0.1' : (share * 100).toFixed(1)}% of this craft
           </strong>{' '}
-          — it saves <span title={exactExalts(worth)}>{formatCost(worth, rates)}</span> against the same
+          — it saves <span title={exactExalts(worth)}>{formatIn(unit, worth)}</span> against the same
           base carrying none of these mods. The rest is in what you still need: cost is back-loaded,
           because every mod already on the item leaves fewer open slots for the next one to land in.
           <strong> Counting mods overstates how far along you are.</strong>
@@ -92,7 +97,7 @@ const ItemWorth: React.FC<{ markov: EngineMarkovResult; rates?: Rates }> = ({ ma
       ) : (
         <>
           <strong className="text-foreground">Your item is behind a clean start</strong> — finishing it
-          costs <span title={exactExalts(-worth)}>{formatCost(-worth, rates)}</span> more than the same
+          costs <span title={exactExalts(-worth)}>{formatIn(unit, -worth)}</span> more than the same
           base carrying none of these mods, because what you do not want has to come off first, and an
           Annulment takes a mod at random rather than the one you picked.
         </>

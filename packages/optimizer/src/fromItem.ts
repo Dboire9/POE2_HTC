@@ -181,9 +181,10 @@ function removableJunk(start: ItemState, targetIds: readonly string[]): { prefix
  * count is bounded by the item rather than by a cap: at most 2^3 per side, and in practice two or four,
  * since a free slot can only exist where the side had room to spare.
  *
- * A set leaving too few sacrificial mods for the Perfect Essences is dropped rather than run — one
- * removes a random mod as it adds, and the planner throws when there are not enough. The empty set
- * always survives that filter, so a craft that really is short of them still throws for the caller.
+ * A NON-EMPTY set leaving too few sacrificial mods for the Perfect Essences is dropped rather than run —
+ * one removes a random mod as it adds, and the planner throws when there are not enough. The empty set
+ * is exempt, so a craft that is short of them even with nothing kept still reaches the planner and
+ * throws ITS reason for the caller, rather than coming back as no runs at all.
  */
 function keepSets(
   data: PatchData, start: ItemState, targetIds: readonly string[], spare: Spare,
@@ -201,7 +202,8 @@ function keepSets(
   const sets: ReadonlySet<string>[] = [];
   for (const p of upTo(junk.prefixes, spare.prefixes)) {
     for (const s of upTo(junk.suffixes, spare.suffixes)) {
-      if (junk.prefixes.length + junk.suffixes.length - p.length - s.length < perfects) continue;
+      const kept = p.length + s.length;
+      if (kept > 0 && junk.prefixes.length + junk.suffixes.length - kept < perfects) continue;
       sets.push(new Set([...p, ...s]));
     }
   }
@@ -276,10 +278,16 @@ function fromItemForOneCraft(
     const s = resolveMod(data, id).source;
     return s !== 'perfect_essence' && s !== 'desecrated';
   });
+  // Said in the player's terms. The earlier wording ("need 2 Perfect Essence(s) but only 0 spare mod(s)
+  // to sacrifice") never named an Alloy, which is what the picker badges these targets as, and it
+  // read as a flaw in the craft rather than in this planner: every route here draws the essence's
+  // removal from a mod already on the item, so it cannot roll one on first for it to take. The true
+  // expected cost can, and does — which is why the panel rendering this points there.
   if (missingPerfect.length > junk.length) {
     throw new Error(
-      `need ${missingPerfect.length} Perfect Essence(s) but only ${junk.length} spare mod(s) to sacrifice — `
-      + 'a Perfect Essence removes one of your existing mods as it adds, so keep a removable (junk) mod per perfect target',
+      'an Alloy or Perfect Essence removes a random modifier as it adds its own, so a route needs a modifier '
+      + `you don’t want on the item for each one to take instead — this craft adds ${missingPerfect.length} `
+      + `and your item has ${junk.length === 0 ? 'none' : `only ${junk.length}`}`,
     );
   }
 

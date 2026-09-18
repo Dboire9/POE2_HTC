@@ -147,3 +147,39 @@ describe('the Spirit Star Sceptre, as photographed', () => {
     expect(optimizePareto(data, prices, runed, SPIRIT_STAR).frontier.length).toBeGreaterThan(0);
   }, 120_000);
 });
+
+/**
+ * The Spirit Star Sceptre again, part-way, as a player reported it from the Item tab: a MAGIC Sceptre
+ * holding T1 ally damage and T1 minion levels, both wanted, asked for Spirit and the two Alloys with
+ * the last suffix left free.
+ *
+ * The model solves it — it rolls something unwanted first and lets the Alloy take that. The step
+ * planner cannot: every route draws an Alloy's removal from a modifier ALREADY on the item, and this
+ * one holds none it doesn't want. What the planner owes the player is that sentence, in their terms. It
+ * used to say "need 2 Perfect Essence(s) but only 0 spare mod(s) to sacrifice", which never named an
+ * Alloy — the badge on both targets — and read as a flaw in the craft rather than in the planner.
+ */
+describe('an Alloy needs a modifier on the item to take', () => {
+  const best = (modId: string) => ({ modId, tierName: tierName(modId) });
+  const magic: ItemState = {
+    base: runed, level: 82, rarity: 'magic', prefixes: [best(ALLY_DAMAGE)], suffixes: [best(MINION_LEVEL)],
+  };
+  const wanted = [ALLY_DAMAGE, MINION_LEVEL, ALLOY_CHANCE, ALLOY_STACKS, SPIRIT].map((modId) => ({ modId }));
+  const freeSuffix = { spare: { prefixes: 0, suffixes: 1 } };
+
+  // Through the free slot on purpose: that is the path the report took, and the one that must still
+  // reach the planner's refusal rather than stop at the keep-sets built for it.
+  it('names the Alloy, and says the item has nothing for it to take', () => {
+    expect(() => optimizeFromItem(data, prices, magic, wanted, freeSuffix))
+      .toThrow(/Alloy or Perfect Essence removes a random modifier .* adds 2 and your item has none$/);
+  });
+
+  it('counts what the item does hold', () => {
+    const family = (id: string) => data.mods.get(id)!.family;
+    const taken = [MINION_LEVEL, ALLOY_STACKS].map(family);
+    const junk = sceptre.pools.normal.suffixes.find((id) => !taken.includes(family(id)))!;
+    const held: ItemState = { ...magic, rarity: 'rare', suffixes: [...magic.suffixes, best(junk)] };
+    expect(() => optimizeFromItem(data, prices, held, wanted, freeSuffix))
+      .toThrow(/adds 2 and your item has only 1$/);
+  });
+});

@@ -47,22 +47,43 @@ const FrontierView: React.FC<{
 
     {result.frontier.length === 0 ? (
       <Card className="p-6 text-center text-sm text-muted-foreground space-y-1">
-        <p className="font-medium text-foreground">No achievable plan — every path scored 0%.</p>
-        {/* The FALLBACK reason, used only when the caller has nothing more specific. It must not
-            assert that the target is impossible: an empty frontier means THIS SEARCH found nothing,
-            which also happens when the craft is legal but outside what the planner explores (the
-            desecration filler route, for one). Naming the likely cause and admitting it is a guess
-            beats a confident wrong diagnosis that sends the player off adjusting a tier. */}
-        {/* `result.reason` outranks the generic text because they answer different questions. The
-            fallback below explains a search that RAN and found nothing; a reason means the planner
-            declined the craft's shape before searching at all, and telling that reader to try a lower
-            tier would send them adjusting something that was never the problem. */}
-        {emptyHint ?? (result.reason ? <p>{result.reason}</p> : (
-          <p>Nothing this search tried worked. The usual cause is a target tier gated above the item
-            level, or a mod that can’t roll on this base — try a lower target tier or a higher item
-            level. If neither applies, the craft may still be possible by a route the planner doesn’t
-            explore.</p>
-        ))}
+        {/* Two different empty states, told apart by `result.reason`.
+
+            A reason means the planner DECLINED the craft's shape before searching at all. It outranks
+            the caller's `emptyHint` as well as the generic text, because every caller hint explains a
+            search that RAN and found nothing — the Item tab passes one on every render, so while the
+            hint came first, its "needs more mods than fit, or a tier gated above the item level" was
+            shown over the planner's own sentence and a declined craft could never say why. A player
+            reported exactly that: two Alloys on a Magic Sceptre, 1,733 div of true expected cost
+            above, and below it a heading claiming every path had scored 0% when none had been scored.
+
+            So the declined state gets its own heading, and points at the true expected cost — which
+            is solved a different way, is not limited to fixed routes, and on that craft had already
+            answered. "If it shows a number" keeps the pointer true on a craft the model refused too. */}
+        {result.reason ? (
+          <>
+            <p className="font-medium text-foreground">No step-by-step route for this craft.</p>
+            <p>{result.reason}</p>
+            <p>The <strong>true expected cost</strong> above is worked out a different way and isn’t
+              limited to fixed routes: if it shows a number, the craft is reachable.</p>
+          </>
+        ) : (
+          <>
+            <p className="font-medium text-foreground">No achievable plan — every path scored 0%.</p>
+            {/* The FALLBACK reason, used only when the caller has nothing more specific. It must not
+                assert that the target is impossible: an empty frontier means THIS SEARCH found
+                nothing, which also happens when the craft is legal but outside what the planner
+                explores (the desecration filler route, for one). Naming the likely cause and
+                admitting it is a guess beats a confident wrong diagnosis that sends the player off
+                adjusting a tier. */}
+            {emptyHint ?? (
+              <p>Nothing this search tried worked. The usual cause is a target tier gated above the item
+                level, or a mod that can’t roll on this base — try a lower target tier or a higher item
+                level. If neither applies, the craft may still be possible by a route the planner doesn’t
+                explore.</p>
+            )}
+          </>
+        )}
       </Card>
     ) : (
       <div className="space-y-3">

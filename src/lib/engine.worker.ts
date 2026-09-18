@@ -24,6 +24,24 @@ export type WorkerResponse =
 
 const post = (msg: WorkerResponse): void => { (self as unknown as DedicatedWorkerGlobalScope).postMessage(msg); };
 
+/*
+ * Start loading the data the moment the worker exists, not on its first message.
+ *
+ * `prewarm()` spawns this worker at page load "so the first Compute doesn't also pay for startup" — but
+ * the part of startup that matters is the fetch, and it did not begin until the first request. That gap
+ * is not only slow, it is where a real failure lived: the data URLs are content-hashed, the price sheet
+ * is replaced every morning, and a tab opened at night and first computed after the refresh asked the
+ * NEW deployment for the OLD file — `Unexpected token 'T', "The page c"... is not valid JSON`, seen in
+ * the wild at 07:26 on a tab opened at 00:10, an hour after the 06:22 refresh. Fetching now does it
+ * while the page and its files are the same build, and it is almost always an HTTP-cache hit, because
+ * the main thread has just fetched the same three URLs.
+ *
+ * The rejection is swallowed HERE only so it is not reported as unhandled before anyone asks. It is not
+ * lost: `loadEngine` forgets a failed load, so the first request retries it and surfaces whatever
+ * happens then.
+ */
+void loadEngine().catch(() => undefined);
+
 self.onmessage = async (e: MessageEvent<WorkerRequest>): Promise<void> => {
   const { id, req } = e.data;
   try {

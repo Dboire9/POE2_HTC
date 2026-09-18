@@ -502,6 +502,21 @@ React web app: user inputs target item (base + mods + tiers), gets optimal craft
 
 ## Gotchas
 
+- **EVERY DAY IS A DEPLOY, so an open tab goes stale every morning** (2026-09-18). All assets are
+  content-hashed; `refresh-prices.yml` (cron `0 6 * * *`) rewrites `prices.json`, which renames it AND
+  every chunk that names it — the entry and the solver worker included. Vercel's new deployment serves
+  none of the old names; a missing file is the plain-text 404 "The page could not be found". So a tab
+  opened before 06:00 UTC that fetches anything lazily afterwards gets a 404. Three consequences are
+  load-bearing: (1) the worker calls `loadEngine()` at module load, not on its first message, so its
+  data arrives while page and files are one build — the reported failure (`Unexpected token 'T', "The
+  page c"...`, a tab opened 00:10, first Compute 07:26) was exactly that gap; (2) a Cancel respawns the
+  worker from its hashed URL, which 404s on a stale tab, so `onerror` DROPS a worker that fails while
+  idle — keeping it made every later solve post into a dead worker and spin forever; (3) worker failures
+  go through `failureOf`, which asks `servesNewerBuild` (does the live `index.html` still load this
+  tab's hashed entry?) before reporting — a yes is `AppUpdated`, shown as a Reload notice and NOT sent to
+  Sentry, where it would otherwise arrive daily as a "solver crash". Any new lazy fetch or chunk is
+  subject to the same skew; route its failure through the same check.
+
 - **A slot's alternatives are made cheap TWO different ways, and they are not interchangeable.**
   `markovSymmetry.ts` decides which. **Same-family** alternatives (`increased Fire / Cold / Lightning`
   are one family) can never be on the item together and behave identically once any of them lands, so

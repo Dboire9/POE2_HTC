@@ -12,7 +12,8 @@ import {
   type EngineBase, type EngineMod, type ExistingItem, type ItemModInput, type TargetInput,
   type EngineResult, type EngineMarkovResult,
 } from '../../lib/engine';
-import { solve, isCancelled, prewarm } from '../../lib/engineClient';
+import { solve, isAppUpdated, isCancelled, prewarm } from '../../lib/engineClient';
+import AppUpdatedNotice from './AppUpdatedNotice';
 import type { SolveProgress as Progress } from '../../lib/solve';
 import { toExcludedKeys, useExclusions } from '../../lib/currencyPrefs';
 import { EFFORT_PRESETS, isTopEffort, limitsFor, useEffort } from '../../lib/searchEffort';
@@ -181,6 +182,8 @@ const ItemActions: React.FC = () => {
   const [plan, setPlan] = useState<EngineResult | null>(null);
   const [markov, setMarkov] = useState<EngineMarkovResult | null>(null);
   const [planErr, setPlanErr] = useState<string | null>(null);
+  // Set when a solve failed because the site was redeployed under this tab — see AppUpdatedNotice.
+  const [stale, setStale] = useState(false);
   const [computing, setComputing] = useState(false);
   const [progress, setProgress] = useState<Progress | null>(null);
   // How long the last solve took. The progress bar carries a live timer, but it unmounts on completion,
@@ -568,7 +571,7 @@ const ItemActions: React.FC = () => {
     const runId = ++runIdRef.current;
     const current = () => runIdRef.current === runId;
 
-    setComputing(true); setPlanErr(null); setProgress(null); setTookMs(null);
+    setComputing(true); setPlanErr(null); setStale(false); setProgress(null); setTookMs(null);
     const startedAt = Date.now();
     const handle = solve(
       {
@@ -590,7 +593,10 @@ const ItemActions: React.FC = () => {
       })
       .catch((e) => {
         if (!current() || isCancelled(e)) return; // cancelling is what the user asked for, not an error
-        setPlan(null); setMarkov(null); setPlanErr(e instanceof Error ? e.message : String(e));
+        setPlan(null); setMarkov(null);
+        // A redeploy under this tab, not a planner failure — see AppUpdatedNotice.
+        if (isAppUpdated(e)) { setStale(true); return; }
+        setPlanErr(e instanceof Error ? e.message : String(e));
       })
       .finally(() => {
         if (!current()) return;
@@ -1082,6 +1088,7 @@ const ItemActions: React.FC = () => {
             and they are not.
           </p>
 
+          {stale && <AppUpdatedNotice />}
           {planErr && (
             <Card className="p-4">
               {/* Says "plan", not "craft" — the failure is this planner's, and some of the messages

@@ -22,6 +22,52 @@ export class SolveCancelled extends Error {
 
 export const isCancelled = (e: unknown): boolean => e instanceof SolveCancelled;
 
+/**
+ * The site was redeployed after this tab loaded, and the solve needed a file the new deployment no
+ * longer has. Not a failure of the solver, and not reported as one — the only fix is a reload.
+ *
+ * It happens every day, not only when code ships: every asset URL is content-hashed, the price sheet
+ * is refreshed each morning, and that changes the hash of `prices.json` and of every chunk that names
+ * it — the entry and the worker included. A tab left open overnight therefore points at files that
+ * are gone. First seen as `Unexpected token 'T', "The page c"... is not valid JSON` (Vercel's text 404
+ * page, parsed as the price sheet), reported as a solver crash.
+ */
+export class AppUpdated extends Error {
+  constructor() {
+    super('poe2htc was updated since this tab was opened');
+    this.name = 'AppUpdated';
+  }
+}
+
+export const isAppUpdated = (e: unknown): boolean => e instanceof AppUpdated;
+
+/**
+ * Is the site now serving a different build from the one this tab is running?
+ *
+ * Asked only after something has already failed, so it costs nothing on the happy path. The test is
+ * the one fact that changes with every deployment that could strand a tab: the entry script's hashed
+ * name. This tab's page still carries its own; the live `index.html` carries the current one. A
+ * mismatch is a redeploy — which covers every way skew breaks a solve at once (the data files, the
+ * worker script a cancel respawns, a lazy chunk) without having to recognise each one's error text.
+ *
+ * Every doubt answers NO. A dev server, a failed probe, or a page with no hashed entry reads as "not
+ * stale", so a genuine crash is still reported rather than hidden behind a guess.
+ */
+export async function servesNewerBuild(
+  doc: Pick<Document, 'querySelector'> = document,
+  fetcher: typeof fetch = fetch,
+): Promise<boolean> {
+  const src = doc.querySelector('script[type="module"][src]')?.getAttribute('src');
+  if (!src || !/-[\w-]{6,}\.js$/.test(src)) return false; // no hashed entry: dev, tests — nothing to compare
+  try {
+    const res = await fetcher('/', { cache: 'no-store' });
+    if (!res.ok) return false;
+    return !(await res.text()).includes(src);
+  } catch {
+    return false;
+  }
+}
+
 export interface SolveHandle {
   readonly promise: Promise<SolveResult>;
   /** Stop the solve. The promise rejects with SolveCancelled, which callers should swallow. */
@@ -64,6 +110,19 @@ function fromWorker(message: string, stack: string | undefined, origin: string):
   return err;
 }
 
+/**
+ * What a worker failure should become: `AppUpdated` when the site has moved on under this tab, and a
+ * reported `SolverError` otherwise.
+ *
+ * The staleness check runs FIRST so a redeploy never reaches the issue tracker. It would otherwise land
+ * there daily, as a "crash", for every player who left the tab open across the morning price refresh —
+ * burying the reports that `SolverError` exists to surface.
+ */
+async function failureOf(message: string, stack: string | undefined, origin: string): Promise<Error> {
+  if (await servesNewerBuild()) return new AppUpdated();
+  return fromWorker(message, stack, origin);
+}
+
 function spawn(): Worker {
   const w = new Worker(new URL('./engine.worker.ts', import.meta.url), { type: 'module' });
   w.onmessage = (e: MessageEvent<WorkerResponse>) => {
@@ -74,15 +133,29 @@ function spawn(): Worker {
     const job = inFlight;
     inFlight = null;
     if (msg.type === 'done') { job.resolve(msg.result); return; }
-    job.reject(fromWorker(msg.message, msg.stack, 'worker-solve'));
+    void failureOf(msg.message, msg.stack, 'worker-solve').then(job.reject);
   };
   w.onerror = (e) => {
     const job = inFlight;
     inFlight = null;
+    /*
+     * A worker that failed is not kept.
+     *
+     * The case that forced this: a Cancel respawns the worker, and on a tab older than the live site
+     * its hashed script is gone. The load fails at once — while NOTHING is in flight — so there was no
+     * job to reject and the error went nowhere; the worker stayed in `worker`, and every later solve
+     * was posted to something that would never answer. Measured end to end: a redeploy under an open
+     * tab, then Cancel, then Compute, spun for good. Dropping it means the next solve spawns afresh,
+     * and that one's failure lands while its job IS in flight, so `failureOf` gets to name it.
+     */
+    if (worker === w) { w.terminate(); worker = null; }
     // No `stack` here: `onerror` fires for failures the worker could not catch itself — a module that
     // would not load, a crash in the runtime — so the ErrorEvent's own location is all there is.
     const where = e.filename ? ` (${e.filename}:${e.lineno})` : '';
-    job?.reject(fromWorker(`${e.message || 'the solver crashed'}${where}`, undefined, 'worker-fatal'));
+    // Where the OTHER half of skew lands: a cancel respawns the worker, and after a redeploy its hashed
+    // script is gone, so it never starts — an ErrorEvent with no message and nothing to recognise.
+    // `failureOf` asks the site rather than the event, which is why it can tell this apart from a crash.
+    if (job) void failureOf(`${e.message || 'the solver crashed'}${where}`, undefined, 'worker-fatal').then(job.reject);
   };
   return w;
 }

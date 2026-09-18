@@ -82,6 +82,22 @@ export type {
 export interface Engine { data: PatchData; prices: Prices; }
 let cache: Promise<Engine> | null = null;
 
+/**
+ * A data file's body as JSON, or an error that says which file and what the server answered.
+ *
+ * `Response.json()` on a non-OK response parses whatever the server sent, and a missing file on Vercel
+ * is the plain-text page "The page could not be found". That surfaced in the issue tracker as
+ * `Unexpected token 'T', "The page c"... is not valid JSON` — true, and useless: it names neither the
+ * file nor the 404, which is the whole story. The usual cause is a tab older than the live site: these
+ * URLs are content-hashed and the daily price refresh replaces `prices.json`, so a tab opened before it
+ * asks for a file the new deployment no longer has. `engineClient` recognises that case and tells the
+ * player to reload; this makes sure every OTHER case at least says what failed.
+ */
+async function jsonOf<T>(res: Response, what: string): Promise<T> {
+  if (!res.ok) throw new Error(`couldn't load ${what} (HTTP ${res.status} ${res.statusText || ''}`.trimEnd() + ')');
+  return res.json() as Promise<T>;
+}
+
 /** Load and index the patch snapshot once; subsequent calls reuse the same promise. */
 export function loadEngine(): Promise<Engine> {
   if (!cache) {
@@ -98,12 +114,17 @@ export function loadEngine(): Promise<Engine> {
       // `indexPrices` unchecked — the one place a data refresh could change a shape and nothing would
       // complain until a probability came out wrong. Named here, at the boundary they cross.
       const [mods, bases, prices] = await Promise.all([
-        modsRes.json() as Promise<ModsFile>,
-        fetch(basesUrl).then((r) => r.json() as Promise<BasesFile>),
-        fetch(pricesUrl).then((r) => r.json() as Promise<PricesFile>),
+        jsonOf<ModsFile>(modsRes, 'the modifier data'),
+        fetch(basesUrl).then((r) => jsonOf<BasesFile>(r, 'the base-item data')),
+        fetch(pricesUrl).then((r) => jsonOf<PricesFile>(r, 'the price sheet')),
       ]);
       return { data: indexPatch(mods, bases), prices: indexPrices(prices) };
     })();
+    // A FAILED load must not be memoised. It was: one dropped request left `cache` holding a rejected
+    // promise for the life of the page, so every later Compute failed identically with no network
+    // traffic at all. Forgetting it lets the next call try again, which is the right answer to a
+    // transient failure and costs nothing when the failure is permanent.
+    cache.catch(() => { cache = null; });
   }
   return cache;
 }

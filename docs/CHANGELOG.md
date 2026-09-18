@@ -28,6 +28,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   Free slots travel in share links under their own link version, so an older build refuses a link
   rather than quoting the strict craft's price for it.
 
+### Fixed
+
+- **A tab left open overnight failed on its first plan.** The site is updated every morning when the
+  prices refresh, and a tab opened before that asked the new site for the old price file — which no
+  longer exists — then failed with a meaningless error. The first plan in an old tab now works,
+  because the data is loaded as soon as the page opens rather than on the first click.
+- **In a tab older than the site, a cancelled plan then hung forever.** The next plan now says the
+  site was updated and offers a **Reload**, which keeps your targets.
+- **A failed data download no longer breaks the page until you reload** — the next plan tries again —
+  and when one fails, the message now names the file and the error instead of a JSON parse error.
+
 ## [1.1.0] - 2026-09-16
 
 ### Added

@@ -10,7 +10,8 @@ import {
   type EngineBase, type EngineMod, type EngineResult, type TargetInput, type ExistingItem,
   type EngineAlternatives, type AltTargetInput, type EngineMarkovResult,
 } from '../../lib/engine';
-import { solve, isCancelled, prewarm } from '../../lib/engineClient';
+import { solve, isAppUpdated, isCancelled, prewarm } from '../../lib/engineClient';
+import AppUpdatedNotice from './AppUpdatedNotice';
 import type { SolveProgress as Progress } from '../../lib/solve';
 import { toExcludedKeys, useExclusions } from '../../lib/currencyPrefs';
 import { EFFORT_PRESETS, isTopEffort, limitsFor, useEffort } from '../../lib/searchEffort';
@@ -199,6 +200,9 @@ const EngineLab: React.FC = () => {
   const [markovSpare, setMarkovSpare] = useState<Spare>(NO_SPARE);
   const [altBudget, setAltBudget] = useState<number>(0);
   const [runErr, setRunErr] = useState<string | null>(null);
+  // The site was redeployed under this tab, so the solve could not load what it needed. Not an error
+  // the player can act on except by reloading, so it gets its own notice rather than `runErr`'s card.
+  const [stale, setStale] = useState(false);
   const [computing, setComputing] = useState(false);
   const [progress, setProgress] = useState<Progress | null>(null);
   const excludedKeys = toExcludedKeys(useExclusions());
@@ -501,6 +505,7 @@ const EngineLab: React.FC = () => {
 
     setComputing(true);
     setRunErr(null);
+    setStale(false);
     setProgress(null);
 
     const fromItem = fractured.size > 0;
@@ -541,6 +546,7 @@ const EngineLab: React.FC = () => {
         if (!current() || isCancelled(e)) return;
         setResult(null);
         setAlts(null);
+        if (isAppUpdated(e)) { setMarkov(null); setStale(true); return; }
         setRunErr(e instanceof Error ? e.message : String(e));
       })
       .finally(() => {
@@ -969,6 +975,7 @@ const EngineLab: React.FC = () => {
       {/* "Cannot craft this target" asserted about the GAME over a message that may only describe a
           restriction of this planner (some throws are real rules like ">3 prefixes"; others are not).
           Naming the planner is accurate either way, and the message underneath carries the specifics. */}
+      {stale && <AppUpdatedNotice />}
       {runErr && (
         <Card className="p-4">
           <p className="text-destructive font-medium text-sm">The planner can’t build this target</p>

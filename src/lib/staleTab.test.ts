@@ -23,7 +23,7 @@ describe('loadEngine — a missing data file', () => {
   afterEach(() => { vi.unstubAllGlobals(); });
 
   it('names the file and the status instead of a JSON parse error', async () => {
-    vi.stubGlobal('fetch', vi.fn(async () => notFound()));
+    vi.stubGlobal('fetch', vi.fn(() => Promise.resolve(notFound())));
     const { loadEngine } = await import('./engine.ts');
     const err = await loadEngine().then(() => null, (e: unknown) => e as Error);
     expect(err).toBeInstanceOf(Error);
@@ -33,7 +33,7 @@ describe('loadEngine — a missing data file', () => {
 
   /** One dropped request used to poison the page: the rejected promise was memoised forever. */
   it('forgets a failed load, so the next call tries again', async () => {
-    const fetcher = vi.fn(async () => notFound());
+    const fetcher = vi.fn(() => Promise.resolve(notFound()));
     vi.stubGlobal('fetch', fetcher);
     const { loadEngine } = await import('./engine.ts');
     await loadEngine().catch(() => undefined);
@@ -47,7 +47,7 @@ describe('servesNewerBuild — has the site moved on under this tab?', () => {
   const page = (src: string | null) => ({
     querySelector: () => (src === null ? null : { getAttribute: () => src }),
   }) as unknown as Pick<Document, 'querySelector'>;
-  const live = (html: string) => vi.fn(async () => new Response(html, { status: 200 })) as unknown as typeof fetch;
+  const live = (html: string) => vi.fn(() => Promise.resolve(new Response(html, { status: 200 }))) as unknown as typeof fetch;
 
   it('says yes when the live page no longer loads this tab’s entry script', async () => {
     const liveHtml = '<script type="module" crossorigin src="./static/js/index-NEWHASH1.js"></script>';
@@ -68,9 +68,9 @@ describe('servesNewerBuild — has the site moved on under this tab?', () => {
     expect(await servesNewerBuild(page(null), any)).toBe(false);                 // no entry script
     expect(await servesNewerBuild(page('/src/main.tsx'), any)).toBe(false);      // dev server: not hashed
     expect(await servesNewerBuild(page('./static/js/index-OLDHASH1.js'),
-      vi.fn(async () => new Response('', { status: 503 })) as unknown as typeof fetch)).toBe(false);
+      vi.fn(() => Promise.resolve(new Response('', { status: 503 }))) as unknown as typeof fetch)).toBe(false);
     expect(await servesNewerBuild(page('./static/js/index-OLDHASH1.js'),
-      vi.fn(async () => { throw new TypeError('offline'); }) as unknown as typeof fetch)).toBe(false);
+      vi.fn(() => Promise.reject(new TypeError('offline'))) as unknown as typeof fetch)).toBe(false);
   });
 });
 
@@ -96,16 +96,16 @@ describe('engineClient — a solve that fails on a stale tab', () => {
   const req = { kind: 'item' as const, item: { baseId: 'Wands', level: 82, rarity: 'rare' as const, prefixes: [], suffixes: [] }, targets: [] };
 
   it('rejects with AppUpdated and reports nothing, when the site has been redeployed', async () => {
-    vi.stubGlobal('fetch', vi.fn(async () =>
-      new Response('<script type="module" src="./static/js/index-NEWHASH1.js"></script>', { status: 200 })));
+    vi.stubGlobal('fetch', vi.fn(() => Promise.resolve(
+      new Response('<script type="module" src="./static/js/index-NEWHASH1.js"></script>', { status: 200 }))));
     const { solve, isAppUpdated } = await import('./engineClient.ts');
     await expect(solve(req).promise).rejects.toSatisfy(isAppUpdated);
     expect(reportError).not.toHaveBeenCalled();
   });
 
   it('still reports a SolverError when the build is live — a real failure stays visible', async () => {
-    vi.stubGlobal('fetch', vi.fn(async () =>
-      new Response('<script type="module" src="./static/js/index-OLDHASH1.js"></script>', { status: 200 })));
+    vi.stubGlobal('fetch', vi.fn(() => Promise.resolve(
+      new Response('<script type="module" src="./static/js/index-OLDHASH1.js"></script>', { status: 200 }))));
     const { solve, isAppUpdated } = await import('./engineClient.ts');
     const err = await solve(req).promise.then(() => null, (e: unknown) => e as Error);
     expect(isAppUpdated(err)).toBe(false);

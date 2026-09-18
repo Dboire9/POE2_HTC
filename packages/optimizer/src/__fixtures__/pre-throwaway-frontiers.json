@@ -1,0 +1,852 @@
+{
+ "recordedAt": "62315a9",
+ "identity": {
+  "wands, white, two targets": {
+   "plansEvaluated": 18,
+   "truncated": false,
+   "frontier": [
+    {
+     "probability": 0.040738728951656714,
+     "expected": 3.478962666666666,
+     "perAttempt": 0.20718999999999999,
+     "steps": [
+      {
+       "currency": "transmute",
+       "add": "Wands/Intelligence",
+       "minTierIndex": 0,
+       "tier": "greater"
+      },
+      {
+       "currency": "augment",
+       "add": "Wands/IncreasedMana",
+       "minTierIndex": 0,
+       "tier": "greater"
+      }
+     ]
+    }
+   ]
+  },
+  "wands, white, tier target": {
+   "plansEvaluated": 108,
+   "truncated": false,
+   "frontier": [
+    {
+     "probability": 0.0012383890352180757,
+     "expected": 118.78164082758624,
+     "perAttempt": 0.40488999999999997,
+     "steps": [
+      {
+       "currency": "transmute",
+       "add": "Wands/Intelligence",
+       "minTierIndex": 0,
+       "tier": "greater"
+      },
+      {
+       "currency": "augment",
+       "add": "Wands/IncreasedMana",
+       "minTierIndex": 9,
+       "tier": "greater"
+      },
+      {
+       "currency": "regal",
+       "add": "Wands/WeaponSpellDamage",
+       "minTierIndex": 0
+      }
+     ]
+    },
+    {
+     "probability": 0.0014860668422616912,
+     "expected": 1875.6032200000002,
+     "perAttempt": 23.541,
+     "steps": [
+      {
+       "currency": "transmute",
+       "add": "Wands/Intelligence",
+       "minTierIndex": 0,
+       "tier": "greater"
+      },
+      {
+       "currency": "augment",
+       "add": "Wands/IncreasedMana",
+       "minTierIndex": 9,
+       "tier": "perfect"
+      },
+      {
+       "currency": "regal",
+       "add": "Wands/WeaponSpellDamage",
+       "minTierIndex": 0
+      }
+     ]
+    }
+   ]
+  },
+  "rings, white, currencies excluded": {
+   "plansEvaluated": 36,
+   "truncated": false,
+   "frontier": [
+    {
+     "probability": 0.0005070289359698376,
+     "expected": 307.58938507288667,
+     "perAttempt": 0.6009,
+     "steps": [
+      {
+       "currency": "transmute",
+       "add": "Rings/Strength",
+       "minTierIndex": 0,
+       "tier": "greater"
+      },
+      {
+       "currency": "augment",
+       "add": "Rings/IncreasedLife",
+       "minTierIndex": 0
+      },
+      {
+       "currency": "regal",
+       "add": "Rings/Dexterity",
+       "minTierIndex": 0
+      }
+     ]
+    },
+    {
+     "probability": 0.0005264966363531825,
+     "expected": 333.59311662162025,
+     "perAttempt": 2.8092,
+     "steps": [
+      {
+       "currency": "transmute",
+       "add": "Rings/Strength",
+       "minTierIndex": 0,
+       "tier": "greater"
+      },
+      {
+       "currency": "augment",
+       "add": "Rings/IncreasedLife",
+       "minTierIndex": 0
+      },
+      {
+       "currency": "regal",
+       "add": "Rings/Dexterity",
+       "minTierIndex": 0,
+       "tier": "greater"
+      }
+     ]
+    },
+    {
+     "probability": 0.0006357379275246037,
+     "expected": 532.2831054235583,
+     "perAttempt": 21.0732,
+     "steps": [
+      {
+       "currency": "transmute",
+       "add": "Rings/Strength",
+       "minTierIndex": 0,
+       "tier": "greater"
+      },
+      {
+       "currency": "augment",
+       "add": "Rings/IncreasedLife",
+       "minTierIndex": 0
+      },
+      {
+       "currency": "regal",
+       "add": "Rings/Dexterity",
+       "minTierIndex": 0,
+       "tier": "perfect"
+      }
+     ]
+    }
+   ]
+  },
+  "wands, white, regular essence": {
+   "plansEvaluated": 3,
+   "truncated": false,
+   "frontier": [
+    {
+     "probability": 0.11406844106463879,
+     "expected": 7.169596666666667,
+     "perAttempt": 6.1343000000000005,
+     "steps": [
+      {
+       "currency": "transmute",
+       "add": "Wands/IncreasedMana",
+       "minTierIndex": 0,
+       "tier": "greater"
+      },
+      {
+       "currency": "essence",
+       "add": "Wands/Essence_SpellCriticalStrikeChanceIncrease",
+       "essenceTier": 0,
+       "essenceLevel": "lesser"
+      }
+     ]
+    }
+   ]
+  },
+  "wands, white, desecration": {
+   "plansEvaluated": 216,
+   "truncated": false,
+   "frontier": [
+    {
+     "probability": 0.0013071884260635247,
+     "expected": 117.34770655535388,
+     "perAttempt": 2.3498900000000003,
+     "steps": [
+      {
+       "currency": "transmute",
+       "add": "Wands/Intelligence",
+       "minTierIndex": 0,
+       "tier": "greater"
+      },
+      {
+       "currency": "augment",
+       "add": "Wands/IncreasedMana",
+       "minTierIndex": 0,
+       "tier": "greater"
+      },
+      {
+       "currency": "regal",
+       "add": "Wands/WeaponSpellDamage",
+       "minTierIndex": 0
+      },
+      {
+       "currency": "desecrate",
+       "add": "Wands/Desecrated_SpellAreaOfEffect",
+       "boss": "liege",
+       "constrainTo": "suffix"
+      }
+     ]
+    },
+    {
+     "probability": 0.0013521774849025146,
+     "expected": 307.32926707894745,
+     "perAttempt": 23.0182,
+     "steps": [
+      {
+       "currency": "transmute",
+       "add": "Wands/Intelligence",
+       "minTierIndex": 0,
+       "tier": "greater"
+      },
+      {
+       "currency": "augment",
+       "add": "Wands/WeaponSpellDamage",
+       "minTierIndex": 0
+      },
+      {
+       "currency": "regal",
+       "add": "Wands/IncreasedMana",
+       "minTierIndex": 0,
+       "tier": "perfect"
+      },
+      {
+       "currency": "desecrate",
+       "add": "Wands/Desecrated_SpellAreaOfEffect",
+       "boss": "liege",
+       "constrainTo": "suffix"
+      }
+     ]
+    }
+   ]
+  },
+  "sceptres, white, four targets": {
+   "plansEvaluated": 2593,
+   "truncated": false,
+   "frontier": [
+    {
+     "probability": 0.000015422220624527845,
+     "expected": 9965.879397480676,
+     "perAttempt": 10.1619,
+     "steps": [
+      {
+       "currency": "transmute",
+       "add": "Sceptres/AlliesInPresenceAllResistances",
+       "minTierIndex": 0,
+       "tier": "greater"
+      },
+      {
+       "currency": "augment",
+       "add": "Sceptres/LocalIncreasedSpiritPercent",
+       "minTierIndex": 0
+      },
+      {
+       "currency": "regal",
+       "add": "Sceptres/GlobalIncreaseMinionSpellSkillGemLevelWeapon",
+       "minTierIndex": 0
+      },
+      {
+       "currency": "exalt",
+       "add": "Sceptres/AlliesInPresenceAllDamage",
+       "minTierIndex": 0,
+       "constrainTo": "prefix"
+      }
+     ]
+    },
+    {
+     "probability": 0.000016499807562971416,
+     "expected": 10374.027792423984,
+     "perAttempt": 30.6342,
+     "steps": [
+      {
+       "currency": "transmute",
+       "add": "Sceptres/GlobalIncreaseMinionSpellSkillGemLevelWeapon",
+       "minTierIndex": 0,
+       "tier": "greater"
+      },
+      {
+       "currency": "augment",
+       "add": "Sceptres/LocalIncreasedSpiritPercent",
+       "minTierIndex": 0
+      },
+      {
+       "currency": "regal",
+       "add": "Sceptres/AlliesInPresenceAllResistances",
+       "minTierIndex": 0,
+       "tier": "perfect"
+      },
+      {
+       "currency": "exalt",
+       "add": "Sceptres/AlliesInPresenceAllDamage",
+       "minTierIndex": 0,
+       "constrainTo": "prefix"
+      }
+     ]
+    },
+    {
+     "probability": 0.000018013689520486587,
+     "expected": 12148.762841186091,
+     "perAttempt": 30.6784,
+     "steps": [
+      {
+       "currency": "transmute",
+       "add": "Sceptres/GlobalIncreaseMinionSpellSkillGemLevelWeapon",
+       "minTierIndex": 0
+      },
+      {
+       "currency": "augment",
+       "add": "Sceptres/LocalIncreasedSpiritPercent",
+       "minTierIndex": 0
+      },
+      {
+       "currency": "regal",
+       "add": "Sceptres/AlliesInPresenceAllResistances",
+       "minTierIndex": 0,
+       "tier": "perfect"
+      },
+      {
+       "currency": "exalt",
+       "add": "Sceptres/AlliesInPresenceAllDamage",
+       "minTierIndex": 0,
+       "constrainTo": "prefix"
+      }
+     ]
+    },
+    {
+     "probability": 0.000041110947492539496,
+     "expected": 15562.764641124024,
+     "perAttempt": 0.6398,
+     "steps": [
+      {
+       "currency": "alchemy",
+       "adds": [
+        "Sceptres/LocalIncreasedSpiritPercent",
+        "Sceptres/AlliesInPresenceAllResistances",
+        "Sceptres/AlliesInPresenceAllDamage",
+        "Sceptres/GlobalIncreaseMinionSpellSkillGemLevelWeapon"
+       ]
+      }
+     ]
+    }
+   ]
+  },
+  "wands, rare item with junk": {
+   "plansEvaluated": 15,
+   "truncated": false,
+   "frontier": [
+    {
+     "probability": 0.013721185510428101,
+     "expected": 707.68,
+     "perAttempt": 159.7,
+     "steps": [
+      {
+       "currency": "exalt",
+       "add": "Wands/LocalAttributeRequirements",
+       "minTierIndex": 0
+      },
+      {
+       "currency": "annul",
+       "remove": "Wands/WeaponSpellDamageAndMana"
+      }
+     ]
+    },
+    {
+     "probability": 0.0211864406779661,
+     "expected": 861.1712000000001,
+     "perAttempt": 163.49599999999998,
+     "steps": [
+      {
+       "currency": "exalt",
+       "add": "Wands/LocalAttributeRequirements",
+       "minTierIndex": 0,
+       "tier": "greater"
+      },
+      {
+       "currency": "annul",
+       "remove": "Wands/WeaponSpellDamageAndMana"
+      }
+     ]
+    },
+    {
+     "probability": 0.027881040892193308,
+     "expected": 1121.9410666666668,
+     "perAttempt": 172.28199999999998,
+     "steps": [
+      {
+       "currency": "exalt",
+       "add": "Wands/LocalAttributeRequirements",
+       "minTierIndex": 0,
+       "tier": "greater",
+       "constrainTo": "suffix"
+      },
+      {
+       "currency": "annul",
+       "remove": "Wands/WeaponSpellDamageAndMana"
+      }
+     ]
+    },
+    {
+     "probability": 0.03717472118959107,
+     "expected": 4390.8152666666665,
+     "perAttempt": 172.28199999999998,
+     "steps": [
+      {
+       "currency": "annul",
+       "remove": "Wands/WeaponSpellDamageAndMana"
+      },
+      {
+       "currency": "exalt",
+       "add": "Wands/LocalAttributeRequirements",
+       "minTierIndex": 0,
+       "tier": "greater",
+       "constrainTo": "suffix"
+      }
+     ]
+    },
+    {
+     "probability": 0.04192872117400419,
+     "expected": 9992.243699999999,
+     "perAttempt": 939.4859999999999,
+     "steps": [
+      {
+       "currency": "annul",
+       "remove": "Wands/WeaponSpellDamageAndMana"
+      },
+      {
+       "currency": "exalt",
+       "add": "Wands/LocalAttributeRequirements",
+       "minTierIndex": 0,
+       "tier": "perfect",
+       "constrainTo": "suffix"
+      }
+     ]
+    }
+   ]
+  },
+  "wands, magic item": {
+   "plansEvaluated": 45,
+   "truncated": false,
+   "frontier": [
+    {
+     "probability": 0.00764203647096026,
+     "expected": 14.004654206896554,
+     "perAttempt": 0.27159,
+     "steps": [
+      {
+       "currency": "augment",
+       "add": "Wands/Intelligence",
+       "minTierIndex": 0,
+       "tier": "greater"
+      },
+      {
+       "currency": "regal",
+       "add": "Wands/WeaponSpellDamage",
+       "minTierIndex": 0
+      }
+     ]
+    },
+    {
+     "probability": 0.011070955919780108,
+     "expected": 84.67464000000001,
+     "perAttempt": 9.7587,
+     "steps": [
+      {
+       "currency": "regal",
+       "add": "Wands/Intelligence",
+       "minTierIndex": 0
+      },
+      {
+       "currency": "exalt",
+       "add": "Wands/WeaponSpellDamage",
+       "minTierIndex": 0,
+       "constrainTo": "prefix"
+      }
+     ]
+    },
+    {
+     "probability": 0.014063106168369324,
+     "expected": 237.90306206896557,
+     "perAttempt": 11.967,
+     "steps": [
+      {
+       "currency": "regal",
+       "add": "Wands/Intelligence",
+       "minTierIndex": 0,
+       "tier": "greater"
+      },
+      {
+       "currency": "exalt",
+       "add": "Wands/WeaponSpellDamage",
+       "minTierIndex": 0,
+       "constrainTo": "prefix"
+      }
+     ]
+    },
+    {
+     "probability": 0.01766569200779727,
+     "expected": 1236.881655172414,
+     "perAttempt": 30.231,
+     "steps": [
+      {
+       "currency": "regal",
+       "add": "Wands/Intelligence",
+       "minTierIndex": 0,
+       "tier": "perfect"
+      },
+      {
+       "currency": "exalt",
+       "add": "Wands/WeaponSpellDamage",
+       "minTierIndex": 0,
+       "constrainTo": "prefix"
+      }
+     ]
+    }
+   ]
+  },
+  "wands, rare item, free suffix": {
+   "plansEvaluated": 21,
+   "truncated": false,
+   "frontier": [
+    {
+     "probability": 0.05311355311355311,
+     "expected": 18.82758620689655,
+     "perAttempt": 1,
+     "steps": [
+      {
+       "currency": "exalt",
+       "add": "Wands/WeaponSpellDamage",
+       "minTierIndex": 0
+      }
+     ]
+    },
+    {
+     "probability": 0.14309210526315788,
+     "expected": 66.81710344827587,
+     "perAttempt": 9.561,
+     "steps": [
+      {
+       "currency": "exalt",
+       "add": "Wands/WeaponSpellDamage",
+       "minTierIndex": 0,
+       "constrainTo": "prefix"
+      }
+     ]
+    }
+   ]
+  },
+  "wands, rare item, fractured mod": {
+   "plansEvaluated": 15,
+   "truncated": false,
+   "frontier": [
+    {
+     "probability": 0.02035002035002035,
+     "expected": 525.24,
+     "perAttempt": 159.7,
+     "steps": [
+      {
+       "currency": "exalt",
+       "add": "Wands/LocalAttributeRequirements",
+       "minTierIndex": 0
+      },
+      {
+       "currency": "annul",
+       "remove": "Wands/GlobalIncreaseSpellSkillGemLevelWeapon"
+      }
+     ]
+    },
+    {
+     "probability": 0.030959752321981424,
+     "expected": 631.0108,
+     "perAttempt": 163.49599999999998,
+     "steps": [
+      {
+       "currency": "exalt",
+       "add": "Wands/LocalAttributeRequirements",
+       "minTierIndex": 0,
+       "tier": "greater"
+      },
+      {
+       "currency": "annul",
+       "remove": "Wands/GlobalIncreaseSpellSkillGemLevelWeapon"
+      }
+     ]
+    },
+    {
+     "probability": 0.032362459546925564,
+     "expected": 778.4874,
+     "perAttempt": 168.486,
+     "steps": [
+      {
+       "currency": "exalt",
+       "add": "Wands/LocalAttributeRequirements",
+       "minTierIndex": 0,
+       "constrainTo": "suffix"
+      },
+      {
+       "currency": "annul",
+       "remove": "Wands/GlobalIncreaseSpellSkillGemLevelWeapon"
+      }
+     ]
+    },
+    {
+     "probability": 0.04444444444444444,
+     "expected": 781.695,
+     "perAttempt": 172.28199999999998,
+     "steps": [
+      {
+       "currency": "exalt",
+       "add": "Wands/LocalAttributeRequirements",
+       "minTierIndex": 0,
+       "tier": "greater",
+       "constrainTo": "suffix"
+      },
+      {
+       "currency": "annul",
+       "remove": "Wands/GlobalIncreaseSpellSkillGemLevelWeapon"
+      }
+     ]
+    },
+    {
+     "probability": 0.055762081784386616,
+     "expected": 2967.8052666666663,
+     "perAttempt": 172.28199999999998,
+     "steps": [
+      {
+       "currency": "annul",
+       "remove": "Wands/GlobalIncreaseSpellSkillGemLevelWeapon"
+      },
+      {
+       "currency": "exalt",
+       "add": "Wands/LocalAttributeRequirements",
+       "minTierIndex": 0,
+       "tier": "greater",
+       "constrainTo": "suffix"
+      }
+     ]
+    },
+    {
+     "probability": 0.06289308176100629,
+     "expected": 8730.5787,
+     "perAttempt": 939.4859999999999,
+     "steps": [
+      {
+       "currency": "annul",
+       "remove": "Wands/GlobalIncreaseSpellSkillGemLevelWeapon"
+      },
+      {
+       "currency": "exalt",
+       "add": "Wands/LocalAttributeRequirements",
+       "minTierIndex": 0,
+       "tier": "perfect",
+       "constrainTo": "suffix"
+      }
+     ]
+    }
+   ]
+  }
+ },
+ "withPerfect": {
+  "sceptres, white, an Alloy": {
+   "plansEvaluated": 3888,
+   "truncated": false,
+   "frontier": [
+    {
+     "probability": 0.000013728113055924407,
+     "expected": 11731.312702437572,
+     "perAttempt": 68.9969,
+     "steps": [
+      {
+       "currency": "transmute",
+       "add": "Sceptres/AlliesInPresenceAllResistances",
+       "minTierIndex": 0,
+       "tier": "greater"
+      },
+      {
+       "currency": "augment",
+       "add": "Sceptres/LocalIncreasedSpiritPercent",
+       "minTierIndex": 0
+      },
+      {
+       "currency": "regal",
+       "add": "Sceptres/GlobalIncreaseMinionSpellSkillGemLevelWeapon",
+       "minTierIndex": 0
+      },
+      {
+       "currency": "perfect-essence",
+       "add": "Sceptres/PerfectEssence_MaximumPuppeteerStacks",
+       "remove": "Sceptres/LocalIncreasedSpiritPercent",
+       "omen": "sinistral"
+      },
+      {
+       "currency": "exalt",
+       "add": "Sceptres/LocalIncreasedSpiritPercent",
+       "minTierIndex": 0
+      }
+     ]
+    },
+    {
+     "probability": 0.000014687328701887435,
+     "expected": 12189.828346118564,
+     "perAttempt": 89.4692,
+     "steps": [
+      {
+       "currency": "transmute",
+       "add": "Sceptres/GlobalIncreaseMinionSpellSkillGemLevelWeapon",
+       "minTierIndex": 0,
+       "tier": "greater"
+      },
+      {
+       "currency": "augment",
+       "add": "Sceptres/LocalIncreasedSpiritPercent",
+       "minTierIndex": 0
+      },
+      {
+       "currency": "regal",
+       "add": "Sceptres/AlliesInPresenceAllResistances",
+       "minTierIndex": 0,
+       "tier": "perfect"
+      },
+      {
+       "currency": "perfect-essence",
+       "add": "Sceptres/PerfectEssence_MaximumPuppeteerStacks",
+       "remove": "Sceptres/LocalIncreasedSpiritPercent",
+       "omen": "sinistral"
+      },
+      {
+       "currency": "exalt",
+       "add": "Sceptres/LocalIncreasedSpiritPercent",
+       "minTierIndex": 0
+      }
+     ]
+    },
+    {
+     "probability": 0.000016034913020130107,
+     "expected": 14183.573251961952,
+     "perAttempt": 89.5134,
+     "steps": [
+      {
+       "currency": "transmute",
+       "add": "Sceptres/GlobalIncreaseMinionSpellSkillGemLevelWeapon",
+       "minTierIndex": 0
+      },
+      {
+       "currency": "augment",
+       "add": "Sceptres/LocalIncreasedSpiritPercent",
+       "minTierIndex": 0
+      },
+      {
+       "currency": "regal",
+       "add": "Sceptres/AlliesInPresenceAllResistances",
+       "minTierIndex": 0,
+       "tier": "perfect"
+      },
+      {
+       "currency": "perfect-essence",
+       "add": "Sceptres/PerfectEssence_MaximumPuppeteerStacks",
+       "remove": "Sceptres/LocalIncreasedSpiritPercent",
+       "omen": "sinistral"
+      },
+      {
+       "currency": "exalt",
+       "add": "Sceptres/LocalIncreasedSpiritPercent",
+       "minTierIndex": 0
+      }
+     ]
+    },
+    {
+     "probability": 0.00002124797116299128,
+     "expected": 220348.03811129613,
+     "perAttempt": 73.5026,
+     "steps": [
+      {
+       "currency": "transmute",
+       "add": "Sceptres/AlliesInPresenceAllResistances",
+       "minTierIndex": 0,
+       "tier": "perfect"
+      },
+      {
+       "currency": "augment",
+       "add": "Sceptres/LocalIncreasedSpiritPercent",
+       "minTierIndex": 0
+      },
+      {
+       "currency": "regal",
+       "add": "Sceptres/GlobalIncreaseMinionSpellSkillGemLevelWeapon",
+       "minTierIndex": 0
+      },
+      {
+       "currency": "perfect-essence",
+       "add": "Sceptres/PerfectEssence_MaximumPuppeteerStacks",
+       "remove": "Sceptres/LocalIncreasedSpiritPercent",
+       "omen": "sinistral"
+      },
+      {
+       "currency": "exalt",
+       "add": "Sceptres/LocalIncreasedSpiritPercent",
+       "minTierIndex": 0
+      }
+     ]
+    }
+   ]
+  },
+  "sceptres, rare item with junk, an Alloy": {
+   "plansEvaluated": 2,
+   "truncated": false,
+   "frontier": [
+    {
+     "probability": 0.3333333333333333,
+     "expected": 11.898000000000001,
+     "perAttempt": 3.966,
+     "steps": [
+      {
+       "currency": "perfect-essence",
+       "add": "Sceptres/PerfectEssence_MaximumPuppeteerStacks",
+       "remove": "Sceptres/Strength"
+      }
+     ]
+    },
+    {
+     "probability": 0.5,
+     "expected": 328.53200000000004,
+     "perAttempt": 164.26600000000002,
+     "steps": [
+      {
+       "currency": "perfect-essence",
+       "add": "Sceptres/PerfectEssence_MaximumPuppeteerStacks",
+       "remove": "Sceptres/Strength",
+       "omen": "dextral"
+      }
+     ]
+    }
+   ]
+  }
+ }
+}

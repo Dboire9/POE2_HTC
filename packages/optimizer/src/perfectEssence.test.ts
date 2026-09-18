@@ -160,12 +160,19 @@ describe('from-white perfect essence — sacrifice and re-add', () => {
     }
   });
 
-  // Reaching Rare takes three mods, and from white every one of them is a target. With fewer than
-  // three rollables there is no ordering that gets the item Rare before the essence, so every plan
-  // scores 0 — the same shape as the desecration case, and the UI must not call it impossible.
-  it('finds nothing when there are too few rollable targets to reach Rare', () => {
+  // Reaching Rare used to take three mods, every one of them a target, so with fewer than three
+  // rollables this found nothing. A THROWAWAY reaches it in two: transmute NP1 (1/3 of the pool), Regal
+  // anything onto the suffix side (NS1 against NP2 — 1/2) and make the item Rare, then the essence eats
+  // that suffix under a Dextral Crystallisation, which on a side holding only the throwaway is certain.
+  it('reaches Rare on a throwaway when there are too few rollable targets', () => {
     const r = optimizePareto(data, prices, base, [{ modId: 'NP1' }, { modId: 'PE1' }], { level: 82 });
-    expect(r.frontier).toHaveLength(0);
+    const likeliest = r.frontier.at(-1)!;
+    expect(likeliest.probability).toBeCloseTo(1 / 6, 12);
+    expect(likeliest.steps).toEqual([
+      { currency: 'transmute', add: 'NP1', minTierIndex: 0 },
+      { currency: 'throwaway', orb: 'regal', throwaway: { id: 'throwaway:1', side: 'suffix' } },
+      { currency: 'perfect-essence', add: 'PE1', remove: 'throwaway:1', omen: 'dextral' },
+    ]);
   });
 });
 

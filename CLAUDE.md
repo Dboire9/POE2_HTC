@@ -64,6 +64,25 @@ React web app: user inputs target item (base + mods + tiers), gets optimal craft
 - **A Desecration needs a Rare item**, and the bone depends on the base: jawbone = weapons + quivers, rib = armour, collarbone = amulets/rings/belts. **`BONE_BY_CATEGORY` said "Amulet, Ring or Belt" in its comment for weeks while having no `Belts` entry**, and the fallthrough is `?? 'rib'` — so the day belts landed a belt would have been charged the armour bone (0.41ex against the collarbone's 4.69ex, ~11x under) and, because `bossOmenAllowed` is defined as "not rib", silently refused the boss omens the game does allow on it. A comment is not a mapping; grep the map, not the prose. Only the **Preserved** grade applies while every desecrated mod is ilvl 65 (`prices.mjs` warns if that stops being true).
 - **Annulment does not downgrade rarity.** A Rare stays Rare as you annul mods off it — which is why "roll filler, annul it, then Desecrate" is a legal route even though no planner here searches it.
 - **An item carries at most ONE essence modifier — regular and perfect counted TOGETHER.** `isEssenceMod` (`probability.ts`) is the single predicate; every planner and picker counts with it. A regular essence needs a Magic item and turns it Rare; a **Perfect Essence works on a Rare and is a SWAP** — it forces its mod on while removing one existing mod uniformly at random (`1/(pf+sf)`, or `1/pf`,`1/sf` under a Sinistral/Dextral Crystallisation omen), and is gated at ilvl 72. The two grant from **disjoint pools**: 317 `source: 'essence'` mods vs 363 `perfect_essence`, zero id overlap, both inside `base.pools.essence`. So a Perfect Essence can never supply a second regular-essence mod, and can never be added on top of one either.
+  **A step route feeds a Perfect Essence a THROWAWAY when nothing it holds should be eaten** (2026-09-18).
+  `ThrowawayStep` (plan.ts): a Regal (Magic) or Exalt (Rare) landing anything on one side, leaving a
+  placeholder `PlacedMod` (`throwaway: true`, an id that names no mod) for the NEXT step to remove. Rules
+  that keep it exact and safe — each mutation-tested in `throwaway.test.ts`:
+  - **It lives exactly one step.** `stepProbability` scores 0 for every step on an item holding one
+    except the Perfect Essence naming it. That is WHY the odds are exact rather than bounded: the one
+    step that sees it counts mods and adds a crafted mod no rolled family can block. Let a throwaway
+    linger and a second throwaway draw would be OPTIMISTIC (the first one's family, ignored, really
+    shrinks the "anything else" pool) — do not relax the rule without re-deriving that.
+  - **Its currency is `'throwaway'`, its orb is `orb`.** Two members sharing `currency: 'exalt'` make TS
+    demand `{ currency: AddCurrency, add }` literals fit both, breaking every planner. The cost of the
+    separate discriminant: anything keyed on `currency` must map it — `currencyKey` above all, where an
+    unmapped 'throwaway' prices at 0 (free) and escapes "I don't have Exalted Orbs".
+  - **Never resolve a placeholder.** `itemFamilies` skips it; levers read the Crystallisation side off the
+    ITEM (`withOmen`), because `resolveMod(step.remove)` throws on one — at run time, past the types.
+  - **Only generated for a Perfect Essence** (`buildParetoSteps`, `victimChoices`, the Magic-start
+    opener), so every other craft searches the identical skeleton list — pinned by a snapshot recorded
+    before the change (`__fixtures__/pre-throwaway-frontiers.json`). Regenerating that fixture from the
+    current code would make the test vacuous; only do it for a change that is MEANT to move those crafts.
   **The MDP models BOTH grades as of 2026-08-28.** A regular Essence is an action on the Magic rung
   beside the Regal: it forces its mod and converts Magic → Rare, removing nothing, at P=1 — the mirror
   of `essenceForcedProbability`, condition for condition. Its side-room check is against the RARE cap,

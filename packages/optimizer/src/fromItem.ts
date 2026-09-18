@@ -5,13 +5,14 @@
 // EXACTLY the target: every current mod not in the target is junk to remove, every target mod not present
 // must be added. Removal is a random Annulment (or the remove-half of a Chaos); adds are Exalts (into an
 // open slot), the add-half of a Chaos, a Desecration (a desecrated mod, via its boss omen), or a Perfect
-// Essence (which removes one random mod as it adds). A MAGIC start is handled by opening with a Regal
+// Essence (which removes one random mod as it adds — a junk mod, or a THROWAWAY rolled right before it
+// for exactly that). A MAGIC start is handled by opening with a Regal
 // Orb, which converts to Rare while adding one mod — without that, the commonest starting point in the
 // game (a magic base you are part-way through) had no planner at all. Everything runs at base orb
 // strength; tier targets are honoured and per-exalt /
 // per-perfect-essence side omens are explored.
 
-import type { ItemBase, ItemState, PatchData } from '../../engine/src/types.ts';
+import type { AffixType, ItemBase, ItemState, PatchData } from '../../engine/src/types.ts';
 import type { PlanStep } from '../../engine/src/plan.ts';
 import { evaluatePlanFrom } from '../../engine/src/plan.ts';
 import { resolveMod } from '../../engine/src/pool.ts';
@@ -19,7 +20,7 @@ import { bossOmenAllowed, desecrationOmenForMod, isEssenceMod } from '../../engi
 import { limitsOf } from '../../engine/src/item.ts';
 import type { Prices } from './cost.ts';
 import { planExpectedCost, pricesForBase } from './cost.ts';
-import { combinations, orderedSelections, permutations } from './combinatorics.ts';
+import { combinations, permutations } from './combinatorics.ts';
 import type { Spare } from './slots.ts';
 import { NO_SPARE, expandSlots, itemLegalCombinations } from './slots.ts';
 import type { OptimizeParetoOptions, ParetoPlan, ParetoResult, TierTarget } from './optimize.ts';
@@ -121,7 +122,8 @@ function baseTransforms(
  * Build the transform op-sequences from junk + missing (split into rollable, perfect-essence, and
  * desecrated mods), enumerating every ORDER. A PERFECT-ESSENCE target can only be added by a Perfect
  * Essence, which removes one uniformly-random mod as it adds — so each perfect target is paired with a
- * distinct junk to sacrifice (its step scores the odds the random removal hits that junk). A DESECRATED
+ * victim for it to eat: a distinct junk mod, or a THROWAWAY rolled for it (see `victimChoices`); its
+ * step scores the odds the random removal hits that victim. A DESECRATED
  * target is added by a Desecration with the boss omen matching its tag (P = 1/N over that boss's slot
  * pool); it needs an open slot but removes nothing, so it's a standalone add like an exalt. The remaining
  * junk + rollable-missing go through the ordinary Chaos/Annul/Exalt transforms. Illegal orders (e.g. an
@@ -140,15 +142,50 @@ function transformSequences(
     const omen = bossOk ? desecrationOmenForMod(resolveMod(data, add)) : undefined;
     return omen ? { currency: 'desecrate', add, boss: omen } : { currency: 'desecrate', add };
   });
-  // Each perfect target consumes one junk (removed by its essence); enumerate which junk, in order.
-  for (const junkForPerfect of orderedSelections(junk, missingPerfect.length)) {
-    const perfectOps: PlanStep[] = missingPerfect.map((add, i) => ({
-      currency: 'perfect-essence', add, remove: junkForPerfect[i]!,
-    }));
-    const restJunk = junk.filter((j) => !junkForPerfect.includes(j));
+  // Each perfect target consumes one victim, eaten by its essence. A throwaway and the essence that
+  // eats it travel as ONE unit through the orderings, because a throwaway lives exactly one step
+  // (`Throwaway`, types.ts); every other op is a unit of one, so with no perfect target this permutes
+  // exactly the list it always did.
+  for (const victims of victimChoices(junk, missingPerfect.length)) {
+    const perfectUnits: PlanStep[][] = missingPerfect.map((add, i): PlanStep[] => {
+      const victim = victims[i]!;
+      if (typeof victim === 'string') return [{ currency: 'perfect-essence', add, remove: victim }];
+      const throwaway = { id: `throwaway:${i}`, side: victim.side };
+      return [
+        { currency: 'throwaway', orb: 'exalt', throwaway },
+        { currency: 'perfect-essence', add, remove: throwaway.id },
+      ];
+    });
+    const restJunk = junk.filter((j) => !victims.includes(j));
     for (const baseOps of baseTransforms(restJunk, missingRollable, tierOf)) {
-      for (const order of permutations([...perfectOps, ...desecrateOps, ...baseOps])) out.push(order);
+      const units = [...perfectUnits, ...desecrateOps.map((op) => [op]), ...baseOps.map((op) => [op])];
+      for (const order of permutations(units)) out.push(order.flat());
     }
+  }
+  return out;
+}
+
+/** What a Perfect Essence eats: a junk mod already on the item, or a throwaway rolled onto a side. */
+type Victim = string | { readonly side: AffixType };
+
+/**
+ * Every way to give `n` Perfect Essences something to eat, in order.
+ *
+ * A junk mod feeds at most one of them — it is gone once eaten — while a throwaway can be rolled for
+ * any number, one per essence, on either side (the side decides the removal odds, so both are offered
+ * and the search picks). Junk choices come first at every position, so the junk-only assignments this
+ * planner always made lead the list.
+ *
+ * The throwaway is what lets a craft with MORE essences than junk be planned at all: it used to throw
+ * here, and a player whose Magic Sceptre held only the mods they wanted could get no route for its two
+ * Alloys.
+ */
+function victimChoices(junk: readonly string[], n: number): Victim[][] {
+  if (n === 0) return [[]];
+  const out: Victim[][] = [];
+  for (const head of [...junk, ...(['prefix', 'suffix'] as const).map((side) => ({ side }))]) {
+    const rest = typeof head === 'string' ? junk.filter((j) => j !== head) : junk;
+    for (const tail of victimChoices(rest, n - 1)) out.push([head, ...tail]);
   }
   return out;
 }
@@ -181,19 +218,12 @@ function removableJunk(start: ItemState, targetIds: readonly string[]): { prefix
  * count is bounded by the item rather than by a cap: at most 2^3 per side, and in practice two or four,
  * since a free slot can only exist where the side had room to spare.
  *
- * A NON-EMPTY set leaving too few sacrificial mods for the Perfect Essences is dropped rather than run —
- * one removes a random mod as it adds, and the planner throws when there are not enough. The empty set
- * is exempt, so a craft that is short of them even with nothing kept still reaches the planner and
- * throws ITS reason for the caller, rather than coming back as no runs at all.
+ * Every set is runnable. Keeping junk used to strand a Perfect Essence that needed it to eat, so such
+ * sets were filtered out; a throwaway rolled for the essence (`victimChoices`) now feeds it instead.
  */
-function keepSets(
-  data: PatchData, start: ItemState, targetIds: readonly string[], spare: Spare,
-): ReadonlySet<string>[] {
+function keepSets(start: ItemState, targetIds: readonly string[], spare: Spare): ReadonlySet<string>[] {
   if (spare.prefixes === 0 && spare.suffixes === 0) return [new Set()];
   const junk = removableJunk(start, targetIds);
-  const held = new Set([...start.prefixes, ...start.suffixes].map((m) => m.modId));
-  const perfects = targetIds
-    .filter((id) => !held.has(id) && resolveMod(data, id).source === 'perfect_essence').length;
   const upTo = (ids: readonly string[], n: number): string[][] => {
     const out: string[][] = [];
     for (let k = 0; k <= Math.min(n, ids.length); k++) out.push(...combinations(ids, k));
@@ -201,11 +231,7 @@ function keepSets(
   };
   const sets: ReadonlySet<string>[] = [];
   for (const p of upTo(junk.prefixes, spare.prefixes)) {
-    for (const s of upTo(junk.suffixes, spare.suffixes)) {
-      const kept = p.length + s.length;
-      if (kept > 0 && junk.prefixes.length + junk.suffixes.length - kept < perfects) continue;
-      sets.push(new Set([...p, ...s]));
-    }
+    for (const s of upTo(junk.suffixes, spare.suffixes)) sets.push(new Set([...p, ...s]));
   }
   return sets;
 }
@@ -236,7 +262,7 @@ export function optimizeFromItem(
    */
   const spare = opts.spare ?? NO_SPARE;
   const runs = combos.flatMap((t) =>
-    keepSets(data, start, t.map((x) => x.modId), spare).map((keep) => ({ targets: t, keep })));
+    keepSets(start, t.map((x) => x.modId), spare).map((keep) => ({ targets: t, keep })));
   const one = (
     r: { targets: readonly TierTarget[]; keep: ReadonlySet<string> },
     onProgress?: (d: number, n: number) => void,
@@ -270,27 +296,15 @@ function fromItemForOneCraft(
   const junk = [...loose.prefixes, ...loose.suffixes].filter((id) => !keep.has(id));
   const missing = targetIds.filter((id) => !currentSet.has(id)); // wanted but not yet present → add
   // A perfect essence adds its guaranteed mod while removing one random mod, so a perfect target can
-  // only be placed by sacrificing a junk mod. A desecrated target is added by a Desecration (boss omen)
-  // into an open slot — it removes nothing. Everything else is a rolled (normal) add.
+  // only be placed by sacrificing something: a junk mod, or a throwaway rolled for it. A desecrated
+  // target is added by a Desecration (boss omen) into an open slot — it removes nothing. Everything
+  // else is a rolled (normal) add.
   const missingPerfect = missing.filter((id) => resolveMod(data, id).source === 'perfect_essence');
   const missingDesecrated = missing.filter((id) => resolveMod(data, id).source === 'desecrated');
   const missingRollable = missing.filter((id) => {
     const s = resolveMod(data, id).source;
     return s !== 'perfect_essence' && s !== 'desecrated';
   });
-  // Said in the player's terms. The earlier wording ("need 2 Perfect Essence(s) but only 0 spare mod(s)
-  // to sacrifice") never named an Alloy, which is what the picker badges these targets as, and it
-  // read as a flaw in the craft rather than in this planner: every route here draws the essence's
-  // removal from a mod already on the item, so it cannot roll one on first for it to take. The true
-  // expected cost can, and does — which is why the panel rendering this points there.
-  if (missingPerfect.length > junk.length) {
-    throw new Error(
-      'an Alloy or Perfect Essence removes a random modifier as it adds its own, so a route needs a modifier '
-      + `you don’t want on the item for each one to take instead — this craft adds ${missingPerfect.length} `
-      + `and your item has ${junk.length === 0 ? 'none' : `only ${junk.length}`}`,
-    );
-  }
-
   if (junk.length === 0 && missing.length === 0) {
     const result = evaluatePlanFrom(data, start, []); // already the target — nothing to do
     return {
@@ -316,7 +330,7 @@ function fromItemForOneCraft(
   // needs neither. Nothing here checks which case applies: an exalt on a Magic item scores 0 in
   // `evaluatePlanFrom` and the plan drops, which is the same "offer it and let evaluation prune" rule
   // the desecrate branch relies on rather than duplicating plan.ts's legality.
-  const openers: { steps: PlanStep[]; adds: readonly string[] }[] = [{ steps: [], adds: [] }];
+  const openers: { steps: PlanStep[]; adds: readonly string[]; perfect?: string }[] = [{ steps: [], adds: [] }];
   if (start.rarity !== 'rare') {
     const addStep = (currency: 'augment' | 'regal', add: string): PlanStep =>
       ({ currency, add, minTierIndex: tierOf.get(add) ?? 0 });
@@ -336,13 +350,26 @@ function fromItemForOneCraft(
         openers.push({ steps: [addStep('augment', first), addStep('regal', second)], adds: [first, second] });
       }
     }
+    // …or on a THROWAWAY, when an essence is due: the Regal lands anything and makes the item the Rare a
+    // Perfect Essence needs, and that essence eats it at once. This is the opener a Magic item holding
+    // only mods you want has — there is nothing else on it for the essence to take.
+    for (const add of missingPerfect) {
+      for (const side of ['prefix', 'suffix'] as const) {
+        const throwaway = { id: 'throwaway:opener', side };
+        openers.push({
+          steps: [{ currency: 'throwaway', orb: 'regal', throwaway }, { currency: 'perfect-essence', add, remove: throwaway.id }],
+          adds: [], perfect: add,
+        });
+      }
+    }
   }
 
   const bossOk = bossOmenAllowed(start.base.category);
   const sequences: PlanStep[][] = [];
   for (const opener of openers) {
     const rest = missingRollable.filter((id) => !opener.adds.includes(id));
-    for (const seq of transformSequences(data, junk, rest, missingPerfect, missingDesecrated, tierOf, bossOk)) {
+    const perfectLeft = missingPerfect.filter((id) => id !== opener.perfect);
+    for (const seq of transformSequences(data, junk, rest, perfectLeft, missingDesecrated, tierOf, bossOk)) {
       sequences.push(opener.steps.length > 0 ? [...opener.steps, ...seq] : seq);
     }
   }

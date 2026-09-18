@@ -36,7 +36,8 @@ export function bossOmenLabel(boss: keyof typeof BOSS_LABEL): string {
   return BOSS_LABEL[boss];
 }
 
-const CURRENCY_LABEL: Record<PlanStep['currency'], string> = {
+// A throwaway is labelled by the orb it spends (`ThrowawayStep.orb`), so it has no entry of its own.
+const CURRENCY_LABEL: Record<Exclude<PlanStep['currency'], 'throwaway'>, string> = {
   transmute: 'Transmutation', augment: 'Augmentation', regal: 'Regal', exalt: 'Exalted',
   alchemy: 'Alchemy', chaos: 'Chaos', annul: 'Annulment', desecrate: 'Desecration', essence: 'Essence', 'perfect-essence': 'Perfect Essence',
   // Still an Exalted Orb — the omen is what makes it land two mods, and it is named in the suffix
@@ -229,7 +230,15 @@ export function addBlockedReason(data: PatchData, state: ItemState, mod: Mod): s
 /** Map an optimizer ParetoResult into the UI-shaped EngineResult (shared by from-white and from-item). */
 export function mapFrontier(data: PatchData, res: ParetoResult, poolAssumed = false): EngineResult {
   const text = (id: string): string => data.mods.get(id)?.text ?? id;
-  const frontier: EnginePlan[] = res.frontier.map((plan) => ({
+  const frontier: EnginePlan[] = res.frontier.map((plan) => {
+    // A throwaway names no mod, so the step that removes it is labelled by the side it was rolled on.
+    const throwaways = new Map(plan.steps.flatMap((s) =>
+      (s.currency === 'throwaway' ? [[s.throwaway.id, s.throwaway.side] as const] : [])));
+    const removed = (id: string): string => {
+      const side = throwaways.get(id);
+      return side === undefined ? text(id) : `the throwaway ${side}`;
+    };
+    return {
     probability: plan.probability,
     expected: plan.cost.expected,
     perAttempt: plan.cost.perAttempt,
@@ -240,7 +249,8 @@ export function mapFrontier(data: PatchData, res: ParetoResult, poolAssumed = fa
       const essenceLevel = step.currency === 'essence' ? step.essenceLevel : undefined;
       // A side-constrained exalt/chaos uses an Exaltation omen (Sinistral = prefix, Dextral = suffix);
       // a perfect-essence step can carry a Sinistral/Dextral Crystallisation omen (constrains the removal).
-      const constrainTo = (step.currency === 'exalt' || step.currency === 'chaos') ? step.constrainTo : undefined;
+      const constrainTo = (step.currency === 'exalt' || step.currency === 'chaos' || step.currency === 'throwaway')
+        ? step.constrainTo : undefined;
       const peOmen = step.currency === 'perfect-essence' ? step.omen : undefined;
       // Omen of Whittling — a CHAOS omen: the orb removes the lowest-LEVEL modifier rather than a
       // uniform one. Named in full because "+ Whittling" alone would not tell a player which orb it
@@ -256,7 +266,7 @@ export function mapFrontier(data: PatchData, res: ParetoResult, poolAssumed = fa
         : constrainTo ? (constrainTo === 'prefix' ? ' + Sinistral' : ' + Dextral')
         : peOmen ? (peOmen === 'sinistral' ? ' + Sinistral' : ' + Dextral')
         : boss ? ` + Omen of the ${BOSS_LABEL[boss]}` : '';
-      const label = CURRENCY_LABEL[step.currency]
+      const label = CURRENCY_LABEL[step.currency === 'throwaway' ? step.orb : step.currency]
         + (orb ? ORB_SUFFIX[orb] : '')
         + (essenceLevel && essenceLevel !== 'normal' ? ` (${essenceLevel})` : '')
         + omen;
@@ -265,12 +275,14 @@ export function mapFrontier(data: PatchData, res: ParetoResult, poolAssumed = fa
       const target = step.currency === 'alchemy' ? step.adds.map(text).join(' + ')
         : step.currency === 'greater-exalt' ? step.adds.map((a) => `+${text(a.modId)}`).join('  ')
         : step.currency === 'chaos' ? `−${text(step.remove)}  +${text(step.add)}`
-        : step.currency === 'perfect-essence' ? `+${text(step.add)}  −${text(step.remove)} (random)`
+        : step.currency === 'perfect-essence' ? `+${text(step.add)}  −${removed(step.remove)} (random)`
         : step.currency === 'annul' ? `removes ${text(step.remove)}`
+        : step.currency === 'throwaway' ? `any ${step.throwaway.side} — a throwaway for the next step to remove`
         : text(sr.target);
       return { n: i + 1, currency: step.currency, orb, label, target, prob: sr.prob };
     }),
-  }));
+    };
+  });
   // Does anything here depend on the ASSUMED desecrated spawn weight? Only an UNOMENED Desecration
   // does: it draws by weight from the combined normal ∪ desecrated pool, and that weight is a
   // judgement call (see the note in tools/refresh/apply_pools.mjs). A boss-omened Desecration is

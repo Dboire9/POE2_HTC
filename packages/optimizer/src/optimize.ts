@@ -287,8 +287,7 @@ function buildParetoSteps(
       // An ordering that reaches this before the item is Rare, or where the slots don't work out,
       // scores 0 in evaluatePlan and drops out — the same "offer it and let evaluation prune" rule the
       // desecrate branch relies on, rather than duplicating plan.ts's legality logic here.
-      if (placed.length === 0) return []; // nothing to eat: no legal sequence from this ordering
-      return placed.map((victim) => {
+      const eaten = placed.map((victim) => {
         const tail: PlanStep[] = [
           ...steps,
           { currency: 'perfect-essence', add: id, remove: victim },
@@ -300,6 +299,24 @@ function buildParetoSteps(
         // from there — including a SECOND perfect target, which now finds targets to eat.
         return walk(k + 1, tail, [...placed, id], rarity, modCount + 1);
       }).flat();
+      // …or roll it something it is FOR: a throwaway, "anything" on one side, which the essence then
+      // eats instead of a target. That is one cheap roll where the branch above re-rolls a target —
+      // on a T1 target, the dearest step in the plan. A Regal lands it on a Magic item (and makes it
+      // the Rare the essence needs), an Exalt on a Rare; from Normal it would take two rolls and two
+      // throwaways alive at once, which a throwaway's one-step life rules out (`Throwaway`, types.ts).
+      // Both sides are offered — the side decides the removal odds, and the search is what picks.
+      // Afterwards the item is what the branch above leaves: Rare, `id` placed, the throwaway gone.
+      const orb = rarity === 'rare' ? 'exalt' : rarity === 'magic' ? 'regal' : undefined;
+      const fed = orb === undefined ? [] : (['prefix', 'suffix'] as const).map((side) => {
+        const throwaway = { id: `throwaway:${k}`, side };
+        const tail: PlanStep[] = [
+          ...steps,
+          { currency: 'throwaway', orb, throwaway },
+          { currency: 'perfect-essence', add: id, remove: throwaway.id },
+        ];
+        return walk(k + 1, tail, [...placed, id], 'rare', modCount + 1);
+      }).flat();
+      return [...eaten, ...fed];
     }
     if (essences.has(id)) {
       // Essence-only mod: guaranteed (P=1) by an essence at the chosen level (its tier index).

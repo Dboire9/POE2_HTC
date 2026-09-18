@@ -33,10 +33,10 @@ const SPIRIT_STAR = [ALLY_DAMAGE, SPIRIT, ALLY_RES, MINION_LEVEL, ALLOY_CHANCE, 
 /**
  * Enough of the Sceptre to be craftable end to end.
  *
- * THREE rolled modifiers, one of them a suffix, are what carry a white base to Rare — transmute,
- * augment, regal — and a Perfect Essence needs a Rare to work on. Two rolled PREFIXES cannot do it: the
- * augment would be a second prefix on a Magic item, which holds one per side, so every plan scores 0
- * and the frontier comes back empty.
+ * THREE rolled modifiers, one of them a suffix, carry a white base to Rare by targets alone —
+ * transmute, augment, regal — and a Perfect Essence needs a Rare to work on. (Fewer would once have
+ * found nothing; a Regal'd THROWAWAY now reaches Rare with less — perfectEssence.test.ts — but this
+ * fixture keeps the shape it was chosen for.)
  */
 const SMALL = [SPIRIT, ALLY_RES, ALLY_DAMAGE, ALLOY_CHANCE, ALLOY_STACKS].map((modId) => ({ modId }));
 
@@ -149,37 +149,34 @@ describe('the Spirit Star Sceptre, as photographed', () => {
 });
 
 /**
- * The Spirit Star Sceptre again, part-way, as a player reported it from the Item tab: a MAGIC Sceptre
- * holding T1 ally damage and T1 minion levels, both wanted, asked for Spirit and the two Alloys with
- * the last suffix left free.
+ * The Spirit Star Sceptre again, part-way, as a player reported it from the Item tab: two Alloys to add
+ * to a Sceptre that holds too little it could spare. Both essences need something to eat. The step
+ * planner used to demand one junk mod per essence and refuse the craft outright; it now rolls a
+ * THROWAWAY for an essence that has none (the reported Magic Sceptre itself is in throwaway.test.ts).
  *
- * The model solves it — it rolls something unwanted first and lets the Alloy take that. The step
- * planner cannot: every route draws an Alloy's removal from a modifier ALREADY on the item, and this
- * one holds none it doesn't want. What the planner owes the player is that sentence, in their terms. It
- * used to say "need 2 Perfect Essence(s) but only 0 spare mod(s) to sacrifice", which never named an
- * Alloy — the badge on both targets — and read as a flaw in the craft rather than in the planner.
+ * This is the mixed case: ONE junk suffix on a Rare, two Alloys. One essence may eat the junk, the
+ * other must have a throwaway rolled for it — and whichever each eats, it is the mod removed.
  */
-describe('an Alloy needs a modifier on the item to take', () => {
+describe('two Alloys, one junk mod to spare', () => {
   const best = (modId: string) => ({ modId, tierName: tierName(modId) });
-  const magic: ItemState = {
-    base: runed, level: 82, rarity: 'magic', prefixes: [best(ALLY_DAMAGE)], suffixes: [best(MINION_LEVEL)],
+  const family = (id: string) => data.mods.get(id)!.family;
+  const taken = [MINION_LEVEL, ALLOY_STACKS].map(family);
+  const junk = sceptre.pools.normal.suffixes.find((id) => !taken.includes(family(id)))!;
+  const held: ItemState = {
+    base: runed, level: 82, rarity: 'rare', prefixes: [best(ALLY_DAMAGE)], suffixes: [best(MINION_LEVEL), best(junk)],
   };
-  const wanted = [ALLY_DAMAGE, MINION_LEVEL, ALLOY_CHANCE, ALLOY_STACKS, SPIRIT].map((modId) => ({ modId }));
-  const freeSuffix = { spare: { prefixes: 0, suffixes: 1 } };
+  const wanted = [ALLY_DAMAGE, MINION_LEVEL, ALLOY_CHANCE, ALLOY_STACKS].map((modId) => ({ modId }));
 
-  // Through the free slot on purpose: that is the path the report took, and the one that must still
-  // reach the planner's refusal rather than stop at the keep-sets built for it.
-  it('names the Alloy, and says the item has nothing for it to take', () => {
-    expect(() => optimizeFromItem(data, prices, magic, wanted, freeSuffix))
-      .toThrow(/Alloy or Perfect Essence removes a random modifier .* adds 2 and your item has none$/);
-  });
-
-  it('counts what the item does hold', () => {
-    const family = (id: string) => data.mods.get(id)!.family;
-    const taken = [MINION_LEVEL, ALLOY_STACKS].map(family);
-    const junk = sceptre.pools.normal.suffixes.find((id) => !taken.includes(family(id)))!;
-    const held: ItemState = { ...magic, rarity: 'rare', suffixes: [...magic.suffixes, best(junk)] };
-    expect(() => optimizeFromItem(data, prices, held, wanted, freeSuffix))
-      .toThrow(/adds 2 and your item has only 1$/);
+  it('plans it, feeding the junk to one essence and a throwaway to the other', () => {
+    const r = optimizeFromItem(data, prices, held, wanted);
+    expect(r.frontier.length).toBeGreaterThan(0);
+    for (const plan of r.frontier) {
+      const eaten = plan.steps.flatMap((s, i) => (s.currency === 'perfect-essence' ? [[s.remove, plan.steps[i - 1]] as const] : []));
+      expect(eaten).toHaveLength(2);
+      for (const [victim, before] of eaten) {
+        // Either the junk the item holds, or the throwaway rolled on the step right before.
+        if (victim !== junk) expect(before).toMatchObject({ currency: 'throwaway', throwaway: { id: victim } });
+      }
+    }
   });
 });

@@ -80,6 +80,9 @@ export function excluded(mod: Mod, occupied: ReadonlySet<string>): boolean {
 export function itemFamilies(data: PatchData, item: ItemState): Set<string> {
   const fams = new Set<string>();
   for (const p of [...item.prefixes, ...item.suffixes]) {
+    // A throwaway names no mod, so it has no family to contribute — and none is needed: the only step
+    // that ever sees one adds a CRAFTED mod, whose groups no rolled family can share (see `Throwaway`).
+    if (p.throwaway) continue;
     for (const f of familiesOf(resolveMod(data, p.modId))) fams.add(f);
   }
   return fams;

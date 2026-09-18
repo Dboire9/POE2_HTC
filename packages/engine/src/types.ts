@@ -140,6 +140,27 @@ export interface PlacedMod {
    * since a Desecration is the only way one reaches an item. Default false.
    */
   readonly desecrated?: boolean;
+  /**
+   * A THROWAWAY: a mod a plan rolls on purpose, "anything on this side", for the Perfect Essence or
+   * Alloy right after it to remove. Which mod it is is unknown, so `modId` is a placeholder that names
+   * nothing in the data — and nothing may resolve it. See `Throwaway` for why it never needs to be.
+   */
+  readonly throwaway?: true;
+}
+
+/**
+ * A throwaway as a plan step names it: the placeholder id its mod carries on the item (what the
+ * removing step's `remove` points at), and the side it lands on.
+ *
+ * It LIVES EXACTLY ONE STEP — `stepProbability` scores every other step 0 on an item holding one —
+ * and that is what keeps a route's odds exact rather than approximate. The one step that sees it is
+ * a Perfect Essence, whose removal odds count mods (`perfectEssenceProbability`) and whose add is
+ * crafted, so no rolled family can block it (`familiesOf`). Which mod landed therefore never changes
+ * a number, and after that step it is gone.
+ */
+export interface Throwaway {
+  readonly id: string;
+  readonly side: AffixType;
 }
 
 /** Mutable item being crafted. Max 3 prefixes + 3 suffixes. */

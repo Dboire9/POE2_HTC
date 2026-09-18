@@ -54,7 +54,8 @@ export function atStrength(step: PlanStep, tier: CurrencyTier): PlanStep | undef
     // Exaltation on it — and the omen works on a Greater or Perfect orb too (user ruling 2026-09-02).
     // Its STRENGTH is a lever: it moves the odds and the price and leaves the same two mods behind.
     // The omen is not, which is why it is baked into the step rather than offered by `withOmen`.
-    case 'transmute': case 'augment': case 'regal': case 'exalt': case 'chaos': case 'greater-exalt':
+    // A throwaway is a Regal or an Exalt too, and `currencyKey` prices its strength as that orb's.
+    case 'transmute': case 'augment': case 'regal': case 'exalt': case 'chaos': case 'greater-exalt': case 'throwaway':
       return { ...step, tier };
     default:
       return undefined;
@@ -69,7 +70,7 @@ export function atStrength(step: PlanStep, tier: CurrencyTier): PlanStep | undef
  * Necromancy omen on an UNOMENED desecration is a real, priced lever that neither offers — left alone
  * here so this change stays one change.
  */
-function withOmen(data: PatchData, prices: Prices, step: PlanStep): PlanStep | undefined {
+function withOmen(data: PatchData, prices: Prices, state: ItemState, step: PlanStep): PlanStep | undefined {
   switch (step.currency) {
     // Omen of Whittling: the Chaos Orb removes the LOWEST-LEVEL modifier instead of a uniform one.
     // Gated on the omen having a PRICE, for the same reason the strengths above are: `stepCost`
@@ -81,8 +82,13 @@ function withOmen(data: PatchData, prices: Prices, step: PlanStep): PlanStep | u
     case 'chaos':
       return prices.omens['OmenofWhittling'] === undefined ? undefined : { ...step, omen: 'whittling' };
     case 'exalt': return { ...step, constrainTo: resolveMod(data, step.add).type };
+    // Forcing the throwaway's side with the Exaltation omen makes it land wherever that side has room.
+    case 'throwaway': return step.orb === 'exalt' ? { ...step, constrainTo: step.throwaway.side } : undefined;
+    // The Crystallisation omen goes on the side the removed mod SITS — read off the item, never by
+    // resolving `remove`: a throwaway's id names no mod, and `resolveMod` would throw on it at run time,
+    // past anything the type checker can see.
     case 'perfect-essence':
-      return { ...step, omen: resolveMod(data, step.remove).type === 'prefix' ? 'sinistral' : 'dextral' };
+      return { ...step, omen: state.prefixes.some((p) => p.modId === step.remove) ? 'sinistral' : 'dextral' };
     // Only a BOSS-targeted desecration takes a side omen here, matching withOmenVariants.
     case 'desecrate': return step.boss ? { ...step, constrainTo: resolveMod(data, step.add).type } : undefined;
     // Omen of Light. No legality gate: `annulProbability` returns 1 only on a desecrated item holding a
@@ -138,7 +144,7 @@ export function leverOptions(
       if (at === undefined || prices.currency[currencyKey(at)] === undefined) continue;
     }
     variants.push(at);
-    const omened = withOmen(data, prices, at);
+    const omened = withOmen(data, prices, state, at);
     if (omened !== undefined) variants.push(omened);
   }
 

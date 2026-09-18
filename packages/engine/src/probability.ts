@@ -176,6 +176,28 @@ export function exaltProbability(data: PatchData, item: ItemState, desiredModId:
   return addNormalAffixProbability(data, item, 'exalt', desiredModId, opts);
 }
 
+/**
+ * Probability that `currency` — a Regal on a Magic item, an Exalt on a Rare — lands ANY modifier on
+ * `side`: a throwaway (`Throwaway`, types.ts), rolled for the Perfect Essence after it to remove.
+ *
+ * The sum of the per-mod chances over that side's pool, so every rule an ordinary add obeys holds here
+ * by construction rather than by copy: the rarity the orb acts on, the Magic 1+1 rung, the orb's ilvl
+ * floor, the item-level cap, a side omen, and the families already on the item (D6). With the side's
+ * own Exaltation omen it is exactly 1 wherever that side has room.
+ *
+ * Every modifier on the side counts, a target's included, and at any tier: the next step removes the
+ * throwaway whatever it turned out to be, so neither which mod nor how well it rolled can matter.
+ */
+export function throwawayProbability(
+  data: PatchData, item: ItemState, currency: 'regal' | 'exalt', side: AffixType,
+  opts: Pick<CurrencyOptions, 'currencyTier' | 'constrainTo'> = {},
+): number {
+  const pool = side === 'prefix' ? item.base.pools.normal.prefixes : item.base.pools.normal.suffixes;
+  let p = 0;
+  for (const id of pool) p += addNormalAffixProbability(data, item, currency, id, opts);
+  return p;
+}
+
 /** Annulment omen: none (any mod), sinistral (prefix only), dextral (suffix only), light (desecrated). */
 export type AnnulOmen = 'none' | 'sinistral' | 'dextral' | 'light';
 

@@ -434,16 +434,29 @@ describe('engine facade — perfect essences in the from-item planner (0.5.0)', 
     expect(step!.target).toMatch(/random/); // "+<add>  −<removed> (random)"
   });
 
-  it('rejects a perfect target when the Rare has no junk to sacrifice', () => {
+  // The target keeps the existing mod AND wants the perfect one, so nothing on the Rare may be eaten.
+  // This used to be refused; the planner now rolls a THROWAWAY for the essence to eat instead, and the
+  // route has to SAY so in words a player can follow at the counter.
+  it('rolls a throwaway for the essence when the Rare has nothing to spare, and says so', () => {
     const pe = listPerfectEssences(eng050.data, 'Wands')[0]!;
     const keep = listMods(eng050.data, 'Wands').prefixes.find((m) => m.source === 'normal' && m.family !== pe.family)!;
     const item: ExistingItem = {
       baseId: 'Wands', level: 82, rarity: 'rare',
       prefixes: [{ modId: keep.id, tierDisplay: 1 }], suffixes: [],
     };
-    // target keeps the existing mod AND wants the perfect one → no spare mod to feed the essence.
-    expect(() => optimizeItem(eng050, item, [{ modId: keep.id, tierDisplay: 1 }, { modId: pe.id, tierDisplay: 1 }]))
-      .toThrow(/Perfect Essence/i);
+    const r = optimizeItem(eng050, item, [{ modId: keep.id, tierDisplay: 1 }, { modId: pe.id, tierDisplay: 1 }]);
+    expect(r.frontier.length).toBeGreaterThan(0);
+    const steps = r.frontier.at(-1)!.steps;
+    const i = steps.findIndex((s) => s.currency === 'throwaway');
+    expect(i, 'the route rolls a throwaway').toBeGreaterThanOrEqual(0);
+    const throwaway = steps[i]!;
+    const side = /any (prefix|suffix)/.exec(throwaway.target)![1]!;
+    // Labelled as the orb to buy — never the internal name — and as what it is for.
+    expect(throwaway.label).toMatch(/^Exalted/);
+    expect(throwaway.target).toBe(`any ${side} — a throwaway for the next step to remove`);
+    // …and the essence right after it names what it takes, by side, not by a placeholder id.
+    expect(steps[i + 1]!.currency).toBe('perfect-essence');
+    expect(steps[i + 1]!.target).toBe(`+${pe.text}  −the throwaway ${side} (random)`);
   });
 });
 

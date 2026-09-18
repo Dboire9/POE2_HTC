@@ -73,6 +73,8 @@ export interface PricedStep {
   readonly echoes?: boolean;
   /** The mod an essence forces. Read ONLY for essence pricing — see the note above. */
   readonly add?: string;
+  /** The orb a THROWAWAY step spends (`ThrowawayStep`, plan.ts) — what it is priced as. */
+  readonly orb?: 'regal' | 'exalt';
 }
 
 /** Where a price sheet came from — carried so the UI can be honest about how firm the numbers are. */
@@ -161,7 +163,11 @@ export function currencyKey(step: PricedStep): string {
   // A bone's GRADE is its own listing: an Ancient one is resolved per base by `pricesForBase`, exactly as
   // the Preserved one is under the plain key.
   if (step.currency === 'desecrate' && step.ancient) return 'desecrate_ancient';
-  const orb = step.currency === 'greater-exalt' ? 'exalt' : step.currency;
+  // A throwaway is a Regal or an Exalt spent on landing anything, so it is priced — and excluded by
+  // "I don't have Exalted Orbs" — as that orb. Its currency name is no listing at all, and falling
+  // through with it would price the step at 0 and make it free.
+  if (step.currency === 'throwaway' && step.orb === undefined) throw new Error('a throwaway step must name its orb');
+  const orb = step.currency === 'greater-exalt' ? 'exalt' : step.currency === 'throwaway' ? step.orb! : step.currency;
   // Which currencies the sheet sells at a strength. NOT "is this an add" — a chaos both removes and
   // adds, and it belongs here because `chaos_greater` / `chaos_perfect` are real listings.
   const hasStrengths = orb === 'transmute' || orb === 'augment'
@@ -178,6 +184,13 @@ export function currencyKey(step: PricedStep): string {
 export function stepOmenIds(step: PricedStep): string[] {
   switch (step.currency) {
     case 'exalt':
+      if (step.constrainTo === 'prefix') return ['OmenofSinistralExaltation'];
+      if (step.constrainTo === 'suffix') return ['OmenofDextralExaltation'];
+      return [];
+    // A throwaway Exalt forced onto one side spends the same Exaltation omen. A Regal takes no side
+    // omen here — none is modelled for a named Regal either — and its odds ignore the field to match.
+    case 'throwaway':
+      if (step.orb !== 'exalt') return [];
       if (step.constrainTo === 'prefix') return ['OmenofSinistralExaltation'];
       if (step.constrainTo === 'suffix') return ['OmenofDextralExaltation'];
       return [];

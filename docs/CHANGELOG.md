@@ -27,6 +27,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   That is the true expected cost's job, and it does it.
   Free slots travel in share links under their own link version, so an older build refuses a link
   rather than quoting the strict craft's price for it.
+- **Step routes can roll a throwaway for a Perfect Essence or Alloy to eat.** An Alloy or Perfect
+  Essence removes one of the item's modifiers at random as it adds its own, and a route could only offer
+  it something already on the item. From an item holding only mods you want that meant no route at all
+  — a Magic Sceptre with two Alloys to add got *No step-by-step route*. From scratch it was worse than a
+  refusal: the essence ate one of your targets and the route rolled it again. A route can now roll a
+  **throwaway** — anything, on either side — right before the essence, which removes it. The reported
+  Sceptre gets nine routes. From scratch, measured on a fixed price sheet, a Sceptre with one Alloy got
+  **6× likelier** (best route 1 in 47,000 → 1 in 7,800) and its cheapest **4.5× cheaper** (11,731 →
+  2,595 ex); the six-modifier Spirit Star with two Alloys got **55× likelier**. The odds stay exact: a
+  throwaway is always removed on the very next step, so which modifier it was never changes a number.
+  Crafts without a Perfect Essence or Alloy get byte-identical routes. Crafts with one take longer to
+  plan — the Spirit Star went from 0.4 s to 2 s, well inside the default search effort.
 
 ### Fixed
 
@@ -40,11 +52,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   and when one fails, the message now names the file and the error instead of a JSON parse error.
 - **The Item tab's step-by-step routes never said why they had none.** When the step planner can't lay
   out a craft, the panel showed a generic guess — "usually the target needs more mods than fit, or a
-  tier gated above the item level" — under a heading claiming every path had scored 0%. Reported on a
-  Magic Sceptre with two Alloys to add: an Alloy removes a random modifier as it adds its own, a
-  step route can only hand it one already on the item, and that item had none to spare. The panel now
-  gives that reason, names the Alloy, and points to the true expected cost above, which isn't limited to
-  fixed routes and had already answered the craft (1,733 div).
+  tier gated above the item level" — under a heading claiming every path had scored 0%. It now says
+  *No step-by-step route for this craft*, gives the planner's own reason, and points to the true
+  expected cost above, which isn't limited to fixed routes. The craft that exposed it — two Alloys to
+  add on a Magic Sceptre — now gets routes instead; see *throwaway* above.
 - **"Your item has done X% of this craft" now uses the same unit as the cost above it.** It could read
   "saves 3,321 chaos" one line under "1,733 div".
 

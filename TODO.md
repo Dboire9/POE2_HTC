@@ -51,7 +51,9 @@ route and an honest cost. What that left open:
   the Magic rung beside the Regal: forces its mod, converts Magic → Rare, removes nothing, P=1. Both
   planners buy the same level by construction (`clamp(minTierIndex)`), which a test pins. See
   docs/validation.md, and note the shared level-pricing limitation recorded there.
-- **The step planner still cannot express filler.** Interesting consequence: the MDP *can* — it rolls
+- **The step planner still cannot express filler — except for a Perfect Essence** (2026-09-18: a
+  THROWAWAY step rolls anything for the essence to eat; see CLAUDE.md and docs/validation.md). The
+  Desecration-from-white case below is still open. Interesting consequence: the MDP *can* — it rolls
   whatever lands and desecrates — so a lone desecrated target from white is feasible in one model and
   not the other. **Traced 2026-08-28 and the copy is FINE**: `FrontierView`'s empty-state says "Nothing
   this search tried worked … the craft may still be possible by a route the planner doesn't explore",

@@ -4390,6 +4390,59 @@ they can Exalt or Desecrate it afterwards and whatever lands counts, which is a 
 and the weak half of it: the only way an Exalt fails to fill a free slot is the side being full, which
 the picker prevents by counting free slots against the cap.
 
+## Throwaway steps — a Perfect Essence or Alloy gets something to eat (2026-09-18)
+
+**What changed.** A Perfect Essence (an Alloy is one to the engine) removes one of the item's modifiers
+at random as it adds its own. The step planner could only offer it a mod already there: junk from an
+item, or — from white — one of the TARGETS, re-exalted straight after. A route may now roll a
+**throwaway** — a Regal on a Magic item, an Exalt on a Rare, landing anything on a chosen side — right
+before the essence, which removes it. `ThrowawayStep` (plan.ts), `throwawayProbability` (probability.ts).
+
+**Why the odds are EXACT, not approximate.** A throwaway lives one step: `stepProbability` scores 0 for
+every step on an item holding one except the Perfect Essence that names it. That essence's removal
+odds count mods (`perfectEssenceProbability`) and its add is crafted, so no rolled family can block it
+(`familiesOf`); after it the throwaway is gone. Which modifier landed therefore changes no later factor,
+and the throwaway's own odds are the side's share of the ordinary per-mod add odds — every rule of an
+add (rarity, Magic 1+1, orb floor, omen side, D6) carried over by construction. The plan first worked
+out worst-case rules for a throwaway that lingers (a later throwaway draw would be *optimistic* if an
+earlier one's family were ignored); the one-step life made all of them unnecessary.
+
+**Tested, not argued** (`packages/optimizer/src/throwaway.test.ts`):
+- *Exactness*: each route with a throwaway is recomputed by branching at every throwaway over each
+  modifier it could really be — its own probability, its own family on the item, its real id in the step
+  that eats it. On the reported Sceptre (two throwaways, from an item) and a two-Alloy craft from white,
+  model / branched = 1 to 12 digits.
+- *Identity*: ten crafts with no Perfect Essence — both planners, tier targets, excluded currencies, an
+  essence, a desecration, a Magic start, junk, a free slot, a fractured mod — recorded at `62315a9`
+  before any change (`__fixtures__/pre-throwaway-frontiers.json`), replayed byte-identical, INCLUDING
+  `plansEvaluated`: the search is unchanged, not merely its winners.
+- *Never worse*: every old frontier point on two Perfect-Essence crafts is matched or beaten.
+- *Mutation-checked*, each caught: the one-step-life guard, `itemFamilies` skipping the placeholder,
+  the side filter, the Crystallisation side read off the ITEM (resolving `remove` throws on a
+  placeholder, past anything the type checker sees), throwaway pricing as its orb (its currency name
+  is no listing — unmapped it would be FREE), the Exaltation omen offer, the from-white branch, the
+  from-item victims, the Magic-start opener, the keep-set filter's removal, the Regal making the item Rare.
+
+**Measured** (frozen price sheet, this machine):
+
+| craft | before | after |
+|---|---|---|
+| Sceptre, one Alloy, from white | likeliest 1 in 47,059 · cheapest 11,731 ex | 1 in 7,837 · 2,595 ex — every surviving route uses a throwaway |
+| Spirit Star (6 mods, two Alloys), from white | likeliest 5.76e-7 | 3.15e-5 (55×) |
+| 5 mods, two Alloys, from white | 8.85e-6 | 5.64e-4 (64×) |
+| the reported Magic Sceptre, from an item | refused | 9 routes, likeliest 7.87e-4 |
+| Sceptre with one junk suffix, one Alloy | 2 routes (eat the junk) | unchanged — the junk is still the better meal |
+
+**Time, and a deviation from the plan.** Perfect-Essence crafts plan 5–7× slower: Spirit Star
+413 → 1,967 ms, the 5-mod craft 24 → 171 ms, its budget search 64 → 401 ms. The plan's guard said to
+restrict the throwaway to one side past ~3×. It was not, because the frontiers answer it: tallying the
+throwaways on every surviving route of four crafts, BOTH sides win, each with both orbs — restricting
+would delete routes that win. 2 s sits well inside the default effort's 15 s budget.
+
+**Not covered.** A throwaway for a Desecration from white (the Lab's "needs a Rare" case), a throwaway
+inside a Greater Exaltation (`fuse` requires two named Exalts, and would also refuse on the missing
+`add`), and a throwaway as filler for a free slot. The true expected cost already rolls junk freely.
+
 ## Still deferred
 - **Confirm the Omen of Whittling TIE rule in game** (2026-09-02): when two or more modifiers share
   the lowest item level, which does the Chaos Orb remove? Modelled as uniform — 50/50 on two — by the

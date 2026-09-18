@@ -306,10 +306,14 @@ describe('optimizeFromItem — perfect essences (hand-computed)', () => {
     expect(step).toMatchObject({ currency: 'perfect-essence', add: 'PE1', remove: 'NP1', omen: 'sinistral' });
   });
 
-  it('rejects a perfect target with no junk mod to sacrifice', () => {
-    // [NP1 | NS1] already holds both wanted rolled mods, so there is no spare mod to feed the essence.
-    expect(() => optimizeFromItem(pdata, pprices, rare(['NP1'], ['NS1']),
-      [{ modId: 'NP1' }, { modId: 'NS1' }, { modId: 'PE1' }])).toThrow(/Perfect Essence/i);
+  // [NP1 | NS1] already holds both wanted rolled mods, so there is no junk to feed the essence. It used
+  // to throw; now the planner would roll a THROWAWAY for it to eat — but this base's whole pool is
+  // already on the item, so an Exalt has nothing left to land and every such route scores 0. A search
+  // that ran and found nothing, not a refusal. (throwaway.test.ts has the case where one can land.)
+  it('finds no route when nothing is left that a throwaway could be', () => {
+    const r = optimizeFromItem(pdata, pprices, rare(['NP1'], ['NS1']),
+      [{ modId: 'NP1' }, { modId: 'NS1' }, { modId: 'PE1' }]);
+    expect(r.frontier).toHaveLength(0);
   });
 });
 

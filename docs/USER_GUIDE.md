@@ -738,8 +738,12 @@ anywhere from a few exalts to a few thousand. See [Alloys](#alloys).
 **Why does my wand not offer fire mods?** Because it's a cold wand. Wand and staff bases lock to a spell
 element, and the **Variant** menu next to **Base** is where you say which one you're holding.
 
-**Why can't I target a Perfect-Essence-only mod from scratch?** The from-white planner doesn't model the
-remove-and-add-on-Rare flow those need. Use the **I have an item** tab, which does.
+**Why does a step route say "any suffix — a throwaway for the next step to remove"?** A Perfect Essence
+or Alloy removes one of the item's modifiers, at random, as it adds its own. When nothing on the item is
+a modifier you don't want, the route rolls one on purpose — a *throwaway*, anything on that side — and
+the essence on the very next step removes it. Which modifier lands never matters, so the odds stay
+exact. Before, a route from scratch let the essence eat one of your *targets* and rolled it again, and a
+route from an item holding only mods you want had no route at all.
 
 ---
 

@@ -1,6 +1,6 @@
 export type {
   AffixType, ModSource, Rarity, Tier, Mod, Pool, ItemBase, ItemLimits, PatchData,
-  PlacedMod, ItemState, CurrencyTier,
+  PlacedMod, ItemState, CurrencyTier, Throwaway,
 } from './types.ts';
 export { CURRENCY_FLOOR } from './types.ts';
 
@@ -27,7 +27,7 @@ export {
 } from './item.ts';
 export {
   addAffixProbability, addNormalAffixProbability,
-  transmuteProbability, augmentationProbability, regalProbability, exaltProbability,
+  transmuteProbability, augmentationProbability, regalProbability, exaltProbability, throwawayProbability,
   annulProbability, perfectEssenceProbability, essenceForcedProbability,
   desecrationBossProbability, desecrationBossAnySideProbability, desecrationProbability, desecrationOmenForMod, chaosProbability, chaosRemovalProbability, lowestLevelMods, alchemyProbability,
   ALCHEMY_MOD_COUNT, greaterExaltProbability, GREATER_EXALT_MOD_COUNT,
@@ -42,5 +42,5 @@ export { indexPatch } from './indexPatch.ts';
 export type { ModsFile, BasesFile } from './indexPatch.ts';
 export { loadPatch } from './loadPatch.ts';
 
-export { evaluatePlan, evaluatePlanFrom, planStates, stepProbability } from './plan.ts';
-export type { PlanStep, PlanStepResult, PlanResult } from './plan.ts';
+export { evaluatePlan, evaluatePlanFrom, planStates, stepProbability, isThrowaway, heldThrowaway } from './plan.ts';
+export type { PlanStep, PlanStepResult, PlanResult, ThrowawayStep } from './plan.ts';

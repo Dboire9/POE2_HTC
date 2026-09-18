@@ -6,14 +6,14 @@
 // This is the exact, testable core the optimizer/beam search sits on top of: the search proposes
 // sequences, this evaluates them. It does NOT search — it scores a given plan.
 
-import type { AffixType, CurrencyTier, ItemBase, ItemState, PatchData, PlacedMod, Rarity } from './types.ts';
+import type { AffixType, CurrencyTier, ItemBase, ItemState, PatchData, PlacedMod, Rarity, Throwaway } from './types.ts';
 import { familyAvailable, resolveMod } from './pool.ts';
 import { limitsOf, prefixesFull, suffixesFull, whiteItem, withAffix } from './item.ts';
 import type { AnnulOmen, ChaosOmen, CurrencyOptions, DesecrationBossOmen, DrawTarget, EssenceOmen } from './probability.ts';
 import {
   alchemyProbability, annulProbability, augmentationProbability, chaosProbability, desecrationBossAnySideProbability,
   desecrationBossProbability, desecrationOffered, desecrationProbability, essenceForcedProbability, exaltProbability,
-  greaterExaltProbability, perfectEssenceProbability, regalProbability, transmuteProbability,
+  greaterExaltProbability, perfectEssenceProbability, regalProbability, throwawayProbability, transmuteProbability,
 } from './probability.ts';
 
 /**
@@ -61,7 +61,38 @@ export type PlanStep =
   // `essenceLevel` is that level's label (lesser/normal/greater) for pricing.
   | { currency: 'essence'; add: string; essenceTier?: number; essenceLevel?: string }
   // A perfect essence: adds its guaranteed `add` mod while removing the existing `remove` mod.
-  | { currency: 'perfect-essence'; add: string; remove: string; omen?: EssenceOmen };
+  | { currency: 'perfect-essence'; add: string; remove: string; omen?: EssenceOmen }
+  | ThrowawayStep;
+
+/**
+ * A Regal or an Exalt spent on landing ANYTHING on one side, so the Perfect Essence or Alloy right
+ * after it has a modifier you don't want to remove (`Throwaway`, types.ts, and why it lives one step).
+ *
+ * Its own `currency`, with the orb beside it in `orb`, rather than reusing 'regal' / 'exalt'. Two
+ * members sharing a discriminant make TypeScript demand that a `{ currency: AddCurrency, add }` literal
+ * fit BOTH of them, so every planner that builds its adds that way stopped compiling. The price of the
+ * separate discriminant is that code reading `currency` must map it to `orb` itself — `currencyKey`
+ * (cost.ts) above all, where an unmapped 'throwaway' would price at 0 and make the step free.
+ */
+export interface ThrowawayStep {
+  readonly currency: 'throwaway';
+  /** The orb that lands it — a Regal on a Magic item, an Exalt on a Rare. Its price, strengths and
+   *  omens are that orb's. */
+  readonly orb: 'regal' | 'exalt';
+  readonly throwaway: Throwaway;
+  readonly tier?: CurrencyTier;
+  /** A side omen: only an Exalted Orb takes one here (Sinistral/Dextral Exaltation). */
+  readonly constrainTo?: AffixType;
+}
+
+export function isThrowaway(step: PlanStep): step is ThrowawayStep {
+  return step.currency === 'throwaway';
+}
+
+/** The placeholder id of the throwaway on `state`, if it holds one. */
+export function heldThrowaway(state: ItemState): string | undefined {
+  return [...state.prefixes, ...state.suffixes].find((p) => p.throwaway)?.modId;
+}
 
 export interface PlanStepResult {
   readonly currency: PlanStep['currency'];
@@ -97,7 +128,19 @@ function addOpts(step: AddFields & { constrainTo?: AffixType }): CurrencyOptions
 
 /** Probability of `step` given the state immediately before it. Dispatches to the per-step fns. */
 export function stepProbability(data: PatchData, state: ItemState, step: PlanStep): number {
+  // A throwaway lives exactly ONE step: on an item holding one, the only step that can happen is the
+  // Perfect Essence that removes it. Enforced here rather than trusted to the planners that build the
+  // routes, because it is what keeps a route's odds exact — any other step would be priced against a
+  // modifier nobody knows (see `Throwaway`). A second throwaway before the first is gone is one such.
+  const held = heldThrowaway(state);
+  if (held !== undefined && !(step.currency === 'perfect-essence' && step.remove === held)) return 0;
   switch (step.currency) {
+    case 'throwaway':
+      return throwawayProbability(data, state, step.orb, step.throwaway.side, {
+        ...(step.tier === undefined ? {} : { currencyTier: step.tier }),
+        // Only an Exalt takes a side omen here, so only an Exalt's side constraint counts — see stepOmenIds.
+        ...(step.orb === 'exalt' && step.constrainTo !== undefined ? { constrainTo: step.constrainTo } : {}),
+      });
     case 'transmute': return transmuteProbability(data, state.base, step.add, { ...addOpts(step), level: state.level });
     case 'augment': return augmentationProbability(data, state, step.add, addOpts(step));
     case 'regal': return regalProbability(data, state, step.add, addOpts(step));
@@ -192,6 +235,12 @@ function addMod(
 /** Apply `step`'s outcome to `state`, returning the next state. */
 function applyStep(data: PatchData, state: ItemState, step: PlanStep): ItemState {
   switch (step.currency) {
+    // Placed under its placeholder id, which the removing step's `remove` names. No tier: whatever
+    // landed is gone one step later, so nothing ever reads one.
+    case 'throwaway': {
+      const placed: PlacedMod = { modId: step.throwaway.id, tierName: '', throwaway: true };
+      return withAffix(state, step.throwaway.side, placed, rarityAfterAdd(step.orb, state.rarity));
+    }
     case 'annul': return removeMod(state, step.remove);
     // Alchemy lands all `adds` at once (each on its own side, tier 0), turning the item Rare.
     case 'alchemy': return step.adds.reduce((s, id) => addMod(data, s, 'alchemy', id), state);
@@ -238,7 +287,8 @@ export function evaluatePlanFrom(data: PatchData, start: ItemState, steps: reado
   for (const step of steps) {
     const prob = stepProbability(data, state, step);
     total *= prob;
-    const target = step.currency === 'annul' ? step.remove
+    const target = step.currency === 'throwaway' ? step.throwaway.id
+      : step.currency === 'annul' ? step.remove
       : step.currency === 'alchemy' ? step.adds.join('+')
       : step.currency === 'greater-exalt' ? step.adds.map((t) => t.modId).join('+')
       : step.add;
@@ -261,7 +311,7 @@ export function evaluatePlanFrom(data: PatchData, start: ItemState, steps: reado
  * gets a state to score against either way, and the 0 is what prunes it.
  *
  * WHY A CALLER WOULD WANT THIS. `applyStep` reads only `currency` / `remove` / `add` / `adds` /
- * `essenceTier` — never `tier`, `constrainTo` or `omen`. So the states this returns are the same for
+ * `essenceTier` / `throwaway` — never `tier`, `constrainTo` or `omen`. So the states this returns are the same for
  * every choice of orb strength or omen over the same skeleton, which is what lets a search price those
  * choices one step at a time instead of enumerating their product. That property is load-bearing for
  * `packages/optimizer/src/levers.ts`; a new field read by `applyStep` would silently break it, which

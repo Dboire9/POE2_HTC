@@ -1,0 +1,90 @@
+{
+ "wands, white, free base, two targets": {
+  "expectedCost": 8.65692964656355,
+  "bound": "exact",
+  "bareCost": 8.65692964656355,
+  "nodes": 10,
+  "edges": 16,
+  "sha256": "7d2f001aca6ebb3fc4f5be5f0e33e1b28394c2c8f40411d09eb09143d98ca804"
+ },
+ "wands, white, paid base, tier target": {
+  "expectedCost": 1221.8107041681087,
+  "bound": "exact",
+  "bareCost": 1221.8107041681087,
+  "nodes": 41,
+  "edges": 91,
+  "sha256": "f138bc2644e60845ca7b73519d44373c80ec489b59611327b0936312d82f83a8"
+ },
+ "wands, held rare with junk": {
+  "expectedCost": 2742.7474799412803,
+  "bound": "exact",
+  "bareCost": 2419.6335450362453,
+  "nodes": 40,
+  "edges": 151,
+  "sha256": "daa3948528a5c651127ce1c1ebe237a1d33e133076b9c84987ba0500fed1ed7a"
+ },
+ "wands, magic start": {
+  "expectedCost": 3309.3254715535722,
+  "bound": "exact",
+  "bareCost": 3292.2739450191725,
+  "nodes": 46,
+  "edges": 190,
+  "sha256": "c7c6947721073ec9ab3b96d17e9030f8e498523a2dd412a5def27eb7064af18f"
+ },
+ "rings, white, currencies excluded": {
+  "expectedCost": 9055.67261151974,
+  "bound": "exact",
+  "bareCost": 9055.67261151974,
+  "nodes": 73,
+  "edges": 225,
+  "sha256": "910cdfa21284764ffbae668e308a38280b42336e0f98858bd07176c6fb65ed29"
+ },
+ "wands, held rare, desecrated target": {
+  "expectedCost": 142.6914106010142,
+  "bound": "exact",
+  "bareCost": 371.43474591858296,
+  "nodes": 6,
+  "edges": 13,
+  "sha256": "7b0ae58cba2c38822f29ab2260f8391c6de431bfd64d594dd312e77180b933e9"
+ },
+ "wands, white, regular essence": {
+  "expectedCost": 14.93681045197009,
+  "bound": "exact",
+  "bareCost": 14.93681045197009,
+  "nodes": 5,
+  "edges": 6,
+  "sha256": "c0b18ec12b6f20b0ebe36ea1d6933bd31d598f8a97eca65b0dd20e7f819e9243"
+ },
+ "wands, held rare, perfect essence": {
+  "expectedCost": 90.73,
+  "bound": "exact",
+  "bareCost": 462.4984085678817,
+  "nodes": 2,
+  "edges": 1,
+  "sha256": "7020fbac1c39f68e0770d511b587cdc465a79951124e4defb4884759fdecd859"
+ },
+ "boots, white, free suffix": {
+  "expectedCost": 30.431234819384354,
+  "bound": "exact",
+  "bareCost": 30.431234819384354,
+  "nodes": 14,
+  "edges": 25,
+  "sha256": "fc93421dc2d879daf414a844cb81a4d49deaadfd4b423994fa92258da1f481ea"
+ },
+ "wands, held rare, fractured target": {
+  "expectedCost": 431.56565698555795,
+  "bound": "exact",
+  "bareCost": 458.0358050691221,
+  "nodes": 3,
+  "edges": 6,
+  "sha256": "6e919acb0cc2e1aab45929d554e4c1ec5e56a831ac3e9829194d79984b1c6437"
+ },
+ "wands, white, cross-family alternatives": {
+  "expectedCost": 14.033920298971092,
+  "bound": "exact",
+  "bareCost": 14.033920298971092,
+  "nodes": 13,
+  "edges": 22,
+  "sha256": "28ee581c37673836d398a456159cd73e3bbbfb09e17246d94b3803270514d0e5"
+ }
+}

@@ -38,7 +38,7 @@ import {
   canonicalFilterFor, encoderFor, familiesOfTarget, mergeSlots, permutationClasses, slotMasksOf,
 } from './markovSymmetry.ts';
 import type { ActionDef, McAction } from './markovActions.ts';
-import { createActionSpace } from './markovActions.ts';
+import { actionCostOf, createActionSpace } from './markovActions.ts';
 import type { McTarget, StateKey, McRarity } from './markovState.ts';
 import {
   FLAG_NONE, bit, classifyStart, decodeState,
@@ -48,6 +48,8 @@ import type { PolicyEdge, PolicyNode, RouteTable } from './markovRoute.ts';
 import { flagFieldsOf, routeFrom } from './markovRoute.ts';
 import type { Holding } from './markovStarts.ts';
 import { startCandidates } from './markovStarts.ts';
+import type { ReplayOptions, ReplayReport } from './markovReplay.ts';
+import { replayPolicy } from './markovReplay.ts';
 
 // The action vocabulary is this module's public face too — callers (the facade, the UI, tests) import
 // it from here rather than reaching into markovActions.ts. So are the route's shapes, which live beside
@@ -56,6 +58,7 @@ export type { McAction, ExaltStrength } from './markovActions.ts';
 export { actionCostOf } from './markovActions.ts';
 export type { PolicyEdge, PolicyNode, RouteTable } from './markovRoute.ts';
 export type { Holding } from './markovStarts.ts';
+export type { ReplayOptions, ReplayReport, ReplayResult } from './markovReplay.ts';
 
 
 export interface MarkovResult {
@@ -139,6 +142,9 @@ export interface MarkovResult {
   readonly routes?: RouteTable;
   /** The `restartCost` this solve ran with, echoed — present exactly when starting over was a move. */
   readonly restartCost?: number;
+  /** The solved policy played on real items — present exactly when `replay` was asked for and the solve
+   *  was EXACT. See markovReplay.ts. */
+  readonly replay?: ReplayReport;
 }
 
 /**
@@ -252,6 +258,14 @@ export interface MarkovOptions {
    * player might buy instead, and no other caller pays to ship it.
    */
   readonly keepRoutes?: boolean;
+  /**
+   * Play the solved policy on real items afterwards (markovReplay.ts): what following it really costs,
+   * and how often each watched mod or combination shows up on the way.
+   *
+   * Only on an EXACT solve, for the reason `keepRoutes` gives — a bound's policy is not the optimal one,
+   * and numbers drawn from it would describe a plan nobody should follow.
+   */
+  readonly replay?: ReplayOptions;
 }
 
 /** How often the O(states) loops report. Frequent enough to animate, rare enough to cost nothing. */
@@ -1515,6 +1529,15 @@ export function markovFromItem(
     list, slotMasks, rarities, encode,
     valueAt: (key) => { const i = idxOfState.get(key); return i === undefined ? undefined : V[i]; },
   });
+  // Played on real items when asked — the replay classifies every item the way `s0` was classified and
+  // asks this very policy what to do, so it can only ever describe the plan the result reports.
+  const replay = opts.replay && bound === 'exact'
+    ? replayPolicy({
+      data, start, list, idxOf, encode, policy,
+      isGoal: (s) => isAccepting(s, slotMasks, spare),
+      costOf: (a) => actionCostOf(prices, a),
+    }, opts.replay)
+    : undefined;
   // Its own read, at the STARTING rarity — see the note above on why that differs from `holdings`.
   const bareIdx = idxOfState.get(encode(0, 0, 0, 0, FLAG_NONE, s0.rarity));
   const bareV = bareIdx === undefined ? undefined : V[bareIdx];
@@ -1525,5 +1548,6 @@ export function markovFromItem(
     ...(holdings.length > 0 ? { holdings } : {}),
     ...(opts.keepRoutes && bound === 'exact' ? { routes: table } : {}),
     ...(opts.restartCost !== undefined ? { restartCost: opts.restartCost } : {}),
+    ...(replay ? { replay } : {}),
   };
 }

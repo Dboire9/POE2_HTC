@@ -392,3 +392,18 @@ shortage it described is now planned around rather than refused, and the sentenc
 | 59 | "any suffix — a throwaway for the next step to remove" | `engineMap.ts` `mapFrontier`, step routes | **OK, and "the next step" is enforced, not described** | A throwaway step's success is landing on that side (`throwawayProbability`, the side's share of the ordinary per-mod add odds). `stepProbability` scores 0 for every step on an item holding one EXCEPT the Perfect Essence naming it for removal, so no route containing a throwaway can do anything else next. Labelled by the orb it spends (`ThrowawayStep.orb`), never by its internal currency name |
 | 60 | "+<mod>  −the throwaway suffix (random)" | `engineMap.ts` `mapFrontier` | **OK** | The same "(random)" every Perfect Essence step carries: removal is uniform over the item's mods, or over one side under a Crystallisation omen (`perfectEssenceProbability`). The side is read from the throwaway step that placed it, since its id names no mod |
 | 61 | "Which modifier lands never matters, so the odds stay exact" | `USER_GUIDE.md` FAQ | **OK — proved by test, not argued** | The only step that ever sees a throwaway counts mods and adds a crafted mod no rolled family can block (`familiesOf`), and the throwaway is gone after it. `throwaway.test.ts` recomputes real routes by branching over every modifier a throwaway could really be — with its own family on the item — and matches the model to 12 digits |
+
+## Family siblings (2026-09-21)
+
+The true-cost model learned that a DIFFERENT modifier of a target's family blocks it — Cold spell damage
+where you want Fire, another "+level to … spell skills" where you want Fire's. The graph called every
+blocked target "off-tier" and "stuck below tier", which was only ever one of the two causes; the copy now
+names both. The "In the way" row is new: a modifier nobody asked for that blocks a target from the other
+side of the item, or blocks two at once.
+
+| # | Claim | Where | Verdict | Traced to |
+|---|---|---|---|---|
+| 62 | "N blocked" on a box; "Blocked … another roll holds its family — the mod below this tier, or another mod of the family — annul before re-adding" | `PolicyGraph.tsx` state label and detail | **OK — both causes, and nothing else** | `blocked` is set by an add landing the target below its tier OR one of its same-side siblings (`addOutcomes`, `desecrateAnyOutcomes`, boss draws via `blocks`), and by `classifyStart` for either on a held item. Every removal of a blocked occupier frees the family (`removeOutcomes`), so "annul before re-adding" is the only way out the model has |
+| 63 | "In the way … not a target, and it holds a target’s family — annul it" | `PolicyGraph.tsx` state detail | **OK** | Only an OBSTACLE position renders here (`resolveSiblings`: a sibling on the other side, or one blocking two targets). It is in no slot, so the goal never needs it, and `isAccepting` counts it against the free slots exactly as junk — so it must come off unless a free slot holds it |
+| 64 | "blocks X" in a step's description | `PolicyGraph.tsx` `describeStep` | **OK** | `policyPath.ts` lists the targets blocked in the next state and not in this one — the same bit as row 62, whatever blocked it. The old "blocks X below tier" named one cause of two |
+

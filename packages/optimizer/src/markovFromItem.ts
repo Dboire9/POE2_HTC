@@ -18,11 +18,15 @@
 //     exalts. See markovActions.ts for the price-gating rule.
 //
 // DOCUMENTED APPROXIMATIONS: two target mods sharing a family are validated out upstream (so free
-// targets always have distinct families); a fractured JUNK mod is treated as ordinary removable junk
-// (only target mods can be fractured-locked here). Omen of Whittling — a CHAOS omen that changes the
-// item's lowest-TIER mod (per-mod T-number, not ilvl) rather than a random one — needs the mod-tier
-// ORDERING the abstraction discards, so it's out of scope. Perfect-essence / desecrate / essence
-// targets stay on the linear planner (the caller falls back).
+// targets always have distinct families). A DIFFERENT mod of a target's family is modelled — it blocks
+// the target (markovSiblings.ts) — but a junk mod's own family is NOT removed from the next roll's
+// pool, since the lattice never knows which junk landed. That overstates the cost: measured at up to
+// 7% on Wand crafts, more on a small pool (docs/validation.md, 2026-09-21). A fractured JUNK mod is
+// treated as ordinary removable junk (only target mods can be fractured-locked here). Omen of
+// Whittling — a CHAOS omen that changes the item's lowest-TIER mod (per-mod T-number, not ilvl)
+// rather than a random one — needs the mod-tier ORDERING the abstraction discards, so it's out of
+// scope. Perfect-essence / desecrate / essence targets stay on the linear planner (the caller falls
+// back).
 
 import type { ItemState, PatchData } from '../../engine/src/types.ts';
 import { modTierWeight, resolveMod } from '../../engine/src/pool.ts';
@@ -50,6 +54,7 @@ import type { Holding } from './markovStarts.ts';
 import { startCandidates } from './markovStarts.ts';
 import type { ReplayOptions, ReplayReport } from './markovReplay.ts';
 import { replayPolicy } from './markovReplay.ts';
+import { resolveSiblings } from './markovSiblings.ts';
 
 // The action vocabulary is this module's public face too — callers (the facade, the UI, tests) import
 // it from here rather than reaching into markovActions.ts. So are the route's shapes, which live beside
@@ -357,8 +362,56 @@ export function markovFromItem(
    * plain mod. `list` is the merged positions from here on, and `n` counts positions, not candidates;
    * the cap above deliberately still counts candidates, since that is the limit the player set.
    */
-  const { targets: list, slots } = mergeSlots(cands, slotIndexGroups(targets));
+  const merged = mergeSlots(cands, slotIndexGroups(targets));
+  const slots = merged.slots;
+  /*
+   * Is Desecration in play at all?
+   *
+   * A desecrated target to craft, a flagged mod on the item to clear — or simply a bone on the price
+   * sheet. A bone OFFERS three modifiers and you keep one, so it can be the cheapest way to add an
+   * ORDINARY mod, and whether it is depends on what a miss would cost, which only the solve knows.
+   *
+   * A price test used to stand here — bones only when one cost less than `DESECRATION_OFFER_COUNT`
+   * Exalts — sold as a necessary condition: the offer at most triples the chance of a hit, so a dearer
+   * bone "cannot win". That weighs one bone against three Exalts, but three Exalts put three mods on
+   * the item and a bone puts one, and every miss is a mod to take off again (an Annulment, which may
+   * take a target instead) or the item itself. What the offer buys is not a hit; it is not having to
+   * take a miss. Measured 2026-09-10 on a held Rare Wand: a jawbone priced at 30 Exalts still takes the
+   * craft from 4,073.8ex to 2,608.8ex. By then the market had closed the test on every base (jawbone
+   * 4.2ex, rib 21ex, collarbone 110ex, Exalt 1ex), so no craft desecrated for an ordinary mod.
+   *
+   * What the test protected is real, and now paid for: the flag axis, ~3x the states and 2-8x the solve
+   * time on a craft that would not otherwise have used it. TODO 20.
+   *
+   * An ABSENT price reads as "no bone", not as a free one: `stepCost` turns a missing key into 0, and
+   * a 0 here would switch desecration on for every base in a sheet that simply doesn't price bones.
+   */
+  // Either grade of bone will do — Preserved (`desecrate`) or Ancient (`desecrate_ancient`), each
+  // already resolved for this base by `pricesForBase`.
+  const BONE_KEYS = ['desecrate', 'desecrate_ancient'] as const;
+  // …and none of it matters if the player has excluded the currency: with no Desecration in the action
+  // space nothing can ever set the flag, so enumerating the axis is pure cost. Worth checking here
+  // rather than leaving to `allowsAction`, which prunes ACTIONS and cannot shrink the lattice.
+  const bonesAllowed = BONE_KEYS.some((k) => !opts.policy?.excluded.has(k));
+  const bonePriced = BONE_KEYS.some((k) => prices.currency[k] !== undefined && !opts.policy?.excluded.has(k));
+  // A mod a bone placed is on the held item exactly when `classifyStart` will flag one — read here off
+  // the item itself, because the family siblings below depend on this and `s0` depends on them.
+  const holdsCarved = [...start.prefixes, ...start.suffixes]
+    .some((p) => p.desecrated === true || data.mods.get(p.modId)?.source === 'desecrated');
+  const desecratable = bonesAllowed
+    && (merged.targets.some((t) => representative(t).source === 'desecrated') || holdsCarved || bonePriced);
+  /*
+   * Then every OTHER mod the base can roll into a target's family (markovSiblings.ts). A same-side one
+   * lands its target as blocked, as an off-tier roll does; anything else becomes an OBSTACLE position,
+   * appended after the targets so that every target keeps its index — and every state its key.
+   */
+  const siblings = resolveSiblings(data, pools, merged.targets, desecratable);
+  const list = siblings.list;
   const n = list.length;
+  if (n > MAX_CANDIDATES) {
+    return fail(`these targets share a family with ${n - merged.targets.length} other mods this base can roll, `
+      + `which puts the model past the ${MAX_CANDIDATES} it can afford — drop a target and try again`);
+  }
   const slotMasks = slotMasksOf(slots);
   const idsOf = (t: McTarget): string[] => t.mods.map((m) => m.mod.id);
   const desecratedBit = (i: number): boolean => representative(list[i]!).source === 'desecrated';
@@ -415,6 +468,12 @@ export function markovFromItem(
    * Every family with a single target filters out here, which is why this is empty for every craft
    * that predates slots and their state space is untouched.
    */
+  // An obstacle is in no slot, so the loop above never met it — but it shares a family with whatever it
+  // blocks, and the lattice must never hold both.
+  for (let i = 0; i < n; i++) {
+    if (!list[i]!.obstacle) continue;
+    for (const fam of familiesOfTarget(list[i]!)) famBits.set(fam, (famBits.get(fam) ?? 0) | bit(i));
+  }
   const conflicts = [...famBits.values()].filter((m) => popcount(m) > 1);
   /*
    * The one-carved-mod rule is deliberately NOT added to `conflicts`.
@@ -530,11 +589,11 @@ export function markovFromItem(
    * `encode` is `encodeState` itself when nothing qualifies, so every craft that predates this pays
    * nothing — not even a branch.
    */
-  const classes = permutationClasses({ data, pools, level }, list, slots);
+  const classes = permutationClasses({ data, pools, level, sameSide: siblings.sameSide }, list, slots);
   const encode = encoderFor(classes);
   const onlyCanonical = canonicalFilterFor(classes);
 
-  const s0 = classifyStart(data, start, list, idxOf);
+  const s0 = classifyStart(data, start, list, idxOf, siblings.blocks);
 
   /**
    * A regular Essence needs a MAGIC item, so a held Rare can never apply one.
@@ -556,40 +615,6 @@ export function markovFromItem(
         + 'a regular one does not)');
     }
   }
-  /*
-   * Is Desecration in play at all?
-   *
-   * A desecrated target to craft, a flagged mod on the item to clear — or simply a bone on the price
-   * sheet. A bone OFFERS three modifiers and you keep one, so it can be the cheapest way to add an
-   * ORDINARY mod, and whether it is depends on what a miss would cost, which only the solve knows.
-   *
-   * A price test used to stand here — bones only when one cost less than `DESECRATION_OFFER_COUNT`
-   * Exalts — sold as a necessary condition: the offer at most triples the chance of a hit, so a dearer
-   * bone "cannot win". That weighs one bone against three Exalts, but three Exalts put three mods on
-   * the item and a bone puts one, and every miss is a mod to take off again (an Annulment, which may
-   * take a target instead) or the item itself. What the offer buys is not a hit; it is not having to
-   * take a miss. Measured 2026-09-10 on a held Rare Wand: a jawbone priced at 30 Exalts still takes the
-   * craft from 4,073.8ex to 2,608.8ex. By then the market had closed the test on every base (jawbone
-   * 4.2ex, rib 21ex, collarbone 110ex, Exalt 1ex), so no craft desecrated for an ordinary mod.
-   *
-   * What the test protected is real, and now paid for: the flag axis, ~3x the states and 2-8x the solve
-   * time on a craft that would not otherwise have used it. TODO 20.
-   *
-   * An ABSENT price reads as "no bone", not as a free one: `stepCost` turns a missing key into 0, and
-   * a 0 here would switch desecration on for every base in a sheet that simply doesn't price bones.
-   */
-  // Either grade of bone will do — Preserved (`desecrate`) or Ancient (`desecrate_ancient`), each
-  // already resolved for this base by `pricesForBase`.
-  const BONE_KEYS = ['desecrate', 'desecrate_ancient'] as const;
-  // …and none of it matters if the player has excluded the currency: with no Desecration in the action
-  // space nothing can ever set the flag, so enumerating the axis is pure cost. Worth checking here
-  // rather than leaving to `allowsAction`, which prunes ACTIONS and cannot shrink the lattice.
-  const bonesAllowed = BONE_KEYS.some((k) => !opts.policy?.excluded.has(k));
-  const bonePriced = BONE_KEYS.some((k) => prices.currency[k] !== undefined && !opts.policy?.excluded.has(k));
-  const desecratable = bonesAllowed
-    && (list.some((t) => representative(t).source === 'desecrated')
-      || s0.flagged !== FLAG_NONE
-      || bonePriced);
   // Where "start over" lands: the item you began with, which for a from-white craft is the bare base.
   // Built here rather than later because the action space closes over it.
   const restartKey = encode(s0.present, s0.blocked, s0.jp, s0.js, s0.flagged, s0.rarity);
@@ -616,7 +641,7 @@ export function markovFromItem(
    * is nothing to walk: no edges, and an empty policy (which is also what a test can assert on to
    * prove the lattice was never built, without timing anything).
    */
-  if (isAccepting(s0, slotMasks, spare)) {
+  if (isAccepting(s0, slotMasks, spare, siblings.obstacles)) {
     return {
       expectedCost: 0,
       feasible: true,
@@ -624,12 +649,14 @@ export function markovFromItem(
       bound: 'exact',
       nodes: [{
         key: restartKey,
-        present: list.filter((_, i) => has(s0.present, i)).map(idsOf),
+        present: list.filter((t, i) => !t.obstacle && has(s0.present, i)).map(idsOf),
         blocked: list.filter((_, i) => has(s0.blocked, i)).map(idsOf),
+        ...(list.some((t, i) => t.obstacle && has(s0.present, i))
+          ? { obstacles: list.filter((t, i) => t.obstacle && has(s0.present, i)).map(idsOf) } : {}),
         junkPrefixes: s0.jp,
         junkSuffixes: s0.js,
         rarity: s0.rarity,
-        ...flagFieldsOf(s0, list.map(idsOf)),
+        ...flagFieldsOf(s0, list.map(idsOf), siblings.obstacles),
         isStart: true,
         isGoal: true,
         depth: 0,
@@ -641,7 +668,7 @@ export function markovFromItem(
     };
   }
   const { actionsOf } = createActionSpace({
-    data, prices, level, pools, list, side, desecratable, encode, limits,
+    data, prices, level, pools, list, side, desecratable, encode, limits, siblings,
     bossTargetable: bossOmenAllowed(start.base.category),
     ...(opts.policy ? { policy: opts.policy } : {}),
     ...(opts.restartCost === undefined
@@ -676,7 +703,7 @@ export function markovFromItem(
    * reproduces the old set exactly, which the test suite asserts against a from-white craft.
    */
   const goalKeys = new Set<StateKey>();
-  for (const k of allStates) if (isAccepting(decodeState(k), slotMasks, spare)) goalKeys.add(k);
+  for (const k of allStates) if (isAccepting(decodeState(k), slotMasks, spare, siblings.obstacles)) goalKeys.add(k);
   if (goalKeys.size === 0) return fail('no legal item satisfies every slot of this target');
   // The canonical goal for DISPLAY: the *barest* finished item — the one that fills each slot once and
   // carries nothing more. `allStates` is enumerated present-ascending with FLAG_NONE first, which used
@@ -1510,7 +1537,7 @@ export function markovFromItem(
     outStart, outTo: Int32Array.from(outTo), outProb: Float64Array.from(outProb),
     goal: isGoalIdx, goalIdx: idxOfState.get(goalKey)!,
     restartIdx: startIdx, canRestart,
-    positions: list.map(idsOf), slotMasks,
+    positions: list.map(idsOf), slotMasks, obstacles: siblings.obstacles,
   };
 
   // The craft's own route: the walk any other root gets too, from the start (markovRoute.ts).
@@ -1526,15 +1553,15 @@ export function markovFromItem(
    * It equals the empty Rare row only when the craft starts Rare.
    */
   const holdings = startCandidates({
-    list, slotMasks, rarities, encode,
+    list, slotMasks, rarities, encode, obstacles: siblings.obstacles.prefix | siblings.obstacles.suffix,
     valueAt: (key) => { const i = idxOfState.get(key); return i === undefined ? undefined : V[i]; },
   });
   // Played on real items when asked — the replay classifies every item the way `s0` was classified and
   // asks this very policy what to do, so it can only ever describe the plan the result reports.
   const replay = opts.replay && bound === 'exact'
     ? replayPolicy({
-      data, start, list, idxOf, encode, policy,
-      isGoal: (s) => isAccepting(s, slotMasks, spare),
+      data, start, list, idxOf, encode, policy, blocks: siblings.blocks,
+      isGoal: (s) => isAccepting(s, slotMasks, spare, siblings.obstacles),
       costOf: (a) => actionCostOf(prices, a),
     }, opts.replay)
     : undefined;

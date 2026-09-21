@@ -64,6 +64,8 @@ export interface ReplayContext {
   readonly start: ItemState;
   readonly list: readonly McTarget[];
   readonly idxOf: ReadonlyMap<string, number>;
+  /** Same-side family siblings → the position each blocks, exactly as the solve classified its start. */
+  readonly blocks: ReadonlyMap<string, number>;
   /** The solve's own encoder, canonicalisation included — any other spelling misses the policy. */
   readonly encode: StateEncoder;
   readonly policy: ReadonlyMap<StateKey, McAction>;
@@ -72,7 +74,7 @@ export interface ReplayContext {
 }
 
 export function replayPolicy(ctx: ReplayContext, opts: ReplayOptions): ReplayReport {
-  const { data, start, list, idxOf, encode, policy, isGoal, costOf } = ctx;
+  const { data, start, list, idxOf, blocks, encode, policy, isGoal, costOf } = ctx;
   const runs = Math.max(1, Math.floor(opts.runs));
   const rng = mulberry32(opts.seed ?? 1);
   const maxActions = opts.maxActions ?? 1_000_000;
@@ -242,7 +244,7 @@ export function replayPolicy(ctx: ReplayContext, opts: ReplayOptions): ReplayRep
     };
     look();
     for (;;) {
-      const s = classifyStart(data, item, list, idxOf);
+      const s = classifyStart(data, item, list, idxOf, blocks);
       if (isGoal(s)) break;
       const key = encode(s.present, s.blocked, s.jp, s.js, s.flagged, s.rarity);
       const action = policy.get(key);

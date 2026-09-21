@@ -37,7 +37,7 @@ const expand = async () => {
  * The expanded view now prunes by `visitRate` — it opens on the states a craft actually runs into,
  * because the full closure is combinatorial and unreadable (217 states / 42 rows in one column,
  * measured). Tests below that are about RENDERING FIDELITY — one rect per group, arrows drawn, the
- * off-tier label — want every state on screen, so they say so rather than depending on where the
+ * blocked label — want every state on screen, so they say so rather than depending on where the
  * default cut happens to fall on a fixture.
  */
 const showEveryState = async () => {
@@ -106,9 +106,9 @@ describe('PolicyGraph — the full graph, on demand', () => {
     expect(container.querySelector('svg')).toBeNull();
   });
 
-  it('shows an off-tier (blocked) state for a specific-tier target', async () => {
+  it('shows a blocked state for a specific-tier target', async () => {
     // Spell Damage at a top-3 tier (tierDisplay 3): most exalts roll it below tier, blocking the family —
-    // the v2 "off-tier" states must appear as squares in the graph.
+    // the v2 blocked states must appear as squares in the graph.
     const tiered = optimizeItemMarkov(eng, {
       baseId: 'Wands', level: 82, rarity: 'rare' as const,
       prefixes: [{ modId: 'Wands/IncreasedMana', tierDisplay: 99 }], suffixes: [],
@@ -120,12 +120,12 @@ describe('PolicyGraph — the full graph, on demand', () => {
     expect(tiered.nodes.some((n) => n.blocked.length > 0)).toBe(true);
     render(<PolicyGraph result={tiered} />);
     await expand();
-    // Off-tier states are genuinely RARE — a craft rolls below tier and then annuls out of it — so the
+    // Blocked states are genuinely RARE — a craft rolls below tier and then annuls out of it — so the
     // default coverage cut can legitimately leave them out. The claim here is that the graph can show
     // them, not that it always does, so ask for every state.
     await showEveryState();
     const svg = screen.getByRole('img', { name: /policy graph/i });
-    expect(within(svg).getAllByText(/off-tier/).length).toBeGreaterThan(0);
+    expect(within(svg).getAllByText(/\d blocked/).length).toBeGreaterThan(0);
   });
 });
 
@@ -177,7 +177,7 @@ describe('PolicyGraph — degenerate input', () => {
   });
 });
 
-// `2 mods · 1 off-tier / Annul / 14.9K div` repeated down a single column, because the label discards
+// `2 mods · 1 blocked / Annul / 14.9K div` repeated down a single column, because the label discards
 // WHICH mods are present. The states are genuinely distinct; the boxes were not. Measured on this
 // craft the collapse is 262 nodes to 79 groups, the largest standing for 20 states.
 describe('PolicyGraph — the full graph groups boxes that look identical', () => {
@@ -381,7 +381,7 @@ describe('PolicyGraph — highlighting the route through a state', () => {
 });
 
 // A box has room for a label, an action and a cost. Clicking one now also opens the rest: which target
-// mods you actually hold, which are stuck below tier, how much junk is left, and — the part a box can
+// mods you actually hold, which are blocked, how much junk is left, and — the part a box can
 // never carry — what the recommended orb actually does when you play it, outcome by outcome.
 describe('PolicyGraph — the full description of a clicked state', () => {
   const detailed = result_({
@@ -408,11 +408,11 @@ describe('PolicyGraph — the full description of a clicked state', () => {
     await userEvent.setup().click(start ?? boxes[0]!);
   };
 
-  it('lists the target mods held and the ones stuck below tier', async () => {
+  it('lists the target mods held and the ones blocked', async () => {
     await openFirst();
     expect(screen.getByText(/Target mods held/i)).toBeInTheDocument();
-    expect(screen.getByText(/Stuck below tier/i)).toBeInTheDocument();
-    expect(screen.getByText(/annul before re-adding/i)).toBeInTheDocument();
+    expect(screen.getByText(/^Blocked$/)).toBeInTheDocument();
+    expect(screen.getByText(/another roll holds its family .* annul before re-adding/i)).toBeInTheDocument();
   });
 
   /**
@@ -438,7 +438,7 @@ describe('PolicyGraph — the full description of a clicked state', () => {
     await expand();
     await userEvent.setup().click(screen.getAllByRole('button', { name: /Highlight the route through this state/i })[0]!);
 
-    // The <dd> beside the label, not the whole <dl> — the off-tier row below it is a list too.
+    // The <dd> beside the label, not the whole <dl> — the blocked row below it is a list too.
     const held = screen.getByText(/Target mods held/i).nextElementSibling as HTMLElement;
     // One list item per position, not one line holding all of them.
     expect(within(held).getAllByRole('listitem')).toHaveLength(2);
@@ -448,7 +448,7 @@ describe('PolicyGraph — the full description of a clicked state', () => {
     // …and the tier as the ASK it is: present means "at that tier or better", never exactly it.
     expect(within(held).getByText('T2+')).toBeInTheDocument();
     expect(within(held).getByText('T1+')).toBeInTheDocument();
-    // The off-tier row gets the same treatment — there the tier is the ask the roll fell short of.
+    // The blocked row gets the same treatment — there the tier is the ask the roll fell short of.
     expect(screen.getByText('T3+')).toBeInTheDocument();
   });
 
@@ -469,6 +469,32 @@ describe('PolicyGraph — the full description of a clicked state', () => {
     const held = screen.getByText(/Target mods held/i).nextElementSibling as HTMLElement;
     expect(within(held).getByText('P')).toBeInTheDocument();
     expect(within(held).queryByText(/^T\d+\+$/)).toBeNull();
+  });
+
+  /**
+   * An OBSTACLE — a mod nobody asked for that holds a target's family from the other side of the item —
+   * is junk to the reader, so the box counts it with the junk; the panel then names it and says why it
+   * matters, because "junk" alone would hide that it is what stops the target from rolling.
+   */
+  it('names a mod that is in the way of a target, and counts it with the junk on the box', async () => {
+    const inTheWay = result_({
+      nodes: [
+        { key: 'a', present: mods('Bountiful'), blocked: mods(), obstacles: [{ text: 'Crystallised', type: 'prefix' as const }],
+          junkPrefixes: 0, junkSuffixes: 1, rarity: 'rare' as const, isStart: true, isGoal: false,
+          depth: 3, expectedCost: 9, visitRate: 1, action: 'Annul' },
+        { key: 'g', present: mods('Bountiful', 'of the Essence'), blocked: mods(), junkPrefixes: 0, junkSuffixes: 0,
+          rarity: 'rare' as const, isStart: false, isGoal: true, depth: 0, expectedCost: 0, visitRate: 1 },
+      ],
+      edges: [{ from: 'a', to: 'g', action: 'Annul', prob: 1, regress: false }],
+    });
+    render(<PolicyGraph result={inTheWay} />);
+    await expand();
+    const box = screen.getAllByRole('button', { name: /Highlight the route through this state/i })[0]!;
+    expect(box.textContent).toMatch(/\+2 junk/);
+    await userEvent.setup().click(box);
+    const row = screen.getByText(/^In the way$/).nextElementSibling as HTMLElement;
+    expect(within(row).getByText(/Crystallised/)).toBeInTheDocument();
+    expect(within(row).getByText(/holds a target’s family — annul it/)).toBeInTheDocument();
   });
 
   it('breaks the junk down by side, which the box label cannot', async () => {

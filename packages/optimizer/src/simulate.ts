@@ -5,8 +5,13 @@
 // needing no simulation. This mirrors the engine's model exactly (base floor, ilvl cap = level, no
 // family exclusion in the denominator — see D6), so empirical → analytic by the law of large numbers.
 
-import type { ItemState, PatchData, PlanStep, Rarity } from '../../engine/src/index.ts';
-import { excluded, itemFamilies, modTierWeight, resolveMod, whiteItem, withAffix } from '../../engine/src/index.ts';
+// Direct module paths, never the engine barrel: the barrel re-exports the disk loader, and this file is
+// reached from the app now (`markovReplay.ts` takes its PRNG), so a barrel import here would carry
+// node:fs into the browser bundle — which `bundleIsolation.test.ts` refuses.
+import type { ItemState, PatchData, Rarity } from '../../engine/src/types.ts';
+import type { PlanStep } from '../../engine/src/plan.ts';
+import { excluded, itemFamilies, modTierWeight, resolveMod } from '../../engine/src/pool.ts';
+import { whiteItem, withAffix } from '../../engine/src/item.ts';
 
 /** Deterministic PRNG so the self-check is reproducible (no flaky tests). */
 export function mulberry32(seed: number): () => number {

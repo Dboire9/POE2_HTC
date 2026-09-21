@@ -455,6 +455,7 @@ function mapNode(data: PatchData, nd: PolicyNode, tierOf: TierOf): EnginePolicyN
     key: nd.key,
     present: nd.present.map(position),
     blocked: nd.blocked.map(position),
+    ...(nd.obstacles ? { obstacles: nd.obstacles.map(position) } : {}),
     junkPrefixes: nd.junkPrefixes,
     junkSuffixes: nd.junkSuffixes,
     rarity: nd.rarity,

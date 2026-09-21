@@ -340,8 +340,12 @@ export interface EnginePolicyNode {
   readonly key: string;
   /** Target positions present (at ≥ their wanted tier) in this state. */
   readonly present: readonly PolicyMod[];
-  /** Target positions whose family is occupied by a below-tier ("off-tier") roll — annul before re-adding. */
+  /** Target positions whose family another roll holds — the mod below its wanted tier, or a DIFFERENT mod
+   *  of the same family on the same side (markovSiblings.ts). Either way: annul before re-adding. */
   readonly blocked: readonly PolicyMod[];
+  /** Mods nobody asked for that hold a target's family from the other side, or two targets' at once
+   *  (markovSiblings.ts). Junk that also blocks. Absent when there are none. */
+  readonly obstacles?: readonly PolicyMod[];
   readonly junkPrefixes: number;
   readonly junkSuffixes: number;
   /** The item's rarity in this state — a from-white craft climbs Normal → Magic → Rare, and a 2-mod

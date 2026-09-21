@@ -8,10 +8,11 @@
 // or omen with no price is NOT offered, so a missing price can't mint a free super-orb.
 
 import { CURRENCY_FLOOR, type ItemBase, type PatchData } from '../../engine/src/types.ts';
-import { excluded, poolTotalWeight } from '../../engine/src/pool.ts';
+import { excluded, modTierWeight, poolTotalWeight } from '../../engine/src/pool.ts';
 import type { DesecrationBossOmen } from '../../engine/src/probability.ts';
 import { ANCIENT_BONE_FLOOR, DESECRATION_OFFER_COUNT, desecrationOmenForMod } from '../../engine/src/probability.ts';
 import type { CurrencyPolicy, Prices, PricedStep } from './cost.ts';
+import type { Siblings } from './markovSiblings.ts';
 import { ECHOES_OMEN, allowsStep, cheapestEssenceLevel, essenceLevelOf, stepCost } from './cost.ts';
 import type { Dist, FlagCode, McRarity, McState, McTarget, SideIndex, StateEncoder } from './markovState.ts';
 import {
@@ -224,6 +225,12 @@ export interface ActionSpaceParams {
    * and every from-white number would come out far too high.
    */
   readonly restart?: { readonly cost: number; readonly dist: Dist };
+  /**
+   * Each position's same-side family siblings, and which position each one blocks (markovSiblings.ts).
+   * A roll of one lands that position as `blocked` — exactly what its own off-tier roll does. Absent
+   * means none, which is every craft whose targets share a family with nothing the base can roll.
+   */
+  readonly siblings?: Pick<Siblings, 'sameSide' | 'blocks'>;
 }
 
 /**
@@ -252,6 +259,18 @@ export function createActionSpace(params: ActionSpaceParams): {
   // weight, but it is absent from poolTotalWeight's denominator — counting it in the numerator would
   // let an Exalt conjure a desecrated mod and break the distribution's sum.
   const rollable = (t: McTarget): boolean => representative(t).source === 'normal';
+  const sameSide = params.siblings?.sameSide ?? [];
+  const blocks = params.siblings?.blocks ?? new Map<string, number>();
+  /**
+   * Weight at `floor` of the mods that would land position `i` as BLOCKED without being it — its
+   * same-side family siblings (markovSiblings.ts). Normal-pool ones for an Exalt-like roll; a Desecration
+   * draws from both pools, so `withDesecrated` adds the carved ones. Zero for every position with none.
+   */
+  const siblingWeight = (i: number, floor: number, withDesecrated: boolean): number => {
+    let w = 0;
+    for (const m of sameSide[i] ?? []) if (withDesecrated || m.source === 'normal') w += modTierWeight(m, floor, level);
+    return w;
+  };
 
   // Strengths/omens available on the price sheet (base always; the rest only if listed) AND not
   // excluded by the player. Pruning here rather than only in `push` keeps the solver from building
@@ -304,23 +323,25 @@ export function createActionSpace(params: ActionSpaceParams): {
     const grand = prefTotal + sufTotal;
     const out: Dist = new Map();
     if (grand <= 0) return out;
-    let anyPref = 0; // Σ whole-family weight of the free targets on the prefix side (the non-junk share)
+    let anyPref = 0; // Σ whole-family weight of the free positions on the prefix side (the non-junk share)
     let anySuf = 0;
     for (let i = 0; i < n; i++) {
       if (has(s.present, i) || has(s.blocked, i)) continue; // family already occupied
       const t = list[i]!;
-      if (!rollable(t)) continue; // an Exalt can't produce a desecrated / essence-only mod
       if (excluded(representative(t), occ)) continue; // defensive (validated distinct upstream)
       const open = t.type === 'prefix' ? prefixOpen : suffixOpen;
       if (!open) continue;
-      const succ = succWeight(t, floor);
-      const any = anyWeight(t, floor);
+      // An Exalt can't produce a desecrated or essence-only mod — but it can still roll one of that
+      // position's same-side siblings, which blocks it all the same.
+      const succ = rollable(t) ? succWeight(t, floor) : 0;
+      const any = rollable(t) ? anyWeight(t, floor) : 0;
+      const sib = siblingWeight(i, floor, false);
       if (succ > 0) addTo(out, encodeState(s.present | bit(i), s.blocked, s.jp, s.js, s.flagged, into), succ / grand);
-      const below = any - succ;
+      const below = any - succ + sib;
       if (below > 0) addTo(out, encodeState(s.present, s.blocked | bit(i), s.jp, s.js, s.flagged, into), below / grand);
-      if (t.type === 'prefix') anyPref += any; else anySuf += any;
+      if (t.type === 'prefix') anyPref += any + sib; else anySuf += any + sib;
     }
-    // Everything else the add can produce is foreign junk on its side (a non-target family).
+    // Everything else the add can produce is foreign junk on its side: a family no position is in.
     const junkPref = Math.max(0, prefTotal - anyPref);
     const junkSuf = Math.max(0, sufTotal - anySuf);
     if (junkPref > 0) addTo(out, encodeState(s.present, s.blocked, s.jp + 1, s.js, s.flagged, into), junkPref / grand);
@@ -491,11 +512,19 @@ export function createActionSpace(params: ActionSpaceParams): {
       // A merged position answers to any of its members' ids, and two pool ids landing on one
       // position simply sum through `addTo` — which is right: either draw fills the slot.
       const i = list.findIndex((t) => t.mods.some((m) => m.mod.id === id));
+      // A same-side sibling of a position blocks it (markovSiblings.ts) — and carries the bone's mark.
+      const blocked = blocks.get(id);
       // Whatever the bone applies becomes the item's flagged mod — a target it wanted just as much as
       // junk it didn't. Landing a target you asked for still locks the item out of desecrating again.
-      if (i >= 0) addTo(out, encodeState(s.present | bit(i), s.blocked, s.jp, s.js, flagTarget(i), s.rarity), p);
-      else if (sd === 'prefix') addTo(out, encodeState(s.present, s.blocked, s.jp + 1, s.js, FLAG_JUNK_PREFIX, s.rarity), p);
-      else addTo(out, encodeState(s.present, s.blocked, s.jp, s.js + 1, FLAG_JUNK_SUFFIX, s.rarity), p);
+      if (i >= 0) {
+        addTo(out, encodeState(s.present | bit(i), s.blocked, s.jp, s.js, flagTarget(i), s.rarity), p);
+      } else if (blocked !== undefined) {
+        addTo(out, encodeState(s.present, s.blocked | bit(blocked), s.jp, s.js, flagTarget(blocked), s.rarity), p);
+      } else if (sd === 'prefix') {
+        addTo(out, encodeState(s.present, s.blocked, s.jp + 1, s.js, FLAG_JUNK_PREFIX, s.rarity), p);
+      } else {
+        addTo(out, encodeState(s.present, s.blocked, s.jp, s.js + 1, FLAG_JUNK_SUFFIX, s.rarity), p);
+      }
     }
     return out;
   };
@@ -547,10 +576,11 @@ export function createActionSpace(params: ActionSpaceParams): {
       if (!(t.type === 'prefix' ? prefixOpen : suffixOpen)) continue;
       const succ = succWeight(t, floor);
       const any = anyWeight(t, floor);
+      const sib = siblingWeight(i, floor, true);
       if (succ > 0) addTo(out, encodeState(s.present | bit(i), s.blocked, s.jp, s.js, flagTarget(i), s.rarity), succ / grand);
-      const below = any - succ;
+      const below = any - succ + sib;
       if (below > 0) addTo(out, encodeState(s.present, s.blocked | bit(i), s.jp, s.js, flagTarget(i), s.rarity), below / grand);
-      claimed[t.type] += any;
+      claimed[t.type] += any + sib;
     }
     const junkPref = Math.max(0, prefNormal + prefDes - claimed.prefix);
     const junkSuf = Math.max(0, sufNormal + sufDes - claimed.suffix);

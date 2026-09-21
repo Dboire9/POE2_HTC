@@ -12,7 +12,7 @@
 // that any later Cancel terminates. See `RouteTable`.
 
 import type { McAction } from './markovActions.ts';
-import type { McRarity, McState, StateKey } from './markovState.ts';
+import type { McRarity, McState, ObstacleMasks, StateKey } from './markovState.ts';
 import {
   FLAG_JUNK_PREFIX, FLAG_JUNK_SUFFIX, decodeState, flaggedTarget, has, popcount, slotsFilled,
 } from './markovState.ts';
@@ -29,8 +29,16 @@ export interface PolicyNode {
    * target mods on the item, which is what the graph's box label counts.
    */
   readonly present: readonly (readonly string[])[];
-  /** Positions whose family is occupied by a below-tier ("off-tier") roll — must be annulled first. */
+  /** Positions whose family is occupied by a below-tier ("off-tier") roll, or by a DIFFERENT mod of the
+   *  same family on the same side (markovSiblings.ts) — either way, it must be annulled first. */
   readonly blocked: readonly (readonly string[])[];
+  /**
+   * Mods on the item that nobody asked for but that block a target all the same: a sibling in its family
+   * on the OTHER side, or one blocking two targets at once (markovSiblings.ts). One entry per obstacle
+   * position, holding its mod ids. Absent when there are none — every state of a craft whose targets
+   * share a family with nothing on the other side. Never counted in `present`, which is target mods.
+   */
+  readonly obstacles?: readonly (readonly string[])[];
   readonly junkPrefixes: number;
   readonly junkSuffixes: number;
   /** Set when the mod a Desecration placed is JUNK, naming the side it sits on. It blocks
@@ -136,13 +144,16 @@ export interface RouteTable {
   /** The mod ids that can fill each position, for naming a state's mods. */
   readonly positions: readonly (readonly string[])[];
   readonly slotMasks: readonly number[];
+  /** Which positions are obstacles, not targets (markovSiblings.ts). */
+  readonly obstacles: ObstacleMasks;
 }
 
 /**
  * Distance-to-goal for layout/regress: missing targets + blocked (each needs a remove then an add) +
- * junk, counting an unwanted desecrated mod as junk too (it likewise costs a removal to clear).
+ * junk, counting an unwanted desecrated mod as junk too (it likewise costs a removal to clear), and an
+ * obstacle the same way (`obstacleMask`: it is junk that happens to block a target).
  */
-export function distanceToGoal(st: McState, slotMasks: readonly number[]): number {
+export function distanceToGoal(st: McState, slotMasks: readonly number[], obstacleMask: number): number {
   // A state below Rare is at least two moves out however good its mods are: the Regal that converts
   // it, plus the Annulment that clears the mod that Regal is forced to add. Without this a Magic item
   // already holding every target scores 0 — the goal's own distance — while not being the goal, so
@@ -157,7 +168,7 @@ export function distanceToGoal(st: McState, slotMasks: readonly number[]): numbe
   // goal permanently out of reach of a walk that may only step to a strictly smaller distance.
   // Every slot a singleton makes this `n - popcount(present)` again, exactly as before.
   return (slotMasks.length - slotsFilled(st.present, slotMasks))
-    + popcount(st.blocked) + st.jp + st.js + toRare;
+    + popcount(st.blocked) + st.jp + st.js + popcount(st.present & obstacleMask) + toRare;
 }
 
 /**
@@ -169,11 +180,14 @@ export function distanceToGoal(st: McState, slotMasks: readonly number[]): numbe
  * the state is distinct.
  */
 export function flagFieldsOf(
-  st: McState, positions: readonly (readonly string[])[],
+  st: McState, positions: readonly (readonly string[])[], obstacles: ObstacleMasks,
 ): { desecratedJunk?: 'prefix' | 'suffix'; desecratedTarget?: readonly string[] } {
   if (st.flagged === FLAG_JUNK_PREFIX) return { desecratedJunk: 'prefix' };
   if (st.flagged === FLAG_JUNK_SUFFIX) return { desecratedJunk: 'suffix' };
   const i = flaggedTarget(st.flagged);
+  // A bone that placed an OBSTACLE placed a mod nobody wanted — junk, to the reader, on its side.
+  if (i >= 0 && has(obstacles.prefix, i)) return { desecratedJunk: 'prefix' };
+  if (i >= 0 && has(obstacles.suffix, i)) return { desecratedJunk: 'suffix' };
   return i >= 0 ? { desecratedTarget: positions[i]! } : {};
 }
 
@@ -197,11 +211,12 @@ export function routeFrom(t: RouteTable, root: number): { nodes: PolicyNode[]; e
    * has a choice of endings.
    */
   const canonical = (i: number): number => (t.goal[i] === 1 ? t.goalIdx : i);
+  const obstacleMask = t.obstacles.prefix | t.obstacles.suffix;
   // Distance-to-goal per state, decoded once: the walk asks it of both ends of every edge.
   const depthMemo = new Int32Array(t.keys.length).fill(-1);
   const depthOf = (i: number): number => {
     let d = depthMemo[i]!;
-    if (d < 0) { d = distanceToGoal(decodeState(t.keys[i]!), t.slotMasks); depthMemo[i] = d; }
+    if (d < 0) { d = distanceToGoal(decodeState(t.keys[i]!), t.slotMasks, obstacleMask); depthMemo[i] = d; }
     return d;
   };
   const named = (mask: number): (readonly string[])[] => t.positions.filter((_, i) => has(mask, i));
@@ -231,10 +246,11 @@ export function routeFrom(t: RouteTable, root: number): { nodes: PolicyNode[]; e
     const action = a >= 0 ? t.actions[a]! : undefined;
     nodes.push({
       key,
-      present: named(st.present),
+      present: named(st.present & ~obstacleMask),
       blocked: named(st.blocked),
+      ...((st.present & obstacleMask) !== 0 ? { obstacles: named(st.present & obstacleMask) } : {}),
       junkPrefixes: st.jp, junkSuffixes: st.js, rarity: st.rarity,
-      ...flagFieldsOf(st, t.positions),
+      ...flagFieldsOf(st, t.positions, t.obstacles),
       isStart: i === root, isGoal, ...(isRestart ? { isRestart: true as const } : {}),
       depth: depthOf(i), expectedCost: t.value[i] ?? Infinity,
       ...(action ? { action, actionCost: t.actCost[i]! } : {}),

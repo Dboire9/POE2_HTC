@@ -164,3 +164,23 @@ describe('mapRoute — a route from a starting item, for the graph', () => {
     expect([out.routes, out.holdings, out.bareCost]).toEqual([undefined, undefined, undefined]);
   });
 });
+
+/** A mod in the way of a target (markovSiblings.ts) is named like any position, with its side from the data. */
+describe('mapMarkov — a mod in the way of a target', () => {
+  it('names each obstacle on a node, and leaves nodes without one alone', () => {
+    const data = {
+      mods: new Map([['Tablets/MapAdditionalEssence', { id: 'Tablets/MapAdditionalEssence', text: 'Map contains an additional Essence', type: 'prefix' }]]),
+    } as unknown as Parameters<typeof mapMarkov>[0];
+    const node = { present: [], blocked: [], junkPrefixes: 0, junkSuffixes: 0, isGoal: false, expectedCost: 1, rarity: 'rare', visitRate: 1, depth: 1 };
+    const res = {
+      expectedCost: 1, feasible: true, converged: true, bound: 'exact', edges: [], policy: new Map(),
+      nodes: [
+        { ...node, key: 'a', isStart: true, obstacles: [['Tablets/MapAdditionalEssence']] },
+        { ...node, key: 'b', isStart: false },
+      ],
+    } as unknown as Parameters<typeof mapMarkov>[1];
+    const out = mapMarkov(data, res);
+    expect(out.nodes[0]!.obstacles).toEqual([{ text: 'Map contains an additional Essence', type: 'prefix' }]);
+    expect(out.nodes[1]!.obstacles).toBeUndefined();
+  });
+});

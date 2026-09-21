@@ -695,9 +695,12 @@ lands high-tier." The state key grew `present:jp:js` → **`present:blocked:jp:j
   wanted tier): the family is taken but the goal is unmet, so you must annul the off-tier mod before
   re-adding. The add-distribution splits a family's weight into success (→ present), below-tier
   (→ blocked), and foreign junk (→ jp/js); junk is now *provably* only ever non-target-family weight, so
-  it can never silently block a target — the blocked bits carry every family collision that matters. The
-  START item is classified the same way (a target already on the item but at too low a tier starts
-  BLOCKED, not satisfied). **Reduces exactly to v1 when every target is untiered** (no below-tier band).
+  it can never silently block a target — the blocked bits carry every family collision that matters.
+  **[Corrected 2026-09-21: true only while a family is ONE mod. A family holding different mods — a
+  Wand's damage-type prefixes, a tablet's Essence pair — put its other members in the junk bucket. See
+  "A different mod of a target's family blocks it".]** The START item is classified the same way (a
+  target already on the item but at too low a tier starts BLOCKED, not satisfied). **Reduces exactly
+  to v1 when every target is untiered** (no below-tier band).
 - **v2b — richer action set.** Exalted Orb at **base / Greater / Perfect** strength (ilvl floor 0 / 35 /
   50 — a Perfect Exalt can't roll the low tiers, so it *skips the off-tier trap* v2a introduced), and
   **side-constrained exalts** (Omen of Sinistral/Dextral Exaltation = add a prefix / suffix only, so the
@@ -4442,6 +4445,115 @@ would delete routes that win. 2 s sits well inside the default effort's 15 s bud
 **Not covered.** A throwaway for a Desecration from white (the Lab's "needs a Rare" case), a throwaway
 inside a Greater Exaltation (`fuse` requires two named Exalts, and would also refuse on the missing
 `add`), and a throwaway as filler for a free slot. The true expected cost already rolls junk freely.
+
+## A different mod of a target's family blocks it — and a replay that can tell (2026-09-21)
+
+**Found while planning tablets.** A family is an exclusion group. For most targets it is one mod at
+several tiers, and the lattice's `blocked` bit covers every collision. But a family can hold DIFFERENT
+mods: a Wand's five damage-type prefixes (`WeaponDamageTypePrefix`, 2,550 each in a 41,400 prefix pool),
+its six "+level to … spell skills" suffixes (`IncreaseSocketedGemLevel`), armour's
+`ReducedAilmentDuration`, belts' `BeltFlaskRecoveryRate` — and on Precursor Tablets six pairs, three of
+them ACROSS sides. `addOutcomes` put a sibling's weight into the junk bucket, and with it on the item the
+target kept rolling at full odds; `classifyStart` read a held one as junk too. In the game the family is
+taken until the sibling comes off. The MDP's v1 listed "junk never blocks a target's family" as an
+approximation; v2 above calls junk "*provably* only ever non-target-family weight", which holds only
+while a family is one mod. Per roll, a Wand prefix lands a sibling of a targeted damage-type prefix 25%
+of the time, and a suffix a sibling "+level" 18%.
+
+**The instrument: `markovReplay.ts`.** `policy-vs-mc` samples the solver's OWN edges, so it agrees with
+V on anything the lattice gets wrong. The replay plays the solved policy on concrete items — real mods at
+real tiers by weight, the game's family exclusion including the junk's — and asks the policy what to do
+by classifying each item exactly as a held item is classified (`classifyStart`, the solve's own
+encoder). Its mean is what following the policy really costs. It declines on a Desecration, an Essence
+or an Omen of Light rather than approximate them. Same seed, same numbers; `maxMillis` for the app.
+
+**Before the fix** (frozen 2026-08-22 sheet, bones excluded so the replay can play every route, 4,000
+crafts each):
+
+| craft (Wand, ilvl 82) | V | replayed | gap | z |
+|---|---|---|---|---|
+| held Mana \| Int → Mana + Spell Damage (no sibling) | 1,505.8 | 1,484.0 ± 21.5 | −1.5% | −1.0 |
+| held → Mana + Fire spell levels | 3,091.4 | 3,096.9 ± 45.7 | +0.2% | +0.1 |
+| held → Mana + Fire damage | 2,309.9 | 2,309.4 ± 33.3 | 0.0% | 0.0 |
+| held → Fire damage + Fire spell levels | 11,443.1 | 11,654.4 ± 180.6 | +1.8% | +1.2 |
+| white, base 30 ex → Spell Damage (no sibling) | 943.6 | 933.9 ± 12.8 | −1.0% | −0.8 |
+| white, base 30 ex → Fire spell levels | 1,440.6 | 1,502.1 ± 21.5 | **+4.3%** | **+2.9** |
+| white, base 30 ex → Fire damage + Fire spell levels | 8,546.5 | 9,079.0 ± 135.8 | **+6.2%** | **+3.9** |
+| white, free base → Spell Damage + Cast Speed (no sibling) | 44.4 | 44.5 ± 0.7 | +0.2% | +0.1 |
+
+Held items barely show it — the policy annuls junk before it adds again, so a sibling rarely sits under a
+roll — but a craft that keeps adding with junk on board does.
+
+**The fix — `markovSiblings.ts`.** Every mod the base can roll into a target's family without being a
+target. **Same side, blocking one target:** it is `blocked` — one slot on that side, one removal frees the
+family, exactly an off-tier roll — so its weight joins the below-tier share in `addOutcomes`,
+`desecrateAnyOutcomes` and the boss draw, and `classifyStart` marks a held one blocked. No state changes
+shape. A carved hybrid ("+Str +Dex" against a Strength target) folds the same way: its other family
+touches no target, and a family no target is in is never tracked — the junk approximation below.
+**Other side, or two targets at once:** `blocked` would count the wrong side's slot or mark one target,
+so the sibling becomes an OBSTACLE position after the targets — in no slot, conflicting with what it
+blocks, counted as junk by `isAccepting`, never offered in the starting-item table, labelled "In the
+way" rather than as a target. Carved siblings are only looked for when a Desecration is in play (an
+obstacle nothing can place would double the lattice for nothing). Symmetry never swaps a position that
+has a sibling.
+
+**After the fix:**
+
+| craft | V | replayed | gap | z |
+|---|---|---|---|---|
+| held → Mana + Fire spell levels | 3,092.4 | 3,096.9 ± 45.7 | +0.1% | +0.1 |
+| held → Fire damage + Fire spell levels | 11,447.3 | 11,605.3 ± 181.1 | +1.4% | +0.9 |
+| white, base 30 ex → Fire spell levels | 1,484.6 | 1,442.3 ± 21.5 | −2.9% | −2.0 |
+| white, base 30 ex → Fire damage + Fire spell levels | 9,224.2 | 8,589.2 ± 133.9 | **−6.9%** | **−4.7** |
+| white, base 30 ex → Fire damage + a lonely suffix (8,000 crafts) | 3,224.1 | 3,040.5 ± 32.0 | **−5.7%** | **−5.7** |
+
+The sign FLIPPED: V now runs high. That is the approximation the model still makes, visible on its own
+now — **a junk mod's own family is not removed from the next roll's pool**, because the lattice never
+knows which junk landed, so every roll with junk on board is priced at slightly worse odds than the game
+gives. Replayed with the SOLVER's rule instead (junk families left in the pool — a diagnostic edit,
+never committed), every craft agrees: Fire spell levels −2.0% (z −1.4), Fire damage + Fire spell levels
+−1.7% (z −1.1), the rest within ±1.6%. So the fix is exact within the model; before it, the two errors
+partly cancelled — which is how the sibling one hid. The number that remains is conservative.
+
+The PLAN got better too. What the fixed model's policy costs to follow, against the old one's:
+Fire damage + a lonely suffix **3,132.0 ± 34.1 → 3,040.5 ± 32.0**; Fire spell levels **1,481.6 ± 14.9
+→ 1,458.1 ± 15.4** (both base 30, replayed). It now avoids adding on top of a sibling it knows is there.
+
+**Held to it by:**
+- **Identity** — 11 gear crafts whose targets share a family with nothing the base can roll (from white
+  free and paid, a held Rare with junk, a Magic start, a tier target, excluded currencies, a desecrated
+  target, a regular and a Perfect Essence, a free slot, a fractured mod, cross-family alternatives),
+  fingerprinted at 32b3c3f — SHA-256 of cost, bound, the route's states, actions, odds and labels, and
+  the starting-item table — are byte-identical after (`siblings.test.ts`).
+- **Exactness where nothing is approximated** — synthetic pools holding only targets and siblings (no
+  junk): a same-side sibling and a cross-side one each match the replay within 3 SE over 20,000 crafts.
+- **Mutations**, each failing a test: sibling weight dropped from the rolls; a cross-side sibling left as
+  junk; an obstacle not counted as junk at the goal; a held sibling read as junk; the starting-item table
+  offering an obstacle; an obstacle labelled as a target.
+
+**The streamer items.** 17 of the 37 craftable ones name a target with a same-side sibling (none across
+sides). Solved from white at a free base, policy iteration, 2 minutes each, before and after:
+
+| item | base | before | after | change |
+|---|---|---|---|---|
+| TwitchTVSpicysushi #1 | Rings | 27,969.6 | 27,969.7 | +0.00% |
+| TwitchTVSpicysushi #3 | Helmets int | 71,122.3 | 71,122.3 | +0.00% |
+| Zizaran #2 | Boots int | 21,751.8 | 21,760.5 | +0.04% |
+| Zizaran #6 | Belts | 32,463.2 | 32,468.7 | +0.02% |
+| Zizaran #8 | Gloves int | 38,677.9 | 38,677.9 | +0.00% |
+| xthefarmerx #0 | Belts | 5,895.3 | 5,895.3 | +0.00% |
+| xthefarmerx #3 | Body Armours dex int | 16,909.5 | 16,926.9 | +0.10% |
+| xthefarmerx #4 | Amulets | 70,573.4 | 70,573.4 | −0.00% |
+| xthefarmerx #6 | Boots dex int | 33,103.4 | 33,103.4 | −0.00% |
+| xthefarmerx #7 | Gloves dex int | 55,511.6 | 55,512.0 | +0.00% |
+
+Ten settled both times; the largest move is **+0.10%**.
+
+Free restarts are why these barely move: the policy bins any item carrying junk, so a sibling rarely
+stays long enough to block anything. Six more (Amulets, Staves, Spears) settle in 2 minutes neither
+before nor after, so they are not compared here. Zizaran #9 (a Wand with a carved target) returns
+`expectedCost 0` with `bound: 'upper'` after 3 s — identically before and after, so not this change,
+but an upper bound of 0 on a from-white craft cannot be right. Logged in TODO.
 
 ## Still deferred
 - **Confirm the Omen of Whittling TIE rule in game** (2026-09-02): when two or more modifiers share

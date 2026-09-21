@@ -138,7 +138,7 @@ describe('mainLine — what each step moves', () => {
     expect(c.junkDelta).toBe(-1);
   });
 
-  it('reports a target lost, and one newly blocked below tier', () => {
+  it('reports a target lost, and one newly blocked', () => {
     // A step can progress overall while still costing something — depth counts blocks and junk too.
     const r = result(
       [

@@ -42,6 +42,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- **The true expected cost now knows that another modifier of your target's family blocks it.** A
+  family can hold different modifiers — a Wand's Fire, Cold, Lightning, Chaos and Physical spell damage
+  are one; so are its "+level to … spell skills" — and while any of them is on the item, yours cannot
+  roll. The true cost counted them as harmless junk, so on a craft that keeps rolling with one on board
+  it came out low: played out on real items, a Wand wanting +Fire spell levels from a 30 ex base cost
+  **4.3% more** than quoted, and **6.2% more** with Fire damage added. The model now treats them as
+  blocking, and its plans get cheaper for it — those crafts cost **1.6% and 2.9% less** to follow. The
+  quoted number now runs a little *high* on such crafts (up to 7% on those Wands), from an approximation
+  the model still makes: it does not take a junk modifier's own family out of the next roll. With a free
+  base almost nothing moves — at most **0.1%** across the ten streamer items that settle — and crafts
+  naming no such modifier are unchanged to the last digit. The graph says **blocked** rather than
+  *off-tier* now, because a lower tier is only one of the two reasons.
 - **A tab left open overnight failed on its first plan.** The site is updated every morning when the
   prices refresh, and a tab opened before that asked the new site for the old price file — which no
   longer exists — then failed with a meaningless error. The first plan in an old tab now works,

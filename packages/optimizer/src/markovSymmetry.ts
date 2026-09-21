@@ -184,6 +184,8 @@ export interface SymmetryContext {
   readonly data: PatchData;
   readonly pools: ItemBase['pools'];
   readonly level: number;
+  /** Each position's same-side family siblings (markovSiblings.ts). Absent ⇒ none. */
+  readonly sameSide?: readonly (readonly Mod[])[];
 }
 
 /**
@@ -207,6 +209,9 @@ export interface SymmetryContext {
  *     there and would pass a pair the bone can tell apart.
  *   - Neither family may be shared with any OTHER position, or occupying one would block a target that
  *     occupying its twin does not.
+ *   - Neither may have a same-side family SIBLING (markovSiblings.ts): its blocked state then arrives by
+ *     rolls of other mods, from pools and boss lists its twin's does not — never swapped, rather than
+ *     one more signature to keep equal to the action space.
  *
  * Grouped by a signature rather than compared pairwise: every condition is an equality, so
  * interchangeability is transitive and equal signatures are a class.
@@ -255,6 +260,7 @@ export function permutationClasses(
     const bySig = new Map<string, number[]>();
     for (const i of slot) {
       if (famsOf[i]!.length > 0 && shared[i]) continue;
+      if ((ctx.sameSide?.[i]?.length ?? 0) > 0) continue;
       const sig = signature(i);
       const found = bySig.get(sig);
       if (found) found.push(i); else bySig.set(sig, [i]);

@@ -271,6 +271,19 @@ React web app: user inputs target item (base + mods + tiers), gets optimal craft
   on at weight 0 BEFORE its pool tag — so `resolveWeight(mod, [...baseTags, poolTag])` answers them
   with no special case. **Their weights are ASSUMED**: RePoE publishes 1 for all 128, so
   `RUNE_POOL_ASSUMED_WEIGHT` is 1000 (Dorian, 2026-09-15) and the app discloses it.
+- **A DIFFERENT MOD OF A TARGET'S FAMILY BLOCKS IT** (2026-09-21, `markovSiblings.ts`). A family can
+  hold different mods — a Wand's five damage-type prefixes, its six "+level to … spell skills" suffixes,
+  a tablet's "additional Essence" prefix and "chance to contain Essences" suffix — and rolling any of
+  them blocks the target until it is removed. The lattice counted them as junk that blocks nothing, so
+  the true expected cost came out LOW. Now: a sibling on the target's SIDE that blocks only that target
+  is `blocked` (same slot, same removal as an off-tier roll — its weight simply joins the below-tier
+  share); anything else — the other side, or two targets at once — is an OBSTACLE position appended
+  after the targets, in no slot, counted as junk by `isAccepting`. Carved siblings are only looked for
+  when a Desecration is in play. Crafts with no sibling are byte-identical (`siblings.test.ts`).
+  **The junk family is still NOT removed from the next roll's pool** — the lattice cannot know which
+  junk landed — so the model OVERSTATES cost (up to ~7% measured on Wands, more on small pools like
+  tablets). Before the fix that error happened to cancel the sibling one on some crafts; after it, it
+  is visible on its own. `markovReplay.ts` measures both: it plays the policy on real items.
 - **A FREE SLOT IS A COUNT PER SIDE, NEVER A TARGET** (2026-09-17). "Any prefix / any suffix" is
   `Spare { prefixes, suffixes }` in `slots.ts`, and the ONE place it does anything is `isAccepting`
   (markovState.ts), which is also the one place "finished" is defined: zero `blocked`, Rare, and no more
@@ -498,6 +511,12 @@ React web app: user inputs target item (base + mods + tiers), gets optimal craft
 
 ## Testing
 
+- **`markovReplay.ts` checks the ABSTRACTION** (2026-09-21), which `policy-vs-mc` cannot: that one
+  samples the solver's own edges, so it agrees with V by construction on anything the lattice gets
+  wrong. The replay plays the policy on CONCRETE items — real mods at real tiers, the game's family
+  exclusion — and classifies each item as a held one is (`classifyStart`). Where every pool mod is a
+  target or a sibling (no junk to mis-model) it must match V within sampling error; that is how the
+  sibling fix is tested. It declines, never guesses, on a Desecration, an Essence or an Omen of Light.
 - **`scripts/policy-vs-mc.mts` checks the SOLVE, not the pools.** It walks `markovFromItem`'s own
   policy graph, samples its edges and averages real spend; mean → V, so a persistent gap is a defect
   in value iteration, self-loop handling or policy extraction — none of which the hand-computed unit

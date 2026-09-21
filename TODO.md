@@ -1391,6 +1391,27 @@ clone) with the key. It is stateless, so there is nothing for a Cancel to kill.
 Gauss-Seidel solve with self-loops divided out still needed 1,978 sweeps. It changed nothing drawn
 across 40 routes (docs/validation.md, 2026-09-11).
 
+## 23. A junk mod's family stays in the next roll's pool — OPEN, found 2026-09-21
+
+The lattice counts junk, never WHICH junk, so it cannot take a junk mod's family out of the next roll's
+pool the way the game does. Every roll with junk on board is priced at slightly worse odds than it
+gets, and the true expected cost comes out HIGH. Measured by `markovReplay.ts` after the family-sibling
+fix: −6.9% (z −4.7) on a Wand wanting Fire damage + Fire spell levels from a 30 ex base, −5.7% (z −5.7)
+on Fire damage + a lonely suffix; within ±1.6% where junk rarely stays on the item (held items, free
+bases). It is worse on a SMALL pool — a Precursor Tablet has 13 prefixes, and one junk prefix of weight
+1,000 is 14% of the pool — so measure it on tablets before trusting a tablet number.
+Directions: price the draw at the arrival-weighted mean junk weight per side (a mean-field correction:
+still approximate, and it moves every number in the app); or, for a pool as small as a tablet's, a
+concrete-state solve with no abstraction at all (~20k states for 2+2 on 13+20 mods). The replay is the
+yardstick either way.
+
+## 24. A from-white Wand with a carved target returns cost 0 as an upper bound — OPEN, found 2026-09-21
+
+`Zizaran-6796` item 9 (a Wand, `Desecrated_HinderedEnemyTakeIncreasedDamage_3` among its targets),
+solved from white at a free base with policy iteration: `expectedCost: 0`, `bound: 'upper'`, after 3 s —
+identical before and after the family-sibling fix. An upper bound of 0 on a craft that has not started
+cannot be right. Found by the before/after sweep in docs/validation.md; not investigated yet.
+
 ## What 1.0 means — ALL FIVE SHIPPED, prepared 2026-09-02
 
 The definition written on 2026-09-01 was: §7 the docs describe the app that exists, §8 prices refresh

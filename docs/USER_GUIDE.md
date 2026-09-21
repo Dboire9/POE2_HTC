@@ -220,7 +220,8 @@ A state shows:
 | Field | Meaning |
 |---|---|
 | **Target mods held** | Which of your targets this item already has |
-| **Stuck below tier** | Target mods present but rolled too low — they need rerolling, not adding |
+| **Blocked** | Target mods whose family another roll already holds — the mod itself rolled too low, or a different mod of the same family (Cold spell damage where you want Fire). Annul it before rolling again |
+| **In the way** | A modifier you didn't ask for that still blocks a target — from the other side of the item, or blocking two targets at once. Rare on gear; common on tablets |
 | **Junk to clear** | Non-target mods occupying slots you need |
 | **Placed by a Desecration** | Desecrated mods, which behave differently under Annulment |
 | **Cost to finish** | Expected cost from *this* state onward |

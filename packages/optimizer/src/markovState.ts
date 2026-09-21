@@ -68,6 +68,13 @@ export interface McTarget {
   readonly mods: readonly McCandidate[];
   readonly type: 'prefix' | 'suffix';
   readonly fractured: boolean;
+  /**
+   * A position nobody asked for: a mod that shares a family with a target but cannot be modelled as
+   * that target's `blocked` bit — it sits on the other side, or blocks two targets at once
+   * (markovSiblings.ts). It is in no slot, so it is never needed, and `isAccepting` counts one on the
+   * item as junk. Absent on every position the player named.
+   */
+  readonly obstacle?: true;
 }
 
 /** Any member: they share side, families, source and lock state, so member 0 answers for the target. */
@@ -335,12 +342,27 @@ export function enumerateStates(
  * With every slot a singleton and no free slots this is precisely the old goal set, which
  * `markovFromItem` asserts.
  */
-export function isAccepting(s: McState, slotMasks: readonly number[], spare: Spare = NO_SPARE): boolean {
+export function isAccepting(
+  s: McState, slotMasks: readonly number[], spare: Spare = NO_SPARE, obstacles: ObstacleMasks = NO_OBSTACLES,
+): boolean {
   if (s.blocked !== 0 || s.rarity !== 'rare') return false;
-  if (s.jp > spare.prefixes || s.js > spare.suffixes) return false;
+  // An obstacle on the item is a mod the player did not ask for, which is what junk is — it merely
+  // also happens to block a target. So it counts against the free slots exactly as junk does.
+  const jp = s.jp + popcount(s.present & obstacles.prefix);
+  const js = s.js + popcount(s.present & obstacles.suffix);
+  if (jp > spare.prefixes || js > spare.suffixes) return false;
   for (const m of slotMasks) if ((s.present & m) === 0) return false;
   return true;
 }
+
+/** Which positions are obstacles (markovSiblings.ts), per side — what `isAccepting` counts as junk. */
+export interface ObstacleMasks {
+  readonly prefix: number;
+  readonly suffix: number;
+}
+
+/** No obstacles: every craft whose targets share a family with nothing on the other side. */
+export const NO_OBSTACLES: ObstacleMasks = { prefix: 0, suffix: 0 };
 
 /** How many slots this state has filled — the goal-progress count `distanceToGoal` works down from. */
 export function slotsFilled(present: number, slotMasks: readonly number[]): number {
@@ -364,7 +386,8 @@ export function hasDesecrated(s: McState): boolean {
 /**
  * Classify the START item's mods into (present, blocked, junk) plus which of them a Desecration
  * placed: a target at ≥ its wanted tier is present; the same target at too low a tier is blocked (its
- * family is taken, goal unmet); a mod that matches no target is junk on its side.
+ * family is taken, goal unmet); a DIFFERENT mod of a target's family on its side blocks it the same way
+ * (`blocks`, markovSiblings.ts); any other mod that matches no target is junk on its side.
  *
  * The flag comes from `PlacedMod.desecrated`, which the caller sets — a bone-placed ORDINARY mod is
  * indistinguishable from an exalted one by inspection, so the app has to be told. A desecrated-POOL
@@ -374,6 +397,8 @@ export function hasDesecrated(s: McState): boolean {
  */
 export function classifyStart(
   data: PatchData, item: ItemState, list: readonly McTarget[], idxOf: ReadonlyMap<string, number>,
+  /** Same-side family siblings → the position each one blocks (markovSiblings.ts). */
+  blocks: ReadonlyMap<string, number> = new Map(),
 ): McState {
   let present = 0;
   let blocked = 0;
@@ -385,6 +410,13 @@ export function classifyStart(
       const fromDesecration = p.desecrated === true || data.mods.get(p.modId)?.source === 'desecrated';
       const i = idxOf.get(p.modId);
       if (i === undefined) {
+        // A different mod of a target's family blocks that target just as its own off-tier roll does.
+        const sibOf = blocks.get(p.modId);
+        if (sibOf !== undefined) {
+          blocked |= bit(sibOf);
+          if (fromDesecration && flagged === FLAG_NONE) flagged = flagTarget(sibOf);
+          continue;
+        }
         if (side === 'prefix') jp++;
         else js++;
         if (fromDesecration && flagged === FLAG_NONE) flagged = flagJunkSide(side);

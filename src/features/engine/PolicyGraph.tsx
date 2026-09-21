@@ -33,7 +33,7 @@ const PAD = 16;
  * One box in the full graph: a REPRESENTATIVE state plus how many states it stands for.
  *
  * The graph used to draw one box per state, and on a five-target craft that is 262 of them — with
- * `2 mods · 1 off-tier / Annul / 14.9K div` repeating down a single column. Those really are distinct
+ * `2 mods · 1 blocked / Annul / 14.9K div` repeating down a single column. Those really are distinct
  * states (they differ in WHICH mods are present), but the label discards that, so the picture showed
  * the same box over and over. Grouping by exactly what a box displays collapses 262 to 79.
  */
@@ -51,9 +51,10 @@ const positionText = (m: PolicyMod): string =>
 
 const positionsText = (items: readonly PolicyMod[]): string => items.map(positionText).join(' · ');
 
-/** Short state label: target mods present + any off-tier blocks + how much junk remains. */
+/** Short state label: target mods present + any blocked targets + how much junk remains. */
 function stateLabel(nd: EnginePolicyNode): string {
-  const junk = nd.junkPrefixes + nd.junkSuffixes;
+  // An obstacle is a mod nobody asked for, so to a reader it is junk — one that happens to block a target.
+  const junk = nd.junkPrefixes + nd.junkSuffixes + (nd.obstacles?.length ?? 0);
   const kept = nd.present.length;
   // Rarity leads on a from-white craft, where the item climbs Normal → Magic → Rare and the same mod
   // count means completely different things on each rung — a 2-mod Magic item cannot take an Exalt at
@@ -61,7 +62,7 @@ function stateLabel(nd: EnginePolicyNode): string {
   // box for no information.
   const parts = nd.rarity === 'rare' ? [] : [nd.rarity === 'normal' ? 'white base' : 'magic'];
   parts.push(`${kept} mod${kept === 1 ? '' : 's'}`);
-  if (nd.blocked.length > 0) parts.push(`${nd.blocked.length} off-tier`);
+  if (nd.blocked.length > 0) parts.push(`${nd.blocked.length} blocked`);
   if (junk > 0) parts.push(`+${junk} junk`);
   // The mod a Desecration placed, called out wherever it landed: it blocks desecrating again until it
   // is removed, which is what makes this state different from an otherwise identical one. A flagged
@@ -97,7 +98,7 @@ function describeStep(c: StepChanges): string {
   if (c.junkDelta > 0) parts.push(`adds ${c.junkDelta === 1 ? 'a junk mod' : `${c.junkDelta} junk mods`}`);
   if (c.lost.length > 0) parts.push(`loses ${c.lost.join(', ')}`);
   if (c.gained.length > 0) parts.push(`most likely lands ${c.gained.join(', ')}`);
-  if (c.blocked.length > 0) parts.push(`blocks ${c.blocked.join(', ')} below tier`);
+  if (c.blocked.length > 0) parts.push(`blocks ${c.blocked.join(', ')}`);
   return parts.join(' · ');
 }
 
@@ -257,7 +258,7 @@ export function routeThrough(
  * Everything known about one state, for the panel under the graph.
  *
  * A box has room for a label, an action and a cost; this is the rest — which target mods you actually
- * hold, which are stuck below tier, how much junk is left, and what the recommended orb does when you
+ * hold, which are blocked, how much junk is left, and what the recommended orb does when you
  * play it. The outcomes come from the REPRESENTATIVE state's own edges, so they are exact for that
  * state; when the box stands for several, the panel says so rather than implying they all behave
  * identically.
@@ -335,13 +336,26 @@ const StateDetail: React.FC<{
         </dd>
         {node.blocked.length > 0 && (
           <>
-            <dt className="text-muted-foreground">Stuck below tier</dt>
-            {/* Worth spelling out: the family is occupied by a roll that is too low, so the mod cannot
-                be re-rolled onto the item until that roll is annulled off. The tier beside each one is
-                what makes that readable — it names the ask the roll fell short of. */}
+            <dt className="text-muted-foreground">Blocked</dt>
+            {/* Worth spelling out: the family is occupied by another roll — the mod itself too low, or
+                a different mod of its family (Cold where you want Fire) — so it cannot be rolled onto
+                the item until that roll is annulled off. The tier beside each one is the ask. */}
             <dd>
               <PositionList items={node.blocked} />
-              <span className="text-muted-foreground">annul before re-adding</span>
+              <span className="text-muted-foreground">
+                another roll holds its family — the mod below this tier, or another mod of the family — annul before re-adding
+              </span>
+            </dd>
+          </>
+        )}
+        {node.obstacles !== undefined && (
+          <>
+            <dt className="text-muted-foreground">In the way</dt>
+            {/* A mod nobody asked for that shares a family with one they did, from the other side of
+                the item or across two targets (markovSiblings.ts). It is junk that also blocks. */}
+            <dd>
+              <PositionList items={node.obstacles} />
+              <span className="text-muted-foreground">not a target, and it holds a target’s family — annul it</span>
             </dd>
           </>
         )}
@@ -627,7 +641,8 @@ const FullGraph: React.FC<{
               + `(${node.action ?? '—'}), same cost to finish (${fmtCost(node.expectedCost)}). They differ `
               + 'in WHICH mods are present.'
             : `${node.present.length > 0 ? positionsText(node.present) : 'no target mods yet'}`
-              + `${node.blocked.length > 0 ? ` · off-tier: ${positionsText(node.blocked)}` : ''}`
+              + `${node.blocked.length > 0 ? ` · blocked: ${positionsText(node.blocked)}` : ''}`
+              + `${node.obstacles ? ` · in the way: ${positionsText(node.obstacles)}` : ''}`
               + `${node.junkPrefixes + node.junkSuffixes > 0 ? ` · ${node.junkPrefixes + node.junkSuffixes} junk` : ''}`
               + `${node.desecratedJunk ? ` · a junk ${node.desecratedJunk} was placed by a Desecration` : ''}`
               + `${node.desecratedTarget ? ` · ${node.desecratedTarget} was placed by a Desecration` : ''}`
@@ -673,7 +688,7 @@ const FullGraph: React.FC<{
               ) : (
                 // HTML in a <foreignObject>, not SVG <text>. SVG text neither wraps nor truncates, so
                 // each row's left string ran straight under the number pinned to the box's right edge
-                // and the two drew on top of each other — `5 mods · 1 off-tier · desecrated` over `×3`,
+                // and the two drew on top of each other — `5 mods · 1 blocked · desecrated` over `×3`,
                 // `Desecrate (Omen of the Sovereign)` over `2,934 chaos`. Widening the box only moves
                 // the threshold: both strings are open-ended (a state label carries up to five clauses,
                 // an action names an orb plus two omens). A flex row is the arrangement that fits any

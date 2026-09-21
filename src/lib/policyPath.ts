@@ -1,7 +1,7 @@
 // The route through the policy graph, as opposed to the whole graph.
 //
 // `markovFromItem` returns every state reachable under the optimal policy — a BFS closure with no cap.
-// On a five-target craft that is 262 squares, most of them sharing a label ("1 mod · 1 off-tier · +1
+// On a five-target craft that is 262 squares, most of them sharing a label ("1 mod · 1 blocked · +1
 // junk" occurs a dozen times over) and, because their expected costs sit within a fraction of a
 // percent of each other, all rounding to the same displayed figure. The picture is honest and
 // unreadable: it answers "what states exist?" when the question is "what do I do?".
@@ -93,7 +93,7 @@ export interface MainLine {
  *
  * At each state, take the highest-probability edge to a state of strictly smaller `depth`. Strict
  * decrease is what makes this terminate with no cycle guard and no length cap: `depth` is a
- * non-negative integer (missing targets + off-tier blocks + junk, see `mapMarkov`), so the walk can
+ * non-negative integer (missing targets + blocked targets + junk, see `mapMarkov`), so the walk can
  * take at most `depth(start)` steps.
  *
  * Returns no steps when the graph has no start, or when the walk stalls in a state with no forward

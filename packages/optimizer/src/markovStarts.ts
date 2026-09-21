@@ -41,6 +41,8 @@ export interface StartArgs {
   readonly encode: StateEncoder;
   /** V at a state, or undefined where the lattice has no such state. */
   readonly valueAt: (key: StateKey) => number | undefined;
+  /** Obstacle positions (markovSiblings.ts) — never a modifier anyone buys an item for. Absent ⇒ none. */
+  readonly obstacles?: number;
 }
 
 /**
@@ -69,7 +71,7 @@ export interface StartArgs {
  * may carry an infinity. Ordered by size, then cost, then key, so the output is the same every run.
  * The empty Rare and the finished item are both rows — the baseline and the end of the scale.
  */
-export function startCandidates({ list, slotMasks, rarities, encode, valueAt }: StartArgs): Holding[] {
+export function startCandidates({ list, slotMasks, rarities, encode, valueAt, obstacles = 0 }: StartArgs): Holding[] {
   const n = list.length;
   const idsOf = (i: number): readonly string[] => list[i]!.mods.map((m) => m.mod.id);
   const source = (i: number): string => representative(list[i]!).source;
@@ -81,7 +83,7 @@ export function startCandidates({ list, slotMasks, rarities, encode, valueAt }: 
     // From the EMPTY set at the Rare rung — the bare item every other row is measured against — but
     // not at the Magic rung, where "a Magic item with no modifier" is nothing anyone buys.
     for (let mask = rarity === 'rare' ? 0 : 1; mask < (1 << n); mask++) {
-      if (slotMasks.some((m) => popcount(mask & m) > 1)) continue;
+      if ((mask & obstacles) !== 0 || slotMasks.some((m) => popcount(mask & m) > 1)) continue;
       let flag = FLAG_NONE;
       let carved = 0;
       let rollableOnly = true;

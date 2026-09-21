@@ -221,7 +221,8 @@ the real pool weights, and value iteration solves for the minimum **expected cos
 "pushes forward" and never restarts. The result also carries the reachable policy graph the UI draws.
 
 The three modules split by concern: `markovState.ts` owns what a state *is* (which targets are
-present, which are blocked by an off-tier roll, how much junk sits on each side) and how it's keyed;
+present, which are blocked — by an off-tier roll or by another mod of the same family on the same side
+(`markovSiblings.ts`) — how much junk sits on each side) and how it's keyed;
 `markovActions.ts` owns what you can *do* from a state, what it costs, and the resulting distribution
 over next states; `markovFromItem.ts` is orchestration — resolve targets, enumerate the lattice, run
 value iteration, walk the policy into a graph. The facade reaches it via `optimizeItemMarkov`, which

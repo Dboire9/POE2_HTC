@@ -81,6 +81,14 @@ export type SolveRequest =
       readonly baseCost?: number;
       /** Targets with pins applied, for the budget search. Defaults to `targets`. */
       readonly want?: readonly AltTargetInput[];
+      /**
+       * Modifiers to watch for on the way — each entry a set that has to sit on the item at once. The
+       * Tablets tab's watch list: "while you roll for that, this can land, and it sells for more".
+       *
+       * Answered by PLAYING the solved policy on real items (markovReplay.ts), so it costs a second or
+       * two on top of the solve and only a from-white craft asks for it.
+       */
+      readonly watch?: readonly (readonly string[])[];
     } & ExcludingRequest)
   | ({
       readonly kind: 'item';
@@ -167,6 +175,17 @@ const ITEM_PLAN_SHARE = 0.4;
  * where the answer falls back to.
  */
 const WHITE_BASE_COST = 0;
+
+/**
+ * How much replaying may cost when a request names modifiers to watch for.
+ *
+ * Crafts differ by three orders of magnitude in how long they run — a 2+2 tablet plays ~800 moves, one
+ * wanting two of the rarest suffixes ~21,000 — so a fixed run count would be instant on one and a
+ * minute on the other. The clock is what the player actually waits, and `ReplayResult.runs` says how
+ * many crafts fitted inside it, which is what a panel showing the share has to weigh.
+ */
+const REPLAY_RUNS = 20_000;
+const REPLAY_MILLIS = 2_000;
 
 /**
  * A lab compute's split depends on whether a budget was set, which is why these can't be a static
@@ -350,7 +369,9 @@ export function runSolve(eng: Engine, req: SolveRequest, onProgress?: (p: SolveP
   // thing that made a 24-second solve feel like ten minutes in the first place.
   const mdpSpan = hasBudget ? LAB_MDP_THEN_SEARCH : LAB_MDP_ALONE;
   const mdpClock = clockLeft();
+  const watch = req.watch?.length ? req.watch : undefined;
   const markov = markovOrReason(() => optimizeItemMarkov(eng, mdpItem, req.targets, spared(withSweepLimit(withPolicy({
+    ...(watch ? { replay: { runs: REPLAY_RUNS, seed: 1, watch, maxMillis: REPLAY_MILLIS } } : {}),
     // …and the whole solved policy, so the Lab can draw the route from any item a player might buy
     // instead of a white base without solving again. From white only: a held or carved item has no
     // restart, so there is no "instead" to price, and the other solves stay the size they were.

@@ -316,6 +316,10 @@ This project is licensed under the GNU Affero General Public License v3.0 (AGPL-
 - The PoE community and POE2db for modifier data and crafting knowledge
 - [@fZpHr](https://github.com/fZpHr) for the help and advices.
 - [farmer](https://www.twitch.tv/xthefarmerx) for giving me this idea through his streams and his discord (Modikin, Bad Architect).
+- **Morce Faster** for the tablet rolling data — 19,147 modifiers counted across Ritual, Overseer and
+  Temple tablets. Every odds figure on the Tablets tab rests on it; nothing else publishes tablet weights.
+- [Exiled Exchange 2](https://github.com/Kvan7/Exiled-Exchange-2) (MIT) for the trade-site stat ids the
+  tablet searches are built from.
 
 ## 📞 Contact
 

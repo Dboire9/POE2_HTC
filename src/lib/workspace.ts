@@ -139,11 +139,11 @@ const READABLE: readonly number[] = [FORMAT_BASE, FORMAT_SLOTS, FORMAT_RUNES, FO
  * decoding a `g` falls through to `plan` rather than breaking, which is why this needed no FORMAT
  * bump (the same trade `bc` took).
  */
-export type Mode = 'plan' | 'item' | 'gear';
-type WireMode = 'p' | 'i' | 'g';
+export type Mode = 'plan' | 'item' | 'gear' | 'tablets';
+type WireMode = 'p' | 'i' | 'g' | 't';
 
-const WIRE_MODE: Readonly<Record<Mode, WireMode>> = { plan: 'p', item: 'i', gear: 'g' };
-const MODE_OF: Readonly<Record<WireMode, Mode>> = { p: 'plan', i: 'item', g: 'gear' };
+const WIRE_MODE: Readonly<Record<Mode, WireMode>> = { plan: 'p', item: 'i', gear: 'g', tablets: 't' };
+const MODE_OF: Readonly<Record<WireMode, Mode>> = { p: 'plan', i: 'item', g: 'gear', t: 'tablets' };
 
 /** A stranger's `m`. Anything unrecognised opens the tab a first-time visitor gets, never throws. */
 const modeOf = (m: unknown): Mode =>

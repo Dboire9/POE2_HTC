@@ -74,6 +74,8 @@ export interface EnginePriceBasis {
   readonly unit?: string;
   /** Which parts are estimated, when the sheet is part-observed and part-guessed. */
   readonly caveat?: string;
+  /** The league these prices are from — what a trade search has to be pointed at to mean anything. */
+  readonly league?: string;
   /** Exalts per Chaos / per Divine, so the UI can show a huge cost in a unit a player can picture
    *  instead of a wall of digits. See `src/lib/currency.ts`. */
   readonly rates?: { readonly chaos?: number; readonly divine?: number };
@@ -467,6 +469,22 @@ export interface EngineMarkovResult {
    * from any starting item without solving again. From-white Lab solves only, exact ones only.
    */
   readonly routes?: RouteTable;
+  /**
+   * The solved policy PLAYED on real items (markovReplay.ts), when the solve was asked to — what
+   * following it really costs, and how often each watched modifier or combination turned up on the way.
+   *
+   * `seen[k]` lines up with the `watch` entries the request named, as a share of the crafts played:
+   * `runs` is how many that was, which a caller showing the number has to weigh (a long craft plays
+   * fewer). Absent when no replay was asked for, or when the route uses a move the replay declines to
+   * approximate — `replayReason` then says which.
+   */
+  readonly replay?: {
+    readonly runs: number;
+    readonly seen: readonly number[];
+    readonly meanCost: number;
+    readonly stdErr: number;
+  };
+  readonly replayReason?: string;
   readonly nodes: readonly EnginePolicyNode[];
   readonly edges: readonly EnginePolicyEdge[];
 }

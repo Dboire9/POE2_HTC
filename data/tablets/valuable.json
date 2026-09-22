@@ -1,0 +1,14 @@
+{
+  "about": "Modifiers worth more on a Precursor Tablet than the craft you were aiming at — hand-picked, because no price feed lists tablets. The Tablets tab shows each one's odds of turning up while you roll, with a trade search and a box for the price you see. An entry is a SET: one modifier, or several that have to be on the tablet together.",
+  "curatedBy": "Dorian",
+  "updated": "2026-09-22",
+  "entry": {
+    "mods": "tablet modifier ids, all of which must be on the item at once (data/patches/0.5.0/mods.json)",
+    "note": "optional — why it is worth having, in the player's words"
+  },
+  "tablets": {
+    "Tablets_ritual": [],
+    "Tablets_overseer": [],
+    "Tablets_temple": []
+  }
+}

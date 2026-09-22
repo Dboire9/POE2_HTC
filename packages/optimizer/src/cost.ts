@@ -86,6 +86,8 @@ export interface PricesMeta {
   /** Free text describing provenance (e.g. "Currency from poe.ninja's PoE2 economy API…"). */
   readonly source?: string;
   readonly unit?: string;
+  /** The league the sheet priced — what a trade search has to be pointed at to mean anything. */
+  readonly league?: string;
   /** True when the sheet is hand-authored guesswork rather than observed market data. Every cost the
    *  optimizer reports is only as good as this, so the UI must not present those costs as exact. */
   readonly estimated?: boolean;
@@ -108,7 +110,7 @@ export interface Prices {
 export interface PricesFile {
   patch?: string; prices: Record<string, number>; omens?: Record<string, number>;
   bones?: Record<string, number>;
-  generated?: string; updated?: string; source?: string; unit?: string; estimated?: boolean;
+  generated?: string; updated?: string; source?: string; unit?: string; estimated?: boolean; league?: string;
   caveat?: string;
 }
 
@@ -125,6 +127,7 @@ export function indexPrices(file: PricesFile): Prices {
     ...(file.updated !== undefined ? { updated: file.updated } : {}),
     ...(file.source !== undefined ? { source: file.source } : {}),
     ...(file.unit !== undefined ? { unit: file.unit } : {}),
+    ...(file.league !== undefined ? { league: file.league } : {}),
     ...(file.caveat !== undefined ? { caveat: file.caveat } : {}),
     estimated,
   };

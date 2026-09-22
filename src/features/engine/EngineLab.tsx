@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useRef, useState } from 'react';
+import React, { Suspense, lazy, useEffect, useMemo, useRef, useState } from 'react';
 import { Card } from '../../components/ui/card';
 import { Button } from '../../components/ui/button';
 import { Badge } from '../../components/ui/badge';
@@ -31,6 +31,9 @@ import {
 import type { PatchData } from '../../../packages/engine/src/types.ts';
 import StreamerGear from './StreamerGear';
 import ItemActions from './ItemActions';
+// Lazy, like the guide: the Tablets tab brings its own data (weights, trade ids, the curated list) and
+// a player who never opens it should not download them.
+const TabletsTab = lazy(() => import('../tablets/TabletsTab'));
 import UserGuide from './UserGuide';
 import FrontierView from './FrontierView';
 import AlternativesView from './AlternativesView';
@@ -611,6 +614,16 @@ const EngineLab: React.FC = () => {
         >
           I have an item
         </button>
+        {/* A tablet is crafted with the same orbs and nothing else on this screen applies to it — no
+            item level, no runes, no essences — so it gets its own tab rather than a fourth shape for
+            these controls to take. */}
+        <button
+          className={`${tabCls(mode === 'tablets')} ${FOCUS_RING}`}
+          onClick={() => setMode('tablets')}
+          aria-pressed={mode === 'tablets'}
+        >
+          Tablets
+        </button>
         {/* Browsing gear is not crafting, so it gets its own tab rather than a third panel stacked
             above the Item tab's pickers. Picking an item there lands on `I have an item`. */}
         <button
@@ -630,6 +643,7 @@ const EngineLab: React.FC = () => {
       </div>
 
       {mode === 'item' ? <ItemActions />
+        : mode === 'tablets' ? <Suspense fallback={<Spinner />}><TabletsTab /></Suspense>
         : mode === 'gear' ? (data ? <StreamerGear data={data} /> : <Spinner />)
         : (<>
       {/* Setup */}

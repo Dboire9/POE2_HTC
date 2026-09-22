@@ -1,0 +1,72 @@
+import { describe, it, expect } from 'vitest';
+import { readFileSync } from 'node:fs';
+import { loadPatch } from '../../packages/engine/src/index.ts';
+import { TABLET_CATEGORY } from '../../packages/engine/src/types.ts';
+import { tradeUrl } from './tradeLink';
+
+const query = (url: string): unknown =>
+  JSON.parse(decodeURIComponent(new URL(url).search.replace(/^\?q=/, '')));
+
+describe('tradeUrl — a search the player clicks', () => {
+  it('names the league and base, asks for every modifier at once, cheapest first', () => {
+    const url = tradeUrl({
+      league: 'Forbidden Rites',
+      baseName: 'Ritual Tablet',
+      stats: [{ ids: ['explicit.stat_1'] }, { ids: ['explicit.stat_2'] }],
+    });
+    expect(url.startsWith('https://www.pathofexile.com/trade2/search/poe2/Forbidden%20Rites?q=')).toBe(true);
+    expect(query(url)).toEqual({
+      query: {
+        status: { option: 'online' },
+        type: 'Ritual Tablet',
+        stats: [{
+          type: 'and', disabled: false,
+          filters: [{ id: 'explicit.stat_1', disabled: false }, { id: 'explicit.stat_2', disabled: false }],
+        }],
+      },
+      sort: { price: 'asc' },
+    });
+  });
+
+  it('asks for ANY of a modifier’s ids when the data has more than one', () => {
+    const url = tradeUrl({
+      league: 'L', baseName: 'Overseer Tablet',
+      stats: [{ ids: ['a'] }, { ids: ['b', 'c'], ambiguous: true }],
+    });
+    const q = query(url) as { query: { stats: { type: string; filters: unknown[]; value?: unknown }[] } };
+    expect(q.query.stats).toHaveLength(2);
+    expect(q.query.stats[0]!.type).toBe('and');
+    expect(q.query.stats[1]).toEqual({
+      type: 'count', value: { min: 1 }, disabled: false,
+      filters: [{ id: 'b', disabled: false }, { id: 'c', disabled: false }],
+    });
+  });
+
+  it('asks for the base alone when no modifier is named', () => {
+    const q = query(tradeUrl({ league: 'L', baseName: 'Temple Tablet', stats: [] })) as { query: Record<string, unknown> };
+    expect(q.query['stats']).toBeUndefined();
+    expect(q.query['type']).toBe('Temple Tablet');
+  });
+});
+
+describe('the shipped trade ids', () => {
+  const file = JSON.parse(readFileSync('data/tablets/trade-stats.json', 'utf8')) as {
+    readonly stats: Record<string, { readonly ids: string[]; readonly ambiguous?: boolean }>;
+  };
+  const data = loadPatch('data/patches/0.5.0');
+
+  it('covers every tablet modifier, and nothing else', () => {
+    const mods = [...data.bases.values()]
+      .filter((b) => b.category === TABLET_CATEGORY)
+      .flatMap((b) => [...b.pools.normal.prefixes, ...b.pools.normal.suffixes]);
+    expect(Object.keys(file.stats).sort()).toEqual([...new Set(mods)].sort());
+  });
+
+  it('gives each one at least one id, and marks the ones that cover several wordings', () => {
+    for (const [id, stat] of Object.entries(file.stats)) {
+      expect(stat.ids.length, id).toBeGreaterThan(0);
+      for (const trade of stat.ids) expect(trade, id).toMatch(/^explicit\.stat_\d+$/);
+      expect(stat.ambiguous ?? false, id).toBe(stat.ids.length > 1);
+    }
+  });
+});

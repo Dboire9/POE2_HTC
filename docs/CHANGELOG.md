@@ -9,6 +9,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- **Precursor Tablets have their own tab.** Pick a **Ritual**, **Overseer** or **Temple** tablet, tick up
+  to four modifiers, and the same solver that prices gear tells you what rolling it costs — with the odds
+  of each modifier beside it (*1 in 7 rolls on this side*), and the pairs that can never share a tablet
+  greyed out with the reason. Nobody publishes tablet weights, so the odds rest on **Morce Faster's**
+  rolling data: 19,147 modifiers counted across the three tablets, credited on the tab.
+  The market half is yours to drive, because no feed lists tablets: every row has a **Search on trade**
+  button that opens the official site with the search filled in, and a box for the price you read there.
+  Prices stay in your browser with the day you typed them, and sit next to what crafting costs.
+  And while you roll for what you asked for, other things land — the **watch list** shows the valuable
+  ones, how often they turn up on the way (measured by playing your plan out thousands of times), each
+  with its own search and price box. Price one above your own craft and the tab says so: that is the
+  tablet to stop on.
 - **"Any prefix / any suffix" — a slot you don't care about.** A target list has always meant *these
   modifiers and nothing else*, so anything you had not named had to come off before the app called the
   item finished. The only way to say "three prefixes I want, and whatever lands in the last suffix is

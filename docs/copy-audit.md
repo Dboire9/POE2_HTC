@@ -407,3 +407,17 @@ side of the item, or blocks two at once.
 | 63 | "In the way … not a target, and it holds a target’s family — annul it" | `PolicyGraph.tsx` state detail | **OK** | Only an OBSTACLE position renders here (`resolveSiblings`: a sibling on the other side, or one blocking two targets). It is in no slot, so the goal never needs it, and `isAccepting` counts it against the free slots exactly as junk — so it must come off unless a free slot holds it |
 | 64 | "blocks X" in a step's description | `PolicyGraph.tsx` `describeStep` | **OK** | `policyPath.ts` lists the targets blocked in the next state and not in this one — the same bit as row 62, whatever blocked it. The old "blocks X below tier" named one cause of two |
 
+## The Tablets tab (2026-09-22)
+
+A tab whose numbers come from one player's rolling data and whose prices come from the reader, so every
+claim on it has to say which is which.
+
+| # | Claim | Where | Verdict | Traced to |
+|---|---|---|---|---|
+| 65 | "1 in 7 rolls on this side" | `TabletModPicker.tsx` | **OK, and it says WHICH rolls** | `share` is the modifier's weight over its side's total (`listTablets`), so the claim is about a roll that lands on that side — not about an orb, which may land on either. A craft's odds are the solver's and are shown separately |
+| 66 | "seen 54 times" beside a modifier | `TabletModPicker.tsx` | **OK — the sample, not a hedge** | Printed only under `THIN_EVIDENCE` (100 sightings), from `morce-faster.json`, where 54 is of Undertaking's count across all three sheets. It is the evidence the weight was read from, which is the honest thing to show where that evidence is thin |
+| 67 | "turns up in 23% of crafts" | `TabletsTab.tsx` watch list | **OK — measured, and the count is printed** | The share of replayed crafts in which that modifier sat on the tablet (`markovReplay.ts`, playing the solved policy on real items). "Played out N times" is printed under the list, because a long craft fits fewer runs in the clock and the reader has to weigh that |
+| 68 | "worth more than the tablet you asked for" | `TabletsTab.tsx` watch list | **OK — both sides are the reader's own numbers** | Compares a price the player typed against the craft's true expected cost. It never claims a market: with no price typed, nothing is said |
+| 69 | "Search on trade" / "≈" | `TradePrice.tsx` | **OK, and the ≈ is the honest half** | The link is built locally (`tradeLink.ts`) and opened by the player's browser; the app never queries the trade site. `≈` marks a search whose stat ids cover more than one wording, so it can list a near-identical modifier — recorded per modifier in `trade-stats.json`, not guessed at render time |
+| 70 | "Modifier odds: Morce Faster's rolling data (19,147 modifiers seen)" | `TabletsTab.tsx` footer | **OK** | `ODDS_CREDIT` sums the sightings in `morce-faster.json` (10,947 + 5,000 + 3,200). Every tablet weight in the shipped data is read from those counts — the game files and poe2db publish 1 for every tablet modifier |
+

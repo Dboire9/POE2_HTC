@@ -1,0 +1,270 @@
+{
+  "source": "Exiled Exchange 2 (MIT), renderer/public/data/en/stats.ndjson",
+  "commit": "572c1925e4737d2c5f79143d03280df9660c1d8f",
+  "read": "2026-09-22",
+  "about": "Trade-site stat ids per tablet modifier. `ambiguous` means the ids cover more than one wording of the stat, so a search asks for any of them and can list a modifier the player did not ask for.",
+  "stats": {
+    "Tablets/IncursionBossChance": {
+      "ids": [
+        "explicit.stat_3937291366"
+      ]
+    },
+    "Tablets/IncursionExtraPacks": {
+      "ids": [
+        "explicit.stat_3294218801"
+      ]
+    },
+    "Tablets/IncursionExtraPacksChance": {
+      "ids": [
+        "explicit.stat_1359775981"
+      ]
+    },
+    "Tablets/IncursionPackSize": {
+      "ids": [
+        "explicit.stat_890040946"
+      ]
+    },
+    "Tablets/IncursionRareChestChance": {
+      "ids": [
+        "explicit.stat_2514439422"
+      ]
+    },
+    "Tablets/IncursionSecondaryEncounters": {
+      "ids": [
+        "explicit.stat_632698321"
+      ]
+    },
+    "Tablets/IncursionTokenChance": {
+      "ids": [
+        "explicit.stat_1940774881"
+      ]
+    },
+    "Tablets/MapAdditionalAzmeriWisp": {
+      "ids": [
+        "explicit.stat_358129101",
+        "explicit.stat_775597083"
+      ],
+      "ambiguous": true
+    },
+    "Tablets/MapAdditionalEssence": {
+      "ids": [
+        "explicit.stat_2162684861",
+        "explicit.stat_395808938"
+      ],
+      "ambiguous": true
+    },
+    "Tablets/MapAdditionalEssenceChance": {
+      "ids": [
+        "explicit.stat_1825943485"
+      ]
+    },
+    "Tablets/MapAdditionalExile": {
+      "ids": [
+        "explicit.stat_3550168289"
+      ]
+    },
+    "Tablets/MapAdditionalExileChance": {
+      "ids": [
+        "explicit.stat_1352729973"
+      ]
+    },
+    "Tablets/MapAdditionalModifier": {
+      "ids": [
+        "explicit.stat_588512487"
+      ]
+    },
+    "Tablets/MapAdditionalShrine": {
+      "ids": [
+        "explicit.stat_1468737867",
+        "explicit.stat_3042527515"
+      ],
+      "ambiguous": true
+    },
+    "Tablets/MapAdditionalShrineChance": {
+      "ids": [
+        "explicit.stat_689816330"
+      ]
+    },
+    "Tablets/MapAdditionalSpiritChance": {
+      "ids": [
+        "explicit.stat_3815617979"
+      ]
+    },
+    "Tablets/MapAdditionalStoneCircle": {
+      "ids": [
+        "explicit.stat_2839545956"
+      ]
+    },
+    "Tablets/MapAdditionalStrongbox": {
+      "ids": [
+        "explicit.stat_3240183538",
+        "explicit.stat_3040603554"
+      ],
+      "ambiguous": true
+    },
+    "Tablets/MapAdditionalStrongboxChance": {
+      "ids": [
+        "explicit.stat_4279535856"
+      ]
+    },
+    "Tablets/MapAdditionalUniqueMonsterModifier": {
+      "ids": [
+        "explicit.stat_3371085671"
+      ]
+    },
+    "Tablets/MapBossAdditionalEssence": {
+      "ids": [
+        "explicit.stat_2162684861",
+        "explicit.stat_395808938"
+      ],
+      "ambiguous": true
+    },
+    "Tablets/MapBossAdditionalShrine": {
+      "ids": [
+        "explicit.stat_1468737867",
+        "explicit.stat_3042527515"
+      ],
+      "ambiguous": true
+    },
+    "Tablets/MapBossAdditionalSpirit": {
+      "ids": [
+        "explicit.stat_358129101",
+        "explicit.stat_775597083"
+      ],
+      "ambiguous": true
+    },
+    "Tablets/MapBossAdditionalStrongbox": {
+      "ids": [
+        "explicit.stat_3240183538",
+        "explicit.stat_3040603554"
+      ],
+      "ambiguous": true
+    },
+    "Tablets/MapBossExperience": {
+      "ids": [
+        "explicit.stat_3860150265"
+      ]
+    },
+    "Tablets/MapBossQuantity": {
+      "ids": [
+        "explicit.stat_3119172063"
+      ]
+    },
+    "Tablets/MapBossRarity": {
+      "ids": [
+        "explicit.stat_4255069232"
+      ]
+    },
+    "Tablets/MapBossWaystoneChance": {
+      "ids": [
+        "explicit.stat_1457896329"
+      ]
+    },
+    "Tablets/MapDroppedGoldIncrease": {
+      "ids": [
+        "explicit.stat_1276056105",
+        "explicit.stat_1133965702"
+      ],
+      "ambiguous": true
+    },
+    "Tablets/MapDroppedItemRarityIncrease": {
+      "ids": [
+        "explicit.stat_3917489142",
+        "explicit.stat_2306002879"
+      ],
+      "ambiguous": true
+    },
+    "Tablets/MapDroppedMapsIncrease": {
+      "ids": [
+        "explicit.stat_2777224821"
+      ]
+    },
+    "Tablets/MapExperienceGainIncrease": {
+      "ids": [
+        "explicit.stat_3666934677",
+        "explicit.stat_57434274"
+      ],
+      "ambiguous": true
+    },
+    "Tablets/MapMagicPackIncrease": {
+      "ids": [
+        "explicit.stat_3873704640"
+      ]
+    },
+    "Tablets/MapMonsterEffectiveness": {
+      "ids": [
+        "explicit.stat_2065500219"
+      ]
+    },
+    "Tablets/MapMonsterRarityIncrease": {
+      "ids": [
+        "explicit.stat_4142653832"
+      ]
+    },
+    "Tablets/MapPackSizeIncrease": {
+      "ids": [
+        "explicit.stat_2017682521"
+      ]
+    },
+    "Tablets/MapRareChestCount": {
+      "ids": [
+        "explicit.stat_231864447"
+      ]
+    },
+    "Tablets/MapRarePackIncrease": {
+      "ids": [
+        "explicit.stat_3793155082"
+      ]
+    },
+    "Tablets/MapStoneCircleChance": {
+      "ids": [
+        "explicit.stat_267210597"
+      ]
+    },
+    "Tablets/RitualAdditionalReroll": {
+      "ids": [
+        "explicit.stat_120737942"
+      ]
+    },
+    "Tablets/RitualChanceForNoCost": {
+      "ids": [
+        "explicit.stat_937291386"
+      ]
+    },
+    "Tablets/RitualDeferCostIncrease": {
+      "ids": [
+        "explicit.stat_1345835998"
+      ]
+    },
+    "Tablets/RitualDeferSpeed": {
+      "ids": [
+        "explicit.stat_28208665"
+      ]
+    },
+    "Tablets/RitualMagicMonsters": {
+      "ids": [
+        "explicit.stat_3979184174"
+      ]
+    },
+    "Tablets/RitualOmenChance": {
+      "ids": [
+        "explicit.stat_4219853180"
+      ]
+    },
+    "Tablets/RitualRareMonsters": {
+      "ids": [
+        "explicit.stat_1031644647"
+      ]
+    },
+    "Tablets/RitualRerollCostIncrease": {
+      "ids": [
+        "explicit.stat_2282052746"
+      ]
+    },
+    "Tablets/RitualTributeIncrease": {
+      "ids": [
+        "explicit.stat_159726667"
+      ]
+    }
+  }
+}

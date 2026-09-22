@@ -9,7 +9,7 @@ that one are meant to agree; if they ever don't, ALGORITHM.md is the one that's 
 ## Table of Contents
 
 - [Getting started](#getting-started)
-- [The two tabs](#the-two-tabs)
+- [The tabs](#the-tabs)
 - [Plan from scratch](#plan-from-scratch)
   - [1. Pick a base and item level](#1-pick-a-base-and-item-level)
   - [2. Choose the mods you want](#2-choose-the-mods-you-want)
@@ -29,6 +29,7 @@ that one are meant to agree; if they ever don't, ALGORITHM.md is the one that's 
 - [Search effort](#search-effort)
 - [Currency I don't have](#currency-i-dont-have)
 - [Sharing a workspace](#sharing-a-workspace)
+- [Tablets](#tablets)
 - [Where the numbers come from](#where-the-numbers-come-from)
 - [Troubleshooting](#troubleshooting)
 - [PoE2 crafting, briefly](#poe2-crafting-briefly)
@@ -51,7 +52,7 @@ Running it yourself instead? `npm run dev` serves it at `http://localhost:5173` 
 
 ---
 
-## The two tabs
+## The tabs
 
 At the top of the page:
 
@@ -59,8 +60,9 @@ At the top of the page:
 |---|---|
 | **Plan from scratch** | You have (or can buy) a white base and want to know how to craft it up |
 | **I have an item** | You're mid-craft, holding something with mods already on it, and want the best move from *here* |
+| **Tablets** | You're rolling a Ritual, Overseer or Temple Precursor Tablet — see [Tablets](#tablets) |
 
-They are genuinely different questions and the app answers them differently. Most of the confusion
+The first two are genuinely different questions and the app answers them differently. Most of the confusion
 people report comes from reading a "Plan from scratch" number as though it applied to the Rare in their
 stash — see [Why the cards carry no total](#why-the-cards-carry-no-total).
 
@@ -494,6 +496,39 @@ Two settings are deliberately **not** in the link: **Search effort** and **Curre
 describe *your* machine and *your* stash, not the craft — a link that silently imposed the sender's
 patience or the sender's missing currency on the recipient would answer a different question than the one
 they thought they were opening.
+
+---
+
+## Tablets
+
+Precursor Tablets are crafted with the same orbs as gear, so the same solver prices them — but almost
+nothing else on the gear tabs applies, and the market works the other way round. They get their own tab.
+
+**Pick a tablet, tick up to four modifiers** — two prefixes and two suffixes, which is what a Rare tablet
+holds. Each one shows how often it lands: *1 in 7 rolls on this side*. Modifiers that can't share a
+tablet grey out with the reason; on a tablet that can cross sides, because "Map contains an additional
+Essence" (a prefix) and "increased chance to contain Essences" (a suffix) are one family.
+
+**Say what a plain tablet costs you** and the tab gives the true expected cost of crafting yours, with
+the same policy graph the other tabs use.
+
+**Then the market half, which you drive.** No price feed lists tablets — poe.ninja doesn't carry them and
+the trade site can't be read from a web page — so every price on this tab is one you typed. Each row has
+a **Search on trade** button that opens the official site with the search already filled in; you read the
+listings and type the price back in. It's kept in your browser, with the day you typed it, and compared
+against what crafting costs.
+
+**While you roll for what you asked for, other things land.** Some are worth more than the tablet you
+were aiming at. The watch list shows those — how often they turn up on the way to your craft, worked out
+by playing the plan out thousands of times — each with its own search and price box. When one you priced
+beats your own craft, the tab says so: that's the tablet to stop on and sell.
+
+**Where the odds come from.** Nobody publishes tablet weights — the game files and poe2db both say 1 for
+every modifier. **Morce Faster** rolled three tablets and counted 19,147 modifiers, and that data is what
+every number here rests on. A modifier seen only a few dozen times says so beside its odds.
+
+A trade search marked **≈** covers more than one wording of the same stat, so it can list a
+near-identical modifier as well as the one you asked for.
 
 ---
 

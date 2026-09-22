@@ -110,7 +110,8 @@ describe('the Tablets tab — what it costs and what it sells for', () => {
       targets: [{ modId: 'Tablets/MapDroppedGoldIncrease' }],
       baseCost: 1,
     });
-    expect(await screen.findByText(/Crafting it costs/)).toBeInTheDocument();
+    // The number once, with its unit once — it once read "1,587 ex ex".
+    expect((await screen.findByText(/Crafting it costs/)).textContent).toMatch(/costs 1,587 ex on average/);
   });
 
   it('opens the trade site for the tablet it just costed, in the league the prices are from', async () => {
@@ -128,8 +129,33 @@ describe('the Tablets tab — what it costs and what it sells for', () => {
     const field = await screen.findByRole('textbox', { name: /Price of a Ritual Tablet/ });
     await user.type(field, '2000');
     await user.tab();
-    expect(await screen.findByText(/crafting saves/)).toBeInTheDocument();
+    expect(await screen.findByText('crafting saves 413 ex')).toBeInTheDocument();
     expect(localStorage.getItem('poe2htc.tabletPrices')).toContain('2000');
+  });
+
+  it('never carries a price typed for one tablet into the next one’s box', async () => {
+    const user = await open();
+    await pick(user);
+    await user.type(await screen.findByRole('textbox', { name: /Price of a Ritual Tablet/ }), '2000');
+    await user.tab();
+
+    await user.click(screen.getByRole('checkbox', { name: /increased Experience gain in Map/ }));
+    await user.click(screen.getByRole('button', { name: /What does it cost/ }));
+    const next = await screen.findByRole('textbox', { name: /Gold found in Map, .*Experience gain in Map/ });
+    // Left holding "2000", leaving the box would have saved it as this tablet's price too.
+    expect(next).toHaveValue('');
+    await user.click(next);
+    await user.tab();
+    expect(Object.keys(JSON.parse(localStorage.getItem('poe2htc.tabletPrices')!))).toHaveLength(1);
+  });
+
+  it('stops a solve still running when you switch tablet', async () => {
+    const cancel = vi.fn();
+    vi.mocked(solve).mockReturnValue({ promise: new Promise<never>(() => {}), cancel });
+    const user = await open();
+    await pick(user);
+    await user.click(screen.getByRole('button', { name: 'Overseer Tablet' }));
+    expect(cancel).toHaveBeenCalledTimes(1);
   });
 
   it('says a craft it cannot reach, rather than a number', async () => {
@@ -142,7 +168,7 @@ describe('the Tablets tab — what it costs and what it sells for', () => {
 
 describe('the Tablets tab — what else you might roll', () => {
   it('lists a valuable modifier, how often it turns up, and its own trade search', async () => {
-    vi.mocked(watchList).mockReturnValue([{ mods: ['Tablets/MapAdditionalModifier'], note: 'sells on its own' }]);
+    vi.mocked(watchList).mockReturnValue([{ mods: ['Tablets/MapAdditionalModifier'], tier: 'jackpot', note: 'sells on its own' }]);
     solved(markov({ replay: { runs: 4_000, seen: [0.23], meanCost: 1600, stdErr: 20 } }));
     const user = await open();
     await user.click(screen.getByRole('checkbox', { name: /increased Gold found in Map/ }));
@@ -158,8 +184,32 @@ describe('the Tablets tab — what else you might roll', () => {
     expect(vi.mocked(solve).mock.calls[0]![0]).toMatchObject({ watch: [['Tablets/MapAdditionalModifier']] });
   });
 
+  it('shows the jackpots apart from the rest, each row with its own odds', async () => {
+    // Interleaved on purpose: the replay's odds follow the list the solver was given, not the tiers.
+    vi.mocked(watchList).mockReturnValue([
+      { mods: ['Tablets/MapAdditionalModifier'], tier: 'jackpot' },
+      { mods: ['Tablets/MapDroppedItemRarityIncrease'], tier: 'good' },
+      { mods: ['Tablets/MapAdditionalUniqueMonsterModifier'], tier: 'jackpot' },
+    ]);
+    solved(markov({ replay: { runs: 1_000, seen: [0.04, 0.61, 0.07], meanCost: 1600, stdErr: 20 } }));
+    const user = await open();
+    await user.click(screen.getByRole('checkbox', { name: /increased Gold found in Map/ }));
+    await user.click(screen.getByRole('button', { name: /What does it cost/ }));
+
+    const tier = (title: string): string[] =>
+      within(screen.getByText(title).closest('section')!).getAllByRole('listitem').map((li) => li.textContent ?? '');
+    expect(await screen.findByText('Sells high, whatever else is on the tablet')).toBeInTheDocument();
+    expect(tier('Sells high, whatever else is on the tablet')).toEqual([
+      expect.stringMatching(/additional random Modifiers.*turns up in 4% of crafts/),
+      expect.stringMatching(/Unique Monsters.*turns up in 7% of crafts/),
+    ]);
+    expect(tier('Adds to what the tablet sells for')).toEqual([
+      expect.stringMatching(/Rarity of Items found in Map.*turns up in 61% of crafts/),
+    ]);
+  });
+
   it('says when a price beats the tablet the player asked for', async () => {
-    vi.mocked(watchList).mockReturnValue([{ mods: ['Tablets/MapAdditionalModifier'] }]);
+    vi.mocked(watchList).mockReturnValue([{ mods: ['Tablets/MapAdditionalModifier'], tier: 'jackpot' }]);
     solved(markov({ replay: { runs: 100, seen: [0.1], meanCost: 1600, stdErr: 20 } }));
     const user = await open();
     await user.click(screen.getByRole('checkbox', { name: /increased Gold found in Map/ }));
@@ -171,12 +221,23 @@ describe('the Tablets tab — what else you might roll', () => {
   });
 
   it('says why there are no odds when the replay declined the route', async () => {
-    vi.mocked(watchList).mockReturnValue([{ mods: ['Tablets/MapAdditionalModifier'] }]);
+    vi.mocked(watchList).mockReturnValue([{ mods: ['Tablets/MapAdditionalModifier'], tier: 'jackpot' }]);
     solved(markov({ replayReason: 'the route plays a desecrate move the replay does not model' }));
     const user = await open();
     await user.click(screen.getByRole('checkbox', { name: /increased Gold found in Map/ }));
     await user.click(screen.getByRole('button', { name: /What does it cost/ }));
     expect(await screen.findByText(/the replay does not model/)).toBeInTheDocument();
+  });
+
+  it('says why there are no odds when the cost is only a bound', async () => {
+    // Asking for two jackpots at once is the craft that stops short: "≤ 49,282 ex", and no settled plan.
+    vi.mocked(watchList).mockReturnValue([{ mods: ['Tablets/MapAdditionalModifier'], tier: 'jackpot' }]);
+    solved(markov({ bound: 'upper', converged: false }));
+    const user = await open();
+    await user.click(screen.getByRole('checkbox', { name: /increased Gold found in Map/ }));
+    await user.click(screen.getByRole('button', { name: /What does it cost/ }));
+    expect(await screen.findByText(/no odds while the cost is only a bound/)).toBeInTheDocument();
+    expect(screen.getByText(/Crafting it costs/).textContent).toMatch(/costs ≤ 1,587 ex/);
   });
 
   it('credits the rolling data the odds come from', async () => {

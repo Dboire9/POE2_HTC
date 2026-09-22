@@ -280,7 +280,11 @@ React web app: user inputs target item (base + mods + tiers), gets optimal craft
   Desecration at a third of the cost), and **the gear tabs never list one** (`listBases`; a pasted tablet
   is refused with a pointer). **Weights are Morce Faster's** (`data/tablets/morce-faster.json`: his counts,
   and per mod the weight and its basis) — his ladder everywhere except of Undertaking, the one mod his
-  own three sheets reject at 99% (25 → 41). Credit him by name wherever the odds are shown.
+  own three sheets reject at 99% (25 → 41). Credit him by name wherever the odds are shown. **The watch
+  list is Dorian's** (`data/tablets/valuable.json`): ONE list for all three tablets — an entry shows on
+  every tablet that rolls all of its modifiers — in two tiers, and every id sits beside what it `reads`
+  in game, because the internal ids mislead (`RitualMagicMonsters` reads "chance to be Rare").
+  `tablets.test.ts` holds each id to its text; match his lines by TEXT, never by id.
 - **A DIFFERENT MOD OF A TARGET'S FAMILY BLOCKS IT** (2026-09-21, `markovSiblings.ts`). A family can
   hold different mods — a Wand's five damage-type prefixes, its six "+level to … spell skills" suffixes,
   a tablet's "additional Essence" prefix and "chance to contain Essences" suffix — and rolling any of

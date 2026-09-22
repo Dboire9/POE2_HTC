@@ -519,9 +519,16 @@ listings and type the price back in. It's kept in your browser, with the day you
 against what crafting costs.
 
 **While you roll for what you asked for, other things land.** Some are worth more than the tablet you
-were aiming at. The watch list shows those — how often they turn up on the way to your craft, worked out
-by playing the plan out thousands of times — each with its own search and price box. When one you priced
-beats your own craft, the tab says so: that's the tablet to stop on and sell.
+were aiming at. The watch list shows those, in two groups: **sells high, whatever else is on the
+tablet** — an extra random map modifier, an extra Rare modifier on Unique monsters, and on a Ritual
+tablet an extra Favour reroll — and **adds to what the tablet sells for**, such as item and monster
+rarity, more Rare monsters, waystones, Azmeri spirits and the tablet's own mechanic. Each row says how
+often it turns up on the way to your craft, worked out by playing the plan out thousands of times, and
+has its own search and price box. When one you priced beats your own craft, the tab says so: that's the
+tablet to stop on and sell.
+
+A cost shown as a bound (**≤**) has no settled plan behind it, so there is nothing to play out and the
+rows say so. Asking for two of the rarest modifiers at once is what usually gets you there.
 
 **Where the odds come from.** Nobody publishes tablet weights — the game files and poe2db both say 1 for
 every modifier. **Morce Faster** rolled three tablets and counted 19,147 modifiers, and that data is what

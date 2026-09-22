@@ -1,10 +1,17 @@
 import { describe, it, expect } from 'vitest';
 import { loadPatch } from '../../packages/engine/src/index.ts';
-import { ODDS_CREDIT, listTablets, ruledOutBy, searchIsLoose, tradeStatsFor, watchList } from './tablets';
+import { familiesOf, resolveMod } from '../../packages/engine/src/pool.ts';
+import {
+  CURATED, ODDS_CREDIT, WATCH_TIERS, listTablets, ruledOutBy, searchIsLoose, tradeStatsFor, watchList,
+  type TabletBase,
+} from './tablets';
 
 const data = loadPatch('data/patches/0.5.0');
 const tablets = listTablets(data);
-const ritual = tablets.find((t) => t.id === 'Tablets_ritual')!;
+const tablet = (id: string): TabletBase => tablets.find((t) => t.id === id)!;
+const ritual = tablet('Tablets_ritual');
+const overseer = tablet('Tablets_overseer');
+const temple = tablet('Tablets_temple');
 
 describe('the tablets the tab offers', () => {
   it('is Ritual, Overseer and Temple, each with the modifiers it can roll', () => {
@@ -49,14 +56,58 @@ describe('what one pick rules out', () => {
   });
 });
 
-describe('the watch list and its searches', () => {
-  it('leaves out an entry the player already asked for', () => {
-    // Nothing is curated yet, so this holds by construction; it is the rule a list must obey once one is.
-    const all = watchList('Tablets_ritual', []);
-    const some = watchList('Tablets_ritual', all[0]?.mods ?? []);
-    expect(some).toEqual(all.filter((e) => e !== all[0]));
+describe('Dorian’s valuable list', () => {
+  const curated = WATCH_TIERS.flatMap((tier) => CURATED.tiers[tier]);
+  const shown = (t: TabletBase, targets: readonly string[] = []): string[] =>
+    watchList(t, targets).map((e) => e.mods.join(' + '));
+
+  it('names each modifier by id AND by what it reads in game, and the two agree', () => {
+    // The ids are the game's internal names and can mislead — RitualMagicMonsters is the one that reads
+    // "chance to be Rare" — so whoever edits the list writes both, and this holds them together.
+    for (const e of curated) {
+      expect(e.reads).toHaveLength(e.mods.length);
+      e.mods.forEach((id, j) => expect(resolveMod(data, id).text, id).toBe(e.reads[j]));
+    }
   });
 
+  it('lists each set once, and only sets one tablet can hold', () => {
+    const sets = curated.map((e) => [...e.mods].sort().join(' + '));
+    expect(new Set(sets).size).toBe(sets.length);
+    for (const e of curated) {
+      const families = e.mods.flatMap((id) => familiesOf(resolveMod(data, id)));
+      expect(new Set(families).size, `${e.mods.join(' + ')} repeats a family`).toBe(families.length);
+      // Every modifier rolls on the tablet, and no more than two land on one side.
+      const holds = (t: TabletBase): boolean => {
+        const on = (side: TabletBase['prefixes']): number => e.mods.filter((id) => side.some((m) => m.id === id)).length;
+        return on(t.prefixes) + on(t.suffixes) === e.mods.length && on(t.prefixes) <= 2 && on(t.suffixes) <= 2;
+      };
+      expect(tablets.some(holds), `no tablet can hold ${e.mods.join(' + ')}`).toBe(true);
+    }
+  });
+
+  it('shows each entry on every tablet that rolls it, jackpots first', () => {
+    // The two that sell high on any tablet…
+    for (const t of tablets) {
+      expect(shown(t)).toEqual(expect.arrayContaining(['Tablets/MapAdditionalModifier', 'Tablets/MapAdditionalUniqueMonsterModifier']));
+      const tiers = watchList(t, []).map((e) => WATCH_TIERS.indexOf(e.tier));
+      expect(tiers).toEqual([...tiers].sort((a, b) => a - b));
+    }
+    // …Ritual's own third, which no other tablet can roll…
+    expect(watchList(ritual, []).filter((e) => e.tier === 'jackpot')).toHaveLength(3);
+    expect(shown(overseer).filter((id) => id.startsWith('Tablets/Ritual'))).toEqual([]);
+    // …and a Vaal Beacon Crystal only where there are Vaal Beacons.
+    expect(shown(temple)).toContain('Tablets/IncursionTokenChance');
+    expect(shown(ritual)).not.toContain('Tablets/IncursionTokenChance');
+    expect(tablets.map((t) => watchList(t, []).length)).toEqual([13, 11, 9]);
+  });
+
+  it('leaves out an entry the player already asked for, and nothing else', () => {
+    const asked = ['Tablets/MapAdditionalModifier', 'Tablets/MapDroppedGoldIncrease'];
+    expect(shown(ritual, asked)).toEqual(shown(ritual).filter((id) => id !== 'Tablets/MapAdditionalModifier'));
+  });
+});
+
+describe('the trade searches', () => {
   it('gives a search the ids for every modifier it knows, and skips what it does not', () => {
     const stats = tradeStatsFor(['Tablets/MapDroppedGoldIncrease', 'not-a-mod']);
     expect(stats).toHaveLength(1);

@@ -1415,10 +1415,16 @@ cannot be right. Found by the before/after sweep in docs/validation.md; not inve
 ## 25. Tablets: what the tab does not do yet — OPEN, 2026-09-22
 
 Shipped: the three tablets, their odds from Morce Faster's counts, the craft's true cost, trade searches
-and typed prices, and the watch list. Left, roughly in the order a player would miss them:
+and typed prices, and the watch list with Dorian's valuable list (17 modifiers in two tiers, 2026-09-22).
+Left, roughly in the order a player would miss them:
 
-- **Dorian's valuable list** (`data/tablets/valuable.json`, empty). The watch list is built and tested;
-  it has nothing to show until the entries land. Data only — no code waits on it.
+- **Hunting a jackpot stops at a bound.** Asking for two of the rarest suffixes together — of Undertaking
+  and an extra Ritual reroll — ends at `bound: 'upper'` (≤ 49,282 ex, in 0.4 s) at the effort the tab
+  runs, so there is no settled plan to replay and the watch list shows no odds (it says why). The tab
+  passes no search effort; validation.md solved a craft of that size exactly, so a larger sweep budget
+  for tablets is the first thing to try.
+- **Combos.** The list takes a set of modifiers per entry and the tab prices it, but every entry today
+  is a single modifier. Dorian's call when a pair is worth more than its halves.
 - **Two wordings, one search.** 11 of 48 modifiers resolve to a stat id set that covers a near-identical
   modifier (Exiled Exchange 2 folds "an additional Shrine" and "(1-2) additional Shrines" into one row),
   so those searches list both and the row is marked ≈. The trade site's own stat list would separate

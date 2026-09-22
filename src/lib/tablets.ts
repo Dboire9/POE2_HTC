@@ -85,24 +85,40 @@ export function ruledOutBy(data: PatchData, chosen: readonly string[]): Map<stri
   return out;
 }
 
+/**
+ * The valuable list's two tiers, best first: a `jackpot` sells high whatever else is on the tablet; a
+ * `good` modifier adds to what it sells for.
+ */
+export const WATCH_TIERS = ['jackpot', 'good'] as const;
+export type WatchTier = (typeof WATCH_TIERS)[number];
+
 /** One row of the watch list: modifiers that would be on the tablet together, and why they are listed. */
 export interface WatchEntry {
   readonly mods: readonly string[];
+  readonly tier: WatchTier;
   readonly note?: string;
 }
 
-interface ValuableFile {
-  readonly tablets: Record<string, readonly WatchEntry[]>;
+/** An entry as `valuable.json` holds it — with what each modifier reads in game, for whoever edits it. */
+export interface CuratedEntry {
+  readonly mods: readonly string[];
+  readonly reads: readonly string[];
+  readonly note?: string;
 }
 
+export const CURATED: { readonly tiers: Readonly<Record<WatchTier, readonly CuratedEntry[]>> } = valuable;
+
 /**
- * The curated modifiers worth watching for on this tablet, minus any the player already asked for — a
- * target is not a surprise, and pricing it twice on one screen reads as a bug.
+ * The curated modifiers worth watching for on this tablet — every entry it can roll, best tier first —
+ * minus any the player already asked for: a target is not a surprise, and pricing it twice on one
+ * screen reads as a bug.
  */
-export function watchList(baseId: string, targets: readonly string[]): WatchEntry[] {
+export function watchList(tablet: TabletBase, targets: readonly string[]): WatchEntry[] {
+  const rolls = new Set([...tablet.prefixes, ...tablet.suffixes].map((m) => m.id));
   const wanted = new Set(targets);
-  return ((valuable as ValuableFile).tablets[baseId] ?? [])
-    .filter((e) => !e.mods.every((m) => wanted.has(m)));
+  return WATCH_TIERS.flatMap((tier) => CURATED.tiers[tier]
+    .filter((e) => e.mods.every((m) => rolls.has(m)) && !e.mods.every((m) => wanted.has(m)))
+    .map(({ mods, note }): WatchEntry => ({ mods, tier, ...(note === undefined ? {} : { note }) })));
 }
 
 /** The trade ids for a set of modifiers, in the order given. Unknown ids are skipped, never invented. */

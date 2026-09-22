@@ -1412,6 +1412,27 @@ solved from white at a free base with policy iteration: `expectedCost: 0`, `boun
 identical before and after the family-sibling fix. An upper bound of 0 on a craft that has not started
 cannot be right. Found by the before/after sweep in docs/validation.md; not investigated yet.
 
+## 25. Tablets: what the tab does not do yet — OPEN, 2026-09-22
+
+Shipped: the three tablets, their odds from Morce Faster's counts, the craft's true cost, trade searches
+and typed prices, and the watch list. Left, roughly in the order a player would miss them:
+
+- **Dorian's valuable list** (`data/tablets/valuable.json`, empty). The watch list is built and tested;
+  it has nothing to show until the entries land. Data only — no code waits on it.
+- **Two wordings, one search.** 11 of 48 modifiers resolve to a stat id set that covers a near-identical
+  modifier (Exiled Exchange 2 folds "an additional Shrine" and "(1-2) additional Shrines" into one row),
+  so those searches list both and the row is marked ≈. The trade site's own stat list would separate
+  them; reading it is a by-hand job, once.
+- **A roll's VALUE is ignored.** "Map has (1-2) additional random Modifiers" is worth far more at 2 than
+  at 1, and neither the craft nor the search says so — no Divine Orb in the model (TODO 2), and no
+  minimum on the search.
+- **Magic tablets.** A 1+1 tablet sells, and the model finishes every craft Rare, so a two-modifier
+  target is quoted with a Regal it may not need.
+- **The other five tablets** (Breach, Expedition, Delirium, Abyss, Irradiated) have no rolling data
+  behind them, which is the only reason they are absent.
+- **Alchemy, Erasure omens, Greater Exaltation** are not in the model (TODO 5d, 12b/12c). All three
+  would only make a tablet CHEAPER than quoted, so the number stays honest meanwhile.
+
 ## What 1.0 means — ALL FIVE SHIPPED, prepared 2026-09-02
 
 The definition written on 2026-09-01 was: §7 the docs describe the app that exists, §8 prices refresh

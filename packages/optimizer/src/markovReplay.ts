@@ -38,7 +38,15 @@ export interface ReplayOptions {
    * test's numbers identical on every machine; only the app passes one.
    */
   readonly maxMillis?: number;
+  /**
+   * How far along the replay is, 0–1: crafts played over `runs`, or time spent over `maxMillis`,
+   * whichever is further — the one that will end it. Called each time that moves by a hundredth.
+   */
+  readonly onProgress?: (fraction: number) => void;
 }
+
+/** Crafts played whatever the clock says, so a share is never read off a handful of them. */
+const MIN_RUNS = 64;
 
 export interface ReplayResult {
   readonly ok: true;
@@ -229,10 +237,20 @@ export function replayPolicy(ctx: ReplayContext, opts: ReplayOptions): ReplayRep
   let sum = 0;
   let sumSq = 0;
   let movesTotal = 0;
-  const deadline = opts.maxMillis === undefined ? Infinity : Date.now() + opts.maxMillis;
+  const begun = Date.now();
+  const deadline = opts.maxMillis === undefined ? Infinity : begun + opts.maxMillis;
+  let shown = 0;
   let played = 0;
   for (let run = 0; run < runs; run++) {
-    if (deadline !== Infinity && run % 64 === 0 && run > 0 && Date.now() > deadline) break;
+    // Read every craft: one long craft takes tens of milliseconds, so reading it every 64 overshot a
+    // 2-second clock by seconds and left a progress bar still for as long.
+    const now = Date.now();
+    if (run >= MIN_RUNS && now > deadline) break;
+    const done = Math.min(1, Math.max(run / runs, (now - begun) / (opts.maxMillis ?? Infinity)));
+    if (opts.onProgress && done - shown >= 0.01) {
+      shown = done;
+      opts.onProgress(done);
+    }
     let item = start;
     let cost = 0;
     let moves = 0;

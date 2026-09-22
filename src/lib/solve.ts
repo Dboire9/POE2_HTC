@@ -106,10 +106,10 @@ export type SolveResult =
   | { readonly kind: 'item'; readonly plan: EngineResult; readonly markov: EngineMarkovResult };
 
 /**
- * Every phase that can report. `item` runs the MDP's three; `lab` runs planning and, when a budget is
- * set, the budget search.
+ * Every phase that can report. `item` runs the MDP's three; `lab` runs planning, the MDP, a replay of
+ * its policy when the request has a watch list, and, when a budget is set, the budget search.
  */
-export type SolvePhase = MarkovProgress['phase'] | 'plan' | 'alternatives';
+export type SolvePhase = MarkovProgress['phase'] | 'plan' | 'replay' | 'alternatives';
 
 /**
  * How far along a solve is, as a single 0–1 fraction the UI can render directly.
@@ -186,6 +186,12 @@ const WHITE_BASE_COST = 0;
  */
 const REPLAY_RUNS = 20_000;
 const REPLAY_MILLIS = 2_000;
+/**
+ * The model's share of its span of the bar when a replay follows it. The replay runs to its clock — on
+ * a tablet ~2s, after a model done in ~30ms — so it takes the rest, rather than leaving a full bar
+ * standing still while it plays.
+ */
+const MODEL_BEFORE_REPLAY = 0.1;
 
 /**
  * A lab compute's split depends on whether a budget was set, which is why these can't be a static
@@ -367,11 +373,16 @@ export function runSolve(eng: Engine, req: SolveRequest, onProgress?: (p: SolveP
     : { baseId: from.baseId, level: from.level, rarity: 'normal', prefixes: [], suffixes: [] });
   // Reported, not silent: this can run for seconds, and a bar that stops moving through a phase is the
   // thing that made a 24-second solve feel like ten minutes in the first place.
-  const mdpSpan = hasBudget ? LAB_MDP_THEN_SEARCH : LAB_MDP_ALONE;
-  const mdpClock = clockLeft();
   const watch = req.watch?.length ? req.watch : undefined;
+  const [modelFrom, modelTo] = hasBudget ? LAB_MDP_THEN_SEARCH : LAB_MDP_ALONE;
+  const mdpSpan: Span = watch ? [modelFrom, modelFrom + (modelTo - modelFrom) * MODEL_BEFORE_REPLAY] : [modelFrom, modelTo];
+  const replayProgress = emit('replay', [mdpSpan[1], modelTo]);
+  const mdpClock = clockLeft();
   const markov = markovOrReason(() => optimizeItemMarkov(eng, mdpItem, req.targets, spared(withSweepLimit(withPolicy({
-    ...(watch ? { replay: { runs: REPLAY_RUNS, seed: 1, watch, maxMillis: REPLAY_MILLIS } } : {}),
+    ...(watch ? { replay: {
+      runs: REPLAY_RUNS, seed: 1, watch, maxMillis: REPLAY_MILLIS,
+      onProgress: (fraction: number): void => replayProgress(fraction, 1),
+    } } : {}),
     // …and the whole solved policy, so the Lab can draw the route from any item a player might buy
     // instead of a white base without solving again. From white only: a held or carved item has no
     // restart, so there is no "instead" to price, and the other solves stay the size they were.
@@ -384,8 +395,9 @@ export function runSolve(eng: Engine, req: SolveRequest, onProgress?: (p: SolveP
 
   if (!hasBudget) {
     // The MODEL finishes the bar now, not planning — planning is the first ~30% of it. Reporting
-    // `plan: 1` here would jump the label backwards after the model had already reported done.
-    onProgress?.({ phase: 'solve', fraction: 1 });
+    // `plan: 1` here would jump the label backwards after the model had already reported done, and
+    // `solve` after a replay would do the same.
+    onProgress?.({ phase: watch ? 'replay' : 'solve', fraction: 1 });
     return { kind: 'lab', result, alts: null, markov };
   }
 

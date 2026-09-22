@@ -114,5 +114,29 @@ describe('replayPolicy — the solved policy played on real items', () => {
     const rp = played(r.replay);
     expect(rp.runs).toBeGreaterThanOrEqual(64);
     expect(rp.runs).toBeLessThan(1e9);
+    // …and never reads a share off a handful, however short the clock — even one already run out.
+    const none = markovFromItem(data, prices, whiteItem(base, 100), [{ modId: 'A', minTierIndex: 1 }, { modId: 'B' }], {
+      restartCost: 0.5, replay: { runs: 1e9, seed: 2, maxMillis: -1 },
+    });
+    expect(played(none.replay).runs).toBe(64);
+  });
+
+  it('says how far along it is, a hundredth at a time, without touching the dice', () => {
+    const base = baseOf(['A'], ['B']);
+    const data = dataOf(base, [mod('A', 'prefix', [['a1', 3], ['a2', 1]]), mod('B', 'suffix', [['b1', 2]])]);
+    const prices: Prices = { currency: { transmute: 1, augment: 1, regal: 2, exalt: 3, annul: 4, chaos: 5 }, omens: {} };
+    const solve = (onProgress?: (f: number) => void) =>
+      markovFromItem(data, prices, whiteItem(base, 100), [{ modId: 'A', minTierIndex: 1 }, { modId: 'B' }], {
+        restartCost: 0.5, replay: { runs: 2_000, seed: 3, ...(onProgress ? { onProgress } : {}) },
+      });
+    const told: number[] = [];
+    expect(played(solve((f) => told.push(f)).replay)).toEqual(played(solve().replay));
+    // No clock, so crafts played over crafts asked: one report per 20 of the 2,000.
+    expect(told.length).toBeGreaterThan(90);
+    expect(told.length).toBeLessThanOrEqual(100);
+    told.forEach((f, i) => {
+      expect(f).toBeLessThanOrEqual(1);
+      if (i > 0) expect(f).toBeGreaterThan(told[i - 1]!);
+    });
   });
 });

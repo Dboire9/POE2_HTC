@@ -286,6 +286,28 @@ describe('progress reporting', () => {
     for (const p of planned) expect(p.fraction).toBeLessThanOrEqual(0.1);
   });
 
+  // A watch list adds a replay that runs to its own ~2s clock after a model that, on a tablet, is done in
+  // ~30ms. It reported nothing, so the bar sat full through the whole replay — which reads as hung.
+  it('reports through the replay a watch list adds, and gives it most of the bar', () => {
+    const seen: SolveProgress[] = [];
+    runSolve(eng, {
+      kind: 'lab', from: { baseId: 'Tablets_ritual', level: 100 }, baseCost: 1,
+      targets: [{ modId: 'Tablets/MapDroppedGoldIncrease', tierDisplay: 1 }],
+      watch: [['Tablets/MapAdditionalModifier']],
+    }, (p) => seen.push(p));
+    const replayed = seen.filter((p) => p.phase === 'replay');
+    expect(replayed.length).toBeGreaterThan(10);
+    for (const p of seen.filter((q) => q.phase === 'actions' || q.phase === 'compile' || q.phase === 'solve')) {
+      expect(p.fraction).toBeLessThanOrEqual(0.4);
+    }
+    expect(replayed[0]!.fraction).toBeLessThan(0.5);
+    for (let i = 1; i < seen.length; i++) {
+      expect(seen[i]!.fraction).toBeGreaterThanOrEqual(seen[i - 1]!.fraction);
+    }
+    // …and it ends on the replay's own label, not by jumping back to the model's.
+    expect(seen[seen.length - 1]).toEqual({ phase: 'replay', fraction: 1 });
+  });
+
   it('leaves the budget search results unchanged when a progress callback is attached', () => {
     const req = { kind: 'lab' as const, from: { baseId: 'Wands', level: 82 }, targets, budget: 600 };
     expect(runSolve(eng, req, () => {})).toEqual(runSolve(eng, req));

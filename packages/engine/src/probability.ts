@@ -1,5 +1,5 @@
 import type { AffixType, CurrencyTier, ItemBase, ItemState, Mod, PatchData, PlacedMod } from './types.ts';
-import { CURRENCY_FLOOR } from './types.ts';
+import { CURRENCY_FLOOR, TABLET_CATEGORY } from './types.ts';
 import { CRAFTED_SOURCES, familiesOf, familyAvailable, itemFamilies, modTierWeight, poolTotalWeight, resolveMod } from './pool.ts';
 import { limitsOf, prefixCount, prefixesFull, suffixCount, suffixesFull, whiteItem } from './item.ts';
 
@@ -590,7 +590,16 @@ const BONE_BY_CATEGORY: Record<string, DesecrationBone> = {
   Amulets: 'collarbone', Rings: 'collarbone', Belts: 'collarbone',
 };
 
-export function desecrationBoneFor(category: string): DesecrationBone {
+/**
+ * Categories no bone desecrates at all. A Precursor Tablet takes the ordinary crafting orbs and nothing
+ * from the Abyss (Dorian, 2026-09-21) — and the fallthrough below would otherwise hand it the armour bone,
+ * which the solver then plays: measured, five of seven tablet crafts routed through a Desecration.
+ */
+const NO_BONE: ReadonlySet<string> = new Set([TABLET_CATEGORY]);
+
+/** The bone that desecrates this category, or `undefined` where none does (see `NO_BONE`). */
+export function desecrationBoneFor(category: string): DesecrationBone | undefined {
+  if (NO_BONE.has(category)) return undefined;
   return BONE_BY_CATEGORY[category] ?? 'rib';
 }
 
@@ -606,7 +615,8 @@ export function desecrationBoneFor(category: string): DesecrationBone {
  * Weapon-or-Jewellery is exactly "not armour", i.e. the jawbone and collarbone groups.
  */
 export function bossOmenAllowed(category: string): boolean {
-  return desecrationBoneFor(category) !== 'rib';
+  const bone = desecrationBoneFor(category);
+  return bone !== undefined && bone !== 'rib';
 }
 
 /**

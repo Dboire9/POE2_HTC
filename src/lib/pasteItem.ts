@@ -3,6 +3,7 @@
 // builtin into the browser bundle and fail the build. (It did. See bundleIsolation.test.ts, which
 // walks the graph so the next one fails in the suite instead.)
 import type { PatchData } from '../../packages/engine/src/types.ts';
+import { TABLET_CATEGORY } from '../../packages/engine/src/types.ts';
 import { parseItemText } from '../../packages/engine/src/parseItem.ts';
 import type { ModKind, ParsedMod } from '../../packages/engine/src/parseItem.ts';
 import { resolveMods } from '../../packages/engine/src/resolveMods.ts';
@@ -145,12 +146,17 @@ export function readPastedItem(
   const problems: string[] = [];
   const baseName = parsed.nameLines.at(-1) ?? '';
   const match = findBaseInName(baseNameIndex(data), baseName);
-  const base = match.id === undefined ? undefined : data.bases.get(match.id);
+  const found = match.id === undefined ? undefined : data.bases.get(match.id);
+  // A tablet is craftable, just not here: the Item tab's picker lists gear only (`listBases`), so
+  // loading one would leave its base selector blank. Say where it goes instead.
+  const tablet = found?.category === TABLET_CATEGORY;
+  const base = tablet ? undefined : found;
 
   const rarity = parsed.rarity === 'rare' || parsed.rarity === 'magic' ? parsed.rarity : undefined;
   if (parsed.rarity === 'unique') problems.push('Unique items cannot be crafted — no currency this app models can change a unique’s modifiers.');
   else if (parsed.rarity === 'normal') problems.push('This is a white item with no modifiers. Use “Plan from scratch” instead.');
-  if (!base) {
+  if (tablet) problems.push(`${baseName} is a Precursor Tablet — craft it on the Tablets tab.`);
+  else if (!base) {
     problems.push(match.ids.length > 1
       ? `“${baseName}” could be ${match.ids.join(' or ')} — pick the base by hand.`
       : `“${baseName}” is not a base in the ${data.patch} data. It may be from a newer patch.`);
@@ -192,8 +198,8 @@ export function readPastedItem(
 
   return {
     baseName,
-    baseId: match.id,
-    baseIds: match.ids,
+    baseId: base?.id,
+    baseIds: tablet ? [] : match.ids,
     level: parsed.itemLevel,
     rarity,
     advanced: parsed.advanced,

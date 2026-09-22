@@ -37,6 +37,15 @@ describe('reading a pasted item', () => {
   });
 });
 
+describe('a pasted Precursor Tablet', () => {
+  // The Item tab's picker lists gear only, so a tablet loaded there would sit under a blank base.
+  it('is not loaded here, and the reader is told where tablets are crafted', () => {
+    const r = read(item('12% increased Rarity of Items found in Map', 'Item Class: Tablet\nRarity: Rare\nHavoc Hope\nRitual Tablet'))!;
+    expect(r.baseId).toBeUndefined();
+    expect(r.problems).toContain('Ritual Tablet is a Precursor Tablet — craft it on the Tablets tab.');
+  });
+});
+
 describe('what it refuses to decide', () => {
   /** Three mods on this base carry this text. Leaving it off the item is the point: a guess here puts
    *  a mod on the item that the player does not hold. */

@@ -22,6 +22,14 @@ describe('engine facade — base & mod listing', () => {
     expect(listBases(eng.data).some((b) => b.id === 'Wands')).toBe(true);
   });
 
+  // The Plan and Item tabs' pickers read this list; tablets are crafted on their own tab.
+  it('leaves Precursor Tablets out of the gear bases', () => {
+    const shipped = loadPatch('data/patches/0.5.0');
+    expect(shipped.bases.has('Tablets_ritual')).toBe(true);
+    expect(listBases(shipped).filter((b) => b.category === 'Tablets')).toEqual([]);
+    expect(listBases(shipped).some((b) => b.id === 'Wands')).toBe(true);
+  });
+
   it('presents a mod’s tiers best-first (display 1 = highest ilvl)', () => {
     const mana = findMod(listMods(eng.data, 'Wands').prefixes, MANA);
     expect(mana.tiers[0]!.display).toBe(1);

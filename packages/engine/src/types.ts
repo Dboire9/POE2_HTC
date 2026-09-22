@@ -175,6 +175,13 @@ export interface ItemState {
   readonly desecrated?: boolean;
 }
 
+/**
+ * The category of the Precursor Tablets (tools/refresh/apply_tablets.mjs). A tablet is an item in every
+ * sense the engine has — pools, limits, orbs — so nothing in the solvers branches on it; what differs is
+ * which bone fits it (none) and which tab crafts it (its own). Read this rather than the string.
+ */
+export const TABLET_CATEGORY = 'Tablets';
+
 /** Currency strength — restricts rolls to higher-ilvl tiers (Greater/Perfect orbs). */
 export type CurrencyTier = 'base' | 'greater' | 'perfect';
 

@@ -2,7 +2,7 @@ export type {
   AffixType, ModSource, Rarity, Tier, Mod, Pool, ItemBase, ItemLimits, PatchData,
   PlacedMod, ItemState, CurrencyTier, Throwaway,
 } from './types.ts';
-export { CURRENCY_FLOOR } from './types.ts';
+export { CURRENCY_FLOOR, TABLET_CATEGORY } from './types.ts';
 
 export { resolveMod, modTierWeight, poolTotalWeight, itemFamilies, familyAvailable, familiesOf, excluded } from './pool.ts';
 export { baseNameIndex, findBase, findBaseInName } from './baseLookup.ts';

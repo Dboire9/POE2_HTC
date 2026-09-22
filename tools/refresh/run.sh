@@ -7,7 +7,10 @@
 #   5. apply_codes.mjs  -> record the game's own modifier ids on crafted tiers, so the streamer gear
 #                          job can resolve a crafted line (it MUST follow apply_pools, which rebuilds
 #                          those pools and would otherwise leave the codes pointing at nothing)
-#   6. diff.mjs         -> structural diff vs the 0.5 Java baseline
+#   6. apply_tablets.mjs-> the Ritual, Overseer and Temple Precursor Tablets, weighted from Morce Faster's
+#                          rolling data (data/tablets/morce-faster.json) — refresh.mjs rebuilds both files
+#                          from the gear roster, so without this step a refresh would drop every tablet
+#   7. diff.mjs         -> structural diff vs the 0.5 Java baseline
 #
 # poe2db class/base pages must already be cached under tools/refresh/cache/poe2db/ (fetched once;
 # re-fetch by deleting them). Run from repo root: ./tools/refresh/run.sh
@@ -27,5 +30,6 @@ node "$ROOT/tools/refresh/refresh.mjs"
 node "$ROOT/tools/refresh/apply_weights.mjs"
 node "$ROOT/tools/refresh/apply_pools.mjs"
 node "$ROOT/tools/refresh/apply_codes.mjs"
+node "$ROOT/tools/refresh/apply_tablets.mjs" "$CACHE"
 node "$ROOT/tools/refresh/diff.mjs" > "$ROOT/docs/refresh-0.5.0-diff.md"
 echo "wrote docs/refresh-0.5.0-diff.md"

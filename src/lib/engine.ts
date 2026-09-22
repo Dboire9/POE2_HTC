@@ -13,6 +13,7 @@ import { runeOpportunity } from '../../packages/engine/src/runeConvert.ts';
 import { withRunes, usesAssumedPool } from '../../packages/engine/src/runes.ts';
 import type { RuneOpportunity } from '../../packages/engine/src/runeConvert.ts';
 import type { ItemState, Mod, PatchData } from '../../packages/engine/src/types.ts';
+import { TABLET_CATEGORY } from '../../packages/engine/src/types.ts';
 import {
   annulProbability, augmentationProbability, bossOmenAllowed, chaosProbability,
   ANCIENT_BONE_FLOOR, desecrationBossAnySideProbability, desecrationOffered, desecrationOmenForMod, desecrationProbability,
@@ -156,6 +157,9 @@ export function priceBasis(eng: { prices: Prices }): EnginePriceBasis {
 /** All craftable bases, sorted by display name. */
 export function listBases(data: PatchData): EngineBase[] {
   return [...data.bases.values()]
+    // Gear only. Precursor Tablets are crafted on their own tab, which lists them itself: the Plan and
+    // Item tabs' controls — item level, runes, essences, desecration — have nothing to say to a tablet.
+    .filter((b) => b.category !== TABLET_CATEGORY)
     // The DATA's name wins when it carries more than the id does. For most bases the two are the same
     // string and `prettyName` is what makes "Body_Armours_str_int" readable; for a spell-element wand
     // or staff variant the data holds the real game bases that row covers ("Frigid Wand"), which is

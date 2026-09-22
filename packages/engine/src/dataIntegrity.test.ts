@@ -196,6 +196,12 @@ auditPatch('0.5.0', {
     // still means an item takes one or the other.
     'DodgeRoll on Boots_str', 'DodgeRoll on Boots_dex', 'DodgeRoll on Boots_int',
     'DodgeRoll on Boots_str_dex', 'DodgeRoll on Boots_str_int', 'DodgeRoll on Boots_dex_int',
+    // PRECURSOR TABLETS, added 2026-09-21 — three NORMAL-pool pairs, one prefix and one suffix each, as
+    // RePoE's `groups` has them: "Map contains an additional Essence" / "…increased chance to contain
+    // Essences", the same for a Rogue Exile and a Summoning Circle. A tablet takes one of each pair,
+    // never both, and the true-cost model treats the other side's member as an OBSTACLE for exactly this
+    // reason (markovSiblings.ts). Keyed by the mods' shared id prefix, so one row covers all three tablets.
+    'MapAdditionalEssence on Tablets', 'MapAdditionalExile on Tablets', 'MapAdditionalStoneCircle on Tablets',
   ]),
 });
 

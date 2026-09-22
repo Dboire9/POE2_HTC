@@ -1,0 +1,368 @@
+{
+  "credit": "Morce Faster",
+  "read": "2026-09-21",
+  "about": "Rolling results for three Precursor Tablets, shared by Morce Faster with Dorian as one spreadsheet per tablet: how many times each modifier was seen. These counts are the only weight data there is for tablets — RePoE and poe2db both publish 1 for every tablet modifier.",
+  "basis": {
+    "morce": "Morce Faster's own estimate, from the second tab of his Ritual sheet (a ladder of round weights).",
+    "ladder": "A suffix only an Overseer or Temple tablet rolls: its count on that tablet, scaled against the shared mods at Morce's weights and rounded to his ladder.",
+    "fit": "The one weight his three sheets together reject at 99% (54 seen where 25 predicts 33): replaced by their pooled estimate."
+  },
+  "weights": {
+    "Tablets/IncursionBossChance": {
+      "weight": 500,
+      "basis": "ladder",
+      "seen": 111
+    },
+    "Tablets/IncursionExtraPacks": {
+      "weight": 250,
+      "basis": "ladder",
+      "seen": 71
+    },
+    "Tablets/IncursionExtraPacksChance": {
+      "weight": 750,
+      "basis": "ladder",
+      "seen": 179
+    },
+    "Tablets/IncursionPackSize": {
+      "weight": 1000,
+      "basis": "ladder",
+      "seen": 217
+    },
+    "Tablets/IncursionRareChestChance": {
+      "weight": 500,
+      "basis": "ladder",
+      "seen": 122
+    },
+    "Tablets/IncursionSecondaryEncounters": {
+      "weight": 750,
+      "basis": "ladder",
+      "seen": 191
+    },
+    "Tablets/IncursionTokenChance": {
+      "weight": 250,
+      "basis": "ladder",
+      "seen": 51
+    },
+    "Tablets/MapAdditionalAzmeriWisp": {
+      "weight": 125,
+      "basis": "morce",
+      "seen": 156
+    },
+    "Tablets/MapAdditionalEssence": {
+      "weight": 125,
+      "basis": "morce",
+      "seen": 166
+    },
+    "Tablets/MapAdditionalEssenceChance": {
+      "weight": 250,
+      "basis": "morce",
+      "seen": 345
+    },
+    "Tablets/MapAdditionalExile": {
+      "weight": 50,
+      "basis": "morce",
+      "seen": 68
+    },
+    "Tablets/MapAdditionalExileChance": {
+      "weight": 100,
+      "basis": "morce",
+      "seen": 141
+    },
+    "Tablets/MapAdditionalModifier": {
+      "weight": 41,
+      "basis": "fit",
+      "seen": 54
+    },
+    "Tablets/MapAdditionalShrine": {
+      "weight": 125,
+      "basis": "morce",
+      "seen": 170
+    },
+    "Tablets/MapAdditionalShrineChance": {
+      "weight": 500,
+      "basis": "morce",
+      "seen": 600
+    },
+    "Tablets/MapAdditionalSpiritChance": {
+      "weight": 250,
+      "basis": "morce",
+      "seen": 346
+    },
+    "Tablets/MapAdditionalStoneCircle": {
+      "weight": 100,
+      "basis": "morce",
+      "seen": 157
+    },
+    "Tablets/MapAdditionalStrongbox": {
+      "weight": 125,
+      "basis": "morce",
+      "seen": 159
+    },
+    "Tablets/MapAdditionalStrongboxChance": {
+      "weight": 250,
+      "basis": "morce",
+      "seen": 318
+    },
+    "Tablets/MapAdditionalUniqueMonsterModifier": {
+      "weight": 50,
+      "basis": "morce",
+      "seen": 47
+    },
+    "Tablets/MapBossAdditionalEssence": {
+      "weight": 100,
+      "basis": "ladder",
+      "seen": 33
+    },
+    "Tablets/MapBossAdditionalShrine": {
+      "weight": 100,
+      "basis": "ladder",
+      "seen": 34
+    },
+    "Tablets/MapBossAdditionalSpirit": {
+      "weight": 100,
+      "basis": "ladder",
+      "seen": 32
+    },
+    "Tablets/MapBossAdditionalStrongbox": {
+      "weight": 100,
+      "basis": "ladder",
+      "seen": 32
+    },
+    "Tablets/MapBossExperience": {
+      "weight": 1000,
+      "basis": "ladder",
+      "seen": 354
+    },
+    "Tablets/MapBossQuantity": {
+      "weight": 1000,
+      "basis": "ladder",
+      "seen": 348
+    },
+    "Tablets/MapBossRarity": {
+      "weight": 1000,
+      "basis": "ladder",
+      "seen": 386
+    },
+    "Tablets/MapBossWaystoneChance": {
+      "weight": 500,
+      "basis": "ladder",
+      "seen": 189
+    },
+    "Tablets/MapDroppedGoldIncrease": {
+      "weight": 1000,
+      "basis": "morce",
+      "seen": 1384
+    },
+    "Tablets/MapDroppedItemRarityIncrease": {
+      "weight": 1000,
+      "basis": "morce",
+      "seen": 1280
+    },
+    "Tablets/MapDroppedMapsIncrease": {
+      "weight": 750,
+      "basis": "morce",
+      "seen": 983
+    },
+    "Tablets/MapExperienceGainIncrease": {
+      "weight": 1000,
+      "basis": "morce",
+      "seen": 1357
+    },
+    "Tablets/MapMagicPackIncrease": {
+      "weight": 500,
+      "basis": "morce",
+      "seen": 653
+    },
+    "Tablets/MapMonsterEffectiveness": {
+      "weight": 1000,
+      "basis": "morce",
+      "seen": 1328
+    },
+    "Tablets/MapMonsterRarityIncrease": {
+      "weight": 750,
+      "basis": "morce",
+      "seen": 1090
+    },
+    "Tablets/MapPackSizeIncrease": {
+      "weight": 500,
+      "basis": "morce",
+      "seen": 681
+    },
+    "Tablets/MapRareChestCount": {
+      "weight": 500,
+      "basis": "morce",
+      "seen": 695
+    },
+    "Tablets/MapRarePackIncrease": {
+      "weight": 500,
+      "basis": "morce",
+      "seen": 695
+    },
+    "Tablets/MapStoneCircleChance": {
+      "weight": 250,
+      "basis": "morce",
+      "seen": 333
+    },
+    "Tablets/RitualAdditionalReroll": {
+      "weight": 50,
+      "basis": "morce",
+      "seen": 38
+    },
+    "Tablets/RitualChanceForNoCost": {
+      "weight": 250,
+      "basis": "morce",
+      "seen": 190
+    },
+    "Tablets/RitualDeferCostIncrease": {
+      "weight": 500,
+      "basis": "morce",
+      "seen": 373
+    },
+    "Tablets/RitualDeferSpeed": {
+      "weight": 500,
+      "basis": "morce",
+      "seen": 370
+    },
+    "Tablets/RitualMagicMonsters": {
+      "weight": 500,
+      "basis": "morce",
+      "seen": 388
+    },
+    "Tablets/RitualOmenChance": {
+      "weight": 500,
+      "basis": "morce",
+      "seen": 362
+    },
+    "Tablets/RitualRareMonsters": {
+      "weight": 500,
+      "basis": "morce",
+      "seen": 367
+    },
+    "Tablets/RitualRerollCostIncrease": {
+      "weight": 1000,
+      "basis": "morce",
+      "seen": 764
+    },
+    "Tablets/RitualTributeIncrease": {
+      "weight": 1000,
+      "basis": "morce",
+      "seen": 739
+    }
+  },
+  "tablets": {
+    "Tablets_ritual": {
+      "prefixesSeen": 5460,
+      "suffixesSeen": 5487,
+      "counts": {
+        "Tablets/MapDroppedGoldIncrease": 800,
+        "Tablets/MapMonsterEffectiveness": 777,
+        "Tablets/MapExperienceGainIncrease": 747,
+        "Tablets/MapDroppedItemRarityIncrease": 712,
+        "Tablets/MapMonsterRarityIncrease": 604,
+        "Tablets/MapRarePackIncrease": 410,
+        "Tablets/MapRareChestCount": 387,
+        "Tablets/MapMagicPackIncrease": 362,
+        "Tablets/MapPackSizeIncrease": 359,
+        "Tablets/MapAdditionalAzmeriWisp": 94,
+        "Tablets/MapAdditionalEssence": 92,
+        "Tablets/MapAdditionalStoneCircle": 84,
+        "Tablets/MapAdditionalExile": 32,
+        "Tablets/RitualRerollCostIncrease": 764,
+        "Tablets/RitualTributeIncrease": 739,
+        "Tablets/MapDroppedMapsIncrease": 532,
+        "Tablets/RitualMagicMonsters": 388,
+        "Tablets/RitualDeferCostIncrease": 373,
+        "Tablets/RitualDeferSpeed": 370,
+        "Tablets/RitualRareMonsters": 367,
+        "Tablets/RitualOmenChance": 362,
+        "Tablets/MapAdditionalShrineChance": 323,
+        "Tablets/MapAdditionalSpiritChance": 204,
+        "Tablets/RitualChanceForNoCost": 190,
+        "Tablets/MapStoneCircleChance": 189,
+        "Tablets/MapAdditionalEssenceChance": 187,
+        "Tablets/MapAdditionalStrongboxChance": 166,
+        "Tablets/MapAdditionalShrine": 93,
+        "Tablets/MapAdditionalStrongbox": 89,
+        "Tablets/MapAdditionalExileChance": 69,
+        "Tablets/RitualAdditionalReroll": 38,
+        "Tablets/MapAdditionalUniqueMonsterModifier": 26,
+        "Tablets/MapAdditionalModifier": 18
+      }
+    },
+    "Tablets_overseer": {
+      "prefixesSeen": 2622,
+      "suffixesSeen": 2378,
+      "counts": {
+        "Tablets/MapExperienceGainIncrease": 380,
+        "Tablets/MapDroppedItemRarityIncrease": 351,
+        "Tablets/MapDroppedGoldIncrease": 340,
+        "Tablets/MapMonsterEffectiveness": 335,
+        "Tablets/MapMonsterRarityIncrease": 299,
+        "Tablets/MapPackSizeIncrease": 200,
+        "Tablets/MapRareChestCount": 190,
+        "Tablets/MapMagicPackIncrease": 182,
+        "Tablets/MapRarePackIncrease": 179,
+        "Tablets/MapAdditionalStoneCircle": 52,
+        "Tablets/MapAdditionalEssence": 46,
+        "Tablets/MapAdditionalAzmeriWisp": 42,
+        "Tablets/MapAdditionalExile": 26,
+        "Tablets/MapBossRarity": 386,
+        "Tablets/MapBossExperience": 354,
+        "Tablets/MapBossQuantity": 348,
+        "Tablets/MapDroppedMapsIncrease": 271,
+        "Tablets/MapBossWaystoneChance": 189,
+        "Tablets/MapAdditionalShrineChance": 153,
+        "Tablets/MapAdditionalSpiritChance": 98,
+        "Tablets/MapAdditionalStrongboxChance": 95,
+        "Tablets/MapStoneCircleChance": 93,
+        "Tablets/MapAdditionalEssenceChance": 84,
+        "Tablets/MapAdditionalShrine": 55,
+        "Tablets/MapAdditionalExileChance": 44,
+        "Tablets/MapAdditionalStrongbox": 43,
+        "Tablets/MapBossAdditionalShrine": 34,
+        "Tablets/MapBossAdditionalEssence": 33,
+        "Tablets/MapBossAdditionalStrongbox": 32,
+        "Tablets/MapBossAdditionalSpirit": 32,
+        "Tablets/MapAdditionalModifier": 22,
+        "Tablets/MapAdditionalUniqueMonsterModifier": 12
+      }
+    },
+    "Tablets_temple": {
+      "prefixesSeen": 1628,
+      "suffixesSeen": 1572,
+      "counts": {
+        "Tablets/MapDroppedGoldIncrease": 244,
+        "Tablets/MapExperienceGainIncrease": 230,
+        "Tablets/MapDroppedItemRarityIncrease": 217,
+        "Tablets/MapMonsterEffectiveness": 216,
+        "Tablets/MapMonsterRarityIncrease": 187,
+        "Tablets/MapPackSizeIncrease": 122,
+        "Tablets/MapRareChestCount": 118,
+        "Tablets/MapMagicPackIncrease": 109,
+        "Tablets/MapRarePackIncrease": 106,
+        "Tablets/MapAdditionalEssence": 28,
+        "Tablets/MapAdditionalStoneCircle": 21,
+        "Tablets/MapAdditionalAzmeriWisp": 20,
+        "Tablets/MapAdditionalExile": 10,
+        "Tablets/IncursionPackSize": 217,
+        "Tablets/IncursionSecondaryEncounters": 191,
+        "Tablets/MapDroppedMapsIncrease": 180,
+        "Tablets/IncursionExtraPacksChance": 179,
+        "Tablets/MapAdditionalShrineChance": 124,
+        "Tablets/IncursionRareChestChance": 122,
+        "Tablets/IncursionBossChance": 111,
+        "Tablets/MapAdditionalEssenceChance": 74,
+        "Tablets/IncursionExtraPacks": 71,
+        "Tablets/MapAdditionalStrongboxChance": 57,
+        "Tablets/MapStoneCircleChance": 51,
+        "Tablets/IncursionTokenChance": 51,
+        "Tablets/MapAdditionalSpiritChance": 44,
+        "Tablets/MapAdditionalExileChance": 28,
+        "Tablets/MapAdditionalStrongbox": 27,
+        "Tablets/MapAdditionalShrine": 22,
+        "Tablets/MapAdditionalModifier": 14,
+        "Tablets/MapAdditionalUniqueMonsterModifier": 9
+      }
+    }
+  }
+}

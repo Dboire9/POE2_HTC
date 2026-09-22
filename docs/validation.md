@@ -4555,6 +4555,56 @@ before nor after, so they are not compared here. Zizaran #9 (a Wand with a carve
 `expectedCost 0` with `bound: 'upper'` after 3 s — identically before and after, so not this change,
 but an upper bound of 0 on a from-white craft cannot be right. Logged in TODO.
 
+## Precursor Tablets — where the odds come from, and whether the model holds (2026-09-21)
+
+**No weight data exists for tablets except Morce Faster's.** RePoE and poe2db publish 1 for every tablet
+modifier. Morce Faster rolled three tablets and counted every modifier he saw — Ritual 10,947 (5,460
+prefixes, 5,487 suffixes), Overseer 5,000, Temple 3,200 — and shared the sheets with Dorian; his Ritual
+sheet has a second tab of "suspected weights" on a ladder (1000 / 750 / 500 / 250 / 125 / 100 / 50 / 25).
+Every row of the three sheets matched exactly one RePoE mod of that tablet (by name; by text for the
+Temple suffixes, which have none), and no RePoE mod went unmatched: 13 shared prefixes; 11 shared
+suffixes plus 9 Ritual, 8 Overseer and 7 Temple ones — 48 mods.
+
+**The weights, and the one change.** The shared mods have the same weight on every tablet (RePoE's
+spawn tags make them one `default` weight), so all three sheets test them together. Against his ladder,
+pooled: every mod lands inside its 99% band except **of Undertaking** — seen 54 times where 25 predicts
+33.3 (z = +3.6). Ritual alone saw it 18 times, which is where 25 came from; Overseer (22) and Temple
+(14) saw it far more often. It takes the pooled estimate, **41**. Of Contest (z = −2.4), of Shrines
+(−2.5), Collector's (−2.1) and Abounding (+2.2) are the next furthest — about what fifty modifiers give
+by chance — and keep his values. The suffixes only Overseer or Temple roll are scaled against the shared
+mods at his weights and rounded to his ladder (Treasure / Conquering / Hoards 1000, Pathways 500,
+Worship / Crystals / Compartments / Wisps 100; Temple 1000 / 750 / 750 / 500 / 500 / 250 / 250). Every
+tablet side then fits its own counts at 99.9% (`tablets.test.ts`); `morce-faster.json` records the basis
+of each weight.
+
+**Six family pairs**, three across sides — Crystallised / of the Essence, Summoner's / of the Summoning,
+Exiled / of the Exile — and three on the suffix side (Shrines / Devoted, Strongboxes / Antiquarian,
+Temple's two extra-pack mods). This is what the family-sibling fix above was for.
+
+**No bone.** The first solves routed five of seven tablet crafts through a Desecration: an unmapped
+category fell through to the armour bone, and the sheet's flat `desecrate` key priced it. A Ritual 2+2
+read 530.9 ex that way; honestly, 1,587.3. Tablets are now named as having no bone and the price is
+stripped.
+
+**The gate: does the model's number hold on a pool this small?** One junk prefix of weight 1,000 is 14%
+of a tablet's prefix pool, so the junk approximation (TODO 23) was expected to bite harder than on gear.
+Replayed, 5,000 crafts each, a plain tablet at 1 ex, the live sheet:
+
+| craft | V | replayed | gap | z |
+|---|---|---|---|---|
+| Ritual — Gold, Rarity, of the Dogma, of Sacrifice | 1,587.3 | 1,614.1 ± 22.4 | +1.7% | +1.2 |
+| Ritual — Rarity, of Omens | 560.7 | 552.7 ± 7.8 | −1.4% | −1.0 |
+| Ritual — of Undertaking, of Prayers | 49,157.7 | 48,842.6 ± 577.0 | −0.6% | −0.5 |
+| Overseer — Experience, Rarity, of Treasure, of Hoards | 1,290.5 | 1,272.8 ± 17.4 | −1.4% | −1.0 |
+| Overseer — Crystallised (an obstacle across sides), of Hoards | 1,621.7 | 1,574.7 ± 21.1 | −2.9% | −2.2 |
+| Temple — Rarity, Monster Rarity, two Vaal Beacon suffixes | 2,887.6 | 2,850.9 ± 40.3 | −1.3% | −0.9 |
+| Temple — extra-packs chance (a same-side sibling), Rare Monsters | 660.4 | 665.6 ± 9.3 | +0.8% | +0.6 |
+
+Within 3% everywhere, so the Tablets tab shows the model's number as the cost. It does not bite harder
+here because a tablet side holds two mods: the policy rarely keeps rolling with junk on a side it still
+needs. The long craft is the one to watch for the watch list — 20,941 moves a craft, so its replay has
+to run to a clock.
+
 ## Still deferred
 - **Confirm the Omen of Whittling TIE rule in game** (2026-09-02): when two or more modifiers share
   the lowest item level, which does the Chaos Orb remove? Modelled as uniform — 50/50 on two — by the

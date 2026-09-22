@@ -2,7 +2,7 @@
   "patch": "0.5.0",
   "generated": "2026-07-04",
   "source": "NORMAL structure from RePoE-fork PoE2 dump (client 4.5.4.3) + NORMAL weights from poe2db (DropChance). ESSENCE + DESECRATED + PERFECT_ESSENCE pools built from poe2db per-class pages by apply_pools.mjs (essence tiers = Lesser/Normal/Greater levels; perfect_essence = 1-tier, both deterministic weight 0; desecrated = one mod per row, boss tags preserved). DESECRATED WEIGHTS ARE AN ASSUMPTION: poe2db publishes none (it reports 1 for every row), so all of them are set to 2500 — see docs/validation.md D4. They are NOT observed data. CRAFTED TIERS also carry `codes`: the game's own modifier ids (RePoE-fork), joined by exclusion group + affix side + roll by apply_codes.mjs, so a profile API's crafted line resolves to the tier that made it. Ambiguous joins are left unmatched rather than guessed. RUNE POOLS (the \"Can roll <X> modifiers\" runes) are built from RePoE tags by apply_runes.mjs and live in base.pools.rune[<runeId>]. THEIR WEIGHTS ARE AN ASSUMPTION: RePoE publishes 1 for every one of them, so all are set to 1000 — see docs/validation.md. They are NOT observed data.",
-  "count": 2917,
+  "count": 2965,
   "mods": [
     {
       "id": "Amulets/AllAttributes",
@@ -184160,6 +184160,1398 @@
           "stats": [
             "spell_damage_+%",
             "base_maximum_mana"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "Tablets/MapMonsterEffectiveness",
+      "group": "MapMonsterEffectiveness",
+      "field": "MapMonsterEffectiveness",
+      "source": "normal",
+      "type": "prefix",
+      "categories": [
+        "map_monster_potency_+%"
+      ],
+      "family": "MapMonsterEffectiveness",
+      "tags": [],
+      "text": "Monsters have #% increased Effectiveness",
+      "tiers": [
+        {
+          "name": "Challenger's",
+          "ilvl": 1,
+          "weight": 1000,
+          "ranges": [
+            [
+              10,
+              15
+            ]
+          ],
+          "stats": [
+            "map_monster_potency_+%"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "Tablets/MapDroppedItemRarityIncrease",
+      "group": "MapDroppedItemRarityIncrease",
+      "field": "MapDroppedItemRarityIncrease",
+      "source": "normal",
+      "type": "prefix",
+      "categories": [
+        "map_item_drop_rarity_+%"
+      ],
+      "family": "MapDroppedItemRarityIncrease",
+      "tags": [],
+      "text": "#% increased Rarity of Items found in Map",
+      "tiers": [
+        {
+          "name": "Collector's",
+          "ilvl": 1,
+          "weight": 1000,
+          "ranges": [
+            [
+              8,
+              12
+            ]
+          ],
+          "stats": [
+            "map_item_drop_rarity_+%"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "Tablets/MapPackSizeIncrease",
+      "group": "MapPackSizeIncrease",
+      "field": "MapPackSizeIncrease",
+      "source": "normal",
+      "type": "prefix",
+      "categories": [
+        "map_pack_size_+%"
+      ],
+      "family": "MapPackSizeIncrease",
+      "tags": [],
+      "text": "#% increased Pack Size in Map",
+      "tiers": [
+        {
+          "name": "Breeding",
+          "ilvl": 1,
+          "weight": 500,
+          "ranges": [
+            [
+              5,
+              7
+            ]
+          ],
+          "stats": [
+            "map_pack_size_+%"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "Tablets/MapMagicPackIncrease",
+      "group": "MapMagicPackIncrease",
+      "field": "MapMagicPackIncrease",
+      "source": "normal",
+      "type": "prefix",
+      "categories": [
+        "map_number_of_magic_packs_+%"
+      ],
+      "family": "MapMagicPackIncrease",
+      "tags": [],
+      "text": "Map has #% increased Magic Monsters",
+      "tiers": [
+        {
+          "name": "Teeming",
+          "ilvl": 1,
+          "weight": 500,
+          "ranges": [
+            [
+              30,
+              40
+            ]
+          ],
+          "stats": [
+            "map_number_of_magic_packs_+%"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "Tablets/MapRarePackIncrease",
+      "group": "MapRarePackIncrease",
+      "field": "MapRarePackIncrease",
+      "source": "normal",
+      "type": "prefix",
+      "categories": [
+        "map_number_of_rare_packs_+%"
+      ],
+      "family": "MapRarePackIncrease",
+      "tags": [],
+      "text": "Map has #% increased number of Rare Monsters",
+      "tiers": [
+        {
+          "name": "Brimming",
+          "ilvl": 1,
+          "weight": 500,
+          "ranges": [
+            [
+              25,
+              35
+            ]
+          ],
+          "stats": [
+            "map_number_of_rare_packs_+%"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "Tablets/MapMonsterRarityIncrease",
+      "group": "MapMonsterRarityIncrease",
+      "field": "MapMonsterRarityIncrease",
+      "source": "normal",
+      "type": "prefix",
+      "categories": [
+        "map_number_of_magic_and_rare_packs_+%_and_rare_monster_modifiers_chance_%"
+      ],
+      "family": "MapMonsterRarityIncrease",
+      "tags": [],
+      "text": "Map has #% increased Monster Rarity",
+      "tiers": [
+        {
+          "name": "Abounding",
+          "ilvl": 1,
+          "weight": 750,
+          "ranges": [
+            [
+              15,
+              20
+            ]
+          ],
+          "stats": [
+            "map_number_of_magic_and_rare_packs_+%_and_rare_monster_modifiers_chance_%"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "Tablets/MapDroppedGoldIncrease",
+      "group": "MapDroppedGoldIncrease",
+      "field": "MapDroppedGoldIncrease",
+      "source": "normal",
+      "type": "prefix",
+      "categories": [
+        "map_extra_gold_piles_chance_%"
+      ],
+      "family": "MapDroppedGoldIncrease",
+      "tags": [],
+      "text": "#% increased Gold found in Map",
+      "tiers": [
+        {
+          "name": "Bountiful",
+          "ilvl": 1,
+          "weight": 1000,
+          "ranges": [
+            [
+              25,
+              35
+            ]
+          ],
+          "stats": [
+            "map_extra_gold_piles_chance_%"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "Tablets/MapExperienceGainIncrease",
+      "group": "MapExperienceGainIncrease",
+      "field": "MapExperienceGainIncrease",
+      "source": "normal",
+      "type": "prefix",
+      "categories": [
+        "map_experience_gain_+%"
+      ],
+      "family": "MapExperienceGainIncrease",
+      "tags": [],
+      "text": "#% increased Experience gain in Map",
+      "tiers": [
+        {
+          "name": "Elevated",
+          "ilvl": 1,
+          "weight": 1000,
+          "ranges": [
+            [
+              12,
+              18
+            ]
+          ],
+          "stats": [
+            "map_experience_gain_+%"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "Tablets/MapRareChestCount",
+      "group": "MapRareChestCount",
+      "field": "MapRareChestCount",
+      "source": "normal",
+      "type": "prefix",
+      "categories": [
+        "map_addtional_rare_chest_amount"
+      ],
+      "family": "MapAdditionalChests",
+      "tags": [],
+      "text": "Map contains # additional Rare Chests",
+      "tiers": [
+        {
+          "name": "Treasurer's",
+          "ilvl": 1,
+          "weight": 500,
+          "ranges": [
+            [
+              2,
+              3
+            ]
+          ],
+          "stats": [
+            "map_addtional_rare_chest_amount"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "Tablets/MapAdditionalEssence",
+      "group": "MapAdditionalEssence",
+      "field": "MapAdditionalEssence",
+      "source": "normal",
+      "type": "prefix",
+      "categories": [
+        "map_extra_monoliths"
+      ],
+      "family": "MapAdditionalEssence",
+      "tags": [],
+      "text": "Map contains an additional Essence",
+      "tiers": [
+        {
+          "name": "Crystallised",
+          "ilvl": 1,
+          "weight": 125,
+          "ranges": [
+            [
+              1,
+              1
+            ]
+          ],
+          "stats": [
+            "map_extra_monoliths"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "Tablets/MapAdditionalAzmeriWisp",
+      "group": "MapAdditionalAzmeriWisp",
+      "field": "MapAdditionalAzmeriWisp",
+      "source": "normal",
+      "type": "prefix",
+      "categories": [
+        "map_spawn_extra_torment_spirits"
+      ],
+      "family": "MapAdditionalAzmeriWisp",
+      "tags": [],
+      "text": "Map contains 1 additional Azmeri Spirit",
+      "tiers": [
+        {
+          "name": "Azmeri's",
+          "ilvl": 1,
+          "weight": 125,
+          "ranges": [
+            [
+              1,
+              1
+            ]
+          ],
+          "stats": [
+            "map_spawn_extra_torment_spirits"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "Tablets/MapAdditionalExile",
+      "group": "MapAdditionalExile",
+      "field": "MapAdditionalExile",
+      "source": "normal",
+      "type": "prefix",
+      "categories": [
+        "map_spawn_extra_exiles"
+      ],
+      "family": "MapAdditionalExile",
+      "tags": [],
+      "text": "Map is inhabited by 1 additional Rogue Exile",
+      "tiers": [
+        {
+          "name": "Exiled",
+          "ilvl": 1,
+          "weight": 50,
+          "ranges": [
+            [
+              1,
+              1
+            ]
+          ],
+          "stats": [
+            "map_spawn_extra_exiles"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "Tablets/MapAdditionalStoneCircle",
+      "group": "MapAdditionalStoneCircle",
+      "field": "MapAdditionalStoneCircle",
+      "source": "normal",
+      "type": "prefix",
+      "categories": [
+        "map_num_extra_stone_circles"
+      ],
+      "family": "MapAdditionalStoneCircle",
+      "tags": [],
+      "text": "Map contains an additional Summoning Circle",
+      "tiers": [
+        {
+          "name": "Summoner's",
+          "ilvl": 1,
+          "weight": 100,
+          "ranges": [
+            [
+              1,
+              1
+            ]
+          ],
+          "stats": [
+            "map_num_extra_stone_circles"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "Tablets/MapDroppedMapsIncrease",
+      "group": "MapDroppedMapsIncrease",
+      "field": "MapDroppedMapsIncrease",
+      "source": "normal",
+      "type": "suffix",
+      "categories": [
+        "map_map_item_drop_chance_+%"
+      ],
+      "family": "MapDroppedMapsIncrease",
+      "tags": [],
+      "text": "#% increased Quantity of Waystones found in Map",
+      "tiers": [
+        {
+          "name": "of the Cartographer",
+          "ilvl": 1,
+          "weight": 750,
+          "ranges": [
+            [
+              30,
+              40
+            ]
+          ],
+          "stats": [
+            "map_map_item_drop_chance_+%"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "Tablets/MapAdditionalShrineChance",
+      "group": "MapAdditionalShrineChance",
+      "field": "MapAdditionalShrineChance",
+      "source": "normal",
+      "type": "suffix",
+      "categories": [
+        "map_shrine_chance_+%"
+      ],
+      "family": "MapAdditionalShrine",
+      "tags": [],
+      "text": "Map has #% increased chance to contain Shrines",
+      "tiers": [
+        {
+          "name": "of Shrines",
+          "ilvl": 1,
+          "weight": 500,
+          "ranges": [
+            [
+              70,
+              100
+            ]
+          ],
+          "stats": [
+            "map_shrine_chance_+%"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "Tablets/MapAdditionalShrine",
+      "group": "MapAdditionalShrine",
+      "field": "MapAdditionalShrine",
+      "source": "normal",
+      "type": "suffix",
+      "categories": [
+        "map_num_extra_shrines"
+      ],
+      "family": "MapAdditionalShrine",
+      "tags": [],
+      "text": "Map contains an additional Shrine",
+      "tiers": [
+        {
+          "name": "of the Devoted",
+          "ilvl": 1,
+          "weight": 125,
+          "ranges": [
+            [
+              1,
+              1
+            ]
+          ],
+          "stats": [
+            "map_num_extra_shrines"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "Tablets/MapAdditionalStrongboxChance",
+      "group": "MapAdditionalStrongboxChance",
+      "field": "MapAdditionalStrongboxChance",
+      "source": "normal",
+      "type": "suffix",
+      "categories": [
+        "map_strongbox_chance_+%"
+      ],
+      "family": "MapAdditionalStrongbox",
+      "tags": [],
+      "text": "Map has #% increased chance to contain Strongboxes",
+      "tiers": [
+        {
+          "name": "of Strongboxes",
+          "ilvl": 1,
+          "weight": 250,
+          "ranges": [
+            [
+              70,
+              100
+            ]
+          ],
+          "stats": [
+            "map_strongbox_chance_+%"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "Tablets/MapAdditionalStrongbox",
+      "group": "MapAdditionalStrongbox",
+      "field": "MapAdditionalStrongbox",
+      "source": "normal",
+      "type": "suffix",
+      "categories": [
+        "map_num_extra_strongboxes"
+      ],
+      "family": "MapAdditionalStrongbox",
+      "tags": [],
+      "text": "Map contains an additional Strongbox",
+      "tiers": [
+        {
+          "name": "of the Antiquarian",
+          "ilvl": 1,
+          "weight": 125,
+          "ranges": [
+            [
+              1,
+              1
+            ]
+          ],
+          "stats": [
+            "map_num_extra_strongboxes"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "Tablets/MapAdditionalEssenceChance",
+      "group": "MapAdditionalEssenceChance",
+      "field": "MapAdditionalEssenceChance",
+      "source": "normal",
+      "type": "suffix",
+      "categories": [
+        "map_monolith_chance_+%"
+      ],
+      "family": "MapAdditionalEssence",
+      "tags": [],
+      "text": "Map has #% increased chance to contain Essences",
+      "tiers": [
+        {
+          "name": "of the Essence",
+          "ilvl": 1,
+          "weight": 250,
+          "ranges": [
+            [
+              70,
+              100
+            ]
+          ],
+          "stats": [
+            "map_monolith_chance_+%"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "Tablets/MapAdditionalSpiritChance",
+      "group": "MapAdditionalSpiritChance",
+      "field": "MapAdditionalSpiritChance",
+      "source": "normal",
+      "type": "suffix",
+      "categories": [
+        "map_tormented_spirit_chance_+%"
+      ],
+      "family": "MapAdditionalSpirit",
+      "tags": [],
+      "text": "Map has #% increased chance to contain Azmeri Spirits",
+      "tiers": [
+        {
+          "name": "of Spirits",
+          "ilvl": 1,
+          "weight": 250,
+          "ranges": [
+            [
+              70,
+              100
+            ]
+          ],
+          "stats": [
+            "map_tormented_spirit_chance_+%"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "Tablets/MapAdditionalExileChance",
+      "group": "MapAdditionalExileChance",
+      "field": "MapAdditionalExileChance",
+      "source": "normal",
+      "type": "suffix",
+      "categories": [
+        "map_rogue_exile_chance_+%"
+      ],
+      "family": "MapAdditionalExile",
+      "tags": [],
+      "text": "Map has #% increased chance to contain Rogue Exiles",
+      "tiers": [
+        {
+          "name": "of the Exile",
+          "ilvl": 1,
+          "weight": 100,
+          "ranges": [
+            [
+              70,
+              100
+            ]
+          ],
+          "stats": [
+            "map_rogue_exile_chance_+%"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "Tablets/MapStoneCircleChance",
+      "group": "MapStoneCircleChance",
+      "field": "MapStoneCircleChance",
+      "source": "normal",
+      "type": "suffix",
+      "categories": [
+        "map_stone_circle_chance_+%"
+      ],
+      "family": "MapAdditionalStoneCircle",
+      "tags": [],
+      "text": "Map has #% increased chance to contain a Summoning Circle",
+      "tiers": [
+        {
+          "name": "of the Summoning",
+          "ilvl": 1,
+          "weight": 250,
+          "ranges": [
+            [
+              70,
+              100
+            ]
+          ],
+          "stats": [
+            "map_stone_circle_chance_+%"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "Tablets/MapAdditionalModifier",
+      "group": "MapAdditionalModifier",
+      "field": "MapAdditionalModifier",
+      "source": "normal",
+      "type": "suffix",
+      "categories": [
+        "map_number_of_additional_mods"
+      ],
+      "family": "MapAdditionalModifier",
+      "tags": [],
+      "text": "Map has # additional random Modifiers",
+      "tiers": [
+        {
+          "name": "of Undertaking",
+          "ilvl": 1,
+          "weight": 41,
+          "ranges": [
+            [
+              1,
+              2
+            ]
+          ],
+          "stats": [
+            "map_number_of_additional_mods"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "Tablets/MapAdditionalUniqueMonsterModifier",
+      "group": "MapAdditionalUniqueMonsterModifier",
+      "field": "MapAdditionalUniqueMonsterModifier",
+      "source": "normal",
+      "type": "suffix",
+      "categories": [
+        "map_unique_monster_num_additional_modifiers"
+      ],
+      "family": "MapAdditionalUniqueMonsterModifier",
+      "tags": [],
+      "text": "Unique Monsters have 1 additional Rare Modifier",
+      "tiers": [
+        {
+          "name": "of Contest",
+          "ilvl": 1,
+          "weight": 50,
+          "ranges": [
+            [
+              1,
+              1
+            ]
+          ],
+          "stats": [
+            "map_unique_monster_num_additional_modifiers"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "Tablets/RitualTributeIncrease",
+      "group": "RitualTributeIncrease",
+      "field": "RitualTributeIncrease",
+      "source": "normal",
+      "type": "suffix",
+      "categories": [
+        "map_ritual_tribute_+%"
+      ],
+      "family": "RitualTributeIncrease",
+      "tags": [],
+      "text": "Monsters Sacrificed at Ritual Altars in Map grant #% increased Tribute",
+      "tiers": [
+        {
+          "name": "of Sacrifice",
+          "ilvl": 1,
+          "weight": 1000,
+          "ranges": [
+            [
+              18,
+              30
+            ]
+          ],
+          "stats": [
+            "map_ritual_tribute_+%"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "Tablets/RitualRerollCostIncrease",
+      "group": "RitualRerollCostIncrease",
+      "field": "RitualRerollCostIncrease",
+      "source": "normal",
+      "type": "suffix",
+      "categories": [
+        "map_ritual_rewards_reroll_cost_+%_final"
+      ],
+      "family": "RitualRerollCostIncrease",
+      "tags": [],
+      "text": "Rerolling Favours at Ritual Altars in Map costs #% reduced Tribute",
+      "tiers": [
+        {
+          "name": "of the Dogma",
+          "ilvl": 1,
+          "weight": 1000,
+          "ranges": [
+            [
+              -30,
+              -20
+            ]
+          ],
+          "stats": [
+            "map_ritual_rewards_reroll_cost_+%_final"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "Tablets/RitualDeferCostIncrease",
+      "group": "RitualDeferCostIncrease",
+      "field": "RitualDeferCostIncrease",
+      "source": "normal",
+      "type": "suffix",
+      "categories": [
+        "map_ritual_defer_reward_tribute_cost_+%"
+      ],
+      "family": "RitualDeferCostIncrease",
+      "tags": [],
+      "text": "Deferring Favours at Ritual Altars in Map costs #% reduced Tribute",
+      "tiers": [
+        {
+          "name": "of Devotion",
+          "ilvl": 1,
+          "weight": 500,
+          "ranges": [
+            [
+              -30,
+              -20
+            ]
+          ],
+          "stats": [
+            "map_ritual_defer_reward_tribute_cost_+%"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "Tablets/RitualDeferSpeed",
+      "group": "RitualDeferSpeed",
+      "field": "RitualDeferSpeed",
+      "source": "normal",
+      "type": "suffix",
+      "categories": [
+        "map_ritual_deferred_rewards_are_offered_again_+%_sooner"
+      ],
+      "family": "RitualDeferSpeed",
+      "tags": [],
+      "text": "Favours Deferred at Ritual Altars in Map reappear #% sooner",
+      "tiers": [
+        {
+          "name": "of the Appeal",
+          "ilvl": 1,
+          "weight": 500,
+          "ranges": [
+            [
+              25,
+              40
+            ]
+          ],
+          "stats": [
+            "map_ritual_deferred_rewards_are_offered_again_+%_sooner"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "Tablets/RitualAdditionalReroll",
+      "group": "RitualAdditionalReroll",
+      "field": "RitualAdditionalReroll",
+      "source": "normal",
+      "type": "suffix",
+      "categories": [
+        "map_ritual_additional_reward_rerolls"
+      ],
+      "family": "RitualAdditionalReroll",
+      "tags": [],
+      "text": "Ritual Altars in Map allow rerolling Favours # additional times",
+      "tiers": [
+        {
+          "name": "of Prayers",
+          "ilvl": 1,
+          "weight": 50,
+          "ranges": [
+            [
+              1,
+              3
+            ]
+          ],
+          "stats": [
+            "map_ritual_additional_reward_rerolls"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "Tablets/RitualChanceForNoCost",
+      "group": "RitualChanceForNoCost",
+      "field": "RitualChanceForNoCost",
+      "source": "normal",
+      "type": "suffix",
+      "categories": [
+        "map_ritual_offered_rewards_from_rerolls_have_permyriad_chance_to_cost_no_tribute"
+      ],
+      "family": "RitualChanceForNoCost",
+      "tags": [],
+      "text": "Favours Rerolled at Ritual Altars in Map have #% chance to cost no Tribute",
+      "tiers": [
+        {
+          "name": "of the Occult",
+          "ilvl": 1,
+          "weight": 250,
+          "ranges": [
+            [
+              300,
+              600
+            ]
+          ],
+          "stats": [
+            "map_ritual_offered_rewards_from_rerolls_have_permyriad_chance_to_cost_no_tribute"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "Tablets/RitualRareMonsters",
+      "group": "RitualRareMonsters",
+      "field": "RitualRareMonsters",
+      "source": "normal",
+      "type": "suffix",
+      "categories": [
+        "map_ritual_magic_monsters_+%"
+      ],
+      "family": "RitualRareMonsters",
+      "tags": [],
+      "text": "Revived Monsters from Ritual Altars in Map have #% increased chance to be Magic",
+      "tiers": [
+        {
+          "name": "of the Foundling",
+          "ilvl": 1,
+          "weight": 500,
+          "ranges": [
+            [
+              35,
+              70
+            ]
+          ],
+          "stats": [
+            "map_ritual_magic_monsters_+%"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "Tablets/RitualMagicMonsters",
+      "group": "RitualMagicMonsters",
+      "field": "RitualMagicMonsters",
+      "source": "normal",
+      "type": "suffix",
+      "categories": [
+        "map_ritual_rare_monsters_+%"
+      ],
+      "family": "RitualMagicMonsters",
+      "tags": [],
+      "text": "Revived Monsters from Ritual Altars in Map have #% increased chance to be Rare",
+      "tiers": [
+        {
+          "name": "of the Cult",
+          "ilvl": 1,
+          "weight": 500,
+          "ranges": [
+            [
+              25,
+              40
+            ]
+          ],
+          "stats": [
+            "map_ritual_rare_monsters_+%"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "Tablets/RitualOmenChance",
+      "group": "RitualOmenChance",
+      "field": "RitualOmenChance",
+      "source": "normal",
+      "type": "suffix",
+      "categories": [
+        "map_ritual_omen_chance_+%"
+      ],
+      "family": "RitualOmenChance",
+      "tags": [],
+      "text": "Ritual Favours in Map have #% increased chance to be Omens",
+      "tiers": [
+        {
+          "name": "of Omens",
+          "ilvl": 1,
+          "weight": 500,
+          "ranges": [
+            [
+              35,
+              70
+            ]
+          ],
+          "stats": [
+            "map_ritual_omen_chance_+%"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "Tablets/MapBossAdditionalStrongbox",
+      "group": "MapBossAdditionalStrongbox",
+      "field": "MapBossAdditionalStrongbox",
+      "source": "normal",
+      "type": "suffix",
+      "categories": [
+        "maps_with_powerful_bosses_additional_strongbox_+"
+      ],
+      "family": "MapBossAdditionalStrongbox",
+      "tags": [],
+      "text": "Map contains # additional Strongboxes",
+      "tiers": [
+        {
+          "name": "of Compartments",
+          "ilvl": 1,
+          "weight": 100,
+          "ranges": [
+            [
+              1,
+              2
+            ]
+          ],
+          "stats": [
+            "maps_with_powerful_bosses_additional_strongbox_+"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "Tablets/MapBossAdditionalShrine",
+      "group": "MapBossAdditionalShrine",
+      "field": "MapBossAdditionalShrine",
+      "source": "normal",
+      "type": "suffix",
+      "categories": [
+        "maps_with_powerful_bosses_additional_shrine_+"
+      ],
+      "family": "MapBossAdditionalShrine",
+      "tags": [],
+      "text": "Map contains # additional Shrines",
+      "tiers": [
+        {
+          "name": "of Worship",
+          "ilvl": 1,
+          "weight": 100,
+          "ranges": [
+            [
+              1,
+              2
+            ]
+          ],
+          "stats": [
+            "maps_with_powerful_bosses_additional_shrine_+"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "Tablets/MapBossAdditionalEssence",
+      "group": "MapBossAdditionalEssence",
+      "field": "MapBossAdditionalEssence",
+      "source": "normal",
+      "type": "suffix",
+      "categories": [
+        "maps_with_powerful_bosses_additional_essence_+"
+      ],
+      "family": "MapBossAdditionalEssence",
+      "tags": [],
+      "text": "Map contains # additional Essences",
+      "tiers": [
+        {
+          "name": "of Crystals",
+          "ilvl": 1,
+          "weight": 100,
+          "ranges": [
+            [
+              1,
+              2
+            ]
+          ],
+          "stats": [
+            "maps_with_powerful_bosses_additional_essence_+"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "Tablets/MapBossAdditionalSpirit",
+      "group": "MapBossAdditionalSpirit",
+      "field": "MapBossAdditionalSpirit",
+      "source": "normal",
+      "type": "suffix",
+      "categories": [
+        "maps_with_powerful_bosses_additional_spirit_+"
+      ],
+      "family": "MapBossAdditionalSpirit",
+      "tags": [],
+      "text": "Map contains # additional Azmeri Spirits",
+      "tiers": [
+        {
+          "name": "of Wisps",
+          "ilvl": 1,
+          "weight": 100,
+          "ranges": [
+            [
+              1,
+              2
+            ]
+          ],
+          "stats": [
+            "maps_with_powerful_bosses_additional_spirit_+"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "Tablets/MapBossWaystoneChance",
+      "group": "MapBossWaystoneChance",
+      "field": "MapBossWaystoneChance",
+      "source": "normal",
+      "type": "suffix",
+      "categories": [
+        "map_map_boss_bonus_map_drop_chance_+%"
+      ],
+      "family": "MapBossWaystoneChance",
+      "tags": [],
+      "text": "#% increased Quantity of Waystones dropped by Map Bosses",
+      "tiers": [
+        {
+          "name": "of Pathways",
+          "ilvl": 1,
+          "weight": 500,
+          "ranges": [
+            [
+              18,
+              30
+            ]
+          ],
+          "stats": [
+            "map_map_boss_bonus_map_drop_chance_+%"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "Tablets/MapBossExperience",
+      "group": "MapBossExperience",
+      "field": "MapBossExperience",
+      "source": "normal",
+      "type": "suffix",
+      "categories": [
+        "map_boss_experience_+%_final"
+      ],
+      "family": "MapBossExperience",
+      "tags": [],
+      "text": "Map Bosses grant #% increased Experience",
+      "tiers": [
+        {
+          "name": "of Conquering",
+          "ilvl": 1,
+          "weight": 1000,
+          "ranges": [
+            [
+              40,
+              80
+            ]
+          ],
+          "stats": [
+            "map_boss_experience_+%_final"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "Tablets/MapBossRarity",
+      "group": "MapBossRarity",
+      "field": "MapBossRarity",
+      "source": "normal",
+      "type": "suffix",
+      "categories": [
+        "map_boss_item_rarity_+%"
+      ],
+      "family": "MapBossRarity",
+      "tags": [],
+      "text": "#% increased Rarity of Items dropped by Map Bosses",
+      "tiers": [
+        {
+          "name": "of Treasure",
+          "ilvl": 1,
+          "weight": 1000,
+          "ranges": [
+            [
+              35,
+              60
+            ]
+          ],
+          "stats": [
+            "map_boss_item_rarity_+%"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "Tablets/MapBossQuantity",
+      "group": "MapBossQuantity",
+      "field": "MapBossQuantity",
+      "source": "normal",
+      "type": "suffix",
+      "categories": [
+        "map_boss_dropped_item_quantity_+%"
+      ],
+      "family": "MapBossQuantity",
+      "tags": [],
+      "text": "#% increased Quantity of Items dropped by Map Bosses",
+      "tiers": [
+        {
+          "name": "of Hoards",
+          "ilvl": 1,
+          "weight": 1000,
+          "ranges": [
+            [
+              13,
+              20
+            ]
+          ],
+          "stats": [
+            "map_boss_dropped_item_quantity_+%"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "Tablets/IncursionPackSize",
+      "group": "IncursionPackSize",
+      "field": "IncursionPackSize",
+      "source": "normal",
+      "type": "suffix",
+      "categories": [
+        "map_incursion_vaal_beacon_pack_size_+%"
+      ],
+      "family": "IncursionPackSize",
+      "tags": [],
+      "text": "#% increased Pack Size for Monsters around Vaal Beacons in Map",
+      "tiers": [
+        {
+          "name": "TowerIncursionPackSize",
+          "ilvl": 1,
+          "weight": 1000,
+          "ranges": [
+            [
+              10,
+              30
+            ]
+          ],
+          "stats": [
+            "map_incursion_vaal_beacon_pack_size_+%"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "Tablets/IncursionExtraPacks",
+      "group": "IncursionExtraPacks",
+      "field": "IncursionExtraPacks",
+      "source": "normal",
+      "type": "suffix",
+      "categories": [
+        "map_incursion_vaal_beacon_extra_packs_+"
+      ],
+      "family": "IncursionExtraPacks",
+      "tags": [],
+      "text": "1 extra pack of Monsters around Vaal Beacons in Map",
+      "tiers": [
+        {
+          "name": "TowerIncursionExtraPacks",
+          "ilvl": 1,
+          "weight": 250,
+          "ranges": [
+            [
+              1,
+              1
+            ]
+          ],
+          "stats": [
+            "map_incursion_vaal_beacon_extra_packs_+"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "Tablets/IncursionExtraPacksChance",
+      "group": "IncursionExtraPacksChance",
+      "field": "IncursionExtraPacksChance",
+      "source": "normal",
+      "type": "suffix",
+      "categories": [
+        "map_incursion_vaal_beacon_extra_packs_chance_%"
+      ],
+      "family": "IncursionExtraPacks",
+      "tags": [],
+      "text": "#% chance for an extra packs of Monsters around Vaal Beacons in Map",
+      "tiers": [
+        {
+          "name": "TowerIncursionExtraPacksChance",
+          "ilvl": 1,
+          "weight": 750,
+          "ranges": [
+            [
+              30,
+              60
+            ]
+          ],
+          "stats": [
+            "map_incursion_vaal_beacon_extra_packs_chance_%"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "Tablets/IncursionSecondaryEncounters",
+      "group": "IncursionSecondaryEncounters",
+      "field": "IncursionSecondaryEncounters",
+      "source": "normal",
+      "type": "suffix",
+      "categories": [
+        "map_incursion_vaal_beacon_secondary_encounter_chance_+%"
+      ],
+      "family": "IncursionSecondaryEncounters",
+      "tags": [],
+      "text": "#% increased chance Vaal Beacons summon additional Monsters in Map",
+      "tiers": [
+        {
+          "name": "TowerIncursionSecondaryEncounters",
+          "ilvl": 1,
+          "weight": 750,
+          "ranges": [
+            [
+              25,
+              50
+            ]
+          ],
+          "stats": [
+            "map_incursion_vaal_beacon_secondary_encounter_chance_+%"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "Tablets/IncursionTokenChance",
+      "group": "IncursionTokenChance",
+      "field": "IncursionTokenChance",
+      "source": "normal",
+      "type": "suffix",
+      "categories": [
+        "map_incursion_token_chance_+%"
+      ],
+      "family": "IncursionTokenChance",
+      "tags": [],
+      "text": "#% chance to gain an additional Crystal from Vaal Beacons in Map",
+      "tiers": [
+        {
+          "name": "TowerIncursionTokenChance",
+          "ilvl": 1,
+          "weight": 250,
+          "ranges": [
+            [
+              5,
+              10
+            ]
+          ],
+          "stats": [
+            "map_incursion_token_chance_+%"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "Tablets/IncursionBossChance",
+      "group": "IncursionBossChance",
+      "field": "IncursionBossChance",
+      "source": "normal",
+      "type": "suffix",
+      "categories": [
+        "map_incursion_vaal_beacons_also_add_boss_to_area_chance_%_scaled"
+      ],
+      "family": "IncursionBossChance",
+      "tags": [],
+      "text": "#% chance to add a Vaal Beacon Unique Monster to the Map",
+      "tiers": [
+        {
+          "name": "TowerIncursionBossChance",
+          "ilvl": 1,
+          "weight": 500,
+          "ranges": [
+            [
+              10,
+              25
+            ]
+          ],
+          "stats": [
+            "map_incursion_vaal_beacons_also_add_boss_to_area_chance_%_scaled"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "Tablets/IncursionRareChestChance",
+      "group": "IncursionRareChestChance",
+      "field": "IncursionRareChestChance",
+      "source": "normal",
+      "type": "suffix",
+      "categories": [
+        "map_incursion_vaal_beacon_chest_rare_chance_+%"
+      ],
+      "family": "IncursionRareChestChance",
+      "tags": [],
+      "text": "#% increased chance Vaal Beacon Chests are Rare in Map",
+      "tiers": [
+        {
+          "name": "TowerIncursionRareChestChance",
+          "ilvl": 1,
+          "weight": 500,
+          "ranges": [
+            [
+              30,
+              60
+            ]
+          ],
+          "stats": [
+            "map_incursion_vaal_beacon_chest_rare_chance_+%"
           ]
         }
       ]

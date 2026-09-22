@@ -271,6 +271,16 @@ React web app: user inputs target item (base + mods + tiers), gets optimal craft
   on at weight 0 BEFORE its pool tag — so `resolveWeight(mod, [...baseTags, poolTag])` answers them
   with no special case. **Their weights are ASSUMED**: RePoE publishes 1 for all 128, so
   `RUNE_POOL_ASSUMED_WEIGHT` is 1000 (Dorian, 2026-09-15) and the app discloses it.
+- **PRECURSOR TABLETS ARE ITEMS, NOT A SPECIAL CASE** (2026-09-21). Ritual, Overseer and Temple are
+  three bases in category `TABLET_CATEGORY` (engine `types.ts`), built by `tools/refresh/apply_tablets.mjs`
+  (run by `run.sh`, idempotent) with `limits {2, 2, crafted 0}` and one-tier, level-1 mods — so Greater
+  and Perfect orbs simply never apply, and no solver branches on "tablet". Two things differ, each in one
+  place: **no bone desecrates a tablet** (`NO_BONE` in `desecrationBoneFor`; `pricesForBase` then strips
+  the sheet's flat `desecrate` fallback too — before that, 5 of 7 tablet crafts routed through a bogus
+  Desecration at a third of the cost), and **the gear tabs never list one** (`listBases`; a pasted tablet
+  is refused with a pointer). **Weights are Morce Faster's** (`data/tablets/morce-faster.json`: his counts,
+  and per mod the weight and its basis) — his ladder everywhere except of Undertaking, the one mod his
+  own three sheets reject at 99% (25 → 41). Credit him by name wherever the odds are shown.
 - **A DIFFERENT MOD OF A TARGET'S FAMILY BLOCKS IT** (2026-09-21, `markovSiblings.ts`). A family can
   hold different mods — a Wand's five damage-type prefixes, its six "+level to … spell skills" suffixes,
   a tablet's "additional Essence" prefix and "chance to contain Essences" suffix — and rolling any of

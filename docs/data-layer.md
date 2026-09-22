@@ -48,6 +48,12 @@ must agree.
 
 Each file is stamped `{"patch","generated","source"}`.
 
+**Precursor Tablets** (Ritual, Overseer, Temple) live in the same two files — three bases in category
+`Tablets`, 48 mods `Tablets/<RePoE mod type>` — built by `apply_tablets.mjs` from RePoE structure and
+`data/tablets/morce-faster.json`: Morce Faster's rolling counts per tablet, and the weight read from
+them for every mod with where it came from. RePoE and poe2db publish 1 for every tablet mod, so those
+counts are the only weight data there is.
+
 ## Rules
 
 - **`weights_overrides.json` beats base weights.** If a probability is wrong, fix the weight data (or
@@ -65,7 +71,8 @@ npm run update-data           # tools/refresh/ : RePoE structure -> poe2db weigh
 ```
 
 The refresh pipeline is `refresh.mjs` (RePoE structure) → `apply_weights.mjs` (poe2db normal weights)
-→ `apply_pools.mjs` (poe2db essence + desecrated + perfect-essence pools, and `essences.json`) → `diff.mjs` (writes
+→ `apply_pools.mjs` (poe2db essence + desecrated + perfect-essence pools, and `essences.json`) → `apply_codes.mjs`
+→ `apply_tablets.mjs` (the three Precursor Tablets) → `diff.mjs` (writes
 `docs/refresh-0.5.0-diff.md`). RePoE dumps and poe2db pages are cached under `tools/refresh/cache/`
 (gitignored). `currencies.json` / `prices.json` / `weights_overrides.json` are edited by hand.
 

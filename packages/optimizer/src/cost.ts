@@ -252,6 +252,13 @@ export function stepOmenIds(step: PricedStep): string[] {
  */
 export function pricesForBase(prices: Prices, base: ItemBase): Prices {
   const bone = desecrationBoneFor(base.category);
+  if (bone === undefined) {
+    // No bone desecrates this base, so no Desecration price may survive — including the sheet's flat
+    // fallback key. An ABSENT price is what switches the action off (both planners read it as "no
+    // bone", never as a free one); a surviving one would let the solver desecrate a tablet.
+    const { desecrate: _preserved, desecrate_ancient: _ancient, ...currency } = prices.currency;
+    return { ...prices, currency };
+  }
   const preserved = prices.bones?.[bone];
   const ancient = prices.bones?.[`${bone}_ancient`];
   if (preserved === undefined && ancient === undefined) return prices;

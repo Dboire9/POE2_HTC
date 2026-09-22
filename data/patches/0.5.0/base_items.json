@@ -2,7 +2,7 @@
   "patch": "0.5.0",
   "generated": "2026-07-04",
   "source": "regenerated from RePoE-fork PoE2 dump (client 4.5.4.3); NORMAL pools only (essence/desecrated deferred). Structure (tiers/ilvl/ranges/pools) is authoritative; WEIGHTS are game-file placeholders (uniformly 1/0 in the 0.5 dump) and MUST be replaced by community-verified weights via weights_overrides.json before probabilities are meaningful.",
-  "count": 52,
+  "count": 55,
   "items": [
     {
       "id": "Amulets",
@@ -6458,6 +6458,192 @@
               "Wands_physical/Rune_destruction_ManaModifierEffect"
             ]
           }
+        }
+      }
+    },
+    {
+      "id": "Tablets_ritual",
+      "name": "Ritual Tablet",
+      "bases": [
+        "Ritual Tablet"
+      ],
+      "category": "Tablets",
+      "class": "TowerAugmentation",
+      "limits": {
+        "prefixes": 2,
+        "suffixes": 2,
+        "crafted": 0
+      },
+      "pools": {
+        "normal": {
+          "prefixes": [
+            "Tablets/MapMonsterEffectiveness",
+            "Tablets/MapDroppedItemRarityIncrease",
+            "Tablets/MapPackSizeIncrease",
+            "Tablets/MapMagicPackIncrease",
+            "Tablets/MapRarePackIncrease",
+            "Tablets/MapMonsterRarityIncrease",
+            "Tablets/MapDroppedGoldIncrease",
+            "Tablets/MapExperienceGainIncrease",
+            "Tablets/MapRareChestCount",
+            "Tablets/MapAdditionalEssence",
+            "Tablets/MapAdditionalAzmeriWisp",
+            "Tablets/MapAdditionalExile",
+            "Tablets/MapAdditionalStoneCircle"
+          ],
+          "suffixes": [
+            "Tablets/MapDroppedMapsIncrease",
+            "Tablets/MapAdditionalShrineChance",
+            "Tablets/MapAdditionalShrine",
+            "Tablets/MapAdditionalStrongboxChance",
+            "Tablets/MapAdditionalStrongbox",
+            "Tablets/MapAdditionalEssenceChance",
+            "Tablets/MapAdditionalSpiritChance",
+            "Tablets/MapAdditionalExileChance",
+            "Tablets/MapStoneCircleChance",
+            "Tablets/MapAdditionalModifier",
+            "Tablets/MapAdditionalUniqueMonsterModifier",
+            "Tablets/RitualTributeIncrease",
+            "Tablets/RitualRerollCostIncrease",
+            "Tablets/RitualDeferCostIncrease",
+            "Tablets/RitualDeferSpeed",
+            "Tablets/RitualAdditionalReroll",
+            "Tablets/RitualChanceForNoCost",
+            "Tablets/RitualRareMonsters",
+            "Tablets/RitualMagicMonsters",
+            "Tablets/RitualOmenChance"
+          ]
+        },
+        "desecrated": {
+          "prefixes": [],
+          "suffixes": []
+        },
+        "essence": {
+          "prefixes": [],
+          "suffixes": []
+        }
+      }
+    },
+    {
+      "id": "Tablets_overseer",
+      "name": "Overseer Tablet",
+      "bases": [
+        "Overseer Tablet"
+      ],
+      "category": "Tablets",
+      "class": "TowerAugmentation",
+      "limits": {
+        "prefixes": 2,
+        "suffixes": 2,
+        "crafted": 0
+      },
+      "pools": {
+        "normal": {
+          "prefixes": [
+            "Tablets/MapMonsterEffectiveness",
+            "Tablets/MapDroppedItemRarityIncrease",
+            "Tablets/MapPackSizeIncrease",
+            "Tablets/MapMagicPackIncrease",
+            "Tablets/MapRarePackIncrease",
+            "Tablets/MapMonsterRarityIncrease",
+            "Tablets/MapDroppedGoldIncrease",
+            "Tablets/MapExperienceGainIncrease",
+            "Tablets/MapRareChestCount",
+            "Tablets/MapAdditionalEssence",
+            "Tablets/MapAdditionalAzmeriWisp",
+            "Tablets/MapAdditionalExile",
+            "Tablets/MapAdditionalStoneCircle"
+          ],
+          "suffixes": [
+            "Tablets/MapDroppedMapsIncrease",
+            "Tablets/MapAdditionalShrineChance",
+            "Tablets/MapAdditionalShrine",
+            "Tablets/MapAdditionalStrongboxChance",
+            "Tablets/MapAdditionalStrongbox",
+            "Tablets/MapAdditionalEssenceChance",
+            "Tablets/MapAdditionalSpiritChance",
+            "Tablets/MapAdditionalExileChance",
+            "Tablets/MapStoneCircleChance",
+            "Tablets/MapAdditionalModifier",
+            "Tablets/MapAdditionalUniqueMonsterModifier",
+            "Tablets/MapBossAdditionalStrongbox",
+            "Tablets/MapBossAdditionalShrine",
+            "Tablets/MapBossAdditionalEssence",
+            "Tablets/MapBossAdditionalSpirit",
+            "Tablets/MapBossWaystoneChance",
+            "Tablets/MapBossExperience",
+            "Tablets/MapBossRarity",
+            "Tablets/MapBossQuantity"
+          ]
+        },
+        "desecrated": {
+          "prefixes": [],
+          "suffixes": []
+        },
+        "essence": {
+          "prefixes": [],
+          "suffixes": []
+        }
+      }
+    },
+    {
+      "id": "Tablets_temple",
+      "name": "Temple Tablet",
+      "bases": [
+        "Temple Tablet"
+      ],
+      "category": "Tablets",
+      "class": "TowerAugmentation",
+      "limits": {
+        "prefixes": 2,
+        "suffixes": 2,
+        "crafted": 0
+      },
+      "pools": {
+        "normal": {
+          "prefixes": [
+            "Tablets/MapMonsterEffectiveness",
+            "Tablets/MapDroppedItemRarityIncrease",
+            "Tablets/MapPackSizeIncrease",
+            "Tablets/MapMagicPackIncrease",
+            "Tablets/MapRarePackIncrease",
+            "Tablets/MapMonsterRarityIncrease",
+            "Tablets/MapDroppedGoldIncrease",
+            "Tablets/MapExperienceGainIncrease",
+            "Tablets/MapRareChestCount",
+            "Tablets/MapAdditionalEssence",
+            "Tablets/MapAdditionalAzmeriWisp",
+            "Tablets/MapAdditionalExile",
+            "Tablets/MapAdditionalStoneCircle"
+          ],
+          "suffixes": [
+            "Tablets/MapDroppedMapsIncrease",
+            "Tablets/MapAdditionalShrineChance",
+            "Tablets/MapAdditionalShrine",
+            "Tablets/MapAdditionalStrongboxChance",
+            "Tablets/MapAdditionalStrongbox",
+            "Tablets/MapAdditionalEssenceChance",
+            "Tablets/MapAdditionalSpiritChance",
+            "Tablets/MapAdditionalExileChance",
+            "Tablets/MapStoneCircleChance",
+            "Tablets/MapAdditionalModifier",
+            "Tablets/MapAdditionalUniqueMonsterModifier",
+            "Tablets/IncursionPackSize",
+            "Tablets/IncursionExtraPacks",
+            "Tablets/IncursionExtraPacksChance",
+            "Tablets/IncursionSecondaryEncounters",
+            "Tablets/IncursionTokenChance",
+            "Tablets/IncursionBossChance",
+            "Tablets/IncursionRareChestChance"
+          ]
+        },
+        "desecrated": {
+          "prefixes": [],
+          "suffixes": []
+        },
+        "essence": {
+          "prefixes": [],
+          "suffixes": []
         }
       }
     }

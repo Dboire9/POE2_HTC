@@ -486,16 +486,23 @@ describe('smallLattice — a tablet solved the sure way', () => {
     expect(Math.abs(sure.expectedCost - usual.expectedCost) / usual.expectedCost).toBeLessThan(1e-6);
   });
 
-  it('draws a finishing Regal as one step, all of it onward, with the side its modifier lands on', () => {
-    // Dorian, 2026-09-23: "Regal · magic · 1 mod → 1 mod · 51% onward — say if it adds a suffix or prefix".
+  it('draws the route the way the crafts that finish go — the Chaos included', () => {
+    // Dorian, 2026-09-23: "we say fresh tablets + chaos, but there we only have trans and regal". The
+    // line followed only outcomes that moved strictly closer, and from a plain tablet the one such
+    // outcome is the 0.3% Transmute that lands the reroll outright — never the Chaos.
     const r = runSolve(eng, {
       kind: 'lab', from: { baseId: 'Tablets_ritual', level: 100 },
       targets: [{ modId: 'Tablets/RitualAdditionalReroll', tierDisplay: 1 }], baseCost: 130,
       spare: { prefixes: 2, suffixes: 1 }, fillOnFinish: true, excluded: ['annul'], smallLattice: true,
     });
-    const regal = mainLine(cost(r)).steps.find((s) => s.action.startsWith('Regal'))!;
-    expect(regal.advance).toBeCloseTo(1, 9);
-    expect(regal.changes.finishes?.map((f) => f.junk)).toEqual([{ prefixes: 0, suffixes: 1 }, { prefixes: 1, suffixes: 0 }]);
+    const steps = mainLine(cost(r)).steps;
+    expect(steps.map((s) => s.action.split(' ')[0])).toEqual(['Transmute', 'Regal', 'Chaos']);
+    const chaos = steps[2]!;
+    expect(chaos.changes.gained).toEqual(['Ritual Altars in Map allow rerolling Favours # additional times']);
+    expect(chaos.changes.junk).toEqual({ prefixes: 0, suffixes: -1 }); // one junk suffix off, the reroll on
+    expect(chaos.repeats).toBeGreaterThan(0.4); // a junk suffix for a junk suffix: play it again
+    // The Regal on the way can land it too, and says so.
+    expect(steps[1]!.lands).toBeGreaterThan(0.003);
   });
 
   it('solves the rarest four the usual solve cannot put a number on', () => {

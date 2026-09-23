@@ -3,8 +3,8 @@ import { mainLine } from './policyPath.ts';
 import type { EngineMarkovResult, EnginePolicyEdge, EnginePolicyNode } from './engineTypes.ts';
 
 // `mainLine` is the answer to "what do I actually do", pulled out of a graph that answers "what states
-// exist". The invariant that matters is termination: it may only step to a STRICTLY closer state, so
-// a policy that loops (annul → exalt → annul → …) cannot hang the render.
+// exist". The invariant that matters is termination: it enters a state at most once, so a policy that
+// loops (annul → exalt → annul → …) cannot hang the render.
 
 const node = (key: string, depth: number, extra: Partial<EnginePolicyNode> = {}): EnginePolicyNode => ({
   key, present: [], blocked: [], junkPrefixes: 0, junkSuffixes: 0, rarity: 'rare',
@@ -68,6 +68,63 @@ describe('mainLine', () => {
       [edge('a', 'b', 0.9), edge('b', 'a', 0.9)],
     );
     expect(mainLine(r).steps).toEqual([]);
+  });
+
+  /**
+   * A craft that can start over (from a white base): the line follows the outcomes the FINISHING crafts
+   * come through. The Ritual reroll in miniature — the Transmute lands it outright 0.3% of the time, but
+   * most crafts that finish get there by a Chaos on the Rare the Regal makes; strictly-closer walking
+   * drew only the 0.3% (Dorian, 2026-09-23).
+   */
+  it('on a craft that can start over, follows the outcomes the finishing crafts come through', () => {
+    const r = result(
+      [
+        node('w', 1, { isStart: true, action: 'Transmute', rarity: 'normal' }),
+        node('m', 2, { action: 'Regal', rarity: 'magic' }),
+        node('hit', 1, { action: 'Regal', rarity: 'magic' }),
+        node('r', 2, { action: 'Chaos' }),
+        node('g', 0, { isGoal: true, action: undefined }),
+      ],
+      [
+        edge('w', 'hit', 0.003), edge('w', 'm', 0.997, true), edge('hit', 'g', 1),
+        edge('m', 'g', 0.003), edge('m', 'r', 0.997),
+        edge('r', 'g', 0.003), edge('r', 'r', 0.5), edge('r', 'w', 0.497, true), // no change, or start over
+      ],
+    );
+    const { steps } = mainLine(r);
+    expect(steps.map((s) => s.action)).toEqual(['Transmute', 'Regal', 'Chaos']);
+    expect(steps[1]!.lands).toBeCloseTo(0.003); // the Regal can land it too, and says so
+    expect(steps[2]!.repeats).toBeCloseTo(0.5); // the Chaos is played again when nothing changes
+  });
+
+  it('backs out of a branch that only loops back, to the next best outcome', () => {
+    // From x, the likeliest way on is y — but y only leads back to x. The line backs out of y and takes
+    // x's own finishing roll, rather than stalling and leaving no route at all.
+    const r = result(
+      [
+        node('w', 3, { isStart: true, action: 'Transmute', rarity: 'normal' }),
+        node('x', 2, { action: 'Chaos' }), node('y', 2, { action: 'Chaos' }),
+        node('g', 0, { isGoal: true, action: undefined }),
+      ],
+      [edge('w', 'x', 1), edge('x', 'y', 0.9), edge('x', 'g', 0.05), edge('x', 'w', 0.05, true), edge('y', 'x', 1)],
+    );
+    expect(mainLine(r).steps.map((s) => s.next.key)).toEqual(['x', 'g']);
+  });
+
+  it('on an item you hold, backs out of an outcome that only leads back, to the next best', () => {
+    // A Desecrate on a held Rare: 70% lands junk that an Annul takes straight back to the start, 17%
+    // finishes. The likeliest outcome leads nowhere new; the line takes the one that finishes.
+    const r = result(
+      [
+        node('a', 1, { isStart: true, action: 'Desecrate' }), node('j', 2, { action: 'Annul' }),
+        node('g', 0, { isGoal: true, action: undefined }),
+      ],
+      [edge('a', 'j', 0.7, true), edge('a', 'g', 0.17), edge('j', 'a', 1)],
+    );
+    const { steps, goal } = mainLine(r);
+    expect(steps.map((s) => s.next.key)).toEqual(['g']);
+    expect(steps[0]!.brick).toBeCloseTo(0.7);
+    expect(goal?.key).toBe('g');
   });
 
   it('gives up rather than drawing a line that stops mid-air', () => {

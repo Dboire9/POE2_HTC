@@ -217,6 +217,13 @@ a confident number it hasn't earned.
 **Step-by-step routes** expands the policy into something you can read. Each node is an item state; each
 edge is a move. Click any state to highlight the route through it and dim the rest.
 
+**The route** lists one line through it: the way most crafts that finish go. Each step says what it
+usually changes — *adds a junk suffix (51%) or a junk prefix (49%)* — and, beside the chance it moves you
+on, the chance it **finishes the item** outright, the chance **nothing changes** and you play it again,
+and the chance it sets you **back**. On a craft that starts over (a white base, a tablet) the line
+follows the rolls the finishing crafts actually come through, so a plan that Chaos-rerolls a stuck
+Rare shows the Chaos; on an item you hold, it follows the likeliest roll that moves you closer.
+
 A state shows:
 
 | Field | Meaning |

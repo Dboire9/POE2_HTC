@@ -822,7 +822,7 @@ const PolicyGraph: React.FC<{
           <span className="text-[11px] text-muted-foreground">
             {showAll
               ? 'Every state the policy can reach, and how it moves between them. Click a box for its detail.'
-              : 'The single likeliest path through. Switch to the graph to see what happens when a roll misses.'}
+              : 'The way most crafts that finish go. Switch to the graph to see what happens when a roll misses.'}
           </span>
         </div>
       )}
@@ -847,6 +847,8 @@ const PolicyGraph: React.FC<{
               </span>
               <span className="tabular-nums text-xs">
                 <span className="text-emerald-600 dark:text-emerald-400">{pct(s.advance)} onward</span>
+                {s.lands > 0 && <span className="text-emerald-600 dark:text-emerald-400"> · {pct(s.lands)} finishes it</span>}
+                {s.repeats > 0 && <span className="text-muted-foreground"> · {pct(s.repeats)} no change, again</span>}
                 {s.brick > 0 && (
                   <span className="text-amber-600 dark:text-amber-400"> · {pct(s.brick)} back</span>
                 )}
@@ -889,13 +891,15 @@ const PolicyGraph: React.FC<{
         )}
         {reachesTarget && haveLine && (
           <>
-            <p>The route from {startLabel.toLowerCase()} to the target, {steps.length} step{steps.length === 1 ? '' : 's'}.</p>
+            <p>The way most crafts that finish go, from {startLabel.toLowerCase()} to the target, {steps.length} step{steps.length === 1 ? '' : 's'}.</p>
             <ol>
               {steps.map((s) => (
                 <li key={s.node.key}>
                   {`${s.action}. `}
                   {describeStep(s.changes) ? `${describeStep(s.changes)}. ` : ''}
                   {`${pct(s.advance)} chance this moves you onward`}
+                  {s.lands > 0 ? `, ${pct(s.lands)} chance it finishes the item` : ''}
+                  {s.repeats > 0 ? `, ${pct(s.repeats)} chance nothing changes and you play it again` : ''}
                   {s.brick > 0 ? `, ${pct(s.brick)} chance of going backwards` : ''}
                   {`. Expected cost from here ${fmtCost(s.node.expectedCost)}.`}
                 </li>

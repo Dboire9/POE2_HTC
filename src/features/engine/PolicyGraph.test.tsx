@@ -798,7 +798,7 @@ describe('PolicyGraph — the graph is offered, not hidden', () => {
 
   it('explains what each view is for, beside the switch', () => {
     render(<PolicyGraph result={result} />);
-    expect(screen.getByText(/single likeliest path/i)).toBeInTheDocument();
+    expect(screen.getByText(/way most crafts that finish go\. Switch/i)).toBeInTheDocument();
   });
 });
 

@@ -6,9 +6,9 @@
 // percent of each other, all rounding to the same displayed figure. The picture is honest and
 // unreadable: it answers "what states exist?" when the question is "what do I do?".
 //
-// This walks the one line a player actually follows: from the start, keep taking the outcome the
-// policy is playing for. Everything else — the bricks, the recoveries — is summarised per step as the
-// risk of NOT getting it, which is the part worth knowing at that moment.
+// This walks the one line most SUCCESSFUL crafts follow: from the start, keep taking the outcome that
+// carries the most of the crafts that go on to finish. Everything else — the bricks, the recoveries —
+// is summarised per step as the risk of NOT getting it, which is the part worth knowing at that moment.
 //
 // Pure and free of React so it can be unit-tested without jsdom (same reasoning as currency.ts).
 
@@ -23,14 +23,18 @@ export interface MainLineStep {
   readonly next: EnginePolicyNode;
   readonly advance: number;
   /**
-   * Total probability of an outcome that moves you further from the goal — the brick risk. Note
-   * `advance + brick` need not reach 1: the remainder is progress to a DIFFERENT state that is also
-   * closer (a slam landing a target you wanted, just not the one this line follows), which is neither
-   * a setback nor the step's intended outcome.
+   * Total probability of an OTHER outcome that moves you further from the goal — the brick risk. The
+   * line's own outcome is never counted, though on a craft that fishes it can add junk too. Note
+   * `advance + lands + repeats + brick` need not reach 1: the remainder is a different state no
+   * further away (a slam landing a target you wanted, just not the one this line follows).
    */
   readonly brick: number;
   /** What this step moves, as the difference between `node` and `next`. See `StepChanges`. */
   readonly changes: StepChanges;
+  /** The chance this step finishes the item outright, when the line itself goes on elsewhere. */
+  readonly lands: number;
+  /** The chance this step changes nothing — the policy then plays it again. */
+  readonly repeats: number;
 }
 
 /**
@@ -112,23 +116,30 @@ export interface MainLine {
 }
 
 /**
- * The principal route from the start state to the goal.
+ * The route from the start state to the goal: the way most crafts that finish go.
  *
- * At each state, take the highest-probability edge to a state of strictly smaller `depth`. Strict
- * decrease is what makes this terminate with no cycle guard and no length cap: `depth` is a
- * non-negative integer (missing targets + blocked targets + junk, see `mapMarkov`), so the walk can
- * take at most `depth(start)` steps.
+ * On a craft that can START OVER, each state's outcomes are tried by how much of the finishing crafts
+ * they carry: probability times the chance of finishing from where they land without starting over
+ * (`toGoal`). It used to take only the likeliest outcome that moved strictly CLOSER, and on a craft
+ * that fishes — a fresh tablet per try, a Chaos while the item is stuck — the one such outcome from the
+ * start is the rare roll that lands the target at once, so the line read "Transmute (0.3%) → Regal →
+ * ✓" beside a plan that plays Chaos 28 times a craft (Dorian, 2026-09-23: "we say fresh tablets +
+ * chaos, but there we only have trans and regal"). Weighted by success, it reads Transmute → Regal →
+ * Chaos, which is where the crafts that finish come from.
  *
- * Returns no steps when the graph has no start, or when the walk stalls in a state with no forward
- * edge — the caller then shows the full graph rather than a line that stops mid-air. A stall is
- * possible in principle (the policy may play an action whose only listed outcomes hold or lose
- * ground, with the true progress edge pruned by the `prob > 0` filter upstream), so it is handled
- * rather than asserted away.
+ * On an item you HOLD nothing can fail — every state finishes eventually — so that weighting is just
+ * probability and the line wandered through 13 likeliest-but-sideways rolls. There it keeps to the
+ * likeliest outcome that moves strictly closer and can still finish by doing so, as it always did.
+ *
+ * Either way a state is entered once and a dead end gives way to the next best outcome, so the walk
+ * ends: at the goal, or — with no way through — with no steps, and the caller shows the full graph
+ * instead of a line that stops mid-air.
  */
 export function mainLine(result: EngineMarkovResult): MainLine {
   const byKey = new Map(result.nodes.map((n) => [n.key, n]));
   const start = result.nodes.find((n) => n.isStart);
-  if (!start) return { steps: [] };
+  const goalNode = result.nodes.find((n) => n.isGoal);
+  if (!start || !goalNode) return { steps: [] };
 
   // Group edges by source once: the walk is short but the edge list is not (thousands on a big craft).
   const out = new Map<string, EnginePolicyEdge[]>();
@@ -137,15 +148,75 @@ export function mainLine(result: EngineMarkovResult): MainLine {
     if (list) list.push(e);
     else out.set(e.from, [e]);
   }
+  const canStartOver = start.rarity === 'normal' || result.nodes.some((n) => n.isRestart === true);
+  const worth = canStartOver ? successWeight(result, byKey, out, start) : closerWeight(result, byKey, goalNode);
 
-  // Which states can still reach the goal by going forwards only. Without this the walk follows the
-  // likeliest forward edge and can drop into a state whose own best move is to go BACKWARDS — which is
-  // not a corner case since a from-white policy scraps the item and starts again for most outcomes, so
-  // "rare, one target, one junk" legitimately has no forward move at all. Following probability alone
-  // walked straight into it and stalled, and the route silently disappeared.
-  const goalNode = result.nodes.find((n) => n.isGoal);
-  if (!goalNode) return { steps: [] };
-  const canFinish = new Set<string>([goalNode.key]);
+  // Depth-first from the start, each state's outcomes tried best first, a state entered at most once
+  // — so a branch that only leads back where the line has been gives way to the next best rather than
+  // stalling the line, and the search stays linear in the graph.
+  const choices = (n: EnginePolicyNode): { edge: EnginePolicyEdge; to: EnginePolicyNode; w: number }[] =>
+    (out.get(n.key) ?? [])
+      .map((edge) => ({ edge, to: byKey.get(edge.to)!, w: 0 }))
+      .filter((c) => c.to && c.to.key !== n.key && !isRestart(c.to, start))
+      .map((c) => ({ ...c, w: worth(n, c.edge, c.to) }))
+      .filter((c) => c.w > 0)
+      .sort((a, b) => b.w - a.w);
+  const entered = new Set<string>([start.key]);
+  const path: { node: EnginePolicyNode; options: { edge: EnginePolicyEdge; to: EnginePolicyNode }[]; tried: number }[] =
+    [{ node: start, options: choices(start), tried: 0 }];
+  while (path.length > 0 && !path[path.length - 1]!.node.isGoal) {
+    const top = path[path.length - 1]!;
+    const next = top.options[top.tried++];
+    if (!next) { path.pop(); continue; } // nothing left from here: back up
+    if (next.to.isGoal) { path.push({ node: next.to, options: [], tried: 0 }); continue; }
+    if (entered.has(next.to.key)) continue;
+    entered.add(next.to.key);
+    path.push({ node: next.to, options: choices(next.to), tried: 0 });
+  }
+  if (path.length === 0) return { steps: [] }; // no way through — let the caller fall back to the full graph
+
+  const steps: MainLineStep[] = [];
+  for (let k = 0; k + 1 < path.length; k++) {
+    const node = path[k]!.node;
+    const chosen = path[k]!.options[path[k]!.tried - 1]!;
+    let lands = 0;
+    let repeats = 0;
+    let brick = 0;
+    for (const e of out.get(node.key) ?? []) {
+      const to = byKey.get(e.to);
+      if (!to) continue;
+      if (to.isGoal) lands += e.prob;
+      else if (to.key === node.key) repeats += e.prob;
+      else if (e !== chosen.edge && to.depth > node.depth) brick += e.prob;
+    }
+    steps.push({
+      node, action: node.action ?? chosen.edge.action, next: chosen.to, advance: chosen.edge.prob, brick,
+      changes: changesBetween(node, chosen.to, chosen.edge),
+      lands: chosen.to.isGoal ? 0 : lands, repeats,
+    });
+  }
+  return { steps, goal: path[path.length - 1]!.node };
+}
+
+/** How much an outcome is worth following: from `node` along `edge` to `to`; 0 to never follow it. */
+type Worth = (node: EnginePolicyNode, edge: EnginePolicyEdge, to: EnginePolicyNode) => number;
+
+/** A craft that can start over: the finishing crafts an outcome carries (`toGoal`). */
+function successWeight(
+  result: EngineMarkovResult, byKey: ReadonlyMap<string, EnginePolicyNode>,
+  out: ReadonlyMap<string, readonly EnginePolicyEdge[]>, start: EnginePolicyNode,
+): Worth {
+  const g = toGoal(result, byKey, out, start);
+  return (_node, edge, to) => edge.prob * (g.get(to.key) ?? 0);
+}
+
+/**
+ * An item you hold: the likeliest outcome that moves strictly closer AND from which the goal can still
+ * be reached by moving closer. Without the second half the walk followed the likeliest closer outcome
+ * into a state whose own best move is to go BACKWARDS and stalled, and the route disappeared.
+ */
+function closerWeight(result: EngineMarkovResult, byKey: ReadonlyMap<string, EnginePolicyNode>, goal: EnginePolicyNode): Worth {
+  const canFinish = new Set<string>([goal.key]);
   for (let grew = true; grew;) {
     grew = false;
     for (const e of result.edges) {
@@ -157,27 +228,40 @@ export function mainLine(result: EngineMarkovResult): MainLine {
       grew = true;
     }
   }
+  return (node, edge, to) => (to.depth < node.depth && canFinish.has(to.key) ? edge.prob : 0);
+}
 
-  const steps: MainLineStep[] = [];
-  let node = start;
-  while (!node.isGoal) {
-    const edges = out.get(node.key) ?? [];
-    let best: { edge: EnginePolicyEdge; to: EnginePolicyNode } | undefined;
-    let brick = 0;
-    for (const e of edges) {
-      const to = byKey.get(e.to);
-      if (!to) continue;
-      if (to.depth > node.depth) brick += e.prob;
-      if (to.depth >= node.depth) continue; // only a strictly closer state can advance the line
-      if (!canFinish.has(to.key)) continue; // …and only one the craft can actually be finished from
-      if (!best || e.prob > best.edge.prob) best = { edge: e, to };
+/** A fresh base: the restart node, or — on a craft from a white base — a step back onto that base. */
+const isRestart = (n: EnginePolicyNode, start: EnginePolicyNode): boolean =>
+  n.isRestart === true || (n.key === start.key && start.rarity === 'normal');
+
+/**
+ * The chance of finishing from each state without starting over: `g(goal) = 1`, `g(s) = Σ P(s→t)·g(t)`
+ * over the outcomes that do not start over, a self-loop divided out. Gauss-Seidel, to 1e-12 or 1,000
+ * sweeps — it only chooses between outcomes, and a route's chain is short.
+ */
+function toGoal(
+  result: EngineMarkovResult, byKey: ReadonlyMap<string, EnginePolicyNode>,
+  out: ReadonlyMap<string, readonly EnginePolicyEdge[]>, start: EnginePolicyNode,
+): Map<string, number> {
+  const g = new Map<string, number>(result.nodes.map((n) => [n.key, n.isGoal ? 1 : 0]));
+  for (let sweep = 0; sweep < 1000; sweep++) {
+    let delta = 0;
+    for (const n of result.nodes) {
+      if (n.isGoal) continue;
+      let self = 0;
+      let acc = 0;
+      for (const e of out.get(n.key) ?? []) {
+        const to = byKey.get(e.to);
+        if (!to || isRestart(to, start)) continue;
+        if (to.key === n.key) self += e.prob;
+        else acc += e.prob * g.get(to.key)!;
+      }
+      const next = self < 1 ? acc / (1 - self) : 0;
+      delta = Math.max(delta, Math.abs(next - g.get(n.key)!));
+      g.set(n.key, next);
     }
-    if (!best) return { steps: [] }; // stalled — let the caller fall back to the full graph
-    steps.push({
-      node, action: node.action ?? best.edge.action, next: best.to, advance: best.edge.prob, brick,
-      changes: changesBetween(node, best.to, best.edge),
-    });
-    node = best.to;
+    if (delta < 1e-12) break;
   }
-  return { steps, goal: node };
+  return g;
 }

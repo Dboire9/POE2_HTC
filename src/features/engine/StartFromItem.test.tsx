@@ -163,9 +163,9 @@ describe('StartFromItem — the items you could buy instead of a white base', ()
     show(markov);
     await user.click(screen.getByRole('button', { name: 'Route from Rare · Fire + Int' }));
     expect(mocks.routeFor).toHaveBeenCalledWith(engine, markov, 'Fire+Int/rare');
-    expect(await screen.findByText(/The route from the item you buy to the target/)).toBeInTheDocument();
+    expect(await screen.findByText(/crafts that finish go, from the item you buy to the target/)).toBeInTheDocument();
     await user.click(screen.getByRole('button', { name: /Hide this route/ }));
-    expect(screen.queryByText(/The route from the item you buy/)).not.toBeInTheDocument();
+    expect(screen.queryByText(/crafts that finish go, from the item you buy to the target/)).not.toBeInTheDocument();
   });
 
   /** Typing a price re-renders the panel; the route on screen is the same one and is not walked again. */
@@ -173,10 +173,10 @@ describe('StartFromItem — the items you could buy instead of a white base', ()
     const user = userEvent.setup();
     show();
     await user.click(screen.getByRole('button', { name: 'Route from Rare · Fire + Int' }));
-    await screen.findByText(/The route from the item you buy to the target/);
+    await screen.findByText(/crafts that finish go, from the item you buy to the target/);
     await user.type(priceBox('Rare · Fire + Cast'), '12');
     expect(mocks.routeFor).toHaveBeenCalledTimes(1);
-    expect(screen.getByText(/The route from the item you buy to the target/)).toBeInTheDocument();
+    expect(screen.getByText(/crafts that finish go, from the item you buy to the target/)).toBeInTheDocument();
   });
 
   /** Its route is "start over": no graph can show a plan that is the from-scratch plan above it. */
@@ -186,7 +186,7 @@ describe('StartFromItem — the items you could buy instead of a white base', ()
     await user.click(screen.getByRole('button', { name: '1' }));
     await user.click(screen.getByRole('button', { name: 'Route from Rare · Cast' }));
     expect(screen.getByText(/cheapest move is to start over from a white base/)).toBeInTheDocument();
-    expect(screen.queryByText(/The route from the item you buy/)).not.toBeInTheDocument();
+    expect(screen.queryByText(/crafts that finish go, from the item you buy to the target/)).not.toBeInTheDocument();
   });
 });
 

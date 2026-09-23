@@ -69,6 +69,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- **The route shows the way crafts that finish actually go.** It followed only rolls that moved strictly
+  closer, and on a craft that starts over the one such roll from the start is the lucky one: a Ritual
+  reroll read "Transmute (0.3%) → Regal → ✓" beside a plan that plays Chaos 28 times a craft. It now
+  follows the rolls the finishing crafts come through — *Transmute → Regal → Chaos* — and each step also
+  says how often it finishes the item outright and how often nothing changes and you play it again. On
+  an item you hold nothing can fail, so the route there still follows the likeliest roll that moves
+  closer, and it now backs out of a roll that only loops back instead of showing no route at all.
+
 - **"What Chaos does from here" says what one Chaos really does.** A step into the target read "clears 2
   junk mods" when a Chaos had swapped ONE junk suffix for the target — every finished state is drawn as
   one clean goal, so comparing junk against it counted the junk left on a spare slot as cleared. A step

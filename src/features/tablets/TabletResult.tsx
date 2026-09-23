@@ -266,8 +266,8 @@ export const TabletResult: React.FC<{
             )}
             <StandInTip
               standIns={standIns} plainCost={plainCost} fmt={(ex) => formatIn(unit, ex)}
-              urlFor={(st, filters) => (league
-                ? tradeUrl({ league, baseName: tablet.name, rarity: st.rarity, require: [FULL_USES, ...filters], stats: [] })
+              urlFor={(filters) => (league
+                ? tradeUrl({ league, baseName: tablet.name, rarity: 'magic', require: [FULL_USES, ...filters], stats: [] })
                 : '')}
             />
             {net !== undefined && (

@@ -202,26 +202,15 @@ describe('the dearest plain tablet a craft still pays at', () => {
   });
 });
 
-describe('searching for a tablet already rolled', () => {
-  it('pins a Magic one exactly: one modifier a side, so "no suffix" means one prefix', () => {
-    expect(standInFilters({ rarity: 'magic', prefixes: 1, suffixes: 0, worth: 1 })).toEqual({
-      filters: [
-        { id: 'pseudo.pseudo_number_of_empty_prefix_mods', value: { max: 0 }, disabled: false },
-        { id: 'pseudo.pseudo_number_of_empty_suffix_mods', value: { min: 1 }, disabled: false },
-      ],
-      loose: false,
-    });
-  });
-
-  it('pins a Rare one with filters true however the site counts its empty slots, and says it is loose', () => {
-    // Two prefixes, no suffix: at most 1 empty prefix (of 3; 0 of 2), at least 2 empty suffixes.
-    expect(standInFilters({ rarity: 'rare', prefixes: 2, suffixes: 0, worth: 1 })).toEqual({
-      filters: [
-        { id: 'pseudo.pseudo_number_of_empty_prefix_mods', value: { max: 1 }, disabled: false },
-        { id: 'pseudo.pseudo_number_of_empty_suffix_mods', value: { min: 2 }, disabled: false },
-      ],
-      loose: true,
-    });
+describe('searching for a Magic tablet already rolled', () => {
+  it('pins it exactly: one modifier a side, so "no empty prefix, an empty suffix" is one prefix alone', () => {
+    expect(standInFilters({ side: 'prefix', worth: 1 })).toEqual([
+      { id: 'pseudo.pseudo_number_of_empty_prefix_mods', value: { max: 0 }, disabled: false },
+      { id: 'pseudo.pseudo_number_of_empty_suffix_mods', value: { min: 1 }, disabled: false },
+    ]);
+    expect(standInFilters({ side: 'suffix', worth: 1 })).toEqual([
+      { id: 'pseudo.pseudo_number_of_empty_prefix_mods', value: { min: 1 }, disabled: false },
+      { id: 'pseudo.pseudo_number_of_empty_suffix_mods', value: { max: 0 }, disabled: false },
+    ]);
   });
 });
-

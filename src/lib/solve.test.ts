@@ -507,12 +507,12 @@ describe('smallLattice — a tablet solved the sure way', () => {
   });
 
   /**
-   * Tablets someone already rolled, priced off the solve. Fishing a Ritual reroll (a suffix), a tablet
+   * Magic tablets someone already rolled, priced off the solve. Fishing a Ritual reroll (a suffix), one
    * holding only a prefix is worth about a plain one — a Transmute lands a prefix half the time anyway —
-   * and one holding a junk suffix about half. For a Temple Rare Monsters + Crystal pair, a Rare with one
-   * unwanted modifier is worth ~1.2 plain ones (Dorian, 2026-09-23).
+   * and one holding only a suffix about half. For a Temple Rare Monsters + Crystal pair (one of each side)
+   * both are worth ~0.84 plain ones (Dorian, 2026-09-23).
    */
-  it('prices a tablet already rolled against a plain one, from the solve itself', () => {
+  it('prices a Magic tablet already rolled against a plain one, from the solve itself', () => {
     const worth = (base: string, mods: string[], spare: { prefixes: number; suffixes: number }, plain: number) => {
       const m = cost(runSolve(eng, {
         kind: 'lab', from: { baseId: base, level: 100 }, targets: mods.map((modId) => ({ modId, tierDisplay: 1 })),
@@ -520,17 +520,16 @@ describe('smallLattice — a tablet solved the sure way', () => {
       }));
       const at = new Map(m.routes!.keys.map((k, i) => [k as string, i]));
       const list = standIns((k) => { const i = at.get(k); return i === undefined ? undefined : m.routes!.value[i]; }, m.expectedCost, plain);
-      return (rarity: 'magic' | 'rare', p: number, sfx: number) =>
-        list.find((x) => x.rarity === rarity && x.prefixes === p && x.suffixes === sfx)!.worth / plain;
+      expect(list.map((x) => x.side)).toEqual(['prefix', 'suffix']);
+      return (side: 'prefix' | 'suffix') => list.find((x) => x.side === side)!.worth / plain;
     };
     const reroll = worth('Tablets_ritual', ['Tablets/RitualAdditionalReroll'], { prefixes: 2, suffixes: 1 }, 130);
-    expect(reroll('magic', 1, 0)).toBeGreaterThan(0.9);
-    expect(reroll('magic', 1, 0)).toBeLessThan(1.1);
-    expect(reroll('magic', 0, 1)).toBeLessThan(0.7);
+    expect(reroll('prefix')).toBeGreaterThan(0.9);
+    expect(reroll('prefix')).toBeLessThan(1.1);
+    expect(reroll('suffix')).toBeLessThan(0.7);
     const pair = worth('Tablets_temple', ['Tablets/MapRarePackIncrease', 'Tablets/IncursionTokenChance'], { prefixes: 1, suffixes: 1 }, 442);
-    expect(pair('rare', 1, 0)).toBeGreaterThan(1.15);
-    expect(pair('rare', 0, 1)).toBeGreaterThan(1.15);
-    expect(pair('rare', 2, 2)).toBe(0); // full of junk: nothing left to craft into
+    expect(pair('prefix')).toBeCloseTo(0.84, 1);
+    expect(pair('suffix')).toBeCloseTo(0.84, 1);
   });
 
   it('solves the rarest four the usual solve cannot put a number on', () => {

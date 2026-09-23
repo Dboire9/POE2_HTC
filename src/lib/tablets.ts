@@ -280,60 +280,41 @@ export function plainBreakEven(lines: readonly CostLine[], income: number): numb
   return most > 0 ? most : undefined;
 }
 
-/** A tablet someone already rolled, carrying only modifiers the craft does not want: its rarity and junk. */
+/** A Magic tablet someone already rolled, carrying ONE modifier the craft does not want, on one side. */
 export interface StandIn {
-  readonly rarity: 'magic' | 'rare';
-  readonly prefixes: number;
-  readonly suffixes: number;
+  readonly side: 'prefix' | 'suffix';
   /** The most it is worth paying for, against a plain tablet at the price typed. */
   readonly worth: number;
 }
 
 /**
- * Tablets worth buying INSTEAD of a plain one (Dorian, 2026-09-23: "they can buy magic with one or two
- * bad suffixes or prefixes"): every Magic or Rare tablet carrying only unwanted modifiers, priced by the
- * solve itself. Finishing from one costs its state's value, finishing from a plain one costs a plain
- * tablet plus the craft, so it is worth up to the difference:
+ * Magic tablets worth buying INSTEAD of a plain one: one holding a single unwanted prefix, and one holding
+ * a single unwanted suffix — the two a market actually lists in number (Dorian, 2026-09-23: "I want magic
+ * with 1 suffix only and 1 prefix only"; a Rare with nothing on one side is too rare to shop for). Priced
+ * by the solve itself: finishing from one costs its state's value, finishing from a plain one costs a
+ * plain tablet plus the craft, so it is worth up to the difference —
  *
  *     worth = plain + V(plain tablet) − V(this one)
  *
- * — exact, from the same solve. Which shapes pay depends on the craft: fishing for one suffix, a tablet
- * holding only prefixes is worth about a plain one (a Transmute lands a prefix half the time anyway),
- * while for a Temple pair a Rare with one unwanted modifier is worth ~1.2 plain ones. Ordered dearest
- * first; `value` reads a state's cost by key, undefined where the solve has none.
+ * exact, from the same solve. Which side pays depends on the craft: fishing for a suffix, the prefix one is
+ * worth about a plain tablet (a Transmute lands a prefix half the time anyway) and the suffix one about
+ * half. `value` reads a state's cost by key, undefined where the solve has none.
  */
-export function standIns(
-  value: (key: string) => number | undefined, fromPlain: number, plainCost: number,
-): StandIn[] {
-  const out: StandIn[] = [];
-  for (const [rarity, cap] of [['magic', 1], ['rare', PER_SIDE]] as const) {
-    for (let prefixes = 0; prefixes <= cap; prefixes++) {
-      for (let suffixes = 0; suffixes <= cap; suffixes++) {
-        if (prefixes + suffixes === 0) continue;
-        const v = value(encodeState(0, 0, prefixes, suffixes, FLAG_NONE, rarity));
-        if (v === undefined || !Number.isFinite(v)) continue;
-        out.push({ rarity, prefixes, suffixes, worth: Math.max(0, plainCost + fromPlain - v) });
-      }
-    }
-  }
-  return out.sort((a, b) => b.worth - a.worth);
+export function standIns(value: (key: string) => number | undefined, fromPlain: number, plainCost: number): StandIn[] {
+  return (['prefix', 'suffix'] as const).flatMap((side) => {
+    const v = value(encodeState(0, 0, side === 'prefix' ? 1 : 0, side === 'suffix' ? 1 : 0, FLAG_NONE, 'magic'));
+    return v === undefined || !Number.isFinite(v) ? [] : [{ side, worth: Math.max(0, plainCost + fromPlain - v) }];
+  });
 }
 
 /**
- * The trade filters for a stand-in: its rarity, and the trade site's "# Empty Prefix/Suffix Modifiers"
- * pseudo stats pinning which side holds what. A Magic tablet is exact — one modifier a side, so "no
- * suffix" means one prefix. A Rare is `loose`: the site may count a Rare's empty slots out of gear's three
- * a side rather than a tablet's two, so the filters are the ones true under either count, and can also
- * list a tablet with one modifier fewer on the full side.
+ * The trade filters for a stand-in: the trade site's "# Empty Prefix/Suffix Modifiers" pseudo stats. Exact
+ * on a Magic tablet — one modifier a side — so "no suffix and no empty prefix" is one prefix and nothing else.
  */
-export function standInFilters(s: StandIn): { filters: { id: string; value: { min?: number; max?: number }; disabled: false }[]; loose: boolean } {
-  const cap = s.rarity === 'magic' ? 1 : 3;
-  const side = (id: string, held: number) => ({
-    id, value: held === 0 ? { min: s.rarity === 'magic' ? 1 : PER_SIDE } : { max: cap - held }, disabled: false as const,
+export function standInFilters(s: StandIn): { id: string; value: { min?: number; max?: number }; disabled: false }[] {
+  const held = (side: 'prefix' | 'suffix') => ({
+    id: `pseudo.pseudo_number_of_empty_${side}_mods`, value: s.side === side ? { max: 0 } : { min: 1 }, disabled: false as const,
   });
-  return {
-    filters: [side('pseudo.pseudo_number_of_empty_prefix_mods', s.prefixes), side('pseudo.pseudo_number_of_empty_suffix_mods', s.suffixes)],
-    loose: s.rarity === 'rare',
-  };
+  return [held('prefix'), held('suffix')];
 }
 

@@ -209,11 +209,12 @@ export const TabletResult: React.FC<{
                 <h4 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Selling what lands on the way</h4>
                 <p>
                   About <strong className="tabular-nums">{formatIn(unit, revenue)}</strong> a craft. Whenever the tablet holds one
-                  of the sets you priced below and selling it beats carrying on, sell it and start a fresh tablet.
+                  of the sets you priced below and selling it beats carrying on, fill it to four modifiers first — a third or
+                  fourth good one can only raise its price — then sell it and start a fresh tablet.
                 </p>
                 <p className="text-muted-foreground">
                   Played out that way, the craft costs about <span className="tabular-nums text-foreground">{formatIn(unit, net)}</span> net
-                  — {formatIn(unit, plainCost + markov.replay!.meanCost)} spent, less what you sell.
+                  — {formatIn(unit, plainCost + markov.replay!.meanCost)} spent (the filling included), less what you sell.
                 </p>
               </div>
             )}
@@ -249,7 +250,7 @@ export const TabletResult: React.FC<{
               {recounting
                 ? 'Recounting with your prices…'
                 : anyWatchPriced
-                  ? 'Your prices are counted: the plan sells one of these whenever that beats carrying on.'
+                  ? 'Your prices are counted: the plan fills a tablet holding one of these to four modifiers and sells it, whenever that beats carrying on.'
                   : 'Type what one of these sells for, and the craft is recounted with you selling it whenever that pays.'}
             </p>
             {WATCH_TIERS.map((tier) => {

@@ -533,7 +533,9 @@ Transmutations · …*). It is read off the plan played out, not a rule of thumb
 
 **Price what can land, and sell it.** Type what one of the watch-list sets sells for and the craft is
 recounted straight away with you selling it whenever that beats carrying on — the price against what
-starting a fresh tablet puts back on the bill. A box then says what that brings back per craft and what
+starting a fresh tablet puts back on the bill. A tablet is always filled to four modifiers before it is
+sold (a Regal if it is Magic, then Exalts), since a third or fourth good modifier can only raise its
+price; it sells at the best set it then holds. A box then says what that brings back per craft and what
 the craft costs net, and each priced row says how often you'd sell one. Hunting an extra reroll plus two
 extra modifiers on Ritual with plain tablets at 100 ex, selling at typical prices brings back ~62 div a
 craft — still far short of the ~1,000 div it costs, but it counts.

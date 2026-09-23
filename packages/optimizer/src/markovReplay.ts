@@ -55,9 +55,11 @@ export interface ReplayOptions {
   /**
    * What each watch entry SELLS for, in the solve's unit, in the order of `watch` — 0 or less for one
    * nobody priced. With it the replay plays one rule the policy cannot: when the item holds a priced
-   * set and selling it beats carrying on — the price against the start over it forces, `restartCost +
-   * V(start)`, less what finishing from here would still cost, `V(here)` — sell it, start a fresh base,
-   * and keep going for the target. A one-step improvement on the solved policy, so it never plays worse.
+   * set and selling it beats carrying on — the price, less what filling the item costs, against the
+   * start over it forces, `restartCost + V(start)`, less what finishing from here would still cost,
+   * `V(here)` — fill it (a Regal if Magic, then Exalts until every slot is taken: an item is always sold
+   * full, since another good modifier can only raise its price), sell it at the best priced set it then
+   * holds, start a fresh base, and keep going for the target. A one-step improvement on the solved policy.
    * Needs `valueOf` and `restartCost` in the context; without either, nothing is sold.
    */
   readonly sell?: readonly number[];
@@ -313,6 +315,30 @@ export function replayPolicy(ctx: ReplayContext, opts: ReplayOptions): ReplayRep
   })() : Infinity;
   const sold = new Array<number>(watch.length).fill(0);
   let revenue = 0;
+  const REGAL: McAction = { currency: 'regal', strength: 'base' };
+  const EXALT: McAction = { currency: 'exalt', strength: 'base' };
+  const slotsLeft = (item: ItemState): number =>
+    limits.prefixes + limits.suffixes - item.prefixes.length - item.suffixes.length;
+  /** What filling an item costs before selling it, counted before any dice: a Regal if Magic, an Exalt a slot. */
+  const fillCostOf = (item: ItemState): number => (item.rarity === 'magic'
+    ? costOf(REGAL) + Math.max(0, slotsLeft(item) - 1) * costOf(EXALT)
+    : item.rarity === 'rare' ? slotsLeft(item) * costOf(EXALT) : Infinity);
+  /** Fill an item to every slot, as a player does before selling: spends and counts the orbs. */
+  const fillUp = (item: ItemState): { item: ItemState; spent: number } => {
+    let it = item;
+    let spent = 0;
+    const step = (a: McAction): boolean => {
+      const next = play(a, it);
+      if (next === undefined || next === 'nothing-rolls') return false;
+      it = next;
+      spent += costOf(a);
+      moveCount.set(a.currency, (moveCount.get(a.currency) ?? 0) + 1);
+      return true;
+    };
+    if (it.rarity === 'magic' && !step(REGAL)) return { item: it, spent };
+    while (it.rarity === 'rare' && slotsLeft(it) > 0 && step(EXALT));
+    return { item: it, spent };
+  };
   /** The best-priced watched set this item holds, if any: [entry, price]. */
   const bestSale = (item: ItemState): [number, number] | undefined => {
     let best: [number, number] | undefined;
@@ -351,11 +377,14 @@ export function replayPolicy(ctx: ReplayContext, opts: ReplayOptions): ReplayRep
         // would still have cost. Where the policy would bin the item anyway that is any price at all.
         const sale = bestSale(item);
         const here = valueOf!(key);
-        if (sale && here !== undefined && sale[1] > startOver - here) {
+        if (sale && here !== undefined && sale[1] - fillCostOf(item) > startOver - here) {
           if (++moves > maxActions) return { ok: false, reason: `a craft ran past ${maxActions} moves` };
-          sold[sale[0]]! += 1;
-          revenue += sale[1];
-          cost += restartCost!;
+          // Filled first — it can only gain: whatever lands is added, nothing comes off.
+          const full = fillUp(item);
+          const best = bestSale(full.item) ?? sale;
+          sold[best[0]]! += 1;
+          revenue += best[1];
+          cost += full.spent + restartCost!;
           moveCount.set('sell', (moveCount.get('sell') ?? 0) + 1);
           item = start;
           look();

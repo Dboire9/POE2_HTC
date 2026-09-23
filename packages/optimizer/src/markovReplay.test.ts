@@ -226,6 +226,31 @@ describe('replayPolicy — the solved policy played on real items', () => {
     expect(rp.sales!.perEntry[0]).toBe(0); // …and never sold for less than it costs to replace it
   });
 
+  /**
+   * An item is always sold FULL: a third or fourth good modifier can only raise its price. W lands on the
+   * first Transmutation three times in four and sells for 100, so the replay sells — but only after a
+   * Regal and then Exalts until nothing more fits, never straight off the Magic item.
+   */
+  it('fills an item before selling it, and sells it at the best set it then holds', () => {
+    const base = baseOf(['T', 'W', 'X'], ['S', 'Y']);
+    const data = dataOf(base, ['T', 'W', 'X'].map((id) => mod(id, 'prefix', [[id.toLowerCase(), id === 'W' ? 3 : 1]]))
+      .concat(['S', 'Y'].map((id) => mod(id, 'suffix', [[id.toLowerCase(), 1]]))));
+    const prices: Prices = { currency: { transmute: 1, augment: 1, regal: 1, exalt: 1, chaos: 100 }, omens: {} };
+    const r = markovFromItem(data, prices, whiteItem(base, 100), [{ modId: 'T' }], {
+      restartCost: 1, spare: { prefixes: 2, suffixes: 3 }, tolerance: 1e-9,
+      replay: { runs: 2_000, seed: 6, watch: [['W'], ['W', 'Y']], sell: [100, 150] },
+    });
+    const rp = played(r.replay);
+    const sells = rp.movesPerCraft['sell']!;
+    expect(sells).toBeGreaterThan(0.5);
+    // Every sale was of a full item: at least one Regal and one Exalt spent per sale.
+    expect(rp.movesPerCraft['regal']!).toBeGreaterThanOrEqual(sells);
+    expect(rp.movesPerCraft['exalt']!).toBeGreaterThanOrEqual(sells);
+    // Filling sometimes lands Y beside W, and then it sells as the dearer pair.
+    expect(rp.sales!.perEntry[1]).toBeGreaterThan(0);
+    expect(rp.sales!.revenue).toBeCloseTo(rp.sales!.perEntry[0]! * 100 + rp.sales!.perEntry[1]! * 150, 6);
+  });
+
   it('declines a route that plays a move it does not model, rather than guessing', () => {
     // On the frozen 2026-08-22 sheet a bone is cheap enough that this craft's route desecrates.
     const real = loadPatch('data/patches/0.5.0');

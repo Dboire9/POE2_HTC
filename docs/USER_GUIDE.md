@@ -531,11 +531,17 @@ way: starting a fresh tablet whenever a roll misses, rerolling one tablet with C
 whichever is cheaper at these prices — and what an average craft uses (*72 plain tablets · 72
 Transmutations · …*). It is read off the plan played out, not a rule of thumb.
 
+**Price what can land, and sell it.** Type what one of the watch-list sets sells for and the craft is
+recounted straight away with you selling it whenever that beats carrying on — the price against what
+starting a fresh tablet puts back on the bill. A box then says what that brings back per craft and what
+the craft costs net, and each priced row says how often you'd sell one. Hunting an extra reroll plus two
+extra modifiers on Ritual with plain tablets at 100 ex, selling at typical prices brings back ~62 div a
+craft — still far short of the ~1,000 div it costs, but it counts.
+
 **Is it worth crafting?** Type what the tablet sells for and the tab answers as an investment:
 
-- **Profit (or loss) per tablet, on average** — the sale price, minus what crafting costs, plus what
-  you'd get for the good tablets the plan would otherwise throw away (priced at what you typed in the
-  watch list below; a row you haven't priced counts as nothing).
+- **Profit (or loss) per tablet, on average** — the sale price minus what crafting costs, net of what
+  you sell on the way (below).
 - **How risky it is** — the average hides a wide spread, so the tab also says what half the crafts cost
   less than, what 1 craft in 10 costs more than, and how often you finish if you spend no more than the
   tablet sells for. These come from playing the plan out thousands of times; a very long craft fits fewer

@@ -7,7 +7,8 @@ import { loadEngine, priceBasis, type Engine } from '../../lib/engine';
 import { isAppUpdated, isCancelled, prewarm, solve } from '../../lib/engineClient';
 import type { SolveProgress } from '../../lib/solve';
 import { parsePrice } from '../../lib/startingItem';
-import { ODDS_CREDIT, PER_SIDE, listTablets, ruledOutBy, watchList } from '../../lib/tablets';
+import { ODDS_CREDIT, PER_SIDE, listTablets, ruledOutBy, setPriceKey, watchList, type TabletBase } from '../../lib/tablets';
+import { readPrices, writePrice, type TypedPrice } from '../../lib/tabletPrices';
 import { toExcludedKeys, useExclusions } from '../../lib/currencyPrefs';
 import { limitsFor, useEffort } from '../../lib/searchEffort';
 import SolveProgressBar from '../engine/SolveProgress';
@@ -35,6 +36,9 @@ const TabletsTab: React.FC = () => {
   const [chosen, setChosen] = useState<readonly string[]>([]);
   const [baseCost, setBaseCost] = useState('1');
   const [solved, setSolved] = useState<SolvedTablet | null>(null);
+  // Every price the player typed, by set. Read once, at the first render: what they typed before is part
+  // of the initial state. Kept here, not in the result, because a watch-list price is sent with the solve.
+  const [prices, setPrices] = useState<Record<string, TypedPrice>>(readPrices);
   const [computing, setComputing] = useState(false);
   const [progress, setProgress] = useState<SolveProgress | null>(null);
   const [runErr, setRunErr] = useState<string | null>(null);
@@ -53,21 +57,38 @@ const TabletsTab: React.FC = () => {
   const tablets = useMemo(() => (engine ? listTablets(engine.data) : []), [engine]);
   const tablet = tablets.find((t) => t.id === tabletId) ?? tablets[0];
   const ruledOut = useMemo(() => (engine ? ruledOutBy(engine.data, chosen) : new Map<string, string>()), [engine, chosen]);
-  // Asked for at solve time and kept with the answer, so the odds shown belong to the craft that was
-  // solved — not to whatever is ticked now.
-  const watch = useMemo(() => (tablet ? watchList(tablet, chosen) : []), [tablet, chosen]);
   const basis = engine ? priceBasis(engine) : undefined;
+
+  /** A price typed anywhere on the result. One for a watched set recounts the craft that was solved. */
+  const onPrice = (key: string, ex: number | undefined): void => {
+    const next = writePrice(key, ex);
+    setPrices(next);
+    if (solved && solved.watch.some((e) => setPriceKey(solved.tablet.id, e.mods) === key)) {
+      compute({ tablet: solved.tablet, chosen: solved.chosen, plain: solved.plainCost }, next);
+    }
+  };
 
   const toggle = (id: string): void => setChosen((c) => (c.includes(id) ? c.filter((x) => x !== id) : [...c, id]));
 
-  const compute = (): void => {
+  /**
+   * Solve a craft: by default the one ticked now; after a watch-list price changes, the one already
+   * solved, again — with `priceMap` holding that price, which state has not delivered yet.
+   */
+  const compute = (
+    spec: { tablet: TabletBase | undefined; chosen: readonly string[]; plain: number | undefined }
+      = { tablet, chosen, plain: parsePrice(baseCost) },
+    priceMap: Readonly<Record<string, TypedPrice>> = prices,
+  ): void => {
+    const { tablet, chosen, plain: cost } = spec;
     if (!engine || !tablet || chosen.length === 0) return;
+    // Asked for at solve time and kept with the answer, so the odds shown belong to the craft that was
+    // solved — not to whatever is ticked now.
+    const watch = watchList(tablet, chosen);
     const runId = ++runIdRef.current;
     const current = (): boolean => runIdRef.current === runId;
     setComputing(true);
     setRunErr(null);
     setProgress(null);
-    const cost = parsePrice(baseCost);
     const picked = (side: readonly { id: string }[]): number => chosen.filter((id) => side.some((m) => m.id === id)).length;
     const handle = solve({
       kind: 'lab',
@@ -80,6 +101,8 @@ const TabletsTab: React.FC = () => {
       fillOnFinish: true,
       // Always, even empty: the replay behind it also gives the spread of what a craft costs.
       watch: watch.map((e) => e.mods),
+      // What each of those sells for, as typed: the replay then sells one whenever that beats carrying on.
+      sell: watch.map((e) => priceMap[setPriceKey(tablet.id, e.mods)]?.ex ?? 0),
       effort: limitsFor(effort),
       // Never an Annulment Orb on a tablet (Dorian, 2026-09-23): at ~7 Chaos Orbs apiece it pays only
       // on the rarest pairs with dear plain tablets — crafts that lose hundreds of div anyway — and costs
@@ -142,7 +165,7 @@ const TabletsTab: React.FC = () => {
               className={cn('w-24 rounded border border-border bg-background px-2 py-1 text-sm tabular-nums', FOCUS)}
             />
           </label>
-          <Button onClick={compute} disabled={computing || chosen.length === 0} size="lg">
+          <Button onClick={() => compute()} disabled={computing || chosen.length === 0} size="lg">
             {computing ? 'Working…' : 'What does it cost?'}
           </Button>
           {chosen.length === 0 && <span className="text-xs text-muted-foreground">Pick at least one modifier.</span>}
@@ -158,6 +181,9 @@ const TabletsTab: React.FC = () => {
           league={basis?.league}
           rates={basis?.rates}
           orbPrices={{ chaos: engine?.prices.currency['chaos'], annul: engine?.prices.currency['annul'] }}
+          prices={prices}
+          onPrice={onPrice}
+          recounting={computing}
         />
       )}
 

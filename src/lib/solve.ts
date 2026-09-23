@@ -89,6 +89,11 @@ export type SolveRequest =
        * two on top of the solve and only a from-white craft asks for it.
        */
       readonly watch?: readonly (readonly WatchMod[])[];
+      /**
+       * What each `watch` entry sells for, in exalts, in the same order — 0 for one nobody priced. The
+       * replay then sells a priced set when that beats carrying on (`ReplayOptions.sell`).
+       */
+      readonly sell?: readonly number[];
       /** Fill the finished item's empty slots with Exalts, and charge for them — `MarkovOptions.fillOnFinish`. */
       readonly fillOnFinish?: boolean;
     } & ExcludingRequest)
@@ -385,6 +390,7 @@ export function runSolve(eng: Engine, req: SolveRequest, onProgress?: (p: SolveP
   const markov = markovOrReason(() => optimizeItemMarkov(eng, mdpItem, req.targets, spared(withSweepLimit(withPolicy({
     ...(watch ? { replay: {
       runs: REPLAY_RUNS, seed: 1, watch, maxMillis: REPLAY_MILLIS,
+      ...(req.sell?.some((p) => p > 0) ? { sell: req.sell } : {}),
       onProgress: (fraction: number): void => replayProgress(fraction, 1),
     } } : {}),
     // …and the whole solved policy, so the Lab can draw the route from any item a player might buy

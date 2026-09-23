@@ -160,33 +160,70 @@ describe('replayPolicy — the solved policy played on real items', () => {
 
   /**
    * Fishing a Ritual tablet for the reroll with plain tablets at 100 ex: the plan bins ~71 tablets a
-   * craft, and some hold a set worth selling. The replay reports the spread of what a craft costs and
-   * how many of each such set it bins — the caller prices them.
+   * craft. The replay reports the spread of what a craft costs, and what it plays to get there.
    */
-  it('reports what a craft costs as a spread, and the watched sets it throws away', () => {
+  describe('fishing a Ritual tablet for the reroll', () => {
     const real = loadPatch('data/patches/0.5.0');
     const tablet = real.bases.get('Tablets_ritual')!;
     const two = { id: 'Tablets/MapAdditionalModifier', min: 2, max: 2 };
-    const r = markovFromItem(real, loadFrozenPrices(), whiteItem(tablet, 100), [{ modId: 'Tablets/RitualAdditionalReroll' }], {
-      restartCost: 100, spare: { prefixes: 2, suffixes: 1 }, fillOnFinish: true,
-      replay: { runs: 3_000, seed: 2, watch: [[two], ['Tablets/MapAdditionalUniqueMonsterModifier']] },
+    const watch = [[two], ['Tablets/MapAdditionalUniqueMonsterModifier']];
+    const solve = (sell?: number[]) => markovFromItem(real, loadFrozenPrices(), whiteItem(tablet, 100),
+      [{ modId: 'Tablets/RitualAdditionalReroll' }], {
+        restartCost: 100, spare: { prefixes: 2, suffixes: 1 }, fillOnFinish: true,
+        replay: { runs: 3_000, seed: 2, watch, ...(sell ? { sell } : {}) },
+      });
+
+    it('reports what a craft costs as a spread, and the moves it plays', () => {
+      const rp = played(solve().replay);
+      const p = rp.costPercentiles;
+      expect(p).toHaveLength(101);
+      for (let i = 1; i < p.length; i++) expect(p[i]!).toBeGreaterThanOrEqual(p[i - 1]!);
+      // A craft of many restarts: skewed, so half cost less than the mean and the worst tenth far more.
+      expect(p[50]!).toBeLessThan(rp.meanCost);
+      expect(p[90]!).toBeGreaterThan(1.5 * rp.meanCost);
+      // It bins dozens of tablets a craft, and every fresh one is Transmuted: the moves say how it works.
+      expect(rp.movesPerCraft['restart']!).toBeGreaterThan(20);
+      expect(rp.movesPerCraft['transmute']!).toBeGreaterThanOrEqual(rp.movesPerCraft['restart']!);
+      expect(rp.movesPerCraft['annul'] ?? 0).toBeLessThan(1);
+      expect(rp.sales).toBeUndefined(); // nothing priced, nothing sold
+    });
+
+    /**
+     * Price the two sets and the replay sells them when that beats carrying on — here, mostly tablets
+     * the plan was about to bin anyway. Revenue is exactly what was sold at those prices, and selling
+     * can only help: spend minus revenue is no more than the craft cost without it.
+     */
+    it('sells a priced set when that beats carrying on, and never plays worse for it', () => {
+      const prices = [1_150, 300];
+      const bare = played(solve().replay);
+      const rp = played(solve(prices).replay);
+      const sales = rp.sales!;
+      expect(sales.perEntry).toHaveLength(2);
+      expect(sales.revenue).toBeCloseTo(sales.perEntry[0]! * prices[0]! + sales.perEntry[1]! * prices[1]!, 6);
+      expect(sales.revenue).toBeGreaterThan(0);
+      expect(rp.movesPerCraft['sell']).toBeGreaterThan(0);
+      expect(rp.meanCost - sales.revenue).toBeLessThan(bare.meanCost + 3 * Math.hypot(rp.stdErr, bare.stdErr));
+    });
+
+
+  });
+
+  /**
+   * A price below what carrying on is worth must NOT be taken. W (weight 3) lands before the target T
+   * three crafts in four, and from there one cheap Exalt finishes — while a fresh base costs 50. Selling
+   * W for 1 would throw that away every time; the rule never does.
+   */
+  it('does not sell for less than carrying on is worth', () => {
+    const base = baseOf(['T', 'W'], []);
+    const data = dataOf(base, [mod('T', 'prefix', [['t', 1]]), mod('W', 'prefix', [['w', 3]])]);
+    const prices: Prices = { currency: { transmute: 1, augment: 1, regal: 1, exalt: 1, chaos: 100 }, omens: {} };
+    const r = markovFromItem(data, prices, whiteItem(base, 100), [{ modId: 'T' }], {
+      restartCost: 50, spare: { prefixes: 1, suffixes: 0 }, tolerance: 1e-9,
+      replay: { runs: 2_000, seed: 4, watch: [['W']], sell: [1] },
     });
     const rp = played(r.replay);
-    const p = rp.costPercentiles;
-    expect(p).toHaveLength(101);
-    for (let i = 1; i < p.length; i++) expect(p[i]!).toBeGreaterThanOrEqual(p[i - 1]!);
-    // A craft of many restarts: skewed, so half cost less than the mean and the worst tenth far more.
-    expect(p[50]!).toBeLessThan(rp.meanCost);
-    expect(p[90]!).toBeGreaterThan(1.5 * rp.meanCost);
-    // Each binned set names real entries, and something worth selling is binned most crafts.
-    for (const b of rp.binned) for (const k of b.entries) expect([0, 1]).toContain(k);
-    // It bins dozens of tablets a craft, and every fresh one is Transmuted: the moves say how it works.
-    expect(rp.movesPerCraft['restart']!).toBeGreaterThan(20);
-    expect(rp.movesPerCraft['transmute']!).toBeGreaterThanOrEqual(rp.movesPerCraft['restart']!);
-    expect(rp.movesPerCraft['annul'] ?? 0).toBeLessThan(1);
-    const perCraft = rp.binned.reduce((n, b) => n + b.perCraft, 0);
-    expect(perCraft).toBeGreaterThan(0.3);
-    expect(perCraft).toBeLessThan(3);
+    expect(rp.seen[0]).toBeGreaterThan(0.5); // W is held often…
+    expect(rp.sales!.perEntry[0]).toBe(0); // …and never sold for less than it costs to replace it
   });
 
   it('declines a route that plays a move it does not model, rather than guessing', () => {

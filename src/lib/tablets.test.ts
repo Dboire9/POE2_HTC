@@ -2,7 +2,7 @@ import { describe, it, expect } from 'vitest';
 import { loadPatch } from '../../packages/engine/src/index.ts';
 import { familiesOf, resolveMod } from '../../packages/engine/src/pool.ts';
 import {
-  CURATED, ODDS_CREDIT, WATCH_TIERS, binnedCredit, listTablets, ruledOutBy, searchIsLoose, shareWithin, summarizePlan,
+  CURATED, ODDS_CREDIT, WATCH_TIERS, listTablets, ruledOutBy, searchIsLoose, shareWithin, summarizePlan,
   tradeStatsFor, watchKey,
   watchList, watchText,
   type TabletBase,
@@ -152,12 +152,6 @@ describe('reading a craft as an investment', () => {
     expect(shareWithin(pct, 1e9)).toBe(1);
   });
 
-  it('credits a binned tablet once, at the best price typed, and nothing for an unpriced one', () => {
-    const binned = [{ entries: [0, 1], perCraft: 0.5 }, { entries: [2], perCraft: 2 }];
-    const prices: Record<number, number> = { 0: 100, 1: 300 };
-    expect(binnedCredit(binned, (k) => prices[k])).toBe(150); // 0.5 × max(100, 300); entry 2 unpriced
-    expect(binnedCredit([], () => 5)).toBe(0);
-  });
 });
 
 describe('saying how a plan works', () => {

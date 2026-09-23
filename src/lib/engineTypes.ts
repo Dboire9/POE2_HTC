@@ -485,8 +485,8 @@ export interface EngineMarkovResult {
     readonly stdErr: number;
     /** What one craft cost, 0th–100th percentile (101 values) — see `ReplayResult.costPercentiles`. */
     readonly costPercentiles: readonly number[];
-    /** Binned items that held watched sets, per craft, by the set of entries held — see `ReplayResult.binned`. */
-    readonly binned: readonly { readonly entries: readonly number[]; readonly perCraft: number }[];
+    /** What selling priced sets on the way brought back, per craft — see `ReplayResult.sales`. */
+    readonly sales?: { readonly revenue: number; readonly perEntry: readonly number[] };
     /** What following the plan spends, per craft on average, by currency (`restart` = a fresh base). */
     readonly movesPerCraft: Readonly<Record<string, number>>;
   };

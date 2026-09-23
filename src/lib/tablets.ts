@@ -10,6 +10,7 @@ import type { PatchData } from '../../packages/engine/src/types.ts';
 import { TABLET_CATEGORY } from '../../packages/engine/src/types.ts';
 import { familiesOf, resolveMod } from '../../packages/engine/src/pool.ts';
 import type { TradeStat } from './tradeLink.ts';
+import { priceKey } from './tabletPrices.ts';
 import morce from '../../data/tablets/morce-faster.json';
 import tradeStats from '../../data/tablets/trade-stats.json';
 import valuable from '../../data/tablets/valuable.json';
@@ -121,6 +122,9 @@ export const CURATED: {
   readonly tiers: Readonly<Record<WatchTier, readonly CuratedEntry[]>>;
 } = valuable;
 
+/** Where the price typed for a tablet holding `mods` is kept (`tabletPrices.ts`). */
+export const setPriceKey = (tabletId: string, mods: readonly WatchMod[]): string => priceKey(tabletId, watchKey(mods));
+
 /** A stable key for a watched set: ids, with the priced value when there is one. */
 export const watchKey = (mods: readonly WatchMod[]): string[] =>
   mods.map((m) => (m.min === undefined && m.max === undefined ? m.id : `${m.id}=${m.min ?? ''}-${m.max ?? ''}`));
@@ -177,18 +181,6 @@ export function shareWithin(percentiles: readonly number[], budget: number): num
   let within = -1;
   for (let p = 0; p < percentiles.length; p++) if (percentiles[p]! <= budget) within = p;
   return within < 0 ? 0 : within / (percentiles.length - 1);
-}
-
-/**
- * What selling the good tablets a craft would otherwise bin brings back, per craft: each binned set
- * sells once, at the best price typed among the entries it held. An entry with no price counts as
- * nothing — the tab never guesses a price.
- */
-export function binnedCredit(
-  binned: readonly { readonly entries: readonly number[]; readonly perCraft: number }[],
-  priceOf: (entry: number) => number | undefined,
-): number {
-  return binned.reduce((sum, b) => sum + b.perCraft * Math.max(0, ...b.entries.map((k) => priceOf(k) ?? 0)), 0);
 }
 
 /** How a solved plan gets there, read off what following it spends — the "why this way" of the tab. */

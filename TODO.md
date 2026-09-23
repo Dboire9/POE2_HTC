@@ -1435,11 +1435,10 @@ Shipped: the three tablets, their odds from Morce Faster's counts, the craft's t
 and typed prices, and the watch list with Dorian's valuable list (17 modifiers in two tiers, 2026-09-22).
 Left, roughly in the order a player would miss them:
 
-- **Selling mid-craft.** The profit counts good tablets the plan BINS (a lower bound: the plan is
-  unchanged). Stopping to sell a good tablet you are still working on — every single reroll you hit
-  while hunting a pair — is not counted: it needs a "sell when it's worth more than going on" rule in
-  the replay (V of the state vs the typed price). Measured 2026-09-23: binned credit alone is +1.6 div a
-  craft on Ritual reroll fishing at 100 ex a tablet, +55 div on the Unique + reroll pair (still −770).
+- *(Done 2026-09-23: selling mid-craft. The replay sells a priced set whenever the price beats
+  `restartCost + V(start) − V(here)` — a one-step improvement on the solved policy — and the tab
+  recounts on every watch-list price. The POLICY itself still does not know about sales: a plan that
+  steered toward sellable sets could do better still, which needs them in the lattice.)*
 - *(Fixed 2026-09-23: the rarest pairs stopped at a bound because the tab passed no Search effort; it
   passes the app's, and at Standard they solve exactly in ~0.1 s.)*
 - **Values are assumed uniform.** A priced roll ("rerolling Favours 3 times") is counted as one value

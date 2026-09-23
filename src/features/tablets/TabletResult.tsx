@@ -1,13 +1,13 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { Card } from '../../components/ui/card';
 import { cn } from '../../lib/utils';
 import type { EngineMarkovResult } from '../../lib/engineTypes';
 import { formatIn, pickUnit, type Rates } from '../../lib/currency';
 import {
-  WATCH_TIERS, binnedCredit, searchIsLoose, shareWithin, summarizePlan, tradeStatsFor, watchKey, watchText,
+  WATCH_TIERS, searchIsLoose, setPriceKey, shareWithin, summarizePlan, tradeStatsFor, watchText,
   type TabletBase, type WatchEntry, type WatchMod, type WatchTier,
 } from '../../lib/tablets';
-import { priceKey, readPrices, writePrice, type TypedPrice } from '../../lib/tabletPrices';
+import type { TypedPrice } from '../../lib/tabletPrices';
 import { tradeUrl } from '../../lib/tradeLink';
 import PolicyGraph from '../engine/PolicyGraph';
 import { oneIn } from './TabletModPicker';
@@ -45,10 +45,12 @@ export const TabletResult: React.FC<{
   rates: Rates | undefined;
   /** Chaos and Annul prices, for saying why the plan uses one and not the other. */
   orbPrices: { readonly chaos?: number; readonly annul?: number };
-}> = ({ solved: { tablet, chosen, watch, markov, plainCost }, league, rates, orbPrices }) => {
-  // Read once, at the first render: what the player typed before is part of the initial state, not
-  // something that arrives a render later.
-  const [prices, setPrices] = useState<Record<string, TypedPrice>>(readPrices);
+  /** The prices the player typed, by set — the tab keeps them, since a watch-list price recounts the craft. */
+  prices: Readonly<Record<string, TypedPrice>>;
+  onPrice: (key: string, ex: number | undefined) => void;
+  /** The craft is being solved again with prices just typed. */
+  recounting: boolean;
+}> = ({ solved: { tablet, chosen, watch, markov, plainCost }, league, rates, orbPrices, prices, onPrice, recounting }) => {
   const unit = pickUnit(markov.expectedCost, rates);
   // What the whole craft costs: the plain tablet you start from, then rolling it — restarts, and the
   // Exalts that fill it to four modifiers, included.
@@ -57,7 +59,7 @@ export const TabletResult: React.FC<{
   const modText = (id: string): string => modOf(id)?.text ?? id;
   const asMods = (ids: readonly string[]): WatchMod[] => ids.map((id) => ({ id }));
   const label = (mods: readonly WatchMod[]): string[] => mods.map((m) => watchText(modText(m.id), m));
-  const keyOf = (mods: readonly WatchMod[]): string => priceKey(tablet.id, watchKey(mods));
+  const keyOf = (mods: readonly WatchMod[]): string => setPriceKey(tablet.id, mods);
 
   /**
    * The trade search and price box for a tablet holding `mods`. Keyed by that set, so a box never keeps
@@ -70,12 +72,13 @@ export const TabletResult: React.FC<{
       loose={searchIsLoose(mods)}
       unit={unit}
       price={prices[keyOf(mods)]}
-      onPrice={(ex) => setPrices(writePrice(keyOf(mods), ex))}
+      onPrice={(ex) => onPrice(keyOf(mods), ex)}
       label={`Price of a ${tablet.name} with ${label(mods).join(', ')}`}
     />
   );
 
-  const watchRow = (entry: WatchEntry, seen: number | undefined): React.ReactElement => {
+  const sales = markov.replay?.sales;
+  const watchRow = (entry: WatchEntry, seen: number | undefined, sold: number | undefined): React.ReactElement => {
     const price = prices[keyOf(entry.mods)];
     // A modifier's odds per roll say nothing about which value it rolls, so they are shown only for a
     // single modifier priced at any value.
@@ -92,6 +95,12 @@ export const TabletResult: React.FC<{
               ?? (markov.bound === 'exact' ? 'odds not played out' : 'no odds while the cost is only a bound')}
           {single && <> · <span className="tabular-nums">{oneIn(single.share)}</span> rolls on that side</>}
         </span>
+        {/* Once priced, what the plan does with it: sells it whenever that beats carrying on. */}
+        {price && sold !== undefined && (
+          <span className="text-xs text-emerald-400">
+            {sold >= 1 ? `you'd sell about ${howMany(sold)} a craft` : `you'd sell one in ${Math.round(sold * 100)}% of crafts`}
+          </span>
+        )}
         {tradePrice(entry.mods)}
         {price && cost !== undefined && price.ex > cost && (
           <span className="text-emerald-400">worth more than the tablet you asked for</span>
@@ -104,12 +113,12 @@ export const TabletResult: React.FC<{
   const targetPrice = prices[keyOf(asMods(chosen))];
   // The replay's spread is for rolling alone; the first plain tablet is added to every craft of it.
   const spread = markov.replay?.costPercentiles.length ? markov.replay.costPercentiles.map((c) => c + plainCost) : undefined;
-  // What the good tablets the plan would bin bring back, at the prices typed in the watch list below.
-  const credit = markov.replay ? binnedCredit(markov.replay.binned, (k) => {
-    const entry = watch[k];
-    return entry ? prices[keyOf(entry.mods)]?.ex : undefined;
-  }) : 0;
-  const profit = targetPrice && cost !== undefined ? targetPrice.ex - cost + credit : undefined;
+  // Selling what lands on the way, at the prices typed below: what it brings back, and — played out,
+  // with the fresh tablets those sales force — what the craft then costs net.
+  const revenue = sales?.revenue ?? 0;
+  const net = sales && markov.replay && revenue > 0 ? plainCost + markov.replay.meanCost - revenue : undefined;
+  const profit = targetPrice && cost !== undefined ? targetPrice.ex - (net ?? cost) : undefined;
+  const anyWatchPriced = watch.some((e) => prices[keyOf(e.mods)]);
   const price = (ex: number | undefined): string => (ex === undefined ? '?' : formatIn(pickUnit(ex, rates), ex));
   const plan = markov.replay ? summarizePlan(markov.replay.movesPerCraft) : undefined;
   // Why the plan goes the way it does, in the terms a player weighs: the prices of the alternatives.
@@ -159,6 +168,19 @@ export const TabletResult: React.FC<{
                 </p>
               </div>
             )}
+            {net !== undefined && (
+              <div className="space-y-1 rounded-md border border-emerald-500/30 bg-emerald-500/5 p-3 text-sm">
+                <h4 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Selling what lands on the way</h4>
+                <p>
+                  About <strong className="tabular-nums">{formatIn(unit, revenue)}</strong> a craft. Whenever the tablet holds one
+                  of the sets you priced below and selling it beats carrying on, sell it and start a fresh tablet.
+                </p>
+                <p className="text-muted-foreground">
+                  Played out that way, the craft costs about <span className="tabular-nums text-foreground">{formatIn(unit, net)}</span> net
+                  — {formatIn(unit, plainCost + markov.replay!.meanCost)} spent, less what you sell.
+                </p>
+              </div>
+            )}
             <div className="flex flex-wrap items-center gap-2 text-sm">
               <span className="text-muted-foreground">What it sells for:</span>
               {tradePrice(asMods(chosen))}
@@ -169,11 +191,8 @@ export const TabletResult: React.FC<{
                   {profit >= 0
                     ? `Profit per tablet: about ${formatIn(unit, profit)} on average`
                     : `Loss per tablet: about ${formatIn(unit, -profit)} on average — buying one is cheaper`}
-                  {credit > 0 && (
-                    <span className="text-muted-foreground">
-                      {' '}— counting {formatIn(unit, credit)} from good tablets you’d sell instead of binning, at the
-                      prices you typed below
-                    </span>
+                  {net !== undefined && (
+                    <span className="text-muted-foreground"> — counting what you sell on the way</span>
                   )}
                 </p>
                 {spread && (
@@ -193,10 +212,18 @@ export const TabletResult: React.FC<{
             <h4 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
               While you roll for that, these can land
             </h4>
+            <p className="text-xs text-muted-foreground" aria-live="polite">
+              {recounting
+                ? 'Recounting with your prices…'
+                : anyWatchPriced
+                  ? 'Your prices are counted: the plan sells one of these whenever that beats carrying on.'
+                  : 'Type what one of these sells for, and the craft is recounted with you selling it whenever that pays.'}
+            </p>
             {WATCH_TIERS.map((tier) => {
               // Shown by tier, but `seen` follows the list the solver was given, so each row keeps its
               // index in that list rather than its place in the tier.
-              const rows = watch.flatMap((entry, i) => (entry.tier === tier ? [watchRow(entry, markov.replay?.seen[i])] : []));
+              const rows = watch.flatMap((entry, i) => (entry.tier === tier
+                ? [watchRow(entry, markov.replay?.seen[i], sales?.perEntry[i])] : []));
               return rows.length === 0 ? null : (
                 <section key={tier} className="space-y-1">
                   <h5 className="text-xs font-medium text-muted-foreground">{TIER_TITLE[tier]}</h5>

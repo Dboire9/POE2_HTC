@@ -535,7 +535,8 @@ export function mapMarkov(
     ...(res.replay?.ok
       ? { replay: {
         runs: res.replay.runs, seen: res.replay.seen, meanCost: res.replay.meanCost, stdErr: res.replay.stdErr,
-        costPercentiles: res.replay.costPercentiles, binned: res.replay.binned, movesPerCraft: res.replay.movesPerCraft,
+        costPercentiles: res.replay.costPercentiles, movesPerCraft: res.replay.movesPerCraft,
+        ...(res.replay.sales ? { sales: res.replay.sales } : {}),
       } }
       : {}),
     ...(res.replay && !res.replay.ok ? { replayReason: res.replay.reason } : {}),

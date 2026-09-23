@@ -27,7 +27,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   its own search and price box; price one above your own craft and
   the tab says so: that is the tablet to stop on.
   Type what your tablet sells for and the tab answers **is it worth crafting**: the profit or loss per
-  tablet on average — counting the good tablets you'd sell instead of binning, at the prices you typed —
+  tablet on average — net of what you sell on the way: price a set in the watch list and the craft is
+  recounted with you selling it whenever that beats carrying on —
   what half the crafts cost less than, what 1 in 10 costs more than, and how often you finish within the
   sale price. The rarest pairs solve exactly now (the tab uses the app's Search effort). A short **Why
   this plan** says how the plan gets there — fresh tablets, Chaos rerolls, or a mix — why that is cheaper

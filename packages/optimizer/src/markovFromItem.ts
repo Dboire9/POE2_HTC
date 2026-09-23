@@ -1606,6 +1606,8 @@ export function markovFromItem(
     ? replayPolicy({
       data, start, list, idxOf, encode, policy, blocks: siblings.blocks,
       isGoal: (s) => isAccepting(s, slotMasks, spare, siblings.obstacles),
+      valueOf: (key) => { const i = idxOfState.get(key); return i === undefined ? undefined : V[i]; },
+      ...(opts.restartCost === undefined ? {} : { restartCost: opts.restartCost }),
       ...(opts.fillOnFinish ? { finishCost: (item: ItemState) =>
         ((limits.prefixes - item.prefixes.length) + (limits.suffixes - item.suffixes.length)) * exaltPrice! } : {}),
       costOf: (a) => actionCostOf(prices, a),

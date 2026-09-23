@@ -52,6 +52,15 @@ export interface ReplayOptions {
    * whichever is further — the one that will end it. Called each time that moves by a hundredth.
    */
   readonly onProgress?: (fraction: number) => void;
+  /**
+   * What each watch entry SELLS for, in the solve's unit, in the order of `watch` — 0 or less for one
+   * nobody priced. With it the replay plays one rule the policy cannot: when the item holds a priced
+   * set and selling it beats carrying on — the price against the start over it forces, `restartCost +
+   * V(start)`, less what finishing from here would still cost, `V(here)` — sell it, start a fresh base,
+   * and keep going for the target. A one-step improvement on the solved policy, so it never plays worse.
+   * Needs `valueOf` and `restartCost` in the context; without either, nothing is sold.
+   */
+  readonly sell?: readonly number[];
 }
 
 /** Crafts played whatever the clock says, so a share is never read off a handful of them. */
@@ -77,12 +86,12 @@ export interface ReplayResult {
    */
   readonly costPercentiles: readonly number[];
   /**
-   * The tablets — items — the policy THREW AWAY (a restart) while holding a watched set: per set of
-   * watch entries the binned item held at once, how many a craft bins on average. A player sells those
-   * instead of binning them, and what that brings back needs prices the replay does not have, so it
-   * reports the counts and the caller prices them — the best entry of each set, since an item sells once.
+   * With `sell`: what selling on the way brought back, per craft on average — `revenue` in the solve's
+   * unit, and how many of each watch entry were sold (`perEntry`, in the order of `watch`). `meanCost`
+   * and the percentiles then include the fresh bases those sales forced; revenue is NOT netted out of
+   * them, so a caller shows both. Absent without `sell`.
    */
-  readonly binned: readonly { readonly entries: readonly number[]; readonly perCraft: number }[];
+  readonly sales?: { readonly revenue: number; readonly perEntry: readonly number[] };
   /**
    * What the policy actually PLAYS, per craft on average, by currency — `restart` included (a fresh
    * base each time). The solved policy is a table over every state; this is what following it spends,
@@ -108,12 +117,16 @@ export interface ReplayContext {
   readonly policy: ReadonlyMap<StateKey, McAction>;
   readonly isGoal: (s: McState) => boolean;
   readonly costOf: (a: McAction) => number;
+  /** The solved value of a state — what finishing from it still costs. Only the `sell` rule reads it. */
+  readonly valueOf?: (key: StateKey) => number | undefined;
+  /** What a fresh base costs, when the craft may start over. Only the `sell` rule reads it. */
+  readonly restartCost?: number;
   /** What finishing costs on this real item — its empty slots filled (`MarkovOptions.fillOnFinish`). */
   readonly finishCost?: (item: ItemState) => number;
 }
 
 export function replayPolicy(ctx: ReplayContext, opts: ReplayOptions): ReplayReport {
-  const { data, start, list, idxOf, blocks, encode, policy, isGoal, costOf, finishCost } = ctx;
+  const { data, start, list, idxOf, blocks, encode, policy, isGoal, costOf, finishCost, valueOf, restartCost } = ctx;
   const runs = Math.max(1, Math.floor(opts.runs));
   const rng = mulberry32(opts.seed ?? 1);
   const maxActions = opts.maxActions ?? 1_000_000;
@@ -292,12 +305,22 @@ export function replayPolicy(ctx: ReplayContext, opts: ReplayOptions): ReplayRep
   let played = 0;
   const costs: number[] = [];
   const moveCount = new Map<string, number>();
-  const binnedBy = new Map<string, number>();
-  /** Which watch entries a binned item holds, recorded once per bin. */
-  const recordBin = (item: ItemState): void => {
-    const held: number[] = [];
-    for (let k = 0; k < watch.length; k++) if (watch[k]!.every((w) => holds(item, w))) held.push(k);
-    if (held.length > 0) { const key = held.join(','); binnedBy.set(key, (binnedBy.get(key) ?? 0) + 1); }
+  // The sell rule: priced entries, and what starting over is worth — both fixed for the whole replay.
+  const sellAt = opts.sell && valueOf && restartCost !== undefined ? opts.sell : undefined;
+  const startOver = sellAt ? (() => {
+    const s0 = classifyStart(data, start, list, idxOf, blocks);
+    return restartCost! + (valueOf!(encode(s0.present, s0.blocked, s0.jp, s0.js, s0.flagged, s0.rarity)) ?? Infinity);
+  })() : Infinity;
+  const sold = new Array<number>(watch.length).fill(0);
+  let revenue = 0;
+  /** The best-priced watched set this item holds, if any: [entry, price]. */
+  const bestSale = (item: ItemState): [number, number] | undefined => {
+    let best: [number, number] | undefined;
+    for (let k = 0; k < watch.length; k++) {
+      const p = sellAt![k] ?? 0;
+      if (p > 0 && (!best || p > best[1]) && watch[k]!.every((w) => holds(item, w))) best = [k, p];
+    }
+    return best;
   };
   for (let run = 0; run < runs; run++) {
     // Read every craft: one long craft takes tens of milliseconds, so reading it every 64 overshot a
@@ -323,10 +346,25 @@ export function replayPolicy(ctx: ReplayContext, opts: ReplayOptions): ReplayRep
       const s = classifyStart(data, item, list, idxOf, blocks);
       if (isGoal(s)) { cost += finishCost?.(item) ?? 0; break; }
       const key = encode(s.present, s.blocked, s.jp, s.js, s.flagged, s.rarity);
+      if (sellAt) {
+        // Sell when the price beats carrying on: what starting over costs, less what finishing from here
+        // would still have cost. Where the policy would bin the item anyway that is any price at all.
+        const sale = bestSale(item);
+        const here = valueOf!(key);
+        if (sale && here !== undefined && sale[1] > startOver - here) {
+          if (++moves > maxActions) return { ok: false, reason: `a craft ran past ${maxActions} moves` };
+          sold[sale[0]]! += 1;
+          revenue += sale[1];
+          cost += restartCost!;
+          moveCount.set('sell', (moveCount.get('sell') ?? 0) + 1);
+          item = start;
+          look();
+          continue;
+        }
+      }
       const action = policy.get(key);
       if (!action) return { ok: false, reason: `the policy has no move for state ${key}` };
       if (++moves > maxActions) return { ok: false, reason: `a craft ran past ${maxActions} moves` };
-      if (action.currency === 'restart' && watch.length > 0) recordBin(item);
       moveCount.set(action.currency, (moveCount.get(action.currency) ?? 0) + 1);
       const next = play(action, item);
       if (next === undefined) return { ok: false, reason: `the route plays a ${action.currency} move the replay does not model` };
@@ -354,7 +392,7 @@ export function replayPolicy(ctx: ReplayContext, opts: ReplayOptions): ReplayRep
     meanActions: movesTotal / played,
     seen: seenCount.map((c) => c / played),
     costPercentiles: percentiles(costs),
-    binned: [...binnedBy].map(([key, n]) => ({ entries: key.split(',').map(Number), perCraft: n / played })),
+    ...(sellAt ? { sales: { revenue: revenue / played, perEntry: sold.map((n) => n / played) } } : {}),
     movesPerCraft: Object.fromEntries([...moveCount].map(([k, n]) => [k, n / played])),
   };
 }

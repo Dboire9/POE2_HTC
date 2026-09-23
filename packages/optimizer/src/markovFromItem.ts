@@ -1164,7 +1164,12 @@ export function markovFromItem(
       if (isGoalIdx[i] === 1) { isTerm[i] = 1; cOf[i] = finishCost[i]!; continue; }
       if (canReach[i] !== 1) { isTerm[i] = 1; continue; }
       const k = pol[i]!;
-      if (k < 0) { isTerm[i] = 1; continue; }
+      // A state the policy has no move for is NOT a free exit: nothing finishes from it, so it costs
+      // Infinity. Read as 0 it let an improper policy quote a craft at nothing, as an "upper bound"
+      // (TODO 24: a tablet with Chaos and Annul both excluded came back at 0 ex). Since the stuck start
+      // is seeded (below), no known craft reaches this line — mutation-testing does not catch its
+      // removal; it stays so that an improper policy can never again read as a free craft.
+      if (k < 0) { isTerm[i] = 1; cOf[i] = Infinity; continue; }
       const a = compiled[i]![k]!;
       if (a.isRestart) { isTerm[i] = 1; cOf[i] = a.cost; qOf[i] = 1; continue; }
       if (a.offer <= 1) {
@@ -1451,7 +1456,20 @@ export function markovFromItem(
         : 'the solver ran out of time before it could put a number on this craft — raise Search effort and '
           + 'try again (a six-mod target at T1 needs the longest setting)', { stoppedEarly: true });
     }
-    converged = opts.solver === 'policy' ? iteratePolicy(500, 1000) : iterate(true, 500, 1000);
+    // Phase A leaves the START at Infinity when nothing finishes the craft without starting over — a
+    // tablet with no Chaos and no Annul, full of the wrong modifiers, can only be binned. Phase B then
+    // has nothing to descend from: every action reads Infinity, the restart included. Seed it from the
+    // restart-bounded heuristic policy instead, which is proper by construction and which the closed
+    // form costs exactly: an upper bound for value iteration to descend from, and a starting policy
+    // for policy iteration to improve.
+    const startsStuck = !Number.isFinite(V[idxOfState.get(restartKey)!]!);
+    const seed = startsStuck ? heuristicPolicy() : undefined;
+    if (seed && opts.solver !== 'policy' && !evaluateClosedForm(seed)) {
+      return fail(opts.policy
+        ? 'no route reaches this target with the currencies you have — allow more and try again'
+        : 'no policy reaches the target');
+    }
+    converged = opts.solver === 'policy' ? iteratePolicy(500, 1000, seed) : iterate(true, 500, 1000);
     bound = converged ? 'exact' : 'upper';
   }
   emitSolve(1000);

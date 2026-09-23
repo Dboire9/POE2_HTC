@@ -148,6 +148,8 @@ describe('the Tablets tab — what it costs and what it sells for', () => {
       // The app's Search effort: at the default the rarest pairs solve exactly instead of stopping at a bound.
       effort: { solver: 'policy' },
       watch: [],
+      // Never an Annul on a tablet — whatever else the player has ruled out.
+      excluded: ['annul'],
     });
     // The plain tablet you start from (1 ex) plus rolling it (1,587.3) — the number once, with its unit
     // once (it once read "1,587 ex ex").

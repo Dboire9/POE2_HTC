@@ -1405,7 +1405,17 @@ still approximate, and it moves every number in the app); or, for a pool as smal
 concrete-state solve with no abstraction at all (~20k states for 2+2 on 13+20 mods). The replay is the
 yardstick either way.
 
-## 24. A from-white Wand with a carved target returns cost 0 as an upper bound — OPEN, found 2026-09-21
+## 24. A zero upper bound from policy iteration — FIXED, 2026-09-23
+
+**Cause and fix.** A craft that only finishes by starting over — no Chaos, no Annul, so a full item of the
+wrong mods can only be binned; or a desecrated target the push-forward phase cannot reach — has its
+start priced at Infinity by phase A. Phase B then had nothing to descend from: value iteration stayed
+at Infinity, and policy iteration read the states it had no move for as FREE exits (c = 0), so an
+improper policy quoted the craft at 0 as an "upper bound". Phase B is now seeded from the
+restart-bounded `heuristicPolicy` when the start is stuck, and a no-move state costs Infinity.
+Both reproductions below now solve exactly: the Temple tablet 387.2 ex (both solvers; replay 368.8),
+Zizaran item 9 55,651 ex in 8.9 s. `stuckStart.test.ts` pins the first.
+
 
 `Zizaran-6796` item 9 (a Wand, `Desecrated_HinderedEnemyTakeIncreasedDamage_3` among its targets),
 solved from white at a free base with policy iteration: `expectedCost: 0`, `bound: 'upper'`, after 3 s —

@@ -63,6 +63,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- **A craft that can only finish by starting over no longer quotes "at most 0".** With Chaos and Annul
+  both turned off, a tablet full of the wrong modifiers can only be binned, and the true expected cost
+  came back as "≤ 0" — or, with the other solver, no number at all. It now solves exactly (a Temple
+  tablet wanting Unique Monsters' extra Rare modifier: 387 ex). The same bug gave a Wand from the
+  streamer gear, with a desecrated target, "≤ 0"; it is 55,651 ex.
+
 - **The true expected cost now knows that another modifier of your target's family blocks it.** A
   family can hold different modifiers — a Wand's Fire, Cold, Lightning, Chaos and Physical spell damage
   are one; so are its "+level to … spell skills" — and while any of them is on the item, yours cannot

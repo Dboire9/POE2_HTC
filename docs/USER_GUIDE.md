@@ -514,7 +514,9 @@ Essence" (a prefix) and "increased chance to contain Essences" (a suffix) are on
 **Say what a plain tablet costs you** and the tab gives the true expected cost of crafting yours, with
 the same policy graph the other tabs use. A tablet is always run with all four modifiers, so the cost is
 for a full one: whatever lands beside the modifiers you picked is fine and never annulled, and any slot
-still empty at the end is filled with an Exalt, which the cost includes — as it does the plain tablet you
+still empty at the end is filled with an Exalt, which the cost includes. Plans never use an Annulment
+Orb on a tablet — at roughly seven Chaos Orbs apiece it only pays on the rarest pairs, which lose far
+more than it saves — as it does the plain tablet you
 start from. (Two picked modifiers on a Ritual tablet: ~95 ex this way, against ~257 ex when the other
 two slots had to stay empty.) Nobody lists plain tablets on poe.ninja, so that price is yours to type.
 

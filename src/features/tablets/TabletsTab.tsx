@@ -81,7 +81,10 @@ const TabletsTab: React.FC = () => {
       // Always, even empty: the replay behind it also gives the spread of what a craft costs.
       watch: watch.map((e) => e.mods),
       effort: limitsFor(effort),
-      ...(excludedKeys.length > 0 ? { excluded: excludedKeys } : {}),
+      // Never an Annulment Orb on a tablet (Dorian, 2026-09-23): at ~7 Chaos Orbs apiece it pays only
+      // on the rarest pairs with dear plain tablets — crafts that lose hundreds of div anyway — and costs
+      // under 1% more on half the crafts that ever reach for it.
+      excluded: [...new Set([...excludedKeys, 'annul'])],
     }, (p) => { if (current()) setProgress(p); });
     cancelRef.current = handle.cancel;
     handle.promise
@@ -153,7 +156,8 @@ const TabletsTab: React.FC = () => {
 
       <p className="text-xs text-muted-foreground">
         Modifier odds: {ODDS_CREDIT.who}’s rolling data ({ODDS_CREDIT.rolls.toLocaleString()} modifiers seen) ·
-        trade searches use ids from Exiled Exchange 2 · prices are the ones you type, kept in this browser.
+        trade searches use ids from Exiled Exchange 2 · prices are the ones you type, kept in this browser ·
+        plans never use an Annulment Orb.
       </p>
     </div>
   );

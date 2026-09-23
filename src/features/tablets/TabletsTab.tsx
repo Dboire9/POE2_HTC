@@ -9,6 +9,7 @@ import type { SolveProgress } from '../../lib/solve';
 import { parsePrice } from '../../lib/startingItem';
 import { ODDS_CREDIT, PER_SIDE, listTablets, ruledOutBy, setPriceKey, watchList, type TabletBase } from '../../lib/tablets';
 import { readPrices, writePrice, type TypedPrice } from '../../lib/tabletPrices';
+import { tradeUrl } from '../../lib/tradeLink';
 import { toExcludedKeys, useExclusions } from '../../lib/currencyPrefs';
 import { limitsFor, useEffort } from '../../lib/searchEffort';
 import SolveProgressBar from '../engine/SolveProgress';
@@ -165,6 +166,19 @@ const TabletsTab: React.FC = () => {
               className={cn('w-24 rounded border border-border bg-background px-2 py-1 text-sm tabular-nums', FOCUS)}
             />
           </label>
+          {basis?.league && (
+            // What a plain one goes for, to type into the box: the same search as every other tablet
+            // on this tab, less the modifiers, Normal only.
+            <a
+              href={tradeUrl({ league: basis.league, baseName: tablet.name, stats: [], normalOnly: true })}
+              target="_blank"
+              rel="noopener noreferrer"
+              className={cn('rounded border border-border px-2 py-1 text-xs hover:border-primary/60 hover:text-foreground', FOCUS)}
+              title={`Opens the trade site: Normal ${tablet.name}s with all 10 uses, instant buyout, cheapest first`}
+            >
+              Find a plain one on trade
+            </a>
+          )}
           <Button onClick={() => compute()} disabled={computing || chosen.length === 0} size="lg">
             {computing ? 'Working…' : 'What does it cost?'}
           </Button>

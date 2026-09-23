@@ -50,6 +50,15 @@ describe('tradeUrl — a search the player clicks', () => {
     expect(q.query['stats']).toEqual([{ type: 'and', filters: [FULL_USES], disabled: false }]);
     expect(q.query['type']).toBe('Temple Tablet');
   });
+
+  it('asks for a plain tablet only when told to — Normal, unused, instant buyout', () => {
+    const plain = query(tradeUrl({ league: 'L', baseName: 'Ritual Tablet', stats: [], normalOnly: true })) as { query: Record<string, unknown> };
+    expect(plain.query['filters']).toEqual({ type_filters: { filters: { rarity: { option: 'normal' } } } });
+    expect(plain.query['stats']).toEqual([{ type: 'and', filters: [FULL_USES], disabled: false }]);
+    expect(plain.query['status']).toEqual({ option: 'securable' });
+    const any = query(tradeUrl({ league: 'L', baseName: 'Ritual Tablet', stats: [] })) as { query: Record<string, unknown> };
+    expect(any.query).not.toHaveProperty('filters');
+  });
 });
 
 describe('the shipped trade ids', () => {

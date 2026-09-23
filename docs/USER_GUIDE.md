@@ -518,7 +518,9 @@ still empty at the end is filled with an Exalt, which the cost includes. Plans n
 Orb on a tablet — at roughly seven Chaos Orbs apiece it only pays on the rarest pairs, which lose far
 more than it saves — as it does the plain tablet you
 start from. (Two picked modifiers on a Ritual tablet: ~95 ex this way, against ~257 ex when the other
-two slots had to stay empty.) Nobody lists plain tablets on poe.ninja, so that price is yours to type.
+two slots had to stay empty.) Nobody lists plain tablets on poe.ninja, so that price is yours to type —
+**Find a plain one on trade**, beside the box, opens the cheapest Normal tablets of the kind you picked
+(10 uses left, instant buyout).
 
 **Then the market half, which you drive.** No price feed lists tablets — poe.ninja doesn't carry them and
 the trade site can't be read from a web page — so every price on this tab is one you typed. Each row has

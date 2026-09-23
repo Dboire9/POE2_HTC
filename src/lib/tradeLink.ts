@@ -26,6 +26,8 @@ export interface TradeSearch {
   readonly baseName: string;
   /** The modifiers to ask for, all of them at once. */
   readonly stats: readonly TradeStat[];
+  /** Only Normal items — a plain tablet, the one a craft starts from. Any rarity when absent. */
+  readonly normalOnly?: boolean;
 }
 
 const HOST = 'https://www.pathofexile.com';
@@ -44,7 +46,7 @@ export const FULL_USES = { id: 'pseudo.pseudo_number_of_uses_remaining', value: 
  * with several ids becomes its own `count ≥ 1` group: the trade site has no "this stat under any of its
  * spellings" filter, and a count group is how the site's own UI expresses that.
  */
-export function tradeUrl({ league, baseName, stats }: TradeSearch): string {
+export function tradeUrl({ league, baseName, stats, normalOnly }: TradeSearch): string {
   const filter = (id: string, s: TradeStat) => ({ id, ...(s.value ? { value: s.value } : {}), disabled: false });
   const single = stats.filter((s) => s.ids.length === 1).map((s) => filter(s.ids[0]!, s));
   const either = stats.filter((s) => s.ids.length > 1).map((s) => ({
@@ -59,6 +61,7 @@ export function tradeUrl({ league, baseName, stats }: TradeSearch): string {
       status: { option: 'securable' },
       type: baseName,
       stats: groups,
+      ...(normalOnly ? { filters: { type_filters: { filters: { rarity: { option: 'normal' } } } } } : {}),
     },
     sort: { price: 'asc' },
   };

@@ -156,6 +156,21 @@ describe('the Tablets tab — what it costs and what it sells for', () => {
     expect((await screen.findByText(/Crafting it costs/)).textContent).toMatch(/costs 1,588 ex on average/);
   });
 
+  it('searches the trade site for a plain tablet of the kind picked, to price the box beside it', async () => {
+    const user = await open();
+    const plainOf = (): Record<string, unknown> => {
+      const url = new URL(screen.getByRole('link', { name: 'Find a plain one on trade' }).getAttribute('href')!);
+      expect(url.pathname).toBe('/trade2/search/poe2/Forbidden%20Rites');
+      return (JSON.parse(url.searchParams.get('q')!) as { query: Record<string, unknown> }).query;
+    };
+    expect(plainOf()).toMatchObject({
+      type: 'Ritual Tablet', status: { option: 'securable' },
+      filters: { type_filters: { filters: { rarity: { option: 'normal' } } } },
+    });
+    await user.click(screen.getByRole('button', { name: 'Temple Tablet' }));
+    expect(plainOf()['type']).toBe('Temple Tablet');
+  });
+
   it('opens the trade site for the tablet it just costed, in the league the prices are from', async () => {
     const user = await open();
     await pick(user);

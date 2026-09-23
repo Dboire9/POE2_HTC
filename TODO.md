@@ -1411,6 +1411,13 @@ yardstick either way.
 solved from white at a free base with policy iteration: `expectedCost: 0`, `bound: 'upper'`, after 3 s —
 identical before and after the family-sibling fix. An upper bound of 0 on a craft that has not started
 cannot be right. Found by the before/after sweep in docs/validation.md; not investigated yet.
+**Second reproduction, 2026-09-23, and it reaches the app:** a Temple tablet, target "Unique Monsters
+have 1 additional Rare Modifier", `spare { prefixes: 2, suffixes: 1 }`, `fillOnFinish`, plain
+tablet 1 ex, with Chaos (all three) AND Annul excluded — i.e. "Currency I don't have" with both ticked.
+Policy iteration: `expectedCost 0`, `bound 'upper'`. Excluding only one of the two gives the right
+387.18 ex (exact, replay 368.8). Value iteration on the same craft returns Infinity: with no removal
+currency, phase A (no restarts) has no proper policy, so it cannot seed phase B. The same exclusion on
+Ritual crafts at 100 ex solves correctly by policy iteration (Gold + XP 4.55 div, replay 4.53).
 
 ## 25. Tablets: what the tab does not do yet — OPEN, 2026-09-22
 

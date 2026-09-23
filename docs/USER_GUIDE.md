@@ -570,6 +570,12 @@ and a chart shows how often a craft finishes within any budget, shaded green up 
   less than, what 1 craft in 10 costs more than, and how often you finish if you spend no more than the
   tablet sells for. These come from playing the plan out thousands of times; a very long craft fits fewer
   in, and the tab says so.
+- **Start from** — plan from a **plain tablet**, or from a **Magic** one off the market holding one
+  prefix, or one suffix, you don't want; each start over then buys another of the same, at the price you
+  type beside it (each choice keeps its own price), and **Find one on trade** searches for it. The whole
+  result — cost, profit, the run plan, where it stops paying — is then for that plan. The Magic tablet is
+  planned as holding the commonest modifier on its side that you did not ask for and that blocks nothing
+  you did.
 - **Tip · buy a Magic one instead** — a Magic tablet with one modifier you don't want can stand in for a
   plain one. Both kinds are listed — one prefix and no suffix, one suffix and no prefix — with the most to
   pay for each, priced from the same solve, and a **Search on trade** for it (10 uses; at most one empty

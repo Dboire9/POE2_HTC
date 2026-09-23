@@ -9,6 +9,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- **Plan a tablet craft from a Magic tablet, not only a plain one.** *Start from*: Plain tablet · Magic ·
+  one prefix · Magic · one suffix, beside its own price box and trade search. The solve starts from that
+  Magic tablet (holding the commonest unwanted modifier on its side that blocks nothing asked for) and buys
+  another on every start over (`rebuyable`). Priced at what the Magic tip says it is worth, the plan from it
+  costs exactly what the plan from plain tablets does — checked on the Ritual reroll, 10,017.3 ex both ways.
+
 - **Tip: buy a Magic tablet instead of a plain one.** The two a market lists — one prefix and no suffix,
   one suffix and no prefix — each priced from the solve (a plain tablet + V(plain) − V(that tablet)) with
   the most to pay and an exact trade search on the site's empty-prefix / empty-suffix filters. Ritual

@@ -196,6 +196,33 @@ export interface PlanSummary {
   readonly strategy: 'fresh' | 'chaos' | 'mixed' | 'direct';
 }
 
+/**
+ * What a craft starts from, and buys again on every start over: a plain tablet, or a Magic one someone
+ * already rolled holding one modifier the craft does not want (Dorian, 2026-09-23: "so you could plan with
+ * these tablets and not only the plain one").
+ */
+export type StartKind = 'plain' | 'prefix' | 'suffix';
+
+/** The starting tablet, one and many, as every line of the result names it. */
+export const START_NAMES: Record<StartKind, readonly [string, string]> = {
+  plain: ['plain tablet', 'plain tablets'],
+  prefix: ['Magic tablet with one prefix', 'Magic tablets with one prefix'],
+  suffix: ['Magic tablet with one suffix', 'Magic tablets with one suffix'],
+};
+
+/**
+ * The modifier a Magic starting tablet is planned as holding: the likeliest one on its side that the
+ * craft neither asks for nor is blocked by — which one a listing actually carries matters only through
+ * its family, and a family clash is exactly what this leaves out. Undefined when the side has none.
+ */
+export function standInJunk(
+  tablet: TabletBase, chosen: readonly string[], ruledOut: ReadonlyMap<string, string>, side: 'prefix' | 'suffix',
+): string | undefined {
+  return [...(side === 'prefix' ? tablet.prefixes : tablet.suffixes)]
+    .filter((m) => !chosen.includes(m.id) && !ruledOut.has(m.id))
+    .sort((a, b) => b.share - a.share)[0]?.id;
+}
+
 const MOVE_NAMES: Record<string, [string, string]> = {
   restart: ['plain tablet', 'plain tablets'],
   transmute: ['Transmutation', 'Transmutations'],
@@ -207,12 +234,12 @@ const MOVE_NAMES: Record<string, [string, string]> = {
 };
 
 /** Name the plan's strategy from the moves it plays per craft (`ReplayResult.movesPerCraft`). */
-export function summarizePlan(moves: Readonly<Record<string, number>>): PlanSummary {
-  // Every craft starts from one plain tablet; each restart is another.
+export function summarizePlan(moves: Readonly<Record<string, number>>, start: StartKind = 'plain'): PlanSummary {
+  // Every craft starts from one tablet — plain, or the Magic one it is planned from; each restart is another.
   const counts = { ...moves, restart: (moves['restart'] ?? 0) + 1 };
   const uses = Object.entries(counts)
     .filter(([, n]) => n >= 0.05)
-    .map(([k, n]) => ({ name: (MOVE_NAMES[k] ?? [k, k])[Math.abs(n - 1) < 0.05 ? 0 : 1], perCraft: n }))
+    .map(([k, n]) => ({ name: ((k === 'restart' ? START_NAMES[start] : MOVE_NAMES[k]) ?? [k, k])[Math.abs(n - 1) < 0.05 ? 0 : 1], perCraft: n }))
     .sort((a, b) => b.perCraft - a.perCraft);
   const fresh = (moves['restart'] ?? 0) >= 1;
   const chaos = (moves['chaos'] ?? 0) >= 1;
@@ -240,10 +267,10 @@ export interface CostLine {
  */
 export function spendBreakdown(
   moves: Readonly<Record<string, number>>, plainCost: number, meanCost: number,
-  priceOf: (currency: string) => number | undefined,
+  priceOf: (currency: string) => number | undefined, start: StartKind = 'plain',
 ): CostLine[] {
   const line = (key: string, count: number, each: number): CostLine => {
-    const [one, many] = MOVE_NAMES[key] ?? [key, key];
+    const [one, many] = (key === 'restart' ? START_NAMES[start] : MOVE_NAMES[key]) ?? [key, key];
     return { name: Math.abs(count - 1) < 0.05 ? one : many, count, each, total: count * each };
   };
   const lines: CostLine[] = [{ ...line('restart', 1 + (moves['restart'] ?? 0) + (moves['sell'] ?? 0), plainCost), plain: true }];

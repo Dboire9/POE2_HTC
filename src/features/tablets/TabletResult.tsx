@@ -4,8 +4,8 @@ import { cn } from '../../lib/utils';
 import type { EngineMarkovResult } from '../../lib/engineTypes';
 import { formatIn, type CostUnit, type Rates } from '../../lib/currency';
 import {
-  WATCH_TIERS, plainBreakEven, searchIsLoose, standIns as listStandIns, setPriceKey, shareWithin, spendBreakdown, summarizePlan, tradeStatsFor, watchText,
-  type TabletBase, type WatchEntry, type WatchMod, type WatchTier,
+  START_NAMES, WATCH_TIERS, plainBreakEven, searchIsLoose, standIns as listStandIns, setPriceKey, shareWithin, spendBreakdown, summarizePlan, tradeStatsFor, watchText,
+  type StartKind, type TabletBase, type WatchEntry, type WatchMod, type WatchTier,
 } from '../../lib/tablets';
 import type { PriceEntry, TypedPrice } from '../../lib/tabletPrices';
 import { FULL_USES, tradeUrl } from '../../lib/tradeLink';
@@ -26,8 +26,10 @@ export interface SolvedTablet {
   /** The list the solver replayed — `markov.replay.seen[i]` is the odds of `watch[i]`. */
   readonly watch: readonly WatchEntry[];
   readonly markov: EngineMarkovResult;
-  /** The plain tablet the craft starts from. The model prices the restarts; this first one is added here. */
+  /** The tablet the craft starts from. The model prices the restarts; this first one is added here. */
   readonly plainCost: number;
+  /** What that tablet is: plain, or a Magic one off the market holding one unwanted modifier. */
+  readonly start: StartKind;
 }
 
 const TIER_TITLE: Record<WatchTier, string> = {
@@ -78,10 +80,12 @@ export const TabletResult: React.FC<{
   /** The units there is a rate for, to switch between. */
   units: readonly CostUnit[];
   onUnit: (key: CostUnit['key']) => void;
-}> = ({ solved: { tablet, chosen, watch, markov, plainCost }, league, rates, orbPrices, prices, onPrice, recounting, unit, units, onUnit }) => {
+}> = ({ solved: { tablet, chosen, watch, markov, plainCost, start }, league, rates, orbPrices, prices, onPrice, recounting, unit, units, onUnit }) => {
   // What the whole craft costs: the plain tablet you start from, then rolling it — restarts, and the
   // Exalts that fill it to four modifiers, included.
   const cost = markov.feasible ? plainCost + markov.expectedCost : undefined;
+  // The tablet the craft starts from and buys again on each start over, as every line names it.
+  const [startOne] = START_NAMES[start];
   const modOf = (id: string) => [...tablet.prefixes, ...tablet.suffixes].find((m) => m.id === id);
   const modText = (id: string): string => modOf(id)?.text ?? id;
   const asMods = (ids: readonly string[]): WatchMod[] => ids.map((id) => ({ id }));
@@ -156,12 +160,12 @@ export const TabletResult: React.FC<{
   const net = sales && markov.replay && revenue > 0 ? plainCost + markov.replay.meanCost - revenue : undefined;
   const anyWatchPriced = watch.some((e) => prices[keyOf(e.mods)]);
   const price = (ex: number | undefined): string => (ex === undefined ? '?' : formatIn(unit, ex));
-  const plan = markov.replay ? summarizePlan(markov.replay.movesPerCraft) : undefined;
+  const plan = markov.replay ? summarizePlan(markov.replay.movesPerCraft, start) : undefined;
   // A run of crafts, once the tablet has a price: how many to make, what they should bring, what to have.
   const sale = targetPrice?.ex;
   // The verdict taken apart: every orb and plain tablet a craft uses, against the tablet and the sales.
   const breakdown = markov.replay && sale !== undefined ? {
-    spend: spendBreakdown(markov.replay.movesPerCraft, plainCost, markov.replay.meanCost, (k) => orbPrices[k]),
+    spend: spendBreakdown(markov.replay.movesPerCraft, plainCost, markov.replay.meanCost, (k) => orbPrices[k], start),
     get: [
       { name: 'The tablet you asked for', count: 1, each: sale, total: sale },
       ...watch.flatMap((e, i) => {
@@ -190,10 +194,10 @@ export const TabletResult: React.FC<{
   const why: Record<NonNullable<typeof plan>['strategy'], string> = {
     fresh: `It starts a fresh tablet whenever a roll misses. At these prices that is cheaper than repairing a wrong roll with Chaos `
       + `Orbs: each costs ${price(orbPrices.chaos)} and swaps a random modifier — maybe one you wanted — so a wrong roll usually takes `
-      + `several to fix, while a new plain tablet costs ${price(plainCost)}.`,
+      + `several to fix, while a new ${startOne} costs ${price(plainCost)}.`,
     chaos: `It keeps one tablet and rerolls it with Chaos Orbs. At these prices a Chaos Orb (${price(orbPrices.chaos)}) costs less than `
-      + `starting over on a new plain tablet (${price(plainCost)}) and rolling it back up.`,
-    mixed: 'It mixes the two, taking whichever costs less from where the tablet stands: starting over on a new plain tablet '
+      + `starting over on a new ${startOne} (${price(plainCost)}) and rolling it back up.`,
+    mixed: `It mixes the two, taking whichever costs less from where the tablet stands: starting over on a new ${startOne} `
       + `(${price(plainCost)}), or rerolling it with a Chaos Orb (${price(orbPrices.chaos)}).`,
     direct: 'What you asked for is common enough that most crafts land it on the way up — Transmute, Augment, Regal, Exalt — '
       + 'without starting over or rerolling.',
@@ -226,7 +230,7 @@ export const TabletResult: React.FC<{
               <strong className="tabular-nums">
                 {markov.bound === 'lower' ? '≥ ' : markov.bound === 'upper' ? '≤ ' : ''}{formatIn(unit, cost)}
               </strong>{' '}
-              on average, following the plan below — the plain tablet you start from and the Exalts that
+              on average, following the plan below — the {startOne} you start from and the Exalts that
               fill it to four modifiers included.
             </p>
             {!markov.replay && markov.replayReason && (
@@ -264,12 +268,13 @@ export const TabletResult: React.FC<{
                 </p>
               </div>
             )}
-            <StandInTip
+            {/* The Magic tip reads its worths off a plain-tablet solve; planned from a Magic one, it is moot. */}
+            {start === 'plain' && <StandInTip
               standIns={standIns} plainCost={plainCost} fmt={(ex) => formatIn(unit, ex)}
               urlFor={(filters) => (league
                 ? tradeUrl({ league, baseName: tablet.name, rarity: 'magic', require: [FULL_USES, ...filters], stats: [] })
                 : '')}
-            />
+            />}
             {net !== undefined && (
               <div className="space-y-1 rounded-md border border-emerald-500/30 bg-emerald-500/5 p-3 text-sm">
                 <h4 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Selling what lands on the way</h4>
@@ -306,7 +311,7 @@ export const TabletResult: React.FC<{
                     {most === undefined
                       ? <>No plain-tablet price makes it pay: the orbs alone cost more than it brings back.</>
                       : <>
-                          Pays while a plain tablet costs{' '}
+                          Pays while a {startOne} costs{' '}
                           <strong className="tabular-nums text-emerald-400">{formatIn(unit, most)} or less</strong>
                           {' '}— you typed{' '}
                           <span className={cn('tabular-nums', plainCost <= most ? 'text-emerald-300' : 'text-amber-300')}>{formatIn(unit, plainCost)}</span>.

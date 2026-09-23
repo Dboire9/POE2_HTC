@@ -7,7 +7,10 @@ import { loadEngine, priceBasis, type Engine } from '../../lib/engine';
 import { isAppUpdated, isCancelled, prewarm, solve } from '../../lib/engineClient';
 import type { SolveProgress } from '../../lib/solve';
 import { parsePrice } from '../../lib/startingItem';
-import { ODDS_CREDIT, PER_SIDE, listTablets, ruledOutBy, setPriceKey, watchList, type TabletBase } from '../../lib/tablets';
+import {
+  ODDS_CREDIT, PER_SIDE, START_NAMES, listTablets, ruledOutBy, setPriceKey, standInFilters, standInJunk, watchList,
+  type StartKind, type TabletBase,
+} from '../../lib/tablets';
 import { readPrices, readShownUnit, writePrice, writeShownUnit, type PriceEntry, type TypedPrice } from '../../lib/tabletPrices';
 import { priceUnits, type CostUnit } from '../../lib/currency';
 import { FULL_USES, tradeUrl } from '../../lib/tradeLink';
@@ -37,11 +40,17 @@ const TabletsTab: React.FC = () => {
   const [loadErr, setLoadErr] = useState<string | null>(null);
   const [tabletId, setTabletId] = useState('Tablets_ritual');
   const [chosen, setChosen] = useState<readonly string[]>([]);
-  const [baseCost, setBaseCost] = useState('1');
   // The unit every number on the tab is shown in, and the one a new price box starts in: chaos unless
   // the player picked another, remembered in this browser.
   const [shownKey, setShownKey] = useState<CostUnit['key']>(readShownUnit);
-  const [baseUnit, setBaseUnit] = useState<CostUnit['key']>(shownKey);
+  // What the craft starts from — a plain tablet or a Magic one off the market — and what each costs, kept
+  // apart so switching back and forth keeps both prices.
+  const [startKind, setStartKind] = useState<StartKind>('plain');
+  const [startPrices, setStartPrices] = useState<Record<StartKind, { readonly text: string; readonly unit: CostUnit['key'] }>>(
+    () => ({ plain: { text: '1', unit: shownKey }, prefix: { text: '1', unit: shownKey }, suffix: { text: '1', unit: shownKey } }));
+  const baseCost = startPrices[startKind].text;
+  const setBaseCost = (text: string): void => setStartPrices((p) => ({ ...p, [startKind]: { ...p[startKind], text } }));
+  const setBaseUnit = (unit: CostUnit['key']): void => setStartPrices((p) => ({ ...p, [startKind]: { ...p[startKind], unit } }));
   const [solved, setSolved] = useState<SolvedTablet | null>(null);
   // Every price the player typed, by set. Read once, at the first render: what they typed before is part
   // of the initial state. Kept here, not in the result, because a watch-list price is sent with the solve.
@@ -66,10 +75,11 @@ const TabletsTab: React.FC = () => {
   const ruledOut = useMemo(() => (engine ? ruledOutBy(engine.data, chosen) : new Map<string, string>()), [engine, chosen]);
   const basis = engine ? priceBasis(engine) : undefined;
   const units = priceUnits(basis?.rates);
-  const plainUnit = units.find((u) => u.key === baseUnit) ?? units[0]!;
+  const plainUnit = units.find((u) => u.key === startPrices[startKind].unit) ?? units[0]!;
   const shown = units.find((u) => u.key === shownKey) ?? units[0]!;
   const showIn = (key: CostUnit['key']): void => { setShownKey(key); writeShownUnit(key); };
   const plainTyped = parsePrice(baseCost);
+  const startCostLabel = `A ${START_NAMES[startKind][0]} costs`;
   const plainCost = plainTyped === undefined ? undefined : plainTyped * plainUnit.perExalt;
 
   /** A price typed anywhere on the result. One for a watched set recounts the craft that was solved. */
@@ -77,7 +87,7 @@ const TabletsTab: React.FC = () => {
     const next = writePrice(key, price);
     setPrices(next);
     if (solved && solved.watch.some((e) => setPriceKey(solved.tablet.id, e.mods) === key)) {
-      compute({ tablet: solved.tablet, chosen: solved.chosen, plain: solved.plainCost }, next);
+      compute({ tablet: solved.tablet, chosen: solved.chosen, plain: solved.plainCost, start: solved.start }, next);
     }
   };
 
@@ -88,12 +98,16 @@ const TabletsTab: React.FC = () => {
    * solved, again — with `priceMap` holding that price, which state has not delivered yet.
    */
   const compute = (
-    spec: { tablet: TabletBase | undefined; chosen: readonly string[]; plain: number | undefined }
-      = { tablet, chosen, plain: plainCost },
+    spec: { tablet: TabletBase | undefined; chosen: readonly string[]; plain: number | undefined; start: StartKind }
+      = { tablet, chosen, plain: plainCost, start: startKind },
     priceMap: Readonly<Record<string, TypedPrice>> = prices,
   ): void => {
-    const { tablet, chosen, plain: cost } = spec;
+    const { tablet, chosen, plain: cost, start } = spec;
     if (!engine || !tablet || chosen.length === 0) return;
+    // A Magic starting tablet is planned as holding the likeliest modifier on its side that the craft
+    // neither wants nor is blocked by; a start over buys another of the same.
+    const junk = start === 'plain' ? undefined : standInJunk(tablet, chosen, ruledOutBy(engine.data, chosen), start);
+    if (start !== 'plain' && !junk) { setRunErr('No modifier on that side can sit beside the ones you picked.'); return; }
     // Asked for at solve time and kept with the answer, so the odds shown belong to the craft that was
     // solved — not to whatever is ticked now.
     const watch = watchList(tablet, chosen);
@@ -107,7 +121,14 @@ const TabletsTab: React.FC = () => {
     const picked = (side: readonly { id: string }[]): number => chosen.filter((id) => side.some((m) => m.id === id)).length;
     const handle = solve({
       kind: 'lab',
-      from: { baseId: tablet.id, level: 100 },
+      from: junk === undefined ? { baseId: tablet.id, level: 100 } : {
+        item: {
+          baseId: tablet.id, level: 100, rarity: 'magic',
+          prefixes: start === 'prefix' ? [{ modId: junk, tierDisplay: 1 }] : [],
+          suffixes: start === 'suffix' ? [{ modId: junk, tierDisplay: 1 }] : [],
+        },
+      },
+      ...(junk === undefined ? {} : { rebuyable: true }),
       targets: chosen.map((modId) => ({ modId, tierDisplay: 1 })),
       ...(cost === undefined ? {} : { baseCost: cost }),
       // A tablet is always run with all four modifiers: whatever lands beside the ones picked is fine,
@@ -131,7 +152,7 @@ const TabletsTab: React.FC = () => {
     handle.promise
       .then((res) => {
         if (!current() || res.kind !== 'lab') return;
-        setSolved({ tablet, chosen, watch, markov: res.markov, plainCost: cost ?? 0 });
+        setSolved({ tablet, chosen, watch, markov: res.markov, plainCost: cost ?? 0, start });
       })
       .catch((e: unknown) => {
         if (!current() || isCancelled(e)) return;
@@ -171,9 +192,26 @@ const TabletsTab: React.FC = () => {
         <TabletModPicker tablet={tablet} chosen={chosen} ruledOut={ruledOut} onToggle={toggle} />
 
         <div className="flex flex-wrap items-end gap-4">
+          {/* What the craft starts from, and buys again on every start over (Dorian, 2026-09-23). */}
+          <div className="flex flex-col gap-1">
+            <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Start from</span>
+            <div role="group" aria-label="Start from" className="inline-flex rounded-md border border-border bg-muted/40 p-0.5 text-sm">
+              {(['plain', 'prefix', 'suffix'] as const).map((k) => (
+                <button
+                  key={k}
+                  type="button"
+                  aria-pressed={startKind === k}
+                  onClick={() => setStartKind(k)}
+                  className={cn('rounded px-2.5 py-1', FOCUS, startKind === k ? 'bg-background font-medium shadow-sm' : 'text-muted-foreground hover:text-foreground')}
+                >
+                  {k === 'plain' ? 'Plain tablet' : `Magic · one ${k}`}
+                </button>
+              ))}
+            </div>
+          </div>
           <div className="flex flex-col gap-1">
             <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground" aria-hidden="true">
-              A plain tablet costs
+              {startCostLabel}
             </span>
             <PriceInput
               text={baseCost}
@@ -181,22 +219,26 @@ const TabletsTab: React.FC = () => {
               unit={plainUnit}
               units={units}
               onUnit={(u) => setBaseUnit(u.key)}
-              label="A plain tablet costs"
+              label={startCostLabel}
               invalid={baseCost.trim() !== '' && plainTyped === undefined}
               size="md"
             />
           </div>
           {basis?.league && (
-            // What a plain one goes for, to type into the box: the same search as every other tablet
-            // on this tab, less the modifiers, Normal only.
+            // What the starting tablet goes for, to type into the box: a plain one is Normal; a Magic one
+            // holds only that side's modifier (the empty-slot filter the trade site answers, standInFilters).
             <a
-              href={tradeUrl({ league: basis.league, baseName: tablet.name, rarity: 'normal', require: [FULL_USES], stats: [] })}
+              href={tradeUrl(startKind === 'plain'
+                ? { league: basis.league, baseName: tablet.name, rarity: 'normal', require: [FULL_USES], stats: [] }
+                : { league: basis.league, baseName: tablet.name, rarity: 'magic', require: [FULL_USES, ...standInFilters({ side: startKind, worth: 0 })], stats: [] })}
               target="_blank"
               rel="noopener noreferrer"
               className={cn('rounded border border-border px-2 py-1 text-xs hover:border-primary/60 hover:text-foreground', FOCUS)}
-              title={`Opens the trade site: Normal ${tablet.name}s with all 10 uses, instant buyout, cheapest first`}
+              title={startKind === 'plain'
+                ? `Opens the trade site: Normal ${tablet.name}s with all 10 uses, instant buyout, cheapest first`
+                : `Opens the trade site: Magic ${tablet.name}s holding only a ${startKind}, all 10 uses, instant buyout, cheapest first`}
             >
-              Find a plain one on trade
+              {startKind === 'plain' ? 'Find a plain one on trade' : 'Find one on trade'}
             </a>
           )}
           <Button onClick={() => compute()} disabled={computing || chosen.length === 0} size="lg">

@@ -77,7 +77,8 @@ export type SolveRequest =
       /** Set to also answer "what does this much money actually buy?". */
       readonly budget?: number;
       /** What another white base costs the player, in exalt-equivalents. Absent ⇒ WHITE_BASE_COST.
-       *  Only reaches the model on a from-WHITE craft: a held or carved item cannot be restarted. */
+       *  Only reaches the model on a from-WHITE craft or a `rebuyable` item: a held or carved one cannot be
+       *  restarted. */
       readonly baseCost?: number;
       /** Targets with pins applied, for the budget search. Defaults to `targets`. */
       readonly want?: readonly AltTargetInput[];
@@ -102,6 +103,11 @@ export type SolveRequest =
        * The Tablets tab's: a tablet's four rarest modifiers never settled otherwise, at any Search effort.
        */
       readonly smallLattice?: boolean;
+      /**
+       * The `from.item` can be bought again, at `baseCost`, and a start over buys one — a Magic tablet off
+       * the market that a tablet craft starts from instead of a plain one. A held or carved item cannot.
+       */
+      readonly rebuyable?: boolean;
     } & ExcludingRequest)
   | ({
       readonly kind: 'item';
@@ -402,7 +408,7 @@ export function runSolve(eng: Engine, req: SolveRequest, onProgress?: (p: SolveP
     // …and the whole solved policy, so the Lab can draw the route from any item a player might buy
     // instead of a white base without solving again. From white only: a held or carved item has no
     // restart, so there is no "instead" to price, and the other solves stay the size they were.
-    ...(fromWhite ? { restartCost: req.baseCost ?? WHITE_BASE_COST, keepRoutes: true } : {}),
+    ...(fromWhite || req.rebuyable ? { restartCost: req.baseCost ?? WHITE_BASE_COST, keepRoutes: true } : {}),
     ...(req.fillOnFinish ? { fillOnFinish: true } : {}),
     ...(req.smallLattice ? { heuristicSeed: true, exactEvaluation: true } : {}),
     ...(mdpClock === undefined ? {} : { maxMillis: mdpClock }),

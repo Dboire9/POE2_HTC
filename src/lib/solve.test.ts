@@ -7,7 +7,7 @@ import {
   optimize, optimizeItem, optimizeItemMarkov, alternatives, listMods, routeFor, type ExistingItem,
 } from './engine.ts';
 import { mainLine } from './policyPath.ts';
-import { standIns } from './tablets.ts';
+import { listTablets, ruledOutBy, standIns, standInJunk } from './tablets.ts';
 import { runSolve, toFraction, type SolveProgress, type SolveRequest } from './solve.ts';
 
 // `runSolve` exists so a compute can cross a Worker boundary as a plain message. Its entire job is to
@@ -530,6 +530,34 @@ describe('smallLattice — a tablet solved the sure way', () => {
     const pair = worth('Tablets_temple', ['Tablets/MapRarePackIncrease', 'Tablets/IncursionTokenChance'], { prefixes: 1, suffixes: 1 }, 442);
     expect(pair('prefix')).toBeCloseTo(0.84, 1);
     expect(pair('suffix')).toBeCloseTo(0.84, 1);
+  });
+
+  /**
+   * Planning from a Magic tablet off the market, bought again on every start over (`rebuyable`). Priced
+   * at exactly what the tip says it is worth against a plain tablet, the craft from it costs exactly what
+   * the craft from plain tablets does — the tip's worth and this plan are the same arithmetic, both ways.
+   */
+  it('plans from a Magic tablet bought again on each start over, agreeing with what it is worth', () => {
+    const t = listTablets(eng.data).find((x) => x.id === 'Tablets_ritual')!;
+    const chosen = ['Tablets/RitualAdditionalReroll'];
+    const base = {
+      kind: 'lab' as const, targets: chosen.map((modId) => ({ modId, tierDisplay: 1 })), spare: { prefixes: 2, suffixes: 1 },
+      fillOnFinish: true, excluded: ['annul'], smallLattice: true,
+    };
+    const plain = cost(runSolve(eng, { ...base, from: { baseId: t.id, level: 100 }, baseCost: 130 }));
+    const at = new Map(plain.routes!.keys.map((k, i) => [k as string, i]));
+    for (const w of standIns((k) => { const i = at.get(k); return i === undefined ? undefined : plain.routes!.value[i]; }, plain.expectedCost, 130)) {
+      const junk = standInJunk(t, chosen, ruledOutBy(eng.data, chosen), w.side)!;
+      expect(chosen).not.toContain(junk);
+      const magic = cost(runSolve(eng, {
+        ...base, baseCost: w.worth, rebuyable: true,
+        from: { item: { baseId: t.id, level: 100, rarity: 'magic',
+          prefixes: w.side === 'prefix' ? [{ modId: junk, tierDisplay: 1 }] : [], suffixes: w.side === 'suffix' ? [{ modId: junk, tierDisplay: 1 }] : [] } },
+      }));
+      expect(magic.bound).toBe('exact');
+      expect(magic.restartCost).toBe(w.worth); // a start over buys another Magic one
+      expect(w.worth + magic.expectedCost).toBeCloseTo(130 + plain.expectedCost, 2); // to the solver's own tolerance
+    }
   });
 
   it('solves the rarest four the usual solve cannot put a number on', () => {

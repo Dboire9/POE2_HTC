@@ -202,6 +202,33 @@ describe('the Tablets tab — what it costs and what it sells for', () => {
     expect(localStorage.getItem('poe2htc.tablets.unit')).toBe('divine');
   });
 
+  it('plans from a Magic tablet holding one prefix, at its own price, bought again on every start over', async () => {
+    const user = await open();
+    await user.click(screen.getByRole('button', { name: 'Magic · one prefix' }));
+    const box = screen.getByRole('textbox', { name: 'A Magic tablet with one prefix costs' });
+    await user.clear(box);
+    await user.type(box, '3');
+    // Its trade search: Magic, holding only a prefix — at most one empty suffix, as the site answers it.
+    const q = (JSON.parse(new URL(screen.getByRole('link', { name: 'Find one on trade' }).getAttribute('href')!).searchParams.get('q')!) as {
+      query: { filters: unknown; stats: { filters: { id: string; value: unknown }[] }[] };
+    }).query;
+    expect(q.filters).toEqual({ type_filters: { filters: { rarity: { option: 'magic' } } } });
+    expect(q.stats[0]!.filters[1]).toEqual({ id: 'pseudo.pseudo_number_of_empty_suffix_mods', value: { max: 1 }, disabled: false });
+    await pick(user);
+    await waitFor(() => expect(solve).toHaveBeenCalled());
+    const req = vi.mocked(solve).mock.calls[0]![0] as unknown as { from: { item: { rarity: string; prefixes: { modId: string }[]; suffixes: unknown[] } }; baseCost: number; rebuyable: boolean };
+    expect(req.from.item.rarity).toBe('magic');
+    expect(req.from.item.prefixes).toHaveLength(1);
+    expect(req.from.item.prefixes[0]!.modId).not.toBe('Tablets/MapDroppedGoldIncrease'); // never the modifier asked for
+    expect(req.from.item.suffixes).toEqual([]);
+    expect(req.baseCost).toBe(3);
+    expect(req.rebuyable).toBe(true);
+    expect((await screen.findByText(/Crafting it costs/)).textContent).toMatch(/the Magic tablet with one prefix you start from/);
+    // Switching back keeps the plain tablet's own price.
+    await user.click(screen.getByRole('button', { name: 'Plain tablet' }));
+    expect(screen.getByRole('textbox', { name: 'A plain tablet costs' })).toHaveValue('1');
+  });
+
   it('searches the trade site for a plain tablet of the kind picked, to price the box beside it', async () => {
     const user = await open();
     const plainOf = (): Record<string, unknown> => {

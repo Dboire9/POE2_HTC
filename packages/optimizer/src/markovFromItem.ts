@@ -63,7 +63,7 @@ export type { McAction, ExaltStrength } from './markovActions.ts';
 export { actionCostOf } from './markovActions.ts';
 export type { PolicyEdge, PolicyNode, RouteTable } from './markovRoute.ts';
 export type { Holding } from './markovStarts.ts';
-export type { ReplayOptions, ReplayReport, ReplayResult } from './markovReplay.ts';
+export type { ReplayOptions, ReplayReport, ReplayResult, WatchMod } from './markovReplay.ts';
 
 
 export interface MarkovResult {

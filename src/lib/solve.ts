@@ -15,7 +15,7 @@ import { optimize, optimizeItem, optimizeItemMarkov, alternatives, alternativesF
 import type {
   AltTargetInput, EngineAlternatives, EngineMarkovResult, EngineResult, ExistingItem, TargetInput,
 } from './engineTypes.ts';
-import type { MarkovProgress } from '../../packages/optimizer/src/markovFromItem.ts';
+import type { MarkovProgress, WatchMod } from '../../packages/optimizer/src/markovFromItem.ts';
 import type { CurrencyPolicy } from '../../packages/optimizer/src/cost.ts';
 import type { Spare } from '../../packages/optimizer/src/slots.ts';
 
@@ -88,7 +88,7 @@ export type SolveRequest =
        * Answered by PLAYING the solved policy on real items (markovReplay.ts), so it costs a second or
        * two on top of the solve and only a from-white craft asks for it.
        */
-      readonly watch?: readonly (readonly string[])[];
+      readonly watch?: readonly (readonly WatchMod[])[];
     } & ExcludingRequest)
   | ({
       readonly kind: 'item';

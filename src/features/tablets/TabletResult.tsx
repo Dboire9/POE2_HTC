@@ -3,7 +3,10 @@ import { Card } from '../../components/ui/card';
 import { cn } from '../../lib/utils';
 import type { EngineMarkovResult } from '../../lib/engineTypes';
 import { formatIn, pickUnit, type Rates } from '../../lib/currency';
-import { WATCH_TIERS, searchIsLoose, tradeStatsFor, type TabletBase, type WatchEntry, type WatchTier } from '../../lib/tablets';
+import {
+  PRICED_ON, WATCH_TIERS, searchIsLoose, tradeStatsFor, watchKey, watchText,
+  type TabletBase, type WatchEntry, type WatchMod, type WatchTier,
+} from '../../lib/tablets';
 import { priceKey, readPrices, writePrice, type TypedPrice } from '../../lib/tabletPrices';
 import { tradeUrl } from '../../lib/tradeLink';
 import PolicyGraph from '../engine/PolicyGraph';
@@ -20,9 +23,14 @@ export interface SolvedTablet {
 }
 
 const TIER_TITLE: Record<WatchTier, string> = {
-  jackpot: 'Sells high, whatever else is on the tablet',
-  good: 'Adds to what the tablet sells for',
+  superJackpot: 'Super jackpot',
+  jackpot: 'Jackpot',
+  veryGood: 'Very good',
+  good: 'Good',
 };
+
+/** "23 Sep" — when the list's prices were read, so a reader can tell how stale they are. */
+const pricedOn = new Date(`${PRICED_ON}T12:00:00Z`).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' });
 
 /**
  * The answer for one solved tablet: what crafting it costs, what it sells for, and what else can land on
@@ -41,13 +49,15 @@ export const TabletResult: React.FC<{
   const cost = markov.feasible ? markov.expectedCost : undefined;
   const modOf = (id: string) => [...tablet.prefixes, ...tablet.suffixes].find((m) => m.id === id);
   const modText = (id: string): string => modOf(id)?.text ?? id;
-  const keyOf = (mods: readonly string[]): string => priceKey(tablet.id, mods);
+  const asMods = (ids: readonly string[]): WatchMod[] => ids.map((id) => ({ id }));
+  const label = (mods: readonly WatchMod[]): string[] => mods.map((m) => watchText(modText(m.id), m));
+  const keyOf = (mods: readonly WatchMod[]): string => priceKey(tablet.id, watchKey(mods));
 
   /**
    * The trade search and price box for a tablet holding `mods`. Keyed by that set, so a box never keeps
    * the text typed for another tablet — it would otherwise be saved under this one on the next blur.
    */
-  const tradePrice = (mods: readonly string[]): React.ReactElement => (
+  const tradePrice = (mods: readonly WatchMod[]): React.ReactElement => (
     <TradePrice
       key={keyOf(mods)}
       url={league ? tradeUrl({ league, baseName: tablet.name, stats: tradeStatsFor(mods) }) : ''}
@@ -55,16 +65,19 @@ export const TabletResult: React.FC<{
       unit={unit}
       price={prices[keyOf(mods)]}
       onPrice={(ex) => setPrices(writePrice(keyOf(mods), ex))}
-      label={`Price of a ${tablet.name} with ${mods.map(modText).join(', ')}`}
+      label={`Price of a ${tablet.name} with ${label(mods).join(', ')}`}
     />
   );
 
   const watchRow = (entry: WatchEntry, seen: number | undefined): React.ReactElement => {
     const price = prices[keyOf(entry.mods)];
-    const single = entry.mods.length === 1 ? modOf(entry.mods[0]!) : undefined;
+    // A modifier's odds per roll say nothing about which value it rolls, so they are shown only for a
+    // single modifier priced at any value.
+    const only = entry.mods.length === 1 ? entry.mods[0]! : undefined;
+    const single = only && only.min === undefined && only.max === undefined ? modOf(only.id) : undefined;
     return (
       <li key={keyOf(entry.mods)} className="flex flex-wrap items-center gap-x-3 gap-y-1">
-        <span>{entry.mods.map(modText).join(' + ')}</span>
+        <span>{label(entry.mods).join(' + ')}</span>
         <span className="text-xs text-muted-foreground">
           {seen !== undefined
             ? `turns up in ${Math.round(seen * 100)}% of crafts`
@@ -73,18 +86,19 @@ export const TabletResult: React.FC<{
               ?? (markov.bound === 'exact' ? 'odds not played out' : 'no odds while the cost is only a bound')}
           {single && <> · <span className="tabular-nums">{oneIn(single.share)}</span> rolls on that side</>}
         </span>
-        {/* Only a jackpot has a price of its own: it sells high whatever else is on the tablet. Any
-            other modifier is worth what the whole tablet is worth, which one search cannot say. */}
-        {entry.tier === 'jackpot' && tradePrice(entry.mods)}
-        {entry.tier === 'jackpot' && price && cost !== undefined && price.ex > cost && (
+        {tradePrice(entry.mods)}
+        {price && cost !== undefined && price.ex > cost && (
           <span className="text-emerald-400">worth more than the tablet you asked for</span>
+        )}
+        {entry.price && (
+          <span className="text-xs text-muted-foreground">{entry.price} when Dorian checked, {pricedOn}</span>
         )}
         {entry.note && <span className="text-xs text-muted-foreground">{entry.note}</span>}
       </li>
     );
   };
 
-  const targetPrice = prices[keyOf(chosen)];
+  const targetPrice = prices[keyOf(asMods(chosen))];
   return (
     <>
       <Card className="space-y-3 p-4">
@@ -102,7 +116,7 @@ export const TabletResult: React.FC<{
             </p>
             <div className="flex flex-wrap items-center gap-2 text-sm">
               <span className="text-muted-foreground">What it sells for:</span>
-              {tradePrice(chosen)}
+              {tradePrice(asMods(chosen))}
               {targetPrice && (
                 <span className={cn('tabular-nums', targetPrice.ex >= cost ? 'text-emerald-400' : 'text-amber-400')}>
                   {targetPrice.ex >= cost

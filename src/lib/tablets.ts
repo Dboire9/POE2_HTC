@@ -86,47 +86,88 @@ export function ruledOutBy(data: PatchData, chosen: readonly string[]): Map<stri
 }
 
 /**
- * The valuable list's two tiers, best first: a `jackpot` sells high whatever else is on the tablet; a
- * `good` modifier adds to what it sells for.
+ * The valuable list's tiers, best first — Dorian's, from what each set sold for on the trade site.
  */
-export const WATCH_TIERS = ['jackpot', 'good'] as const;
+export const WATCH_TIERS = ['superJackpot', 'jackpot', 'veryGood', 'good'] as const;
 export type WatchTier = (typeof WATCH_TIERS)[number];
 
-/** One row of the watch list: modifiers that would be on the tablet together, and why they are listed. */
+/** One modifier of a watched set, optionally with the value that was priced ("rerolling Favours 3 times"). */
+export interface WatchMod {
+  readonly id: string;
+  readonly min?: number;
+  readonly max?: number;
+}
+
+/** One row of the watch list: modifiers that would be on the tablet together, and what they sold for. */
 export interface WatchEntry {
-  readonly mods: readonly string[];
+  readonly mods: readonly WatchMod[];
   readonly tier: WatchTier;
+  /** What Dorian saw it listed for on `PRICED_ON`, in his words ("~20 div"). */
+  readonly price?: string;
   readonly note?: string;
 }
 
-/** An entry as `valuable.json` holds it — with what each modifier reads in game, for whoever edits it. */
+/** An entry as `valuable.json` holds it — each modifier with what it reads in game, for whoever edits it. */
 export interface CuratedEntry {
-  readonly mods: readonly string[];
-  readonly reads: readonly string[];
+  readonly tablets: readonly string[];
+  readonly mods: readonly (WatchMod & { readonly reads: string })[];
+  readonly price?: string;
   readonly note?: string;
 }
 
-export const CURATED: { readonly tiers: Readonly<Record<WatchTier, readonly CuratedEntry[]>> } = valuable;
+export const CURATED: {
+  readonly pricedOn: string;
+  readonly tiers: Readonly<Record<WatchTier, readonly CuratedEntry[]>>;
+} = valuable;
+
+/** The day the list's prices were read off the trade site — they age, and the tab says how much. */
+export const PRICED_ON = CURATED.pricedOn;
+
+/** A stable key for a watched set: ids, with the priced value when there is one. */
+export const watchKey = (mods: readonly WatchMod[]): string[] =>
+  mods.map((m) => (m.min === undefined && m.max === undefined ? m.id : `${m.id}=${m.min ?? ''}-${m.max ?? ''}`));
+
+/** What a watched modifier reads with its priced value filled in: "…rerolling Favours 3 additional times". */
+export function watchText(text: string, m: WatchMod): string {
+  if (m.min === undefined && m.max === undefined) return text;
+  const value = m.min === m.max ? `${m.min}` : m.max === undefined ? `${m.min}+` : m.min === undefined ? `up to ${m.max}` : `${m.min}–${m.max}`;
+  return text.replace('#', value);
+}
 
 /**
- * The curated modifiers worth watching for on this tablet — every entry it can roll, best tier first —
- * minus any the player already asked for: a target is not a surprise, and pricing it twice on one
- * screen reads as a bug.
+ * The curated sets worth watching for on this tablet — the entries priced for it, best tier first —
+ * minus any made only of modifiers the player already asked for: a target is not a surprise, and
+ * pricing it twice on one screen reads as a bug.
  */
 export function watchList(tablet: TabletBase, targets: readonly string[]): WatchEntry[] {
   const rolls = new Set([...tablet.prefixes, ...tablet.suffixes].map((m) => m.id));
   const wanted = new Set(targets);
   return WATCH_TIERS.flatMap((tier) => CURATED.tiers[tier]
-    .filter((e) => e.mods.every((m) => rolls.has(m)) && !e.mods.every((m) => wanted.has(m)))
-    .map(({ mods, note }): WatchEntry => ({ mods, tier, ...(note === undefined ? {} : { note }) })));
+    .filter((e) => e.tablets.includes(tablet.id) && e.mods.every((m) => rolls.has(m.id)) && !e.mods.every((m) => wanted.has(m.id)))
+    .map(({ mods, price, note }): WatchEntry => ({
+      mods: mods.map(({ id, min, max }) => ({ id, ...(min === undefined ? {} : { min }), ...(max === undefined ? {} : { max }) })),
+      tier,
+      ...(price === undefined ? {} : { price }),
+      ...(note === undefined ? {} : { note }),
+    })));
 }
 
-/** The trade ids for a set of modifiers, in the order given. Unknown ids are skipped, never invented. */
-export function tradeStatsFor(mods: readonly string[]): TradeStat[] {
+const asMod = (m: string | WatchMod): WatchMod => (typeof m === 'string' ? { id: m } : m);
+
+/**
+ * The trade filters for a set of modifiers, in the order given, each carrying the priced value when it
+ * has one. Unknown ids are skipped, never invented.
+ */
+export function tradeStatsFor(mods: readonly (string | WatchMod)[]): TradeStat[] {
   const table = (tradeStats as { stats: Record<string, TradeStat> }).stats;
-  return mods.flatMap((id) => (table[id] ? [table[id]] : []));
+  return mods.map(asMod).flatMap((m) => {
+    const stat = table[m.id];
+    if (!stat) return [];
+    const value = { ...(m.min === undefined ? {} : { min: m.min }), ...(m.max === undefined ? {} : { max: m.max }) };
+    return [Object.keys(value).length > 0 ? { ...stat, value } : stat];
+  });
 }
 
 /** True when a search for these modifiers can also list a near-identical one (see `trade-stats.json`). */
-export const searchIsLoose = (mods: readonly string[]): boolean =>
+export const searchIsLoose = (mods: readonly (string | WatchMod)[]): boolean =>
   tradeStatsFor(mods).some((s) => s.ambiguous === true);

@@ -18,11 +18,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   button that opens the official site with an instant-buyout search for an unused tablet (10 uses left) filled in, and a box for the price you read there.
   Prices stay in your browser with the day you typed them, and sit next to what crafting costs.
   And while you roll for what you asked for, other things land — the **watch list** shows the valuable
-  ones, hand-picked in two tiers: the few that sell high whatever else is on the tablet (an extra random
-  map modifier, an extra Rare modifier on Unique monsters, an extra Favour reroll on a Ritual tablet),
-  and the ones that add to its price. Each says how often it turns up on the way (measured by playing
-  your plan out thousands of times, with the progress bar following along). The jackpots get their own
-  search and price box; price one above your own craft and the tab says so: that is the tablet to stop on.
+  ones, in four tiers from super jackpot to good, priced per tablet on the trade site (an extra Favour
+  reroll plus an extra Rare modifier on Unique monsters: ~20–25 div on Ritual). Where the roll matters
+  the row names it — rerolling Favours **3** times is its own row. Each says how often it turns up on the
+  way (measured by playing your plan out thousands of times, with the progress bar following along), with
+  the price it was seen at, dated, and its own search and price box; price one above your own craft and
+  the tab says so: that is the tablet to stop on.
 - **"Any prefix / any suffix" — a slot you don't care about.** A target list has always meant *these
   modifiers and nothing else*, so anything you had not named had to come off before the app called the
   item finished. The only way to say "three prefixes I want, and whatever lands in the last suffix is

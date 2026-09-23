@@ -2,7 +2,7 @@ import { describe, it, expect } from 'vitest';
 import { loadPatch } from '../../packages/engine/src/index.ts';
 import { familiesOf, resolveMod } from '../../packages/engine/src/pool.ts';
 import {
-  CURATED, ODDS_CREDIT, WATCH_TIERS, listTablets, ruledOutBy, searchIsLoose, tradeStatsFor, watchList,
+  CURATED, ODDS_CREDIT, WATCH_TIERS, listTablets, ruledOutBy, searchIsLoose, tradeStatsFor, watchKey, watchList, watchText,
   type TabletBase,
 } from './tablets';
 
@@ -58,52 +58,73 @@ describe('what one pick rules out', () => {
 
 describe('Dorian’s valuable list', () => {
   const curated = WATCH_TIERS.flatMap((tier) => CURATED.tiers[tier]);
-  const shown = (t: TabletBase, targets: readonly string[] = []): string[] =>
-    watchList(t, targets).map((e) => e.mods.join(' + '));
+  const ids = (e: { mods: readonly { id: string }[] }): string => e.mods.map((m) => m.id).join(' + ');
+  const shown = (t: TabletBase, targets: readonly string[] = []): string[] => watchList(t, targets).map(ids);
 
   it('names each modifier by id AND by what it reads in game, and the two agree', () => {
     // The ids are the game's internal names and can mislead — RitualMagicMonsters is the one that reads
     // "chance to be Rare" — so whoever edits the list writes both, and this holds them together.
+    for (const e of curated) for (const m of e.mods) expect(resolveMod(data, m.id).text, m.id).toBe(m.reads);
+  });
+
+  it('prices only values a modifier can roll', () => {
     for (const e of curated) {
-      expect(e.reads).toHaveLength(e.mods.length);
-      e.mods.forEach((id, j) => expect(resolveMod(data, id).text, id).toBe(e.reads[j]));
+      for (const m of e.mods) {
+        if (m.min === undefined && m.max === undefined) continue;
+        const [lo, hi] = resolveMod(data, m.id).tiers[0]!.ranges[0]! as [number, number];
+        expect(m.min ?? lo, m.id).toBeGreaterThanOrEqual(lo);
+        expect(m.max ?? hi, m.id).toBeLessThanOrEqual(hi);
+        expect(m.min ?? lo, m.id).toBeLessThanOrEqual(m.max ?? hi);
+      }
     }
   });
 
-  it('lists each set once, and only sets one tablet can hold', () => {
-    const sets = curated.map((e) => [...e.mods].sort().join(' + '));
-    expect(new Set(sets).size).toBe(sets.length);
-    for (const e of curated) {
-      const families = e.mods.flatMap((id) => familiesOf(resolveMod(data, id)));
-      expect(new Set(families).size, `${e.mods.join(' + ')} repeats a family`).toBe(families.length);
-      // Every modifier rolls on the tablet, and no more than two land on one side.
-      const holds = (t: TabletBase): boolean => {
-        const on = (side: TabletBase['prefixes']): number => e.mods.filter((id) => side.some((m) => m.id === id)).length;
-        return on(t.prefixes) + on(t.suffixes) === e.mods.length && on(t.prefixes) <= 2 && on(t.suffixes) <= 2;
-      };
-      expect(tablets.some(holds), `no tablet can hold ${e.mods.join(' + ')}`).toBe(true);
-    }
-  });
-
-  it('shows each entry on every tablet that rolls it, jackpots first', () => {
-    // The two that sell high on any tablet…
+  it('lists each set once per tablet, and only sets that tablet can hold', () => {
     for (const t of tablets) {
-      expect(shown(t)).toEqual(expect.arrayContaining(['Tablets/MapAdditionalModifier', 'Tablets/MapAdditionalUniqueMonsterModifier']));
-      const tiers = watchList(t, []).map((e) => WATCH_TIERS.indexOf(e.tier));
-      expect(tiers).toEqual([...tiers].sort((a, b) => a - b));
+      const keys = curated.filter((e) => e.tablets.includes(t.id)).map((e) => watchKey(e.mods).sort().join(' + '));
+      expect(new Set(keys).size, t.name).toBe(keys.length);
     }
-    // …Ritual's own third, which no other tablet can roll…
-    expect(watchList(ritual, []).filter((e) => e.tier === 'jackpot')).toHaveLength(3);
-    expect(shown(overseer).filter((id) => id.startsWith('Tablets/Ritual'))).toEqual([]);
-    // …and a Vaal Beacon Crystal only where there are Vaal Beacons.
-    expect(shown(temple)).toContain('Tablets/IncursionTokenChance');
-    expect(shown(ritual)).not.toContain('Tablets/IncursionTokenChance');
-    expect(tablets.map((t) => watchList(t, []).length)).toEqual([13, 11, 9]);
+    for (const e of curated) {
+      expect(e.tablets.length, ids(e)).toBeGreaterThan(0);
+      const families = e.mods.flatMap((m) => familiesOf(resolveMod(data, m.id)));
+      expect(new Set(families).size, `${ids(e)} repeats a family`).toBe(families.length);
+      for (const id of e.tablets) {
+        const t = tablet(id);
+        const on = (side: TabletBase['prefixes']): number => e.mods.filter((m) => side.some((x) => x.id === m.id)).length;
+        expect(on(t.prefixes) + on(t.suffixes), `${t.name} cannot roll ${ids(e)}`).toBe(e.mods.length);
+        expect(Math.max(on(t.prefixes), on(t.suffixes)), `${ids(e)} overfills a side`).toBeLessThanOrEqual(2);
+      }
+    }
   });
 
-  it('leaves out an entry the player already asked for, and nothing else', () => {
-    const asked = ['Tablets/MapAdditionalModifier', 'Tablets/MapDroppedGoldIncrease'];
-    expect(shown(ritual, asked)).toEqual(shown(ritual).filter((id) => id !== 'Tablets/MapAdditionalModifier'));
+  it('shows each tablet the sets priced for it, best tier first', () => {
+    // The same set sells differently per tablet: Unique Monsters alone is ~5 div on a Temple tablet and
+    // ~5 chaos on the other two.
+    const tierOf = (t: TabletBase, key: string) => watchList(t, []).find((e) => ids(e) === key)?.tier;
+    expect(tierOf(temple, 'Tablets/MapAdditionalUniqueMonsterModifier')).toBe('jackpot');
+    expect(tierOf(ritual, 'Tablets/MapAdditionalUniqueMonsterModifier')).toBe('good');
+    // The reroll is a Ritual modifier; nothing about it reaches the other two.
+    expect(shown(overseer).some((k) => k.includes('RitualAdditionalReroll'))).toBe(false);
+    expect(watchList(ritual, []).filter((e) => e.tier === 'superJackpot')).toHaveLength(3);
+    for (const t of tablets) {
+      const order = watchList(t, []).map((e) => WATCH_TIERS.indexOf(e.tier));
+      expect(order).toEqual([...order].sort((a, b) => a - b));
+    }
+    expect(tablets.map((t) => watchList(t, []).length)).toEqual([7, 18, 25]);
+  });
+
+  it('keeps the value a set was priced at', () => {
+    const three = watchList(ritual, []).find((e) => e.tier === 'superJackpot' && e.mods.length === 1)!;
+    expect(three.mods).toEqual([{ id: 'Tablets/RitualAdditionalReroll', min: 3, max: 3 }]);
+    expect(watchText(resolveMod(data, 'Tablets/RitualAdditionalReroll').text!, three.mods[0]!))
+      .toBe('Ritual Altars in Map allow rerolling Favours 3 additional times');
+    expect(watchText('Map has # additional random Modifiers', { id: 'x', min: 1, max: 2 })).toBe('Map has 1–2 additional random Modifiers');
+    expect(three.price).toBe('~200 chaos');
+  });
+
+  it('leaves out a set made only of what the player asked for, and nothing else', () => {
+    const asked = ['Tablets/MapAdditionalUniqueMonsterModifier'];
+    expect(shown(ritual, asked)).toEqual(shown(ritual).filter((k) => k !== 'Tablets/MapAdditionalUniqueMonsterModifier'));
   });
 });
 

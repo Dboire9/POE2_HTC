@@ -1,33 +1,796 @@
 {
-  "about": "Modifiers worth more on a Precursor Tablet than the craft you were aiming at — hand-picked, because no price feed lists tablets. The Tablets tab shows each one's odds of turning up while you roll, with a trade search and a box for the price you see. One list for all three tablets: an entry shows on every tablet that can roll all of its modifiers. Two tiers, in Dorian's words: `jackpot` — \"doesn't matter what you have on it, if you have one of these it skyrockets\"; `good` — the ones that add to what a tablet sells for.",
+  "about": "What sells on a Precursor Tablet besides the craft you were aiming at — priced by Dorian on the trade site (instant buyout, 10 uses left) and sorted into four tiers. The Tablets tab shows each entry's odds of turning up while you roll, with a trade search and a box for the price you see. An entry is a SET that has to be on the tablet at once, on the tablets it names; a modifier can carry the value(s) that were priced, because \"rerolling Favours 3 additional times\" sells for more than 1. Left out: what he found at ~1 chaos (every Ritual pair of the non-jackpot modifiers, one extra random Modifier alone on Ritual) and what he did not price, which he said means ~1 chaos.",
   "curatedBy": "Dorian",
-  "updated": "2026-09-22",
+  "pricedOn": "2026-09-23",
+  "league": "Forbidden Rites",
   "entry": {
-    "mods": "tablet modifier ids, all of which must be on the item at once (data/patches/0.5.0/mods.json)",
-    "reads": "what each of those modifiers says in game, in the same order. The ids are the game's internal names and can mislead — Tablets/RitualMagicMonsters is the one that reads \"chance to be Rare\" — so a test holds each id to its text",
-    "note": "optional — why it is worth having, in the player's words"
+    "tablets": "the tablet ids this entry is priced for — the same set sells differently on each",
+    "mods": "each modifier: its id, what it `reads` in game (a test holds the two together — the ids can mislead, e.g. Tablets/RitualMagicMonsters reads \"chance to be Rare\"), and optionally the `min`/`max` of the value that was priced",
+    "price": "what Dorian saw it listed for on `pricedOn`, in his words",
+    "note": "optional — anything else worth saying"
   },
   "tiers": {
+    "superJackpot": [
+      {
+        "tablets": [
+          "Tablets_ritual"
+        ],
+        "mods": [
+          {
+            "id": "Tablets/RitualAdditionalReroll",
+            "reads": "Ritual Altars in Map allow rerolling Favours # additional times",
+            "min": 3,
+            "max": 3
+          }
+        ],
+        "price": "~200 chaos"
+      },
+      {
+        "tablets": [
+          "Tablets_ritual"
+        ],
+        "mods": [
+          {
+            "id": "Tablets/MapAdditionalUniqueMonsterModifier",
+            "reads": "Unique Monsters have 1 additional Rare Modifier"
+          },
+          {
+            "id": "Tablets/RitualAdditionalReroll",
+            "reads": "Ritual Altars in Map allow rerolling Favours # additional times"
+          }
+        ],
+        "price": "~20–25 div"
+      },
+      {
+        "tablets": [
+          "Tablets_ritual"
+        ],
+        "mods": [
+          {
+            "id": "Tablets/MapAdditionalModifier",
+            "reads": "Map has # additional random Modifiers"
+          },
+          {
+            "id": "Tablets/RitualAdditionalReroll",
+            "reads": "Ritual Altars in Map allow rerolling Favours # additional times"
+          }
+        ],
+        "price": "~20–30 div"
+      }
+    ],
     "jackpot": [
-      { "mods": ["Tablets/MapAdditionalUniqueMonsterModifier"], "reads": ["Unique Monsters have 1 additional Rare Modifier"] },
-      { "mods": ["Tablets/MapAdditionalModifier"], "reads": ["Map has # additional random Modifiers"] },
-      { "mods": ["Tablets/RitualAdditionalReroll"], "reads": ["Ritual Altars in Map allow rerolling Favours # additional times"] }
+      {
+        "tablets": [
+          "Tablets_ritual"
+        ],
+        "mods": [
+          {
+            "id": "Tablets/RitualAdditionalReroll",
+            "reads": "Ritual Altars in Map allow rerolling Favours # additional times",
+            "min": 1,
+            "max": 2
+          }
+        ],
+        "price": "~140 chaos"
+      },
+      {
+        "tablets": [
+          "Tablets_ritual"
+        ],
+        "mods": [
+          {
+            "id": "Tablets/MapAdditionalUniqueMonsterModifier",
+            "reads": "Unique Monsters have 1 additional Rare Modifier"
+          },
+          {
+            "id": "Tablets/MapAdditionalModifier",
+            "reads": "Map has # additional random Modifiers"
+          }
+        ],
+        "price": "~5–15 div"
+      },
+      {
+        "tablets": [
+          "Tablets_overseer"
+        ],
+        "mods": [
+          {
+            "id": "Tablets/MapAdditionalUniqueMonsterModifier",
+            "reads": "Unique Monsters have 1 additional Rare Modifier"
+          },
+          {
+            "id": "Tablets/MapAdditionalModifier",
+            "reads": "Map has # additional random Modifiers"
+          }
+        ],
+        "price": "~6–15 div"
+      },
+      {
+        "tablets": [
+          "Tablets_temple"
+        ],
+        "mods": [
+          {
+            "id": "Tablets/MapAdditionalUniqueMonsterModifier",
+            "reads": "Unique Monsters have 1 additional Rare Modifier"
+          },
+          {
+            "id": "Tablets/MapAdditionalModifier",
+            "reads": "Map has # additional random Modifiers"
+          }
+        ],
+        "price": "~7–10 div"
+      },
+      {
+        "tablets": [
+          "Tablets_temple"
+        ],
+        "mods": [
+          {
+            "id": "Tablets/MapAdditionalUniqueMonsterModifier",
+            "reads": "Unique Monsters have 1 additional Rare Modifier"
+          }
+        ],
+        "price": "~5 div"
+      }
+    ],
+    "veryGood": [
+      {
+        "tablets": [
+          "Tablets_ritual"
+        ],
+        "mods": [
+          {
+            "id": "Tablets/MapAdditionalModifier",
+            "reads": "Map has # additional random Modifiers",
+            "min": 2,
+            "max": 2
+          }
+        ],
+        "price": "~18 chaos"
+      },
+      {
+        "tablets": [
+          "Tablets_overseer"
+        ],
+        "mods": [
+          {
+            "id": "Tablets/MapAdditionalModifier",
+            "reads": "Map has # additional random Modifiers",
+            "min": 2,
+            "max": 2
+          }
+        ],
+        "price": "~2 div"
+      },
+      {
+        "tablets": [
+          "Tablets_temple"
+        ],
+        "mods": [
+          {
+            "id": "Tablets/MapAdditionalModifier",
+            "reads": "Map has # additional random Modifiers",
+            "min": 2,
+            "max": 2
+          }
+        ],
+        "price": "~2 div"
+      },
+      {
+        "tablets": [
+          "Tablets_overseer"
+        ],
+        "mods": [
+          {
+            "id": "Tablets/MapRarePackIncrease",
+            "reads": "Map has #% increased number of Rare Monsters"
+          },
+          {
+            "id": "Tablets/MapBossAdditionalSpirit",
+            "reads": "Map contains # additional Azmeri Spirits"
+          }
+        ],
+        "price": "~3 div"
+      },
+      {
+        "tablets": [
+          "Tablets_overseer"
+        ],
+        "mods": [
+          {
+            "id": "Tablets/MapRarePackIncrease",
+            "reads": "Map has #% increased number of Rare Monsters"
+          },
+          {
+            "id": "Tablets/MapAdditionalAzmeriWisp",
+            "reads": "Map contains 1 additional Azmeri Spirit"
+          }
+        ],
+        "price": "~3 div"
+      },
+      {
+        "tablets": [
+          "Tablets_overseer"
+        ],
+        "mods": [
+          {
+            "id": "Tablets/MapMonsterRarityIncrease",
+            "reads": "Map has #% increased Monster Rarity"
+          },
+          {
+            "id": "Tablets/MapBossAdditionalSpirit",
+            "reads": "Map contains # additional Azmeri Spirits"
+          }
+        ],
+        "price": "~2 div"
+      },
+      {
+        "tablets": [
+          "Tablets_overseer"
+        ],
+        "mods": [
+          {
+            "id": "Tablets/MapBossAdditionalSpirit",
+            "reads": "Map contains # additional Azmeri Spirits"
+          },
+          {
+            "id": "Tablets/MapAdditionalSpiritChance",
+            "reads": "Map has #% increased chance to contain Azmeri Spirits"
+          }
+        ],
+        "price": "~3 div"
+      },
+      {
+        "tablets": [
+          "Tablets_overseer"
+        ],
+        "mods": [
+          {
+            "id": "Tablets/MapAdditionalSpiritChance",
+            "reads": "Map has #% increased chance to contain Azmeri Spirits"
+          },
+          {
+            "id": "Tablets/MapAdditionalAzmeriWisp",
+            "reads": "Map contains 1 additional Azmeri Spirit"
+          }
+        ],
+        "price": "~3 div"
+      },
+      {
+        "tablets": [
+          "Tablets_overseer"
+        ],
+        "mods": [
+          {
+            "id": "Tablets/MapBossWaystoneChance",
+            "reads": "#% increased Quantity of Waystones dropped by Map Bosses"
+          },
+          {
+            "id": "Tablets/MapDroppedMapsIncrease",
+            "reads": "#% increased Quantity of Waystones found in Map"
+          }
+        ],
+        "price": "~4 div"
+      },
+      {
+        "tablets": [
+          "Tablets_temple"
+        ],
+        "mods": [
+          {
+            "id": "Tablets/MapRarePackIncrease",
+            "reads": "Map has #% increased number of Rare Monsters"
+          },
+          {
+            "id": "Tablets/IncursionTokenChance",
+            "reads": "#% chance to gain an additional Crystal from Vaal Beacons in Map"
+          }
+        ],
+        "price": "~4 div"
+      },
+      {
+        "tablets": [
+          "Tablets_temple"
+        ],
+        "mods": [
+          {
+            "id": "Tablets/MapDroppedItemRarityIncrease",
+            "reads": "#% increased Rarity of Items found in Map"
+          },
+          {
+            "id": "Tablets/IncursionTokenChance",
+            "reads": "#% chance to gain an additional Crystal from Vaal Beacons in Map"
+          }
+        ],
+        "price": "~35 chaos"
+      },
+      {
+        "tablets": [
+          "Tablets_temple"
+        ],
+        "mods": [
+          {
+            "id": "Tablets/MapAdditionalSpiritChance",
+            "reads": "Map has #% increased chance to contain Azmeri Spirits"
+          },
+          {
+            "id": "Tablets/IncursionTokenChance",
+            "reads": "#% chance to gain an additional Crystal from Vaal Beacons in Map"
+          }
+        ],
+        "price": "~35 chaos"
+      },
+      {
+        "tablets": [
+          "Tablets_temple"
+        ],
+        "mods": [
+          {
+            "id": "Tablets/MapDroppedMapsIncrease",
+            "reads": "#% increased Quantity of Waystones found in Map"
+          },
+          {
+            "id": "Tablets/IncursionTokenChance",
+            "reads": "#% chance to gain an additional Crystal from Vaal Beacons in Map"
+          }
+        ],
+        "price": "~35 chaos"
+      }
     ],
     "good": [
-      { "mods": ["Tablets/MapRarePackIncrease"], "reads": ["Map has #% increased number of Rare Monsters"] },
-      { "mods": ["Tablets/MapMonsterRarityIncrease"], "reads": ["Map has #% increased Monster Rarity"] },
-      { "mods": ["Tablets/MapDroppedItemRarityIncrease"], "reads": ["#% increased Rarity of Items found in Map"] },
-      { "mods": ["Tablets/RitualChanceForNoCost"], "reads": ["Favours Rerolled at Ritual Altars in Map have #% chance to cost no Tribute"] },
-      { "mods": ["Tablets/RitualDeferCostIncrease"], "reads": ["Deferring Favours at Ritual Altars in Map costs #% reduced Tribute"] },
-      { "mods": ["Tablets/RitualMagicMonsters"], "reads": ["Revived Monsters from Ritual Altars in Map have #% increased chance to be Rare"] },
-      { "mods": ["Tablets/RitualTributeIncrease"], "reads": ["Monsters Sacrificed at Ritual Altars in Map grant #% increased Tribute"] },
-      { "mods": ["Tablets/MapBossAdditionalSpirit"], "reads": ["Map contains # additional Azmeri Spirits"] },
-      { "mods": ["Tablets/MapAdditionalSpiritChance"], "reads": ["Map has #% increased chance to contain Azmeri Spirits"] },
-      { "mods": ["Tablets/MapBossWaystoneChance"], "reads": ["#% increased Quantity of Waystones dropped by Map Bosses"] },
-      { "mods": ["Tablets/MapDroppedMapsIncrease"], "reads": ["#% increased Quantity of Waystones found in Map"] },
-      { "mods": ["Tablets/MapBossRarity"], "reads": ["#% increased Rarity of Items dropped by Map Bosses"] },
-      { "mods": ["Tablets/MapAdditionalAzmeriWisp"], "reads": ["Map contains 1 additional Azmeri Spirit"] },
-      { "mods": ["Tablets/IncursionTokenChance"], "reads": ["#% chance to gain an additional Crystal from Vaal Beacons in Map"] }
+      {
+        "tablets": [
+          "Tablets_ritual"
+        ],
+        "mods": [
+          {
+            "id": "Tablets/MapAdditionalUniqueMonsterModifier",
+            "reads": "Unique Monsters have 1 additional Rare Modifier"
+          }
+        ],
+        "price": "~5 chaos"
+      },
+      {
+        "tablets": [
+          "Tablets_overseer"
+        ],
+        "mods": [
+          {
+            "id": "Tablets/MapAdditionalUniqueMonsterModifier",
+            "reads": "Unique Monsters have 1 additional Rare Modifier"
+          }
+        ],
+        "price": "~5 chaos"
+      },
+      {
+        "tablets": [
+          "Tablets_overseer"
+        ],
+        "mods": [
+          {
+            "id": "Tablets/MapAdditionalModifier",
+            "reads": "Map has # additional random Modifiers",
+            "min": 1,
+            "max": 1
+          }
+        ],
+        "price": "~5 chaos"
+      },
+      {
+        "tablets": [
+          "Tablets_temple"
+        ],
+        "mods": [
+          {
+            "id": "Tablets/MapAdditionalModifier",
+            "reads": "Map has # additional random Modifiers",
+            "min": 1,
+            "max": 1
+          }
+        ],
+        "price": "~6 chaos"
+      },
+      {
+        "tablets": [
+          "Tablets_overseer"
+        ],
+        "mods": [
+          {
+            "id": "Tablets/MapDroppedItemRarityIncrease",
+            "reads": "#% increased Rarity of Items found in Map"
+          },
+          {
+            "id": "Tablets/MapBossAdditionalSpirit",
+            "reads": "Map contains # additional Azmeri Spirits"
+          }
+        ],
+        "price": "~1 div"
+      },
+      {
+        "tablets": [
+          "Tablets_overseer"
+        ],
+        "mods": [
+          {
+            "id": "Tablets/MapBossAdditionalSpirit",
+            "reads": "Map contains # additional Azmeri Spirits"
+          },
+          {
+            "id": "Tablets/MapBossWaystoneChance",
+            "reads": "#% increased Quantity of Waystones dropped by Map Bosses"
+          }
+        ],
+        "price": "~1 div"
+      },
+      {
+        "tablets": [
+          "Tablets_overseer"
+        ],
+        "mods": [
+          {
+            "id": "Tablets/MapBossAdditionalSpirit",
+            "reads": "Map contains # additional Azmeri Spirits"
+          },
+          {
+            "id": "Tablets/MapDroppedMapsIncrease",
+            "reads": "#% increased Quantity of Waystones found in Map"
+          }
+        ],
+        "price": "~1 div"
+      },
+      {
+        "tablets": [
+          "Tablets_overseer"
+        ],
+        "mods": [
+          {
+            "id": "Tablets/MapBossAdditionalSpirit",
+            "reads": "Map contains # additional Azmeri Spirits"
+          },
+          {
+            "id": "Tablets/MapBossRarity",
+            "reads": "#% increased Rarity of Items dropped by Map Bosses"
+          }
+        ],
+        "price": "~1 div"
+      },
+      {
+        "tablets": [
+          "Tablets_overseer"
+        ],
+        "mods": [
+          {
+            "id": "Tablets/MapBossAdditionalSpirit",
+            "reads": "Map contains # additional Azmeri Spirits"
+          },
+          {
+            "id": "Tablets/MapAdditionalAzmeriWisp",
+            "reads": "Map contains 1 additional Azmeri Spirit"
+          }
+        ],
+        "price": "~1 div"
+      },
+      {
+        "tablets": [
+          "Tablets_overseer"
+        ],
+        "mods": [
+          {
+            "id": "Tablets/MapBossWaystoneChance",
+            "reads": "#% increased Quantity of Waystones dropped by Map Bosses"
+          },
+          {
+            "id": "Tablets/MapAdditionalAzmeriWisp",
+            "reads": "Map contains 1 additional Azmeri Spirit"
+          }
+        ],
+        "price": "~1 div"
+      },
+      {
+        "tablets": [
+          "Tablets_overseer"
+        ],
+        "mods": [
+          {
+            "id": "Tablets/MapDroppedMapsIncrease",
+            "reads": "#% increased Quantity of Waystones found in Map"
+          },
+          {
+            "id": "Tablets/MapAdditionalAzmeriWisp",
+            "reads": "Map contains 1 additional Azmeri Spirit"
+          }
+        ],
+        "price": "~1 div"
+      },
+      {
+        "tablets": [
+          "Tablets_overseer"
+        ],
+        "mods": [
+          {
+            "id": "Tablets/MapBossRarity",
+            "reads": "#% increased Rarity of Items dropped by Map Bosses"
+          },
+          {
+            "id": "Tablets/MapAdditionalAzmeriWisp",
+            "reads": "Map contains 1 additional Azmeri Spirit"
+          }
+        ],
+        "price": "~1 div"
+      },
+      {
+        "tablets": [
+          "Tablets_temple"
+        ],
+        "mods": [
+          {
+            "id": "Tablets/MapRarePackIncrease",
+            "reads": "Map has #% increased number of Rare Monsters"
+          },
+          {
+            "id": "Tablets/MapMonsterRarityIncrease",
+            "reads": "Map has #% increased Monster Rarity"
+          }
+        ],
+        "price": "~6 chaos"
+      },
+      {
+        "tablets": [
+          "Tablets_temple"
+        ],
+        "mods": [
+          {
+            "id": "Tablets/MapRarePackIncrease",
+            "reads": "Map has #% increased number of Rare Monsters"
+          },
+          {
+            "id": "Tablets/MapDroppedItemRarityIncrease",
+            "reads": "#% increased Rarity of Items found in Map"
+          }
+        ],
+        "price": "~6 chaos"
+      },
+      {
+        "tablets": [
+          "Tablets_temple"
+        ],
+        "mods": [
+          {
+            "id": "Tablets/MapRarePackIncrease",
+            "reads": "Map has #% increased number of Rare Monsters"
+          },
+          {
+            "id": "Tablets/MapAdditionalSpiritChance",
+            "reads": "Map has #% increased chance to contain Azmeri Spirits"
+          }
+        ],
+        "price": "~6 chaos"
+      },
+      {
+        "tablets": [
+          "Tablets_temple"
+        ],
+        "mods": [
+          {
+            "id": "Tablets/MapRarePackIncrease",
+            "reads": "Map has #% increased number of Rare Monsters"
+          },
+          {
+            "id": "Tablets/MapDroppedMapsIncrease",
+            "reads": "#% increased Quantity of Waystones found in Map"
+          }
+        ],
+        "price": "~6 chaos"
+      },
+      {
+        "tablets": [
+          "Tablets_temple"
+        ],
+        "mods": [
+          {
+            "id": "Tablets/MapRarePackIncrease",
+            "reads": "Map has #% increased number of Rare Monsters"
+          },
+          {
+            "id": "Tablets/MapAdditionalAzmeriWisp",
+            "reads": "Map contains 1 additional Azmeri Spirit"
+          }
+        ],
+        "price": "~6 chaos"
+      },
+      {
+        "tablets": [
+          "Tablets_temple"
+        ],
+        "mods": [
+          {
+            "id": "Tablets/MapMonsterRarityIncrease",
+            "reads": "Map has #% increased Monster Rarity"
+          },
+          {
+            "id": "Tablets/MapDroppedItemRarityIncrease",
+            "reads": "#% increased Rarity of Items found in Map"
+          }
+        ],
+        "price": "~5 chaos"
+      },
+      {
+        "tablets": [
+          "Tablets_temple"
+        ],
+        "mods": [
+          {
+            "id": "Tablets/MapMonsterRarityIncrease",
+            "reads": "Map has #% increased Monster Rarity"
+          },
+          {
+            "id": "Tablets/MapAdditionalSpiritChance",
+            "reads": "Map has #% increased chance to contain Azmeri Spirits"
+          }
+        ],
+        "price": "~5 chaos"
+      },
+      {
+        "tablets": [
+          "Tablets_temple"
+        ],
+        "mods": [
+          {
+            "id": "Tablets/MapMonsterRarityIncrease",
+            "reads": "Map has #% increased Monster Rarity"
+          },
+          {
+            "id": "Tablets/MapDroppedMapsIncrease",
+            "reads": "#% increased Quantity of Waystones found in Map"
+          }
+        ],
+        "price": "~5 chaos"
+      },
+      {
+        "tablets": [
+          "Tablets_temple"
+        ],
+        "mods": [
+          {
+            "id": "Tablets/MapMonsterRarityIncrease",
+            "reads": "Map has #% increased Monster Rarity"
+          },
+          {
+            "id": "Tablets/MapAdditionalAzmeriWisp",
+            "reads": "Map contains 1 additional Azmeri Spirit"
+          }
+        ],
+        "price": "~5 chaos"
+      },
+      {
+        "tablets": [
+          "Tablets_temple"
+        ],
+        "mods": [
+          {
+            "id": "Tablets/MapMonsterRarityIncrease",
+            "reads": "Map has #% increased Monster Rarity"
+          },
+          {
+            "id": "Tablets/IncursionTokenChance",
+            "reads": "#% chance to gain an additional Crystal from Vaal Beacons in Map"
+          }
+        ],
+        "price": "~35 chaos"
+      },
+      {
+        "tablets": [
+          "Tablets_temple"
+        ],
+        "mods": [
+          {
+            "id": "Tablets/MapDroppedItemRarityIncrease",
+            "reads": "#% increased Rarity of Items found in Map"
+          },
+          {
+            "id": "Tablets/MapAdditionalSpiritChance",
+            "reads": "Map has #% increased chance to contain Azmeri Spirits"
+          }
+        ],
+        "price": "~5 chaos"
+      },
+      {
+        "tablets": [
+          "Tablets_temple"
+        ],
+        "mods": [
+          {
+            "id": "Tablets/MapDroppedItemRarityIncrease",
+            "reads": "#% increased Rarity of Items found in Map"
+          },
+          {
+            "id": "Tablets/MapDroppedMapsIncrease",
+            "reads": "#% increased Quantity of Waystones found in Map"
+          }
+        ],
+        "price": "~5 chaos"
+      },
+      {
+        "tablets": [
+          "Tablets_temple"
+        ],
+        "mods": [
+          {
+            "id": "Tablets/MapDroppedItemRarityIncrease",
+            "reads": "#% increased Rarity of Items found in Map"
+          },
+          {
+            "id": "Tablets/MapAdditionalAzmeriWisp",
+            "reads": "Map contains 1 additional Azmeri Spirit"
+          }
+        ],
+        "price": "~6 chaos"
+      },
+      {
+        "tablets": [
+          "Tablets_temple"
+        ],
+        "mods": [
+          {
+            "id": "Tablets/MapAdditionalSpiritChance",
+            "reads": "Map has #% increased chance to contain Azmeri Spirits"
+          },
+          {
+            "id": "Tablets/MapDroppedMapsIncrease",
+            "reads": "#% increased Quantity of Waystones found in Map"
+          }
+        ],
+        "price": "~6 chaos"
+      },
+      {
+        "tablets": [
+          "Tablets_temple"
+        ],
+        "mods": [
+          {
+            "id": "Tablets/MapAdditionalSpiritChance",
+            "reads": "Map has #% increased chance to contain Azmeri Spirits"
+          },
+          {
+            "id": "Tablets/MapAdditionalAzmeriWisp",
+            "reads": "Map contains 1 additional Azmeri Spirit"
+          }
+        ],
+        "price": "~6 chaos"
+      },
+      {
+        "tablets": [
+          "Tablets_temple"
+        ],
+        "mods": [
+          {
+            "id": "Tablets/MapDroppedMapsIncrease",
+            "reads": "#% increased Quantity of Waystones found in Map"
+          },
+          {
+            "id": "Tablets/MapAdditionalAzmeriWisp",
+            "reads": "Map contains 1 additional Azmeri Spirit"
+          }
+        ],
+        "price": "~5 chaos"
+      },
+      {
+        "tablets": [
+          "Tablets_temple"
+        ],
+        "mods": [
+          {
+            "id": "Tablets/MapAdditionalAzmeriWisp",
+            "reads": "Map contains 1 additional Azmeri Spirit"
+          },
+          {
+            "id": "Tablets/IncursionTokenChance",
+            "reads": "#% chance to gain an additional Crystal from Vaal Beacons in Map"
+          }
+        ],
+        "price": "~35 chaos"
+      }
     ]
   }
 }

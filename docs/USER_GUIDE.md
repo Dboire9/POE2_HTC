@@ -521,14 +521,19 @@ listings and type the price back in. It's kept in your browser, with the day you
 against what crafting costs.
 
 **While you roll for what you asked for, other things land.** Some are worth more than the tablet you
-were aiming at. The watch list shows those, in two groups: **sells high, whatever else is on the
-tablet** — an extra random map modifier, an extra Rare modifier on Unique monsters, and on a Ritual
-tablet an extra Favour reroll — and **adds to what the tablet sells for**, such as item and monster
-rarity, more Rare monsters, waystones, Azmeri spirits and the tablet's own mechanic. Each row says how
-often it turns up on the way to your craft, worked out by playing the plan out thousands of times. Only
-the first group has a search and a price box: a jackpot sells on its own, while anything else is worth
-what the whole tablet is worth, which a search for one modifier can't tell you. When a jackpot you priced
-beats your own craft, the tab says so: that's the tablet to stop on and sell.
+were aiming at. The watch list shows those in four tiers — **super jackpot**, **jackpot**, **very good**
+and **good** — sorted by what each one actually sold for when Dorian checked the trade site, and that
+price is printed on the row with its date. The same set can sell very differently on each tablet, so
+each is listed for the tablets it was priced on: an extra Rare modifier on Unique monsters is ~5 div on
+a Temple tablet and a few chaos on the other two. Where the roll matters, the row names it — an extra
+Favour reroll **3** times is its own row, apart from **1–2** — and the odds count only that roll, taking
+every value in a range as equally likely.
+
+Each row says how often it turns up on the way to your craft, worked out by playing the plan out
+thousands of times, and has its own search and price box for today's price. When one you priced beats
+your own craft, the tab says so: that's the tablet to stop on and sell. Expect the pairs to say 0% on a
+cheap plan — it bins a tablet at its first wrong modifier, so two unwanted ones rarely sit on it at once
+— while the singles are the ones to watch for before you bin.
 
 A cost shown as a bound (**≤**) has no settled plan behind it, so there is nothing to play out and the
 rows say so. Asking for two of the rarest modifiers at once is what usually gets you there.

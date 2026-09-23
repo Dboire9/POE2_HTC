@@ -75,6 +75,37 @@ describe('replayPolicy — the solved policy played on real items', () => {
     }
   });
 
+  /**
+   * The same craft with W rolling a value 1–3, watched at any value, at 3, and at 1–2 — worked by hand.
+   * W is seen in 3/4 of crafts whatever the policy does. How often one of those sightings is a 3 is the
+   * policy's to decide: if it Exalts over W, T lands for certain and W is seen once, so 3/4 × 1/3 = 1/4.
+   * If it Annuls W and tries again, a craft sees W k times before T with chance (3/4)^k × 1/4, and none
+   * of them is a 3 with chance (2/3)^k — so a 3 turns up in 1 − (1/4)/(1 − 1/2) = 1/2 of crafts.
+   */
+  it('tells a watched value apart, and rolls no extra dice when nothing asks for one', () => {
+    const base = baseOf(['T', 'W'], []);
+    const w = { ...mod('W', 'prefix', [['w', 3]]), tiers: [{ name: 'w', ilvl: 1, weight: 3, ranges: [[1, 3]] as [number, number][] }] };
+    const data = dataOf(base, [mod('T', 'prefix', [['t', 1]]), w]);
+    const prices: Prices = { currency: { exalt: 1, annul: 1, chaos: 100 }, omens: {} };
+    const empty: ItemState = { base, level: 100, rarity: 'rare', prefixes: [], suffixes: [] };
+    const solve = (watch: NonNullable<Parameters<typeof markovFromItem>[4]>['replay']) =>
+      played(markovFromItem(data, prices, empty, [{ modId: 'T' }], { tolerance: 1e-12, ...(watch ? { replay: watch } : {}) }).replay);
+
+    const rp = solve({ runs: 20_000, seed: 5, watch: [['W'], [{ id: 'W', min: 3 }], [{ id: 'W', min: 1, max: 2 }]] });
+    const [any, three, low] = rp.seen as [number, number, number];
+    expect(any).toBeCloseTo(0.75, 1);
+    const move = markovFromItem(data, prices, empty, [{ modId: 'T' }], { tolerance: 1e-12 }).policy.get(encodeState(0, 0, 1, 0));
+    expect(Math.abs(three - (move?.currency === 'annul' ? 0.5 : 0.25))).toBeLessThan(0.015);
+    // Every sighting has SOME value, so the two bounded entries cover the unbounded one between them.
+    expect(three + low).toBeGreaterThanOrEqual(any);
+    expect(Math.max(three, low)).toBeLessThanOrEqual(any);
+
+    // No bounds anywhere: the dice are the ones a replay has always rolled.
+    const plain = solve({ runs: 2_000, seed: 5, watch: [['W']] });
+    const none = solve({ runs: 2_000, seed: 5 });
+    expect(plain.meanCost).toBe(none.meanCost);
+  });
+
   it('declines a route that plays a move it does not model, rather than guessing', () => {
     // On the frozen 2026-08-22 sheet a bone is cheap enough that this craft's route desecrates.
     const real = loadPatch('data/patches/0.5.0');

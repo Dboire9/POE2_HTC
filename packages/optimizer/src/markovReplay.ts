@@ -23,13 +23,22 @@ import type { McState, McTarget, StateEncoder, StateKey } from './markovState.ts
 import { classifyStart } from './markovState.ts';
 import { mulberry32 } from './simulate.ts';
 
+/**
+ * One modifier a watch entry asks for: an id, or an id with bounds on the value it rolled — "rerolling
+ * Favours 3 additional times" sells for more than "1 additional time", so the two are different
+ * entries. Bounds read the modifier's FIRST stat, and a value is drawn uniformly over its tier's range
+ * (whole numbers when the range is), only for a modifier some entry puts bounds on — so a replay that
+ * asks for none rolls exactly the dice it always did.
+ */
+export type WatchMod = string | { readonly id: string; readonly min?: number; readonly max?: number };
+
 export interface ReplayOptions {
   /** How many crafts to play. */
   readonly runs: number;
   /** Seed for the dice, so a result can be reproduced. Default 1. */
   readonly seed?: number;
-  /** Sets of mod ids to watch for — a single mod, or a combination that has to be on the item together. */
-  readonly watch?: readonly (readonly string[])[];
+  /** Sets of mods to watch for — a single mod, or a combination that has to be on the item together. */
+  readonly watch?: readonly (readonly WatchMod[])[];
   /** Give up on a craft after this many moves. A runaway guard, not a budget. Default 1,000,000. */
   readonly maxActions?: number;
   /**
@@ -86,7 +95,10 @@ export function replayPolicy(ctx: ReplayContext, opts: ReplayOptions): ReplayRep
   const runs = Math.max(1, Math.floor(opts.runs));
   const rng = mulberry32(opts.seed ?? 1);
   const maxActions = opts.maxActions ?? 1_000_000;
-  const watch = opts.watch ?? [];
+  const watch = (opts.watch ?? []).map((entry) => entry.map((w) => (typeof w === 'string' ? { id: w } : w)));
+  const valued = new Set(watch.flat().filter((w) => w.min !== undefined || w.max !== undefined).map((w) => w.id));
+  /** The value each placed mod rolled — only for the mods in `valued`. */
+  const rolled = new WeakMap<PlacedMod, number>();
   const limits = limitsOf(start.base);
   const level = start.level;
 
@@ -163,7 +175,17 @@ export function replayPolicy(ctx: ReplayContext, opts: ReplayOptions): ReplayRep
       if (r < 0) break;
     }
     const mod = poolMods[pick]!;
-    return place(item, pick < nPrefix ? 'prefix' : 'suffix', { modId: mod.id, tierName: pickTier(mod, floor) }, into);
+    const placed: PlacedMod = { modId: mod.id, tierName: pickTier(mod, floor) };
+    if (valued.has(mod.id)) rolled.set(placed, rollValue(mod, placed.tierName));
+    return place(item, pick < nPrefix ? 'prefix' : 'suffix', placed, into);
+  };
+
+  /** A value inside the tier's range for its first stat, uniformly — whole numbers when the range is. */
+  const rollValue = (mod: Mod, tierName: string): number => {
+    const range = mod.tiers.find((t) => t.name === tierName)?.ranges[0];
+    const lo = range?.[0] ?? 0;
+    const hi = range?.[1] ?? lo;
+    return Number.isInteger(lo) && Number.isInteger(hi) ? lo + Math.floor(rng() * (hi - lo + 1)) : lo + rng() * (hi - lo);
   };
 
   /** Which tier the mod lands at, by tier weight inside the window — it decides present or blocked. */
@@ -230,8 +252,13 @@ export function replayPolicy(ctx: ReplayContext, opts: ReplayOptions): ReplayRep
     }
   };
 
-  const holds = (item: ItemState, id: string): boolean =>
-    item.prefixes.some((p) => p.modId === id) || item.suffixes.some((p) => p.modId === id);
+  const holds = (item: ItemState, w: { readonly id: string; readonly min?: number; readonly max?: number }): boolean => {
+    const placed = item.prefixes.find((p) => p.modId === w.id) ?? item.suffixes.find((p) => p.modId === w.id);
+    if (!placed) return false;
+    if (w.min === undefined && w.max === undefined) return true;
+    const v = rolled.get(placed);
+    return v !== undefined && (w.min === undefined || v >= w.min) && (w.max === undefined || v <= w.max);
+  };
 
   const seenCount = new Array<number>(watch.length).fill(0);
   let sum = 0;
@@ -257,7 +284,7 @@ export function replayPolicy(ctx: ReplayContext, opts: ReplayOptions): ReplayRep
     const seen = new Uint8Array(watch.length);
     const look = (): void => {
       for (let k = 0; k < watch.length; k++) {
-        if (seen[k] === 0 && watch[k]!.every((id) => holds(item, id))) seen[k] = 1;
+        if (seen[k] === 0 && watch[k]!.every((w) => holds(item, w))) seen[k] = 1;
       }
     };
     look();

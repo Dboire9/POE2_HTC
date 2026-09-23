@@ -1423,8 +1423,9 @@ Left, roughly in the order a player would miss them:
   runs, so there is no settled plan to replay and the watch list shows no odds (it says why). The tab
   passes no search effort; validation.md solved a craft of that size exactly, so a larger sweep budget
   for tablets is the first thing to try.
-- **Combos.** The list takes a set of modifiers per entry and the tab prices it, but every entry today
-  is a single modifier. Dorian's call when a pair is worth more than its halves.
+- **Values are assumed uniform.** A priced roll ("rerolling Favours 3 times") is counted as one value
+  of its range, each equally likely. Morce Faster's sheets counted modifiers, not values, so nothing
+  checks that yet — a sheet of values would.
 - **Two wordings, one search.** 11 of 48 modifiers resolve to a stat id set that covers a near-identical
   modifier (Exiled Exchange 2 folds "an additional Shrine" and "(1-2) additional Shrines" into one row),
   so those searches list both and the row is marked ≈. The trade site's own stat list would separate

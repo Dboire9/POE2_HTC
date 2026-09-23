@@ -281,8 +281,9 @@ React web app: user inputs target item (base + mods + tiers), gets optimal craft
   is refused with a pointer). **Weights are Morce Faster's** (`data/tablets/morce-faster.json`: his counts,
   and per mod the weight and its basis) — his ladder everywhere except of Undertaking, the one mod his
   own three sheets reject at 99% (25 → 41). Credit him by name wherever the odds are shown. **The watch
-  list is Dorian's** (`data/tablets/valuable.json`): ONE list for all three tablets — an entry shows on
-  every tablet that rolls all of its modifiers — in two tiers, and every id sits beside what it `reads`
+  list is Dorian's** (`data/tablets/valuable.json`): four tiers of sets he priced on the trade site, each
+  entry naming the tablets it was priced for and, where the roll matters, the value (`min`/`max`, which
+  the replay rolls uniformly — see `WatchMod`). Every id sits beside what it `reads`
   in game, because the internal ids mislead (`RitualMagicMonsters` reads "chance to be Rare").
   `tablets.test.ts` holds each id to its text; match his lines by TEXT, never by id.
 - **A DIFFERENT MOD OF A TARGET'S FAMILY BLOCKS IT** (2026-09-21, `markovSiblings.ts`). A family can

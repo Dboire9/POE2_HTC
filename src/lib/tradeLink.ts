@@ -15,6 +15,8 @@ export interface TradeStat {
   readonly ids: readonly string[];
   /** The ids cover more than one wording of the stat, so the search is a superset. */
   readonly ambiguous?: boolean;
+  /** Only listings whose roll sits in this range — "rerolling Favours 3 additional times", not 1. */
+  readonly value?: { readonly min?: number; readonly max?: number };
 }
 
 export interface TradeSearch {
@@ -43,10 +45,11 @@ export const FULL_USES = { id: 'pseudo.pseudo_number_of_uses_remaining', value: 
  * spellings" filter, and a count group is how the site's own UI expresses that.
  */
 export function tradeUrl({ league, baseName, stats }: TradeSearch): string {
-  const single = stats.filter((s) => s.ids.length === 1).map((s) => ({ id: s.ids[0]!, disabled: false }));
+  const filter = (id: string, s: TradeStat) => ({ id, ...(s.value ? { value: s.value } : {}), disabled: false });
+  const single = stats.filter((s) => s.ids.length === 1).map((s) => filter(s.ids[0]!, s));
   const either = stats.filter((s) => s.ids.length > 1).map((s) => ({
     type: 'count', value: { min: 1 }, disabled: false,
-    filters: s.ids.map((id) => ({ id, disabled: false })),
+    filters: s.ids.map((id) => filter(id, s)),
   }));
   const groups = [{ type: 'and', filters: [FULL_USES, ...single], disabled: false }, ...either];
   const query = {

@@ -2,7 +2,7 @@ export { optimizePlan, optimizeAddChain, optimizeCost, optimizePareto, currencyA
 export { optimizeFromItem } from './fromItem.ts';
 export { markovFromItem, actionCostOf } from './markovFromItem.ts';
 export type {
-  MarkovResult, MarkovOptions, McAction, ExaltStrength, PolicyNode, PolicyEdge, ReplayOptions, ReplayReport, ReplayResult,
+  MarkovResult, MarkovOptions, McAction, ExaltStrength, PolicyNode, PolicyEdge, ReplayOptions, ReplayReport, ReplayResult, WatchMod,
 } from './markovFromItem.ts';
 export type {
   OptimizedPlan, OptimizeOptions, OptimizeCostOptions, CostedPlan, AddCurrency,

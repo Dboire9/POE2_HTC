@@ -190,3 +190,38 @@ export function binnedCredit(
 ): number {
   return binned.reduce((sum, b) => sum + b.perCraft * Math.max(0, ...b.entries.map((k) => priceOf(k) ?? 0)), 0);
 }
+
+/** How a solved plan gets there, read off what following it spends — the "why this way" of the tab. */
+export interface PlanSummary {
+  /** What an average craft uses, most first — plain tablets counted with the one you start from. */
+  readonly uses: readonly { readonly name: string; readonly perCraft: number }[];
+  /**
+   * `fresh`: starts over on a new plain tablet when a roll misses. `chaos`: keeps one tablet and
+   * rerolls it with Chaos Orbs. `mixed`: both, whichever is cheaper at the step. `direct`: an average
+   * craft does neither — what is asked for is common enough to land on the way up.
+   */
+  readonly strategy: 'fresh' | 'chaos' | 'mixed' | 'direct';
+}
+
+const MOVE_NAMES: Record<string, [string, string]> = {
+  restart: ['plain tablet', 'plain tablets'],
+  transmute: ['Transmutation', 'Transmutations'],
+  augment: ['Augmentation', 'Augmentations'],
+  regal: ['Regal Orb', 'Regal Orbs'],
+  exalt: ['Exalted Orb', 'Exalted Orbs'],
+  chaos: ['Chaos Orb', 'Chaos Orbs'],
+  annul: ['Annulment Orb', 'Annulment Orbs'],
+};
+
+/** Name the plan's strategy from the moves it plays per craft (`ReplayResult.movesPerCraft`). */
+export function summarizePlan(moves: Readonly<Record<string, number>>): PlanSummary {
+  // Every craft starts from one plain tablet; each restart is another.
+  const counts = { ...moves, restart: (moves['restart'] ?? 0) + 1 };
+  const uses = Object.entries(counts)
+    .filter(([, n]) => n >= 0.05)
+    .map(([k, n]) => ({ name: (MOVE_NAMES[k] ?? [k, k])[Math.abs(n - 1) < 0.05 ? 0 : 1], perCraft: n }))
+    .sort((a, b) => b.perCraft - a.perCraft);
+  const fresh = (moves['restart'] ?? 0) >= 1;
+  const chaos = (moves['chaos'] ?? 0) >= 1;
+  return { uses, strategy: fresh && chaos ? 'mixed' : fresh ? 'fresh' : chaos ? 'chaos' : 'direct' };
+}

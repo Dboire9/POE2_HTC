@@ -152,7 +152,14 @@ const TabletsTab: React.FC = () => {
         {runErr && <p className="text-sm text-amber-400">{runErr}</p>}
       </Card>
 
-      {solved && <TabletResult solved={solved} league={basis?.league} rates={basis?.rates} />}
+      {solved && (
+        <TabletResult
+          solved={solved}
+          league={basis?.league}
+          rates={basis?.rates}
+          orbPrices={{ chaos: engine?.prices.currency['chaos'], annul: engine?.prices.currency['annul'] }}
+        />
+      )}
 
       <p className="text-xs text-muted-foreground">
         Modifier odds: {ODDS_CREDIT.who}’s rolling data ({ODDS_CREDIT.rolls.toLocaleString()} modifiers seen) ·

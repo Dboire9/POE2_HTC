@@ -180,6 +180,10 @@ describe('replayPolicy — the solved policy played on real items', () => {
     expect(p[90]!).toBeGreaterThan(1.5 * rp.meanCost);
     // Each binned set names real entries, and something worth selling is binned most crafts.
     for (const b of rp.binned) for (const k of b.entries) expect([0, 1]).toContain(k);
+    // It bins dozens of tablets a craft, and every fresh one is Transmuted: the moves say how it works.
+    expect(rp.movesPerCraft['restart']!).toBeGreaterThan(20);
+    expect(rp.movesPerCraft['transmute']!).toBeGreaterThanOrEqual(rp.movesPerCraft['restart']!);
+    expect(rp.movesPerCraft['annul'] ?? 0).toBeLessThan(1);
     const perCraft = rp.binned.reduce((n, b) => n + b.perCraft, 0);
     expect(perCraft).toBeGreaterThan(0.3);
     expect(perCraft).toBeLessThan(3);

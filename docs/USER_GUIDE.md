@@ -526,6 +526,11 @@ a **Search on trade** button that opens the official site with the search alread
 buyout listings of unused tablets (all 10 uses left), cheapest first, so the price you see is one you can actually buy at; you read the
 listings and type the price back in. It's kept in your browser, with the day you typed it.
 
+**Why this plan.** Under the cost, the tab says in a sentence or two how the plan gets there and why that
+way: starting a fresh tablet whenever a roll misses, rerolling one tablet with Chaos Orbs, or a mix —
+whichever is cheaper at these prices — and what an average craft uses (*72 plain tablets · 72
+Transmutations · …*). It is read off the plan played out, not a rule of thumb.
+
 **Is it worth crafting?** Type what the tablet sells for and the tab answers as an investment:
 
 - **Profit (or loss) per tablet, on average** — the sale price, minus what crafting costs, plus what

@@ -83,6 +83,12 @@ export interface ReplayResult {
    * reports the counts and the caller prices them — the best entry of each set, since an item sells once.
    */
   readonly binned: readonly { readonly entries: readonly number[]; readonly perCraft: number }[];
+  /**
+   * What the policy actually PLAYS, per craft on average, by currency — `restart` included (a fresh
+   * base each time). The solved policy is a table over every state; this is what following it spends,
+   * which is what "how does this plan work" has to be answered from.
+   */
+  readonly movesPerCraft: Readonly<Record<string, number>>;
 }
 
 /** A replay, or why there is none. It declines rather than guesses: see `play`. */
@@ -285,6 +291,7 @@ export function replayPolicy(ctx: ReplayContext, opts: ReplayOptions): ReplayRep
   let shown = 0;
   let played = 0;
   const costs: number[] = [];
+  const moveCount = new Map<string, number>();
   const binnedBy = new Map<string, number>();
   /** Which watch entries a binned item holds, recorded once per bin. */
   const recordBin = (item: ItemState): void => {
@@ -320,6 +327,7 @@ export function replayPolicy(ctx: ReplayContext, opts: ReplayOptions): ReplayRep
       if (!action) return { ok: false, reason: `the policy has no move for state ${key}` };
       if (++moves > maxActions) return { ok: false, reason: `a craft ran past ${maxActions} moves` };
       if (action.currency === 'restart' && watch.length > 0) recordBin(item);
+      moveCount.set(action.currency, (moveCount.get(action.currency) ?? 0) + 1);
       const next = play(action, item);
       if (next === undefined) return { ok: false, reason: `the route plays a ${action.currency} move the replay does not model` };
       if (next === 'nothing-rolls') {
@@ -347,6 +355,7 @@ export function replayPolicy(ctx: ReplayContext, opts: ReplayOptions): ReplayRep
     seen: seenCount.map((c) => c / played),
     costPercentiles: percentiles(costs),
     binned: [...binnedBy].map(([key, n]) => ({ entries: key.split(',').map(Number), perCraft: n / played })),
+    movesPerCraft: Object.fromEntries([...moveCount].map(([k, n]) => [k, n / played])),
   };
 }
 

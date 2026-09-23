@@ -4,7 +4,7 @@ import { cn } from '../../lib/utils';
 import type { EngineMarkovResult } from '../../lib/engineTypes';
 import { formatIn, pickUnit, type Rates } from '../../lib/currency';
 import {
-  WATCH_TIERS, binnedCredit, searchIsLoose, shareWithin, tradeStatsFor, watchKey, watchText,
+  WATCH_TIERS, binnedCredit, searchIsLoose, shareWithin, summarizePlan, tradeStatsFor, watchKey, watchText,
   type TabletBase, type WatchEntry, type WatchMod, type WatchTier,
 } from '../../lib/tablets';
 import { priceKey, readPrices, writePrice, type TypedPrice } from '../../lib/tabletPrices';
@@ -36,11 +36,16 @@ const TIER_TITLE: Record<WatchTier, string> = {
  * the way. Everything here reads from `solved` — never from what is ticked in the picker since — so the
  * odds, the searches and the prices on it always describe the same tablet.
  */
+/** How many of something a craft uses, readably: 72, 3.2, 0.4. */
+const howMany = (n: number): string => (n >= 10 ? Math.round(n).toLocaleString() : `${+n.toFixed(1)}`);
+
 export const TabletResult: React.FC<{
   solved: SolvedTablet;
   league: string | undefined;
   rates: Rates | undefined;
-}> = ({ solved: { tablet, chosen, watch, markov, plainCost }, league, rates }) => {
+  /** Chaos and Annul prices, for saying why the plan uses one and not the other. */
+  orbPrices: { readonly chaos?: number; readonly annul?: number };
+}> = ({ solved: { tablet, chosen, watch, markov, plainCost }, league, rates, orbPrices }) => {
   // Read once, at the first render: what the player typed before is part of the initial state, not
   // something that arrives a render later.
   const [prices, setPrices] = useState<Record<string, TypedPrice>>(readPrices);
@@ -105,6 +110,20 @@ export const TabletResult: React.FC<{
     return entry ? prices[keyOf(entry.mods)]?.ex : undefined;
   }) : 0;
   const profit = targetPrice && cost !== undefined ? targetPrice.ex - cost + credit : undefined;
+  const price = (ex: number | undefined): string => (ex === undefined ? '?' : formatIn(pickUnit(ex, rates), ex));
+  const plan = markov.replay ? summarizePlan(markov.replay.movesPerCraft) : undefined;
+  // Why the plan goes the way it does, in the terms a player weighs: the prices of the alternatives.
+  const why: Record<NonNullable<typeof plan>['strategy'], string> = {
+    fresh: `It starts a fresh tablet whenever a roll misses. At these prices that is cheaper than repairing a wrong roll with Chaos `
+      + `Orbs: each costs ${price(orbPrices.chaos)} and swaps a random modifier — maybe one you wanted — so a wrong roll usually takes `
+      + `several to fix, while a new plain tablet costs ${price(plainCost)}.`,
+    chaos: `It keeps one tablet and rerolls it with Chaos Orbs. At these prices a Chaos Orb (${price(orbPrices.chaos)}) costs less than `
+      + `starting over on a new plain tablet (${price(plainCost)}) and rolling it back up.`,
+    mixed: 'It mixes the two, taking whichever costs less from where the tablet stands: starting over on a new plain tablet '
+      + `(${price(plainCost)}), or rerolling it with a Chaos Orb (${price(orbPrices.chaos)}).`,
+    direct: 'What you asked for is common enough that most crafts land it on the way up — Transmute, Augment, Regal, Exalt — '
+      + 'without starting over or rerolling.',
+  };
   return (
     <>
       <Card className="space-y-3 p-4">
@@ -127,6 +146,18 @@ export const TabletResult: React.FC<{
                 {' '}1 in 10 costs more than <span className="tabular-nums text-foreground">{formatIn(unit, spread[90]!)}</span>
                 {' '}({markov.replay!.runs.toLocaleString()} crafts played out{markov.replay!.runs < 500 ? ' — a long craft, so a rough read' : ''}).
               </p>
+            )}
+            {plan && (
+              <div className="space-y-1 rounded-md border border-border/60 bg-muted/30 p-3 text-sm">
+                <h4 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Why this plan</h4>
+                <p>{why[plan.strategy]}</p>
+                <p className="text-muted-foreground">
+                  An average craft uses {plan.uses.map((u) => `${howMany(u.perCraft)} ${u.name}`).join(' · ')}.
+                </p>
+                <p className="text-muted-foreground">
+                  No Annulment Orbs ({price(orbPrices.annul)} each): on a tablet they rarely pay for themselves.
+                </p>
+              </div>
             )}
             <div className="flex flex-wrap items-center gap-2 text-sm">
               <span className="text-muted-foreground">What it sells for:</span>

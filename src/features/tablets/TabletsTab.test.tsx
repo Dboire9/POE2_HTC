@@ -178,7 +178,7 @@ describe('the Tablets tab — what it costs and what it sells for', () => {
   it('says how risky a craft is, not only what it costs on average', async () => {
     // The p-th percentile of rolling it is 10p ex; the 1-ex plain tablet is added to every craft.
     const costPercentiles = Array.from({ length: 101 }, (_, p) => p * 10);
-    solved(markov({ replay: { runs: 1_000, seen: [], meanCost: 500, stdErr: 5, costPercentiles, binned: [] } }));
+    solved(markov({ replay: { runs: 1_000, seen: [], meanCost: 500, stdErr: 5, costPercentiles, binned: [], movesPerCraft: {} } }));
     const user = await open();
     await pick(user);
     expect(await screen.findByText(/Half the crafts cost less than/)).toHaveTextContent(
@@ -193,7 +193,7 @@ describe('the Tablets tab — what it costs and what it sells for', () => {
   it('counts the good tablets you would sell instead of binning, at the prices you typed', async () => {
     vi.mocked(watchList).mockReturnValue([{ mods: [{ id: 'Tablets/MapAdditionalModifier' }], tier: 'veryGood' }]);
     // Half a craft's worth of binned tablets holding that set.
-    solved(markov({ replay: { runs: 1_000, seen: [0.4], meanCost: 1600, stdErr: 20, costPercentiles: [], binned: [{ entries: [0], perCraft: 0.5 }] } }));
+    solved(markov({ replay: { runs: 1_000, seen: [0.4], meanCost: 1600, stdErr: 20, costPercentiles: [], binned: [{ entries: [0], perCraft: 0.5 }], movesPerCraft: {} } }));
     const user = await open();
     await pick(user);
     await user.type(await screen.findByRole('textbox', { name: /Price of a Ritual Tablet with .*Gold/ }), '2000');
@@ -205,6 +205,18 @@ describe('the Tablets tab — what it costs and what it sells for', () => {
     await user.tab();
     // 2,000 − 1,588.3 + 0.5 × 1,000.
     expect(await screen.findByText(/Profit per tablet: about 912 ex/)).toHaveTextContent('counting 500 ex from good tablets');
+  });
+
+  it('says why the plan goes the way it does, from what it actually plays', async () => {
+    solved(markov({ replay: { runs: 1_000, seen: [], meanCost: 500, stdErr: 5, costPercentiles: [], binned: [],
+      movesPerCraft: { restart: 71, transmute: 72, augment: 3.2, regal: 1, exalt: 2 } } }));
+    const user = await open();
+    await pick(user);
+    const box = (await screen.findByText('Why this plan')).parentElement!;
+    // Restarts and no Chaos: a fresh tablet each miss, set against the Chaos Orb it beat.
+    expect(box.textContent).toMatch(/starts a fresh tablet whenever a roll misses.*Chaos Orbs: each costs \d.*a new plain tablet costs 1 ex/);
+    expect(box.textContent).toMatch(/An average craft uses 72 plain tablets · 72 Transmutations · 3\.2 Augmentations · 2 Exalted Orbs · 1 Regal Orb/);
+    expect(box.textContent).toMatch(/No Annulment Orbs/);
   });
 
   it('never carries a price typed for one tablet into the next one’s box', async () => {
@@ -243,7 +255,7 @@ describe('the Tablets tab — what it costs and what it sells for', () => {
 describe('the Tablets tab — what else you might roll', () => {
   it('lists a valuable modifier, how often it turns up, and its own trade search', async () => {
     vi.mocked(watchList).mockReturnValue([{ mods: [{ id: 'Tablets/MapAdditionalModifier' }], tier: 'jackpot', note: 'sells on its own' }]);
-    solved(markov({ replay: { runs: 4_000, seen: [0.23], meanCost: 1600, stdErr: 20, costPercentiles: [], binned: [] } }));
+    solved(markov({ replay: { runs: 4_000, seen: [0.23], meanCost: 1600, stdErr: 20, costPercentiles: [], binned: [], movesPerCraft: {} } }));
     const user = await open();
     await user.click(screen.getByRole('button', { name: /Add .*increased Gold found in Map/ }));
     await user.click(screen.getByRole('button', { name: /What does it cost/ }));
@@ -262,7 +274,7 @@ describe('the Tablets tab — what else you might roll', () => {
 
   it('names the value a row was priced at, searches for exactly that roll, and gives no per-roll odds', async () => {
     vi.mocked(watchList).mockReturnValue([{ mods: [{ id: 'Tablets/RitualAdditionalReroll', min: 3, max: 3 }], tier: 'superJackpot' }]);
-    solved(markov({ replay: { runs: 100, seen: [0.02], meanCost: 1600, stdErr: 20, costPercentiles: [], binned: [] } }));
+    solved(markov({ replay: { runs: 100, seen: [0.02], meanCost: 1600, stdErr: 20, costPercentiles: [], binned: [], movesPerCraft: {} } }));
     const user = await open();
     await user.click(screen.getByRole('button', { name: /Add .*increased Gold found in Map/ }));
     await user.click(screen.getByRole('button', { name: /What does it cost/ }));
@@ -281,7 +293,7 @@ describe('the Tablets tab — what else you might roll', () => {
       { mods: [{ id: 'Tablets/MapDroppedItemRarityIncrease' }], tier: 'good' },
       { mods: [{ id: 'Tablets/MapAdditionalUniqueMonsterModifier' }], tier: 'jackpot' },
     ]);
-    solved(markov({ replay: { runs: 1_000, seen: [0.04, 0.61, 0.07], meanCost: 1600, stdErr: 20, costPercentiles: [], binned: [] } }));
+    solved(markov({ replay: { runs: 1_000, seen: [0.04, 0.61, 0.07], meanCost: 1600, stdErr: 20, costPercentiles: [], binned: [], movesPerCraft: {} } }));
     const user = await open();
     await user.click(screen.getByRole('button', { name: /Add .*increased Gold found in Map/ }));
     await user.click(screen.getByRole('button', { name: /What does it cost/ }));
@@ -306,7 +318,7 @@ describe('the Tablets tab — what else you might roll', () => {
 
   it('says when a price beats the tablet the player asked for', async () => {
     vi.mocked(watchList).mockReturnValue([{ mods: [{ id: 'Tablets/MapAdditionalModifier' }], tier: 'jackpot' }]);
-    solved(markov({ replay: { runs: 100, seen: [0.1], meanCost: 1600, stdErr: 20, costPercentiles: [], binned: [] } }));
+    solved(markov({ replay: { runs: 100, seen: [0.1], meanCost: 1600, stdErr: 20, costPercentiles: [], binned: [], movesPerCraft: {} } }));
     const user = await open();
     await user.click(screen.getByRole('button', { name: /Add .*increased Gold found in Map/ }));
     await user.click(screen.getByRole('button', { name: /What does it cost/ }));

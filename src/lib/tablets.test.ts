@@ -2,7 +2,8 @@ import { describe, it, expect } from 'vitest';
 import { loadPatch } from '../../packages/engine/src/index.ts';
 import { familiesOf, resolveMod } from '../../packages/engine/src/pool.ts';
 import {
-  CURATED, ODDS_CREDIT, WATCH_TIERS, binnedCredit, listTablets, ruledOutBy, searchIsLoose, shareWithin, tradeStatsFor, watchKey,
+  CURATED, ODDS_CREDIT, WATCH_TIERS, binnedCredit, listTablets, ruledOutBy, searchIsLoose, shareWithin, summarizePlan,
+  tradeStatsFor, watchKey,
   watchList, watchText,
   type TabletBase,
 } from './tablets';
@@ -156,5 +157,17 @@ describe('reading a craft as an investment', () => {
     const prices: Record<number, number> = { 0: 100, 1: 300 };
     expect(binnedCredit(binned, (k) => prices[k])).toBe(150); // 0.5 × max(100, 300); entry 2 unpriced
     expect(binnedCredit([], () => 5)).toBe(0);
+  });
+});
+
+describe('saying how a plan works', () => {
+  it('names the strategy from what the plan plays, counting the tablet you start from', () => {
+    const fresh = summarizePlan({ restart: 71, transmute: 72, augment: 3.2, regal: 1, exalt: 2 });
+    expect(fresh.strategy).toBe('fresh');
+    expect(fresh.uses[0]).toEqual({ name: 'plain tablets', perCraft: 72 });
+    expect(fresh.uses.find((u) => u.name.startsWith('Regal'))).toEqual({ name: 'Regal Orb', perCraft: 1 });
+    expect(summarizePlan({ transmute: 1, regal: 1, chaos: 14 }).strategy).toBe('chaos');
+    expect(summarizePlan({ restart: 5, chaos: 9, transmute: 6 }).strategy).toBe('mixed');
+    expect(summarizePlan({ transmute: 1, augment: 1, regal: 1, exalt: 1 }).strategy).toBe('direct');
   });
 });

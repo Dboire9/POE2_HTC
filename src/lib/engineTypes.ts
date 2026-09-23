@@ -487,6 +487,8 @@ export interface EngineMarkovResult {
     readonly costPercentiles: readonly number[];
     /** Binned items that held watched sets, per craft, by the set of entries held — see `ReplayResult.binned`. */
     readonly binned: readonly { readonly entries: readonly number[]; readonly perCraft: number }[];
+    /** What following the plan spends, per craft on average, by currency (`restart` = a fresh base). */
+    readonly movesPerCraft: Readonly<Record<string, number>>;
   };
   readonly replayReason?: string;
   readonly nodes: readonly EnginePolicyNode[];

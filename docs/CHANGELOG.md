@@ -9,6 +9,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- **Plan a run, on the Tablets tab.** Once your tablet has a price: how many to craft to come out ahead
+  9 times in 10, what that run should make, and how much currency to have on hand before its sales pay
+  you back — with 1, 10 and 100 beside it for scale. Played out by resampling the crafts the replay
+  measured (tabletRun.ts). The Ritual reroll at 130 ex a plain tablet: 94 tablets, ~2,050 chaos, ~1,430
+  chaos on hand.
+
 - **Every item the planner shows has a Search on trade button.** The target item — beside the target
   list, before anything is computed — the finished item (*Or buy it already made*, beside the true
   expected cost), every row of *Start from an item you buy instead*, and every row

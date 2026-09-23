@@ -12,6 +12,8 @@ import { FULL_USES, tradeUrl } from '../../lib/tradeLink';
 import PolicyGraph from '../engine/PolicyGraph';
 import { oneIn } from './TabletModPicker';
 import { ProfitVerdict } from './ProfitVerdict';
+import { RunPlanView } from './RunPlan';
+import { planRuns } from '../../lib/tabletRun';
 import { RiskChart } from './RiskChart';
 import { TradePrice } from './TradePrice';
 
@@ -152,6 +154,16 @@ export const TabletResult: React.FC<{
   const anyWatchPriced = watch.some((e) => prices[keyOf(e.mods)]);
   const price = (ex: number | undefined): string => (ex === undefined ? '?' : formatIn(unit, ex));
   const plan = markov.replay ? summarizePlan(markov.replay.movesPerCraft) : undefined;
+  // A run of crafts, once the tablet has a price: how many to make, what they should bring, what to have.
+  // Keyed on the numbers, not the arrays rebuilt every render: a plan is a million draws.
+  const sale = targetPrice?.ex;
+  const runPlan = React.useMemo(() => {
+    const replay = markov.replay;
+    if (sale === undefined || !replay || replay.costPercentiles.length === 0) return undefined;
+    const meanCost = plainCost + replay.meanCost;
+    const income = sale + revenue;
+    return { plan: planRuns(replay.costPercentiles.map((c) => c + plainCost), meanCost, income), perCraft: income - meanCost };
+  }, [sale, markov.replay, plainCost, revenue]);
   // Why the plan goes the way it does, in the terms a player weighs: the prices of the alternatives.
   const why: Record<NonNullable<typeof plan>['strategy'], string> = {
     fresh: `It starts a fresh tablet whenever a roll misses. At these prices that is cheaper than repairing a wrong roll with Chaos `
@@ -254,6 +266,9 @@ export const TabletResult: React.FC<{
               salesOnWay={revenue}
               fmt={(ex) => formatIn(unit, ex)}
             />
+            {runPlan && (
+              <RunPlanView plan={runPlan.plan} perCraft={runPlan.perCraft} fmt={(ex) => formatIn(unit, ex)} />
+            )}
             {targetPrice && spread && (
               <p className="text-sm text-muted-foreground">
                 Spend up to what it sells for, and you finish{' '}

@@ -251,6 +251,35 @@ describe('the Tablets tab — what it costs and what it sells for', () => {
     expect(screen.getByText(/Loss per tablet/)).toHaveTextContent('buying one is cheaper');
   });
 
+  it('plans a run once the tablet has a price: how many to craft, what it makes, what to have on hand', async () => {
+    // Each craft costs 1–1,001 ex (the plain tablet included), 501 on average, and sells for 800: one
+    // craft is ahead ~80% of the time, so the run it recommends is longer than one.
+    const costPercentiles = Array.from({ length: 101 }, (_, p) => p * 10);
+    solved(markov({ replay: { runs: 1_000, seen: [], meanCost: 500, stdErr: 5, costPercentiles, movesPerCraft: {} } }));
+    const user = await open();
+    await pick(user);
+    await user.type(await screen.findByRole('textbox', { name: /Price of a Ritual Tablet/ }), '800');
+    await user.tab();
+    const headline = await screen.findByText(/and you come out ahead/);
+    const n = Number(/Craft ([\d,]+) tablets/.exec(headline.textContent)![1]!.replace(/,/g, ''));
+    expect(n).toBeGreaterThan(1);
+    expect(headline.textContent).toContain(`about ${Math.round(n * 299).toLocaleString('en')} ex over the run`);
+    // 1, 10 and 100 beside it, the best row marked.
+    const rows = screen.getAllByRole('row').slice(1).map((r) => r.textContent);
+    expect(rows.some((t) => t.startsWith(`${n}best`))).toBe(true);
+    expect(rows.some((t) => t.startsWith('100'))).toBe(true);
+  });
+
+  it('says no run makes a loss pay', async () => {
+    const costPercentiles = Array.from({ length: 101 }, (_, p) => p * 10);
+    solved(markov({ replay: { runs: 1_000, seen: [], meanCost: 500, stdErr: 5, costPercentiles, movesPerCraft: {} } }));
+    const user = await open();
+    await pick(user);
+    await user.type(await screen.findByRole('textbox', { name: /Price of a Ritual Tablet/ }), '300');
+    await user.tab();
+    expect(await screen.findByText(/No number of crafts turns this into a profit/)).toHaveTextContent('each loses about 201 ex');
+  });
+
   it('recounts the craft when you price what can land, selling it whenever that pays', async () => {
     vi.mocked(watchList).mockReturnValue([{ mods: [{ id: 'Tablets/MapAdditionalModifier' }], tier: 'veryGood' }]);
     const replay = { runs: 1_000, seen: [0.4], meanCost: 1600, stdErr: 20, costPercentiles: [], movesPerCraft: {} };

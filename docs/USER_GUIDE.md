@@ -570,6 +570,12 @@ and a chart shows how often a craft finishes within any budget, shaded green up 
   less than, what 1 craft in 10 costs more than, and how often you finish if you spend no more than the
   tablet sells for. These come from playing the plan out thousands of times; a very long craft fits fewer
   in, and the tab says so.
+- **Plan a run** — how many tablets to craft to come out ahead **9 times in 10**, what that run should make,
+  and how much to **have on hand**: the deepest a run that long goes before its sales pay you back. One
+  craft is a gamble; several even it out. The shortest run that is safe leads, beside 1, 10 and 100 for
+  scale. On Ritual tablets at 130 ex a plain one, fishing for the extra Favour reroll: one tablet is ahead
+  about 69% of the time; **94 tablets** are ahead 9 times in 10, make about 2,050 chaos, and need about
+  1,430 chaos on hand. A craft that loses on average says so — no number of crafts fixes that.
 
 Worked through on Ritual tablets with a plain one at 100 ex: fishing for an extra Favour reroll costs ~16
 div on average for a tablet that sells for ~20, and finishes within 20 div about 3 times in 4; asking for

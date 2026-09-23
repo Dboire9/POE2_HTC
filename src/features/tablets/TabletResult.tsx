@@ -14,6 +14,7 @@ import { oneIn } from './TabletModPicker';
 import { ProfitVerdict } from './ProfitVerdict';
 import { RunPlanView } from './RunPlan';
 import { StandInTip } from './StandInTip';
+import { TabletMoves } from './TabletMoves';
 import { ProfitBreakdown } from './ProfitBreakdown';
 import { planRuns } from '../../lib/tabletRun';
 import { RiskChart } from './RiskChart';
@@ -268,6 +269,7 @@ export const TabletResult: React.FC<{
                 </p>
               </div>
             )}
+            <TabletMoves markov={markov} startName={startOne} fmt={(ex) => formatIn(unit, ex)} />
             {/* The Magic tip reads its worths off a plain-tablet solve; planned from a Magic one, it is moot. */}
             {start === 'plain' && <StandInTip
               standIns={standIns} plainCost={plainCost} fmt={(ex) => formatIn(unit, ex)}

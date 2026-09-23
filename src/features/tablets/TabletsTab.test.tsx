@@ -352,6 +352,31 @@ describe('the Tablets tab — what it costs and what it sells for', () => {
     ]);
   });
 
+  it('says what to do with every tablet a roll can leave you holding — the ones that went wrong too', async () => {
+    // Dorian, 2026-09-23: 10 plain tablets, half Magic with a prefix, half with a suffix; Regal'd, one came
+    // out Rare with two junk suffixes, four with a prefix and a suffix. The plan has a move for each.
+    const node = (key: string, rarity: 'normal' | 'magic' | 'rare', jp: number, js: number, action: string, expectedCost: number, isStart = false) =>
+      ({ key, present: [], blocked: [], junkPrefixes: jp, junkSuffixes: js, rarity, isStart, isGoal: false, depth: 1, expectedCost, visitRate: 1, action });
+    solved(markov({
+      nodes: [
+        node('w', 'normal', 0, 0, 'Transmute', 1587, true),
+        node('mp', 'magic', 1, 0, 'Regal', 1586), node('ms', 'magic', 0, 1, 'Regal', 1600),
+        node('r11', 'rare', 1, 1, 'Exalt', 1600), node('r02', 'rare', 0, 2, 'Start over with a new base', 1610),
+      ],
+    }));
+    const user = await open();
+    await pick(user);
+    const table = (await screen.findByText('What to do with each tablet')).closest('details')!;
+    const rows = within(table).getAllByRole('row').slice(1).map((r) => r.textContent);
+    expect(rows).toEqual([
+      'A plain tabletTransmute1,587 ex',
+      'Magic · one prefix, none of them wantedRegal1,586 ex',
+      'Magic · one suffix, none of them wantedRegal1,600 ex',
+      'Rare · one prefix + one suffix, none of them wantedExalt1,600 ex',
+      'Rare · two suffixes, none of them wantedStop — run or sell it, start a new plain tablet—',
+    ]);
+  });
+
   it('says no run makes a loss pay', async () => {
     const costPercentiles = Array.from({ length: 101 }, (_, p) => p * 10);
     solved(markov({ replay: { runs: 1_000, seen: [], meanCost: 500, stdErr: 5, costPercentiles, movesPerCraft: {} } }));

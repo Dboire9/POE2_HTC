@@ -9,6 +9,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- **What to do with each tablet.** The route only followed the crafts that go well, so it never said what to
+  do with a Magic tablet that rolled a prefix, or a Rare with a junk prefix and suffix (Dorian, mid-craft).
+  A table on the result now lists every tablet the plan can leave you holding and its next move — or *Stop:
+  run or sell it, start a new one* — with what finishing still costs, straight from the solved policy.
+
 - **Plan a tablet craft from a Magic tablet, not only a plain one.** *Start from*: Plain tablet · Magic ·
   one prefix · Magic · one suffix, beside its own price box and trade search. The solve starts from that
   Magic tablet (holding the commonest unwanted modifier on its side that blocks nothing asked for) and buys

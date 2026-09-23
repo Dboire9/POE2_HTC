@@ -361,6 +361,18 @@
         ],
         "mods": [
           {
+            "id": "Tablets/RitualOmenChance",
+            "reads": "Ritual Favours in Map have #% increased chance to be Omens"
+          }
+        ],
+        "price": "~1 div"
+      },
+      {
+        "tablets": [
+          "Tablets_ritual"
+        ],
+        "mods": [
+          {
             "id": "Tablets/MapAdditionalUniqueMonsterModifier",
             "reads": "Unique Monsters have 1 additional Rare Modifier"
           }

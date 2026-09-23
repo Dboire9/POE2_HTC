@@ -107,7 +107,7 @@ describe('the valuable list', () => {
       const order = watchList(t, []).map((e) => WATCH_TIERS.indexOf(e.tier));
       expect(order).toEqual([...order].sort((a, b) => a - b));
     }
-    expect(tablets.map((t) => watchList(t, []).length)).toEqual([7, 18, 26]);
+    expect(tablets.map((t) => watchList(t, []).length)).toEqual([8, 18, 26]);
   });
 
   it('keeps the value a set was priced at', () => {

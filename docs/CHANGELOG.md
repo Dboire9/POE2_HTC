@@ -144,6 +144,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   seconds and says so in words (*too long a craft to play out — about 270,183 orbs and fresh tablets a
   craft*), once, under the cost, which still stands. And when the solver stops before a number, it no
   longer says it "ran out of time … a six-mod target": it had used its sweeps, not its time.
+- **Ritual's watch list has Omen chance on its own**: *Ritual Favours in Map have #% increased chance to be
+  Omens*, *good*, ~1 div at any roll (Dorian, from a tablet he rolled). It lands about one suffix roll in 15,
+  so at that price it reshapes Ritual crafting: aiming for it pays ~+11 chaos a tablet at 120 ex a plain
+  one, and the reroll craft sells ~10 of them on the way.
 - **Temple's watch list has a new pair**: a Vaal Beacon Unique Monster chance with the extra-Crystal
   chance, *very good*, as Dorian priced it (~3 div).
 - **Every tablet you pick now gets a number, at any Search effort.** A tablet's four rarest modifiers

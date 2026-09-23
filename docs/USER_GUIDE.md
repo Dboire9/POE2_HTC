@@ -570,6 +570,13 @@ and a chart shows how often a craft finishes within any budget, shaded green up 
   less than, what 1 craft in 10 costs more than, and how often you finish if you spend no more than the
   tablet sells for. These come from playing the plan out thousands of times; a very long craft fits fewer
   in, and the tab says so.
+- **Tip · buy one already rolled** — a tablet carrying only modifiers you don't want can stand in for a
+  plain one when they sit where the craft has room. Every such shape worth at least 90% of a plain tablet
+  is listed with the most to pay for it and a **Search on trade**, priced from the same solve. Fishing a
+  Ritual reroll (a suffix), a tablet holding only prefixes is worth about a plain one — buy it only if it
+  is cheaper — and one with a junk suffix about half. For Temple Rare Monsters + Crystal, a Rare with one
+  unwanted modifier is worth ~1.2 plain ones. Magic searches are exact; a Rare search carries **≈**, since
+  the trade site may count a Rare's empty slots out of three a side.
 - **Where it stops paying** — the dearest plain tablet the craft still pays at, and the cheapest the
   tablet can sell for, each beside what you typed. The plain-tablet line holds the plan fixed, so it is a
   floor: at a different price the plan adapts and can only do better. On the Ritual reroll it is

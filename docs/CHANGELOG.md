@@ -9,6 +9,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- **Tip: buy a tablet already rolled instead of a plain one.** Every Magic or Rare tablet holding only
+  modifiers the craft doesn't want, priced from the solve (a plain tablet + V(plain) − V(that tablet)),
+  listed when it is worth at least 90% of a plain one, with the most to pay and a trade search on the
+  site's empty-prefix / empty-suffix filters. Ritual reroll: a prefix-only tablet ≈ a plain one; Temple
+  Rare Monsters + Crystal: a Rare with one junk modifier ≈ 1.23 plain ones.
+
 - **Where a tablet craft stops paying.** Beside the verdict: *Pays while a plain tablet costs X or less* —
   the plan's plain tablets and orbs per craft, held fixed, solved for the price that breaks even (a
   floor: the plan adapts to any other price) — and *or while it sells for Y or more*. Ritual reroll:

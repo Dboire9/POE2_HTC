@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import { loadPatch } from '../../packages/engine/src/index.ts';
 import { familiesOf, resolveMod } from '../../packages/engine/src/pool.ts';
-import { CURATED, ODDS_CREDIT, WATCH_TIERS, listTablets, ruledOutBy, searchIsLoose, shareWithin, summarizePlan, tradeStatsFor, watchKey, watchList, watchText, type TabletBase, spendBreakdown, plainBreakEven } from './tablets';
+import { CURATED, ODDS_CREDIT, WATCH_TIERS, listTablets, ruledOutBy, searchIsLoose, shareWithin, summarizePlan, tradeStatsFor, watchKey, watchList, watchText, type TabletBase, spendBreakdown, plainBreakEven, standInFilters } from './tablets';
 
 const data = loadPatch('data/patches/0.5.0');
 const tablets = listTablets(data);
@@ -199,6 +199,29 @@ describe('the dearest plain tablet a craft still pays at', () => {
 
   it('is none when the orbs alone cost more than the craft brings back', () => {
     expect(plainBreakEven(lines, 15)).toBeUndefined();
+  });
+});
+
+describe('searching for a tablet already rolled', () => {
+  it('pins a Magic one exactly: one modifier a side, so "no suffix" means one prefix', () => {
+    expect(standInFilters({ rarity: 'magic', prefixes: 1, suffixes: 0, worth: 1 })).toEqual({
+      filters: [
+        { id: 'pseudo.pseudo_number_of_empty_prefix_mods', value: { max: 0 }, disabled: false },
+        { id: 'pseudo.pseudo_number_of_empty_suffix_mods', value: { min: 1 }, disabled: false },
+      ],
+      loose: false,
+    });
+  });
+
+  it('pins a Rare one with filters true however the site counts its empty slots, and says it is loose', () => {
+    // Two prefixes, no suffix: at most 1 empty prefix (of 3; 0 of 2), at least 2 empty suffixes.
+    expect(standInFilters({ rarity: 'rare', prefixes: 2, suffixes: 0, worth: 1 })).toEqual({
+      filters: [
+        { id: 'pseudo.pseudo_number_of_empty_prefix_mods', value: { max: 1 }, disabled: false },
+        { id: 'pseudo.pseudo_number_of_empty_suffix_mods', value: { min: 2 }, disabled: false },
+      ],
+      loose: true,
+    });
   });
 });
 

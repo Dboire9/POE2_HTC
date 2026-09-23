@@ -303,6 +303,27 @@ describe('the Tablets tab — what it costs and what it sells for', () => {
     expect(screen.getByText(/Or while it sells for/)).toHaveTextContent('1,588 ex or more — you typed 800 ex');
   });
 
+  it('tips which tablets already rolled are worth buying instead of a plain one, with their searches', async () => {
+    // Finishing from a Magic tablet holding one prefix costs 1,587.0 ex against 1,587.3 from a plain one
+    // at 1 ex: worth up to 1.3 ex. A Rare with one prefix finishes at 1,588 — worth 0.3 ex, left out.
+    const routes = { keys: ['0:0:1:0:0:1', '0:0:1:0:0:2'], value: Float64Array.from([1587.0, 1588]) };
+    solved(markov({ routes: routes as never }));
+    const user = await open();
+    await pick(user);
+    const tip = (await screen.findByText(/Tip · buy one already rolled/)).parentElement!;
+    expect(tip.textContent).toMatch(/Magic · one prefix, no suffixworth up to 1\.3 ex — more than a plain one/);
+    expect(tip.textContent).not.toMatch(/Rare · one prefix/);
+    const link = within(tip).getByRole('link', { name: 'Search on trade for Magic · one prefix, no suffix' });
+    const q = (JSON.parse(new URL(link.getAttribute('href')!).searchParams.get('q')!) as {
+      query: { type: string; filters: unknown; stats: { filters: { id: string; value?: unknown }[] }[] };
+    }).query;
+    expect(q.type).toBe('Ritual Tablet');
+    expect(q.filters).toEqual({ type_filters: { filters: { rarity: { option: 'magic' } } } });
+    expect(q.stats[0]!.filters.map((f) => f.id)).toEqual([
+      'pseudo.pseudo_number_of_uses_remaining', 'pseudo.pseudo_number_of_empty_prefix_mods', 'pseudo.pseudo_number_of_empty_suffix_mods',
+    ]);
+  });
+
   it('says no run makes a loss pay', async () => {
     const costPercentiles = Array.from({ length: 101 }, (_, p) => p * 10);
     solved(markov({ replay: { runs: 1_000, seen: [], meanCost: 500, stdErr: 5, costPercentiles, movesPerCraft: {} } }));

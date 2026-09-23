@@ -4,7 +4,7 @@ import { cn } from '../../lib/utils';
 import type { EngineMarkovResult } from '../../lib/engineTypes';
 import { formatIn, type CostUnit, type Rates } from '../../lib/currency';
 import {
-  WATCH_TIERS, plainBreakEven, searchIsLoose, setPriceKey, shareWithin, spendBreakdown, summarizePlan, tradeStatsFor, watchText,
+  WATCH_TIERS, plainBreakEven, searchIsLoose, standIns as listStandIns, setPriceKey, shareWithin, spendBreakdown, summarizePlan, tradeStatsFor, watchText,
   type TabletBase, type WatchEntry, type WatchMod, type WatchTier,
 } from '../../lib/tablets';
 import type { PriceEntry, TypedPrice } from '../../lib/tabletPrices';
@@ -13,6 +13,7 @@ import PolicyGraph from '../engine/PolicyGraph';
 import { oneIn } from './TabletModPicker';
 import { ProfitVerdict } from './ProfitVerdict';
 import { RunPlanView } from './RunPlan';
+import { StandInTip } from './StandInTip';
 import { ProfitBreakdown } from './ProfitBreakdown';
 import { planRuns } from '../../lib/tabletRun';
 import { RiskChart } from './RiskChart';
@@ -170,6 +171,13 @@ export const TabletResult: React.FC<{
       }),
     ],
   } : undefined;
+  // Tablets someone already rolled, priced off this very solve: what each is worth against a plain one.
+  const standIns = React.useMemo(() => {
+    const table = markov.routes;
+    if (!table || !markov.feasible || markov.bound !== 'exact') return [];
+    const at = new Map<string, number>(table.keys.map((k, i) => [k, i]));
+    return listStandIns((key) => { const i = at.get(key); return i === undefined ? undefined : table.value[i]; }, markov.expectedCost, plainCost);
+  }, [markov, plainCost]);
   // Keyed on the numbers, not the arrays rebuilt every render: a plan is a million draws.
   const runPlan = React.useMemo(() => {
     const replay = markov.replay;
@@ -256,6 +264,12 @@ export const TabletResult: React.FC<{
                 </p>
               </div>
             )}
+            <StandInTip
+              standIns={standIns} plainCost={plainCost} fmt={(ex) => formatIn(unit, ex)}
+              urlFor={(st, filters) => (league
+                ? tradeUrl({ league, baseName: tablet.name, rarity: st.rarity, require: [FULL_USES, ...filters], stats: [] })
+                : '')}
+            />
             {net !== undefined && (
               <div className="space-y-1 rounded-md border border-emerald-500/30 bg-emerald-500/5 p-3 text-sm">
                 <h4 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Selling what lands on the way</h4>

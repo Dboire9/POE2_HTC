@@ -7,6 +7,7 @@ import {
   optimize, optimizeItem, optimizeItemMarkov, alternatives, listMods, routeFor, type ExistingItem,
 } from './engine.ts';
 import { mainLine } from './policyPath.ts';
+import { standIns } from './tablets.ts';
 import { runSolve, toFraction, type SolveProgress, type SolveRequest } from './solve.ts';
 
 // `runSolve` exists so a compute can cross a Worker boundary as a plain message. Its entire job is to
@@ -503,6 +504,33 @@ describe('smallLattice — a tablet solved the sure way', () => {
     expect(chaos.repeats).toBeGreaterThan(0.4); // a junk suffix for a junk suffix: play it again
     // The Regal on the way can land it too, and says so.
     expect(steps[1]!.lands).toBeGreaterThan(0.003);
+  });
+
+  /**
+   * Tablets someone already rolled, priced off the solve. Fishing a Ritual reroll (a suffix), a tablet
+   * holding only a prefix is worth about a plain one — a Transmute lands a prefix half the time anyway —
+   * and one holding a junk suffix about half. For a Temple Rare Monsters + Crystal pair, a Rare with one
+   * unwanted modifier is worth ~1.2 plain ones (Dorian, 2026-09-23).
+   */
+  it('prices a tablet already rolled against a plain one, from the solve itself', () => {
+    const worth = (base: string, mods: string[], spare: { prefixes: number; suffixes: number }, plain: number) => {
+      const m = cost(runSolve(eng, {
+        kind: 'lab', from: { baseId: base, level: 100 }, targets: mods.map((modId) => ({ modId, tierDisplay: 1 })),
+        baseCost: plain, spare, fillOnFinish: true, excluded: ['annul'], smallLattice: true,
+      }));
+      const at = new Map(m.routes!.keys.map((k, i) => [k as string, i]));
+      const list = standIns((k) => { const i = at.get(k); return i === undefined ? undefined : m.routes!.value[i]; }, m.expectedCost, plain);
+      return (rarity: 'magic' | 'rare', p: number, sfx: number) =>
+        list.find((x) => x.rarity === rarity && x.prefixes === p && x.suffixes === sfx)!.worth / plain;
+    };
+    const reroll = worth('Tablets_ritual', ['Tablets/RitualAdditionalReroll'], { prefixes: 2, suffixes: 1 }, 130);
+    expect(reroll('magic', 1, 0)).toBeGreaterThan(0.9);
+    expect(reroll('magic', 1, 0)).toBeLessThan(1.1);
+    expect(reroll('magic', 0, 1)).toBeLessThan(0.7);
+    const pair = worth('Tablets_temple', ['Tablets/MapRarePackIncrease', 'Tablets/IncursionTokenChance'], { prefixes: 1, suffixes: 1 }, 442);
+    expect(pair('rare', 1, 0)).toBeGreaterThan(1.15);
+    expect(pair('rare', 0, 1)).toBeGreaterThan(1.15);
+    expect(pair('rare', 2, 2)).toBe(0); // full of junk: nothing left to craft into
   });
 
   it('solves the rarest four the usual solve cannot put a number on', () => {

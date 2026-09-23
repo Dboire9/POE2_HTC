@@ -9,6 +9,8 @@
 // site data is cleared, and a price nobody can read back is a smaller problem than a page that will not
 // render — which is the rule the rest of the app's storage follows too.
 
+import type { CostUnit } from './currency';
+
 const KEY = 'poe2htc.tabletPrices';
 
 export interface TypedPrice {
@@ -16,7 +18,11 @@ export interface TypedPrice {
   readonly ex: number;
   /** The day it was typed, ISO (`2026-09-22`). */
   readonly on: string;
+  /** The unit it was typed in, so the box reads it back that way. Exalts when absent. */
+  readonly unit?: CostUnit['key'];
 }
+
+const UNITS: readonly string[] = ['exalt', 'chaos', 'divine'] satisfies CostUnit['key'][];
 
 /** One tablet and one set of modifiers — the thing a price is FOR. Order-independent. */
 export const priceKey = (baseId: string, mods: readonly string[]): string =>
@@ -25,7 +31,8 @@ export const priceKey = (baseId: string, mods: readonly string[]): string =>
 const isPrice = (v: unknown): v is TypedPrice =>
   typeof v === 'object' && v !== null
   && typeof (v as TypedPrice).ex === 'number' && Number.isFinite((v as TypedPrice).ex)
-  && typeof (v as TypedPrice).on === 'string';
+  && typeof (v as TypedPrice).on === 'string'
+  && ((v as TypedPrice).unit === undefined || UNITS.includes((v as TypedPrice).unit!));
 
 export function readPrices(): Record<string, TypedPrice> {
   try {
@@ -40,11 +47,17 @@ export function readPrices(): Record<string, TypedPrice> {
   }
 }
 
+/** A price as typed: its value in exalts, and the unit the player typed it in. */
+export interface PriceEntry {
+  readonly ex: number;
+  readonly unit: CostUnit['key'];
+}
+
 /** Save (or, with `undefined`, forget) one price. Returns the prices as they now stand. */
-export function writePrice(key: string, ex: number | undefined, today = new Date()): Record<string, TypedPrice> {
+export function writePrice(key: string, price: PriceEntry | undefined, today = new Date()): Record<string, TypedPrice> {
   const next = { ...readPrices() };
-  if (ex === undefined) delete next[key];
-  else next[key] = { ex, on: today.toISOString().slice(0, 10) };
+  if (price === undefined) delete next[key];
+  else next[key] = { ex: price.ex, on: today.toISOString().slice(0, 10), ...(price.unit === 'exalt' ? {} : { unit: price.unit }) };
   try {
     localStorage.setItem(KEY, JSON.stringify(next));
   } catch { /* unreadable storage must not stop the tab working — the price just doesn't persist */ }

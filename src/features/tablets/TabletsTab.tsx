@@ -8,13 +8,15 @@ import { isAppUpdated, isCancelled, prewarm, solve } from '../../lib/engineClien
 import type { SolveProgress } from '../../lib/solve';
 import { parsePrice } from '../../lib/startingItem';
 import { ODDS_CREDIT, PER_SIDE, listTablets, ruledOutBy, setPriceKey, watchList, type TabletBase } from '../../lib/tablets';
-import { readPrices, writePrice, type TypedPrice } from '../../lib/tabletPrices';
+import { readPrices, writePrice, type PriceEntry, type TypedPrice } from '../../lib/tabletPrices';
+import { priceUnits, type CostUnit } from '../../lib/currency';
 import { tradeUrl } from '../../lib/tradeLink';
 import { toExcludedKeys, useExclusions } from '../../lib/currencyPrefs';
 import { limitsFor, useEffort } from '../../lib/searchEffort';
 import SolveProgressBar from '../engine/SolveProgress';
 import { TabletModPicker } from './TabletModPicker';
 import { TabletResult, type SolvedTablet } from './TabletResult';
+import { PriceInput } from './PriceInput';
 
 const FOCUS = 'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring';
 const tabCls = (on: boolean): string => cn(
@@ -36,6 +38,7 @@ const TabletsTab: React.FC = () => {
   const [tabletId, setTabletId] = useState('Tablets_ritual');
   const [chosen, setChosen] = useState<readonly string[]>([]);
   const [baseCost, setBaseCost] = useState('1');
+  const [baseUnit, setBaseUnit] = useState<CostUnit['key']>('exalt');
   const [solved, setSolved] = useState<SolvedTablet | null>(null);
   // Every price the player typed, by set. Read once, at the first render: what they typed before is part
   // of the initial state. Kept here, not in the result, because a watch-list price is sent with the solve.
@@ -59,10 +62,14 @@ const TabletsTab: React.FC = () => {
   const tablet = tablets.find((t) => t.id === tabletId) ?? tablets[0];
   const ruledOut = useMemo(() => (engine ? ruledOutBy(engine.data, chosen) : new Map<string, string>()), [engine, chosen]);
   const basis = engine ? priceBasis(engine) : undefined;
+  const units = priceUnits(basis?.rates);
+  const plainUnit = units.find((u) => u.key === baseUnit) ?? units[0]!;
+  const plainTyped = parsePrice(baseCost);
+  const plainCost = plainTyped === undefined ? undefined : plainTyped * plainUnit.perExalt;
 
   /** A price typed anywhere on the result. One for a watched set recounts the craft that was solved. */
-  const onPrice = (key: string, ex: number | undefined): void => {
-    const next = writePrice(key, ex);
+  const onPrice = (key: string, price: PriceEntry | undefined): void => {
+    const next = writePrice(key, price);
     setPrices(next);
     if (solved && solved.watch.some((e) => setPriceKey(solved.tablet.id, e.mods) === key)) {
       compute({ tablet: solved.tablet, chosen: solved.chosen, plain: solved.plainCost }, next);
@@ -77,7 +84,7 @@ const TabletsTab: React.FC = () => {
    */
   const compute = (
     spec: { tablet: TabletBase | undefined; chosen: readonly string[]; plain: number | undefined }
-      = { tablet, chosen, plain: parsePrice(baseCost) },
+      = { tablet, chosen, plain: plainCost },
     priceMap: Readonly<Record<string, TypedPrice>> = prices,
   ): void => {
     const { tablet, chosen, plain: cost } = spec;
@@ -85,6 +92,8 @@ const TabletsTab: React.FC = () => {
     // Asked for at solve time and kept with the answer, so the odds shown belong to the craft that was
     // solved — not to whatever is ticked now.
     const watch = watchList(tablet, chosen);
+    // A price typed while a recount runs starts another: the one running is for prices now out of date.
+    cancelRef.current?.();
     const runId = ++runIdRef.current;
     const current = (): boolean => runIdRef.current === runId;
     setComputing(true);
@@ -154,18 +163,21 @@ const TabletsTab: React.FC = () => {
         <TabletModPicker tablet={tablet} chosen={chosen} ruledOut={ruledOut} onToggle={toggle} />
 
         <div className="flex flex-wrap items-end gap-4">
-          <label className="flex flex-col gap-1">
-            <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-              A plain tablet costs <span className="font-normal normal-case opacity-70">(exalts)</span>
+          <div className="flex flex-col gap-1">
+            <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground" aria-hidden="true">
+              A plain tablet costs
             </span>
-            <input
-              type="text"
-              inputMode="decimal"
-              value={baseCost}
-              onChange={(e) => setBaseCost(e.target.value)}
-              className={cn('w-24 rounded border border-border bg-background px-2 py-1 text-sm tabular-nums', FOCUS)}
+            <PriceInput
+              text={baseCost}
+              onText={setBaseCost}
+              unit={plainUnit}
+              units={units}
+              onUnit={(u) => setBaseUnit(u.key)}
+              label="A plain tablet costs"
+              invalid={baseCost.trim() !== '' && plainTyped === undefined}
+              size="md"
             />
-          </label>
+          </div>
           {basis?.league && (
             // What a plain one goes for, to type into the box: the same search as every other tablet
             // on this tab, less the modifiers, Normal only.

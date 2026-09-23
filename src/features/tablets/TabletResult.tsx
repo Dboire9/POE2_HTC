@@ -2,12 +2,12 @@ import React from 'react';
 import { Card } from '../../components/ui/card';
 import { cn } from '../../lib/utils';
 import type { EngineMarkovResult } from '../../lib/engineTypes';
-import { formatIn, pickUnit, type Rates } from '../../lib/currency';
+import { formatIn, pickUnit, priceUnits, type Rates } from '../../lib/currency';
 import {
   WATCH_TIERS, searchIsLoose, setPriceKey, shareWithin, summarizePlan, tradeStatsFor, watchText,
   type TabletBase, type WatchEntry, type WatchMod, type WatchTier,
 } from '../../lib/tablets';
-import type { TypedPrice } from '../../lib/tabletPrices';
+import type { PriceEntry, TypedPrice } from '../../lib/tabletPrices';
 import { tradeUrl } from '../../lib/tradeLink';
 import PolicyGraph from '../engine/PolicyGraph';
 import { oneIn } from './TabletModPicker';
@@ -65,7 +65,7 @@ export const TabletResult: React.FC<{
   orbPrices: { readonly chaos?: number; readonly annul?: number };
   /** The prices the player typed, by set — the tab keeps them, since a watch-list price recounts the craft. */
   prices: Readonly<Record<string, TypedPrice>>;
-  onPrice: (key: string, ex: number | undefined) => void;
+  onPrice: (key: string, price: PriceEntry | undefined) => void;
   /** The craft is being solved again with prices just typed. */
   recounting: boolean;
 }> = ({ solved: { tablet, chosen, watch, markov, plainCost }, league, rates, orbPrices, prices, onPrice, recounting }) => {
@@ -89,8 +89,9 @@ export const TabletResult: React.FC<{
       url={league ? tradeUrl({ league, baseName: tablet.name, stats: tradeStatsFor(mods) }) : ''}
       loose={searchIsLoose(mods)}
       unit={unit}
+      units={priceUnits(rates)}
       price={prices[keyOf(mods)]}
-      onPrice={(ex) => onPrice(keyOf(mods), ex)}
+      onPrice={(p) => onPrice(keyOf(mods), p)}
       label={`Price of a ${tablet.name} with ${label(mods).join(', ')}`}
     />
   );

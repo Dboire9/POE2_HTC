@@ -50,6 +50,19 @@ export function pickUnit(maxExalts: number, rates?: Rates): CostUnit {
 }
 
 /**
+ * The units a player can TYPE a price in: exalts always, Chaos and Divine Orbs when the sheet has their
+ * rate. Smallest first. Unlike `pickUnit` this is the player's choice — a tablet listed at "20 div" is
+ * typed as 20 div, not converted by hand.
+ */
+export function priceUnits(rates?: Rates): CostUnit[] {
+  return [
+    EXALT,
+    ...(rates?.chaos ? [{ key: 'chaos' as const, label: 'chaos', perExalt: rates.chaos }] : []),
+    ...(rates?.divine ? [{ key: 'divine' as const, label: 'div', perExalt: rates.divine }] : []),
+  ].sort((a, b) => a.perExalt - b.perExalt);
+}
+
+/**
  * A magnitude said in words: "6.1 billion", "2,472.8 trillion".
  *
  * The top of the ladder still overflows — 10,000 divine is where `pickUnit` runs out of units, and a

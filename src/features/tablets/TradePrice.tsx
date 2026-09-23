@@ -1,8 +1,9 @@
 import React from 'react';
 import { cn } from '../../lib/utils';
 import { parsePrice } from '../../lib/startingItem';
-import { daysOld, type TypedPrice } from '../../lib/tabletPrices';
+import { daysOld, type PriceEntry, type TypedPrice } from '../../lib/tabletPrices';
 import type { CostUnit } from '../../lib/currency';
+import { PriceInput } from './PriceInput';
 
 const FOCUS = 'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring';
 
@@ -17,17 +18,22 @@ export const TradePrice: React.FC<{
   url: string;
   /** The search also lists a near-identical modifier — said plainly rather than left to surprise. */
   loose?: boolean;
+  /** The unit a new box starts in; one already priced reads back in the unit it was typed in. */
   unit: CostUnit;
+  units: readonly CostUnit[];
   price: TypedPrice | undefined;
-  onPrice: (ex: number | undefined) => void;
+  onPrice: (price: PriceEntry | undefined) => void;
   /** Distinguishes this row's field for a screen reader: "Price of a Ritual Tablet with …". */
   label: string;
-}> = ({ url, loose, unit, price, onPrice, label }) => {
+}> = ({ url, loose, unit: fallback, units, price, onPrice, label }) => {
+  const [unit, setUnit] = React.useState(units.find((u) => u.key === price?.unit) ?? fallback);
   const [text, setText] = React.useState(price === undefined ? '' : String(+(price.ex / unit.perExalt).toFixed(4)));
   const typed = parsePrice(text);
   const unreadable = text.trim() !== '' && typed === undefined;
   // Committed on blur rather than per keystroke: a half-typed "1" is not a claim that it sells for 1.
-  const commit = (): void => onPrice(text.trim() === '' ? undefined : typed === undefined ? undefined : typed * unit.perExalt);
+  // A new unit re-reads the number already typed, so it commits at once.
+  const commit = (u: CostUnit = unit): void =>
+    onPrice(typed === undefined ? undefined : { ex: typed * u.perExalt, unit: u.key });
 
   return (
     <span className="inline-flex flex-wrap items-center gap-1.5">
@@ -40,23 +46,17 @@ export const TradePrice: React.FC<{
       >
         Search on trade{loose && <span aria-hidden="true" className="ml-1 text-amber-400">≈</span>}
       </a>
-      <label className="inline-flex items-center gap-1">
-        <span className="sr-only">{label}</span>
-        <input
-          type="text"
-          inputMode="decimal"
-          value={text}
-          onChange={(e) => setText(e.target.value)}
-          onBlur={commit}
-          placeholder="price"
-          aria-invalid={unreadable}
-          className={cn(
-            'w-20 rounded border bg-background px-1.5 py-0.5 text-xs tabular-nums',
-            unreadable ? 'border-amber-500' : 'border-border', FOCUS,
-          )}
-        />
-        <span className="text-xs text-muted-foreground">{unit.label}</span>
-      </label>
+      <PriceInput
+        text={text}
+        onText={setText}
+        unit={unit}
+        units={units}
+        onUnit={(u) => { setUnit(u); if (text.trim() !== '') commit(u); }}
+        onBlur={() => commit()}
+        label={label}
+        invalid={unreadable}
+        placeholder="price"
+      />
       {unreadable && <span className="text-xs text-amber-400">not a number</span>}
       {!unreadable && price !== undefined && daysOld(price) > 0 && (
         <span className="text-xs text-muted-foreground">

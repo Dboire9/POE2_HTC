@@ -156,6 +156,34 @@ describe('the Tablets tab — what it costs and what it sells for', () => {
     expect((await screen.findByText(/Crafting it costs/)).textContent).toMatch(/costs 1,588 ex on average/);
   });
 
+  it('takes a plain tablet’s price in the orb it is listed in', async () => {
+    const user = await open();
+    const box = screen.getByRole('textbox', { name: 'A plain tablet costs' });
+    await user.clear(box);
+    await user.type(box, '2');
+    await user.selectOptions(screen.getByRole('combobox', { name: 'A plain tablet costs: unit' }), 'div');
+    await pick(user);
+    await waitFor(() => expect(solve).toHaveBeenCalled());
+    // Two Divine Orbs, in the exalts every cost is solved in.
+    expect(vi.mocked(solve).mock.calls[0]![0]).toMatchObject({ baseCost: 2 * prices.currency['divine']! });
+  });
+
+  it('takes a tablet’s price in Chaos or Divine Orbs, keeps it in exalts, and reads it back as typed', async () => {
+    const user = await open();
+    await pick(user);
+    const field = await screen.findByRole('textbox', { name: /Price of a Ritual Tablet/ });
+    await user.type(field, '3');
+    await user.selectOptions(screen.getByRole('combobox', { name: /Price of a Ritual Tablet.*: unit/ }), 'chaos');
+    const stored = Object.values(JSON.parse(localStorage.getItem('poe2htc.tabletPrices')!) as Record<string, { ex: number; unit?: string }>);
+    expect(stored).toEqual([expect.objectContaining({ ex: 3 * prices.currency['chaos']!, unit: 'chaos' })]);
+    // Solved again later: the box opens on 3 chaos, not on its exalt figure.
+    cleanup();
+    const again = await open();
+    await pick(again);
+    expect(await screen.findByRole('textbox', { name: /Price of a Ritual Tablet/ })).toHaveValue('3');
+    expect(screen.getByRole('combobox', { name: /Price of a Ritual Tablet.*: unit/ })).toHaveValue('chaos');
+  });
+
   it('searches the trade site for a plain tablet of the kind picked, to price the box beside it', async () => {
     const user = await open();
     const plainOf = (): Record<string, unknown> => {
@@ -303,7 +331,8 @@ describe('the Tablets tab — what else you might roll', () => {
     expect(within(row).getByRole('link', { name: /Search on trade/ })).toBeInTheDocument();
     expect(screen.getByText(/Played out 4,000 times/)).toBeInTheDocument();
     // The tier is the claim; a remembered price would be stale within days, so none is shown.
-    expect(row.textContent).not.toMatch(/div|chaos|checked/);
+    // (Outside the price box's unit menu, whose options are the units a price can be typed in.)
+    expect(row.textContent.replace(within(row).getByRole('combobox').textContent, '')).not.toMatch(/div|chaos|checked/);
     // It asked the solver for exactly the modifiers it lists.
     expect(vi.mocked(solve).mock.calls[0]![0]).toMatchObject({ watch: [[{ id: 'Tablets/MapAdditionalModifier' }]] });
   });

@@ -521,6 +521,9 @@ start from. (Two picked modifiers on a Ritual tablet: ~95 ex this way, against ~
 two slots had to stay empty.) Nobody lists plain tablets on poe.ninja, so that price is yours to type —
 **Find a plain one on trade**, beside the box, opens the cheapest Normal tablets of the kind you picked
 (10 uses left, instant buyout).
+Every price box on the tab — this one and each **Search on trade** row — has a unit menu: type the price
+in **ex**, **chaos** or **div**, as the listing shows it, and the tab converts at the price sheet's rates.
+A price you typed reads back in the unit you typed it in.
 
 **Then the market half, which you drive.** No price feed lists tablets — poe.ninja doesn't carry them and
 the trade site can't be read from a web page — so every price on this tab is one you typed. Each row has

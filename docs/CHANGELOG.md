@@ -19,6 +19,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   The market half is yours to drive, because no feed lists tablets: every row has a **Search on trade**
   button that opens the official site with an instant-buyout search for an unused tablet (10 uses left) filled in, and a box for the price you read there.
   The plain-tablet price box has one too: **Find a plain one on trade** lists Normal tablets of the kind picked.
+  Every price box takes **ex, chaos or div** — whichever the listing is in — converted at the price sheet's rates.
   Prices stay in your browser with the day you typed them, and sit next to what crafting costs.
   And while you roll for what you asked for, other things land — the **watch list** shows the valuable
   ones, in four tiers from super jackpot to good, set per tablet from what each sells for (an extra

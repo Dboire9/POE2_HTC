@@ -15,6 +15,7 @@ import { ProfitVerdict } from './ProfitVerdict';
 import { RunPlanView } from './RunPlan';
 import { StandInTip } from './StandInTip';
 import { TabletMoves } from './TabletMoves';
+import { AddWatch } from './AddWatch';
 import { ProfitBreakdown } from './ProfitBreakdown';
 import { planRuns } from '../../lib/tabletRun';
 import { RiskChart } from './RiskChart';
@@ -34,6 +35,7 @@ export interface SolvedTablet {
 }
 
 const TIER_TITLE: Record<WatchTier, string> = {
+  yours: 'Yours',
   superJackpot: 'Super jackpot',
   jackpot: 'Jackpot',
   veryGood: 'Very good',
@@ -42,6 +44,7 @@ const TIER_TITLE: Record<WatchTier, string> = {
 
 /** Each tier's colour — its heading, its dot, and the bar of how often a row turns up. */
 const TIER_TONE: Record<WatchTier, { text: string; fill: string; dot: string }> = {
+  yours: { text: 'text-emerald-300', fill: 'bg-emerald-400', dot: 'bg-emerald-400' },
   superJackpot: { text: 'text-amber-300', fill: 'bg-gradient-to-r from-amber-400 to-yellow-200', dot: 'bg-amber-300 motion-safe:animate-soft-glow' },
   jackpot: { text: 'text-orange-300', fill: 'bg-orange-400', dot: 'bg-orange-400' },
   veryGood: { text: 'text-violet-300', fill: 'bg-violet-400', dot: 'bg-violet-400' },
@@ -81,7 +84,11 @@ export const TabletResult: React.FC<{
   /** The units there is a rate for, to switch between. */
   units: readonly CostUnit[];
   onUnit: (key: CostUnit['key']) => void;
-}> = ({ solved: { tablet, chosen, watch, markov, plainCost, start }, league, rates, orbPrices, prices, onPrice, recounting, unit, units, onUnit }) => {
+  /** Change the watch list: hide a curated set, drop one of your own, add one, or show the hidden again. */
+  onWatch: (change: { hide: WatchEntry } | { remove: WatchEntry } | { add: readonly WatchMod[] } | { showHidden: true }) => void;
+  /** Curated sets hidden on this tablet. */
+  hiddenCount: number;
+}> = ({ solved: { tablet, chosen, watch, markov, plainCost, start }, league, rates, orbPrices, prices, onPrice, recounting, unit, units, onUnit, onWatch, hiddenCount }) => {
   // What the whole craft costs: the plain tablet you start from, then rolling it — restarts, and the
   // Exalts that fill it to four modifiers, included.
   const cost = markov.feasible ? plainCost + markov.expectedCost : undefined;
@@ -148,6 +155,14 @@ export const TabletResult: React.FC<{
           <span className="text-emerald-400">worth more than the tablet you asked for</span>
         )}
         {entry.note && <span className="text-xs text-muted-foreground">{entry.note}</span>}
+        <button
+          type="button"
+          onClick={() => onWatch(entry.tier === 'yours' ? { remove: entry } : { hide: entry })}
+          aria-label={`${entry.tier === 'yours' ? 'Remove' : 'Hide'} ${label(entry.mods).join(' + ')}`}
+          className="rounded px-1.5 py-0.5 text-xs text-muted-foreground hover:bg-muted hover:text-foreground"
+        >
+          {entry.tier === 'yours' ? 'Remove' : 'Hide'}
+        </button>
       </li>
     );
   };
@@ -352,7 +367,7 @@ export const TabletResult: React.FC<{
           </>
         )}
 
-        {watch.length > 0 && (
+        {(
           <div className="space-y-2 border-t border-border/60 pt-3">
             <h4 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
               While you roll for that, these can land
@@ -383,6 +398,12 @@ export const TabletResult: React.FC<{
               <p className="text-xs text-muted-foreground">
                 Played out {markov.replay.runs.toLocaleString()} times, following the plan below.
               </p>
+            )}
+            <AddWatch tablet={tablet} chosen={chosen} onAdd={(mods) => onWatch({ add: mods })} />
+            {hiddenCount > 0 && (
+              <button type="button" onClick={() => onWatch({ showHidden: true })} className="text-xs text-muted-foreground underline hover:text-foreground">
+                {hiddenCount} hidden — show {hiddenCount === 1 ? 'it' : 'them'} again
+              </button>
             )}
           </div>
         )}

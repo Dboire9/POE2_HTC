@@ -9,8 +9,9 @@ import type { SolveProgress } from '../../lib/solve';
 import { parsePrice } from '../../lib/startingItem';
 import {
   ODDS_CREDIT, PER_SIDE, START_NAMES, listTablets, ruledOutBy, setPriceKey, standInFilters, standInJunk, watchList,
-  type StartKind, type TabletBase,
+  type StartKind, type TabletBase, type WatchEntry, type WatchMod,
 } from '../../lib/tablets';
+import { addMine, hide, prefsFor, readWatch, removeMine, unhideAll, type WatchStore } from '../../lib/tabletWatch';
 import { readPrices, readShownUnit, writePrice, writeShownUnit, type PriceEntry, type TypedPrice } from '../../lib/tabletPrices';
 import { priceUnits, type CostUnit } from '../../lib/currency';
 import { FULL_USES, tradeUrl } from '../../lib/tradeLink';
@@ -55,6 +56,8 @@ const TabletsTab: React.FC = () => {
   // Every price the player typed, by set. Read once, at the first render: what they typed before is part
   // of the initial state. Kept here, not in the result, because a watch-list price is sent with the solve.
   const [prices, setPrices] = useState<Record<string, TypedPrice>>(readPrices);
+  // The player's own sets to watch for, and the curated ones they hid — per browser, read once.
+  const [watchStore, setWatchStore] = useState<WatchStore>(readWatch);
   const [computing, setComputing] = useState(false);
   const [progress, setProgress] = useState<SolveProgress | null>(null);
   const [runErr, setRunErr] = useState<string | null>(null);
@@ -91,6 +94,19 @@ const TabletsTab: React.FC = () => {
     }
   };
 
+  /** A change to the watch list: kept, then the solved craft recounted with the list as it now stands. */
+  const onWatch = (change: { hide: WatchEntry } | { remove: WatchEntry } | { add: readonly WatchMod[] } | { showHidden: true }): void => {
+    if (!solved) return;
+    const id = solved.tablet.id;
+    const keyOf = (mods: readonly WatchMod[]): string => setPriceKey(id, mods);
+    const next = 'hide' in change ? hide(watchStore, keyOf(change.hide.mods))
+      : 'remove' in change ? removeMine(watchStore, id, keyOf(change.remove.mods), keyOf)
+      : 'add' in change ? addMine(watchStore, id, change.add, keyOf)
+      : unhideAll(watchStore, id);
+    setWatchStore(next);
+    compute({ tablet: solved.tablet, chosen: solved.chosen, plain: solved.plainCost, start: solved.start }, prices, next);
+  };
+
   const toggle = (id: string): void => setChosen((c) => (c.includes(id) ? c.filter((x) => x !== id) : [...c, id]));
 
   /**
@@ -101,6 +117,7 @@ const TabletsTab: React.FC = () => {
     spec: { tablet: TabletBase | undefined; chosen: readonly string[]; plain: number | undefined; start: StartKind }
       = { tablet, chosen, plain: plainCost, start: startKind },
     priceMap: Readonly<Record<string, TypedPrice>> = prices,
+    store: WatchStore = watchStore,
   ): void => {
     const { tablet, chosen, plain: cost, start } = spec;
     if (!engine || !tablet || chosen.length === 0) return;
@@ -110,7 +127,7 @@ const TabletsTab: React.FC = () => {
     if (start !== 'plain' && !junk) { setRunErr('No modifier on that side can sit beside the ones you picked.'); return; }
     // Asked for at solve time and kept with the answer, so the odds shown belong to the craft that was
     // solved — not to whatever is ticked now.
-    const watch = watchList(tablet, chosen);
+    const watch = watchList(tablet, chosen, prefsFor(store, tablet.id));
     // A price typed while a recount runs starts another: the one running is for prices now out of date.
     cancelRef.current?.();
     const runId = ++runIdRef.current;
@@ -263,6 +280,8 @@ const TabletsTab: React.FC = () => {
           unit={shown}
           units={units}
           onUnit={showIn}
+          onWatch={onWatch}
+          hiddenCount={watchStore.hidden.filter((k) => k.startsWith(`${solved.tablet.id}|`)).length}
         />
       )}
 

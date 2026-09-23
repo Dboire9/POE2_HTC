@@ -570,6 +570,11 @@ and a chart shows how often a craft finishes within any budget, shaded green up 
   less than, what 1 craft in 10 costs more than, and how often you finish if you spend no more than the
   tablet sells for. These come from playing the plan out thousands of times; a very long craft fits fewer
   in, and the tab says so.
+- **Your own watch list** — under *While you roll for that, these can land*, **Add your own**: one modifier,
+  or two that have to land together, joins the list as **Yours**, with its own search and price box, and
+  **Remove** takes it off. **Hide** takes a built-in row off the list; *N hidden — show them again* brings
+  them back. Both are kept in your browser, per tablet, and every change recounts the craft — its odds, and
+  what it sells on the way.
 - **What to do with each tablet** — the plan's next move for every tablet a roll can leave you holding,
   the ones that went wrong included: *Magic · one prefix → Regal*, *Rare · one prefix + one suffix →
   Exalt*, *Rare · two junk suffixes → Stop*. Stop means the plan starts a fresh tablet instead; the one

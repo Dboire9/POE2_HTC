@@ -94,7 +94,11 @@ export function ruledOutBy(data: PatchData, chosen: readonly string[]): Map<stri
  * The valuable list's tiers, best first. The tier is the whole claim the tab makes about a set's value:
  * a price goes stale within days, so the tab shows the tier and leaves today's price to the player.
  */
-export const WATCH_TIERS = ['superJackpot', 'jackpot', 'veryGood', 'good'] as const;
+/** The tiers Dorian priced the curated list into (`valuable.json`). */
+export const CURATED_TIERS = ['superJackpot', 'jackpot', 'veryGood', 'good'] as const;
+export type CuratedTier = (typeof CURATED_TIERS)[number];
+/** Every tier a watch-list row can sit in: the player's own entries first, then the curated ones. */
+export const WATCH_TIERS = ['yours', ...CURATED_TIERS] as const;
 export type WatchTier = (typeof WATCH_TIERS)[number];
 
 /** One modifier of a watched set, optionally with the value that was priced ("rerolling Favours 3 times"). */
@@ -120,7 +124,7 @@ export interface CuratedEntry {
 }
 
 export const CURATED: {
-  readonly tiers: Readonly<Record<WatchTier, readonly CuratedEntry[]>>;
+  readonly tiers: Readonly<Record<CuratedTier, readonly CuratedEntry[]>>;
 } = valuable;
 
 /** Where the price typed for a tablet holding `mods` is kept (`tabletPrices.ts`). */
@@ -138,20 +142,35 @@ export function watchText(text: string, m: WatchMod): string {
 }
 
 /**
- * The curated sets worth watching for on this tablet — the entries priced for it, best tier first —
- * minus any made only of modifiers the player already asked for: a target is not a surprise, and
- * pricing it twice on one screen reads as a bug.
+ * What a player changed about the watch list on this tablet (tabletWatch.ts): sets of their own to watch
+ * for, and curated sets they hid — each named by its `setPriceKey`.
  */
-export function watchList(tablet: TabletBase, targets: readonly string[]): WatchEntry[] {
+export interface WatchPrefs {
+  readonly mine: readonly (readonly WatchMod[])[];
+  readonly hidden: ReadonlySet<string>;
+}
+
+/**
+ * The sets worth watching for on this tablet: the player's own first (tier `yours`), then the curated
+ * entries priced for it, best tier first, less any the player hid — minus any made only of modifiers the
+ * player already asked for: a target is not a surprise, and pricing it twice on one screen reads as a bug.
+ * A curated set the player also added is listed once, as theirs.
+ */
+export function watchList(tablet: TabletBase, targets: readonly string[], prefs?: WatchPrefs): WatchEntry[] {
   const rolls = new Set([...tablet.prefixes, ...tablet.suffixes].map((m) => m.id));
   const wanted = new Set(targets);
-  return WATCH_TIERS.flatMap((tier) => CURATED.tiers[tier]
-    .filter((e) => e.tablets.includes(tablet.id) && e.mods.every((m) => rolls.has(m.id)) && !e.mods.every((m) => wanted.has(m.id)))
+  const fits = (mods: readonly WatchMod[]): boolean => mods.every((m) => rolls.has(m.id)) && !mods.every((m) => wanted.has(m.id));
+  const key = (mods: readonly WatchMod[]): string => setPriceKey(tablet.id, mods);
+  const mine = (prefs?.mine ?? []).filter(fits).map((mods): WatchEntry => ({ mods, tier: 'yours' }));
+  const taken = new Set(mine.map((e) => key(e.mods)));
+  return [...mine, ...CURATED_TIERS.flatMap((tier) => CURATED.tiers[tier]
+    .filter((e) => e.tablets.includes(tablet.id) && fits(e.mods))
     .map(({ mods, note }): WatchEntry => ({
       mods: mods.map(({ id, min, max }) => ({ id, ...(min === undefined ? {} : { min }), ...(max === undefined ? {} : { max }) })),
       tier,
       ...(note === undefined ? {} : { note }),
-    })));
+    }))
+    .filter((e) => !taken.has(key(e.mods)) && !prefs?.hidden.has(key(e.mods))))];
 }
 
 const asMod = (m: string | WatchMod): WatchMod => (typeof m === 'string' ? { id: m } : m);

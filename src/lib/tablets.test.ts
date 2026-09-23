@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import { loadPatch } from '../../packages/engine/src/index.ts';
 import { familiesOf, resolveMod } from '../../packages/engine/src/pool.ts';
-import { CURATED, ODDS_CREDIT, WATCH_TIERS, listTablets, ruledOutBy, searchIsLoose, shareWithin, summarizePlan, tradeStatsFor, watchKey, watchList, watchText, type TabletBase, spendBreakdown, plainBreakEven, standInFilters } from './tablets';
+import { CURATED, CURATED_TIERS, ODDS_CREDIT, WATCH_TIERS, listTablets, setPriceKey, ruledOutBy, searchIsLoose, shareWithin, summarizePlan, tradeStatsFor, watchKey, watchList, watchText, type TabletBase, spendBreakdown, plainBreakEven, standInFilters } from './tablets';
 
 const data = loadPatch('data/patches/0.5.0');
 const tablets = listTablets(data);
@@ -54,7 +54,7 @@ describe('what one pick rules out', () => {
 });
 
 describe('the valuable list', () => {
-  const curated = WATCH_TIERS.flatMap((tier) => CURATED.tiers[tier]);
+  const curated = CURATED_TIERS.flatMap((tier) => CURATED.tiers[tier]);
   const ids = (e: { mods: readonly { id: string }[] }): string => e.mods.map((m) => m.id).join(' + ');
   const shown = (t: TabletBase, targets: readonly string[] = []): string[] => watchList(t, targets).map(ids);
 
@@ -214,3 +214,25 @@ describe('searching for a Magic tablet already rolled', () => {
     ]);
   });
 });
+
+describe('a watch list the player changed', () => {
+  const tablets = listTablets(loadPatch('data/patches/0.5.0'));
+  const ritual = tablets.find((t) => t.id === 'Tablets_ritual')!;
+  const omen = [{ id: 'Tablets/RitualOmenChance' }];
+  const unique = [{ id: 'Tablets/MapAdditionalUniqueMonsterModifier' }];
+  const key = (mods: readonly { id: string }[]) => setPriceKey(ritual.id, mods);
+
+  it('puts the player’s own sets first, as theirs, and leaves out the curated ones they hid', () => {
+    const mine = [[{ id: 'Tablets/MapPackSizeIncrease' }, { id: 'Tablets/RitualTributeIncrease' }]];
+    const list = watchList(ritual, [], { mine, hidden: new Set([key(unique)]) });
+    expect(list[0]).toEqual({ mods: mine[0], tier: 'yours' });
+    expect(list.some((e) => key(e.mods) === key(unique))).toBe(false);
+    expect(list.some((e) => key(e.mods) === key(omen))).toBe(true);
+  });
+
+  it('lists a curated set the player also added once, as theirs', () => {
+    const list = watchList(ritual, [], { mine: [omen], hidden: new Set() });
+    expect(list.filter((e) => key(e.mods) === key(omen)).map((e) => e.tier)).toEqual(['yours']);
+  });
+});
+

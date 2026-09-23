@@ -9,6 +9,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- **Make the tablet watch list your own.** Add your own sets to *While you roll for that, these can land*
+  (one modifier, or two that land together) and hide the built-in ones; both are kept per tablet in your
+  browser, and each change recounts the craft with the list as it stands.
+
 - **What to do with each tablet.** The route only followed the crafts that go well, so it never said what to
   do with a Magic tablet that rolled a prefix, or a Rare with a junk prefix and suffix (Dorian, mid-craft).
   A table on the result now lists every tablet the plan can leave you holding and its next move — or *Stop:

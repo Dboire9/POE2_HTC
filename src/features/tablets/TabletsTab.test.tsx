@@ -377,6 +377,33 @@ describe('the Tablets tab — what it costs and what it sells for', () => {
     ]);
   });
 
+  it('lets you hide a set from the list, add one of your own, and recounts the craft each time', async () => {
+    const real = await vi.importActual<typeof import('../../lib/tablets')>('../../lib/tablets');
+    vi.mocked(watchList).mockImplementation(real.watchList);
+    const user = await open();
+    await pick(user);
+    const watched = (call: number) => (vi.mocked(solve).mock.calls[call]![0] as unknown as { watch: { id: string }[][] }).watch;
+    await waitFor(() => expect(solve).toHaveBeenCalledTimes(1));
+    expect(watched(0).some((set) => set[0]!.id === 'Tablets/RitualOmenChance')).toBe(true);
+
+    await user.click(await screen.findByRole('button', { name: /^Hide Ritual Favours in Map have #% increased chance to be Omens$/ }));
+    await waitFor(() => expect(solve).toHaveBeenCalledTimes(2));
+    expect(watched(1).some((set) => set[0]!.id === 'Tablets/RitualOmenChance')).toBe(false);
+    expect(await screen.findByRole('button', { name: '1 hidden — show it again' })).toBeInTheDocument();
+
+    await user.selectOptions(screen.getByRole('combobox', { name: 'A modifier to watch for' }), 'Tablets/MapPackSizeIncrease');
+    await user.click(screen.getByRole('button', { name: 'Add to the list' }));
+    await waitFor(() => expect(solve).toHaveBeenCalledTimes(3));
+    expect(watched(2)[0]).toEqual([{ id: 'Tablets/MapPackSizeIncrease' }]);
+    expect(await screen.findByText('Yours')).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /^Remove #% increased Pack Size in Map$/ })).toBeInTheDocument();
+    // Kept for next time.
+    expect(JSON.parse(localStorage.getItem('poe2htc.tablets.watch')!)).toMatchObject({
+      mine: { Tablets_ritual: [[{ id: 'Tablets/MapPackSizeIncrease' }]] },
+      hidden: ['Tablets_ritual|Tablets/RitualOmenChance'],
+    });
+  });
+
   it('says no run makes a loss pay', async () => {
     const costPercentiles = Array.from({ length: 101 }, (_, p) => p * 10);
     solved(markov({ replay: { runs: 1_000, seen: [], meanCost: 500, stdErr: 5, costPercentiles, movesPerCraft: {} } }));

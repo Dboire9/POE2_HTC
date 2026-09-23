@@ -94,8 +94,13 @@ const pct = (p: number): string => {
  */
 function describeStep(c: StepChanges): string {
   const parts: string[] = [];
-  if (c.junkDelta < 0) parts.push(`clears ${-c.junkDelta === 1 ? 'a junk mod' : `${-c.junkDelta} junk mods`}`);
-  if (c.junkDelta > 0) parts.push(`adds ${c.junkDelta === 1 ? 'a junk mod' : `${c.junkDelta} junk mods`}`);
+  const junk = (n: number, side: 'prefix' | 'suffix'): string => (n === 1 ? `a junk ${side}` : `${n} junk ${side}es`);
+  for (const [n, side] of [[c.junk.prefixes, 'prefix'], [c.junk.suffixes, 'suffix']] as const) {
+    if (n < 0) parts.push(`clears ${junk(-n, side)}`);
+  }
+  for (const [n, side] of [[c.junk.prefixes, 'prefix'], [c.junk.suffixes, 'suffix']] as const) {
+    if (n > 0) parts.push(`adds ${junk(n, side)}`);
+  }
   if (c.lost.length > 0) parts.push(`loses ${c.lost.join(', ')}`);
   if (c.gained.length > 0) parts.push(`most likely lands ${c.gained.join(', ')}`);
   if (c.blocked.length > 0) parts.push(`blocks ${c.blocked.join(', ')}`);

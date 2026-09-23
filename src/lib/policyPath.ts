@@ -49,8 +49,12 @@ export interface StepChanges {
   readonly lost: readonly string[];
   /** Targets whose family this step fills with a below-tier roll, blocking them until annulled. */
   readonly blocked: readonly string[];
-  /** Change in the junk count: negative clears junk, positive adds it. */
-  readonly junkDelta: number;
+  /**
+   * Change in the junk count on each side: negative clears junk, positive adds it. Per side, because a
+   * Chaos that swaps a junk suffix for a junk prefix leaves the TOTAL alone — summed, that read as "no
+   * change" beside the roll that really changed nothing. Zero into the goal: see `changesBetween`.
+   */
+  readonly junk: { readonly prefixes: number; readonly suffixes: number };
 }
 
 /**
@@ -78,7 +82,14 @@ export function changesBetween(node: EnginePolicyNode, next: EnginePolicyNode): 
     gained: without(next.present, node.present),
     lost: without(node.present, next.present),
     blocked: without(next.blocked, node.blocked),
-    junkDelta: (next.junkPrefixes + next.junkSuffixes) - (node.junkPrefixes + node.junkSuffixes),
+    // Every finished state is drawn as ONE goal, the clean one (`routeFrom`'s fold), so its junk counts
+    // say nothing about the item a step finishes on — which keeps whatever junk the spare slots allow.
+    // Compared against them, a Chaos that swaps one junk suffix for the target read "clears 2 junk
+    // mods" (Dorian, 2026-09-23: "It only rerolls one mod").
+    junk: next.isGoal ? { prefixes: 0, suffixes: 0 } : {
+      prefixes: next.junkPrefixes - node.junkPrefixes,
+      suffixes: next.junkSuffixes - node.junkSuffixes,
+    },
   };
 }
 

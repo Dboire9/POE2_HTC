@@ -232,16 +232,20 @@ describe('PolicyGraph — the route names the mods', () => {
     expect(text).not.toMatch(/\bexalt in\b|\bchoose\b/i);
   });
 
-  it('says when a step only clears junk', () => {
+  it('says when a step only clears junk, and on which side', () => {
     const r = result_({
       nodes: [
         { key: 'a', present: mods(), blocked: mods(), junkPrefixes: 2, junkSuffixes: 0, rarity: 'rare' as const, isStart: true, isGoal: false, depth: 2, expectedCost: 9, visitRate: 1, action: 'Annul' },
-        { key: 'g', present: mods(), blocked: mods(), junkPrefixes: 1, junkSuffixes: 0, rarity: 'rare' as const, isStart: false, isGoal: true, depth: 0, expectedCost: 0, visitRate: 1 },
+        { key: 'b', present: mods(), blocked: mods(), junkPrefixes: 1, junkSuffixes: 0, rarity: 'rare' as const, isStart: false, isGoal: false, depth: 1, expectedCost: 5, visitRate: 1, action: 'Exalt' },
+        { key: 'g', present: mods('X'), blocked: mods(), junkPrefixes: 0, junkSuffixes: 0, rarity: 'rare' as const, isStart: false, isGoal: true, depth: 0, expectedCost: 0, visitRate: 1 },
       ],
-      edges: [{ from: 'a', to: 'g', action: 'Annul', prob: 0.5, regress: false }],
+      edges: [
+        { from: 'a', to: 'b', action: 'Annul', prob: 0.5, regress: false },
+        { from: 'b', to: 'g', action: 'Exalt', prob: 0.5, regress: false },
+      ],
     });
     render(<PolicyGraph result={r} />);
-    expect(screen.getAllByText(/clears a junk mod/).length).toBeGreaterThan(0);
+    expect(screen.getAllByText(/clears a junk prefix/).length).toBeGreaterThan(0);
   });
 });
 
@@ -567,7 +571,7 @@ describe('PolicyGraph — starting over is described as what it is', () => {
    */
   it('does not describe binning the item as a junk clear', async () => {
     const panel = await openRestarter();
-    expect(within(panel).queryByText(/clears a junk mod/i)).toBeNull();
+    expect(within(panel).queryByText(/clears a junk/i)).toBeNull();
   });
 
   it('says you are back at the base you started from', async () => {
@@ -820,7 +824,7 @@ describe('PolicyGraph — a route from an item you buy', () => {
     render(<PolicyGraph result={route} startLabel="The item you buy" />);
     await expand();
     await userEvent.setup().click(screen.getByRole('button', { name: /^1 mod · \+1 junk/ }));
-    expect(screen.getByText(/clears a junk mod/)).toBeInTheDocument();
+    expect(screen.getByText(/clears a junk (prefix|suffix)/)).toBeInTheDocument();
     expect(screen.getByText(/start over from a new white base/)).toBeInTheDocument();
     expect(screen.queryByText(/back to the base you started from/)).not.toBeInTheDocument();
   });

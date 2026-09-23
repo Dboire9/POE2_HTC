@@ -69,6 +69,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- **"What Chaos does from here" says what one Chaos really does.** A step into the target read "clears 2
+  junk mods" when a Chaos had swapped ONE junk suffix for the target — every finished state is drawn as
+  one clean goal, so comparing junk against it counted the junk left on a spare slot as cleared. A step
+  into the goal now names only what it lands. And junk is compared per side: a Chaos whose new junk
+  landed as a prefix read "no change", beside the roll that really changed nothing; it now reads
+  *clears a junk suffix · adds a junk prefix*. On every graph, gear included.
+
 - **A tablet with four rare modifiers no longer ends in "a craft ran past 1000000 moves".** Playing such a
   craft out takes hundreds of thousands of orbs and fresh tablets EACH; the tab now stops after a few
   seconds and says so in words (*too long a craft to play out — about 270,183 orbs and fresh tablets a

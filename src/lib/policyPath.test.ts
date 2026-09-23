@@ -117,25 +117,48 @@ describe('mainLine — what each step moves', () => {
 
   it('reports junk cleared with no target gained — an Annul that does its job', () => {
     const r = result(
-      [withMods('a', 2, [], [], 2, { isStart: true, action: 'Annul' }), withMods('g', 0, [], [], 1, { isGoal: true })],
-      [edge('a', 'g', 1)],
+      [
+        withMods('a', 2, [], [], 2, { isStart: true, action: 'Annul' }),
+        withMods('b', 1, [], [], 1, { action: 'Exalt' }),
+        withMods('g', 0, ['X'], [], 0, { isGoal: true }),
+      ],
+      [edge('a', 'b', 1), edge('b', 'g', 1)],
     );
     const c = mainLine(r).steps[0]!.changes;
     expect(c.gained).toEqual([]);
-    expect(c.junkDelta).toBe(-1);
+    expect(c.junk).toEqual({ prefixes: -1, suffixes: 0 });
   });
 
-  it('reports both halves of a Chaos — junk off, target on', () => {
+  it('reports a junk mod that changed sides, which leaves the total alone', () => {
+    // A Chaos on a Rare with two junk suffixes and room on both sides: half the time the new junk
+    // lands as a prefix. Summed, that was "no change", beside the roll that really changed nothing.
     const r = result(
       [
-        withMods('a', 2, [], [], 1, { isStart: true, action: 'Chaos' }),
+        withMods('a', 2, [], [], 0, { isStart: true, action: 'Chaos', junkSuffixes: 2 }),
+        withMods('b', 1, [], [], 1, { junkSuffixes: 1 }),
+        withMods('g', 0, ['X'], [], 0, { isGoal: true }),
+      ],
+      [edge('a', 'b', 1), edge('b', 'g', 1)],
+    );
+    expect(mainLine(r).steps[0]!.changes.junk).toEqual({ prefixes: 1, suffixes: -1 });
+  });
+
+  /**
+   * Every finished state is drawn as one goal, the clean one, so its junk counts say nothing about the
+   * item a step finishes on. A Chaos that swaps one of two junk suffixes for the target, finishing
+   * with the other on a spare slot, read "clears 2 junk mods" (Dorian, 2026-09-23).
+   */
+  it('says nothing about junk on a step into the goal — only the target it lands', () => {
+    const r = result(
+      [
+        withMods('a', 2, [], [], 0, { isStart: true, action: 'Chaos', junkSuffixes: 2 }),
         withMods('g', 0, ['Mana Regeneration Rate'], [], 0, { isGoal: true }),
       ],
       [edge('a', 'g', 1)],
     );
     const c = mainLine(r).steps[0]!.changes;
     expect(c.gained).toEqual(['Mana Regeneration Rate']);
-    expect(c.junkDelta).toBe(-1);
+    expect(c.junk).toEqual({ prefixes: 0, suffixes: 0 });
   });
 
   it('reports a target lost, and one newly blocked', () => {
@@ -143,14 +166,15 @@ describe('mainLine — what each step moves', () => {
     const r = result(
       [
         withMods('a', 4, ['Cold Damage'], [], 3, { isStart: true }),
-        withMods('g', 0, [], ['Spell Damage'], 0, { isGoal: true }),
+        withMods('b', 3, [], ['Spell Damage'], 0),
+        withMods('g', 0, ['X'], [], 0, { isGoal: true }),
       ],
-      [edge('a', 'g', 1)],
+      [edge('a', 'b', 1), edge('b', 'g', 1)],
     );
     const c = mainLine(r).steps[0]!.changes;
     expect(c.lost).toEqual(['Cold Damage']);
     expect(c.blocked).toEqual(['Spell Damage']);
-    expect(c.junkDelta).toBe(-3);
+    expect(c.junk).toEqual({ prefixes: -3, suffixes: 0 });
   });
 
   it('reports nothing moved when nothing moved', () => {
@@ -158,7 +182,7 @@ describe('mainLine — what each step moves', () => {
       [withMods('a', 1, ['X'], [], 0, { isStart: true }), withMods('g', 0, ['X'], [], 0, { isGoal: true })],
       [edge('a', 'g', 1)],
     );
-    expect(mainLine(r).steps[0]!.changes).toEqual({ gained: [], lost: [], blocked: [], junkDelta: 0 });
+    expect(mainLine(r).steps[0]!.changes).toEqual({ gained: [], lost: [], blocked: [], junk: { prefixes: 0, suffixes: 0 } });
   });
 });
 

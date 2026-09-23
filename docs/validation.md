@@ -4605,6 +4605,37 @@ here because a tablet side holds two mods: the policy rarely keeps rolling with 
 needs. The long craft is the one to watch for the watch list — 20,941 moves a craft, so its replay has
 to run to a clock.
 
+## A tablet's rarest four — each plan costed outright (2026-09-23)
+
+Dorian asked for the tablets he wants, whatever they are, to compute. The four rarest on each tablet did
+not, at any Search effort: at Standard phase A spent its 100,000 sweeps in ~1.5 s; at Exhaustive the
+Ritual pair of extra modifiers and extra Favour reroll, with two common prefixes, took ~25 s. Tracing policy
+iteration on Ritual's four rarest (Rogue Exile, Summoning Circle, extra modifiers, Unique Monsters' extra
+Rare modifier — 458 states) showed why it can never finish: the closed form's Gauss-Seidel "settles"
+(each sweep moves less than `tol`) while still far from the answer, because a Chaos reroll among Rare
+states that lands the target one roll in millions is a loop other than restart, contracting at r ≈ 1.
+Comparing plans on those numbers, improvement flipped between two policies — V(start) 597,891,044 ↔
+324,179,777 — for all 200 rounds.
+
+`exactEvaluation` solves each policy's chain outright (`solveChainDirect` → `denseSolve.ts`, dense
+elimination, M³/3 at ≤ 1,000 states); with `heuristicSeed` it skips phase A. The Tablets tab asks for both
+(`smallLattice`). Measured, standard limits, plain tablet 100 ex, no Annul:
+
+| Ritual craft | before | after |
+|---|---|---|
+| Gold + extra Favour reroll | 84,720.9 | 84,720.9 |
+| Effectiveness, Rarity, Tribute, Reroll cost | 17,902.3 | 17,902.3 (replay 17,275 ± 420) |
+| Pack Size, Rare packs, free reroll, Omen chance | 443,809.5 | 443,809.5 (replay 428,005 ± 42,834) |
+| Essence, Rogue Exile, Tribute, Reroll cost | none (Exhaustive: 1,971,550.6) | 1,976,848.5 |
+| Effectiveness, Rarity, Unique extra Rare mod, extra reroll | none (Exhaustive: 5,038,390.4) | 5,049,392.5 |
+| extra modifiers + extra reroll (spare 0) | none | 1,828,693.9 |
+| the four rarest | none | ≈ 9.214×10⁸ (0.08 s) |
+
+Identical where sweeping truly settled. Where Exhaustive got a number, it is 0.2–0.3% LOW — the sweeps
+climb from zero, so stopping short undershoots — and the exact figure is above it, as it should be.
+Overseer's and Temple's four rarest: 7.10×10⁸ and 7.32×10⁸ ex, 46 ms and 34 ms. Gear is untouched: the
+option is off unless asked for.
+
 ## Still deferred
 - **Confirm the Omen of Whittling TIE rule in game** (2026-09-02): when two or more modifiers share
   the lowest item level, which does the Chaos Orb remove? Modelled as uniform — 50/50 on two — by the

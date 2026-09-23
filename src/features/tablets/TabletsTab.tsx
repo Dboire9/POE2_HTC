@@ -109,6 +109,9 @@ const TabletsTab: React.FC = () => {
       // and any slot still empty at the end is filled with an Exalt, which the cost includes.
       spare: { prefixes: PER_SIDE - picked(tablet.prefixes), suffixes: PER_SIDE - picked(tablet.suffixes) },
       fillOnFinish: true,
+      // A tablet's lattice is a few hundred states: solved the sure way, its rarest four modifiers
+      // included, which no Search effort settled otherwise (Dorian, 2026-09-23: "compute the ones we want").
+      smallLattice: true,
       // Always, even empty: the replay behind it also gives the spread of what a craft costs.
       watch: watch.map((e) => e.mods),
       // What each of those sells for, as typed: the replay then sells one whenever that beats carrying on.

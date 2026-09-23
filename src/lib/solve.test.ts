@@ -460,3 +460,39 @@ describe('policy iteration answers where value iteration can only bound', () => 
     expect(solve(2_000, 'policy').feasible).toBe(false);
   }, 60_000);
 });
+
+/**
+ * A tablet's lattice is a few hundred states, so the Tablets tab asks for `smallLattice`: policy
+ * iteration from the heuristic seed, each policy costed by solving its chain outright. Its rarest
+ * four-modifier crafts never settled otherwise — at Standard the sweeps ran out in ~1.5 s, and even
+ * at Exhaustive's 20,000,000 they "settled" short of the answer, so policy iteration flipped between
+ * two plans for good (598M ↔ 324M ex, Ritual's four rarest).
+ */
+describe('smallLattice — a tablet solved the sure way', () => {
+  const tablet = (mods: string[], smallLattice: boolean) => runSolve(eng, {
+    kind: 'lab', from: { baseId: 'Tablets_ritual', level: 100 },
+    targets: mods.map((m) => ({ modId: `Tablets/${m}`, tierDisplay: 1 })), baseCost: 100, fillOnFinish: true,
+    effort: { maxMillis: 15_000, maxNodes: 200, maxSweeps: 100_000, solver: 'policy' }, excluded: ['annul'], smallLattice,
+  });
+  const cost = (r: ReturnType<typeof runSolve>) => (r.kind === 'lab' ? r.markov : undefined)!;
+
+  it('gives the same cost where the usual solve already settles', () => {
+    const mods = ['MapMonsterEffectiveness', 'MapDroppedItemRarityIncrease', 'RitualTributeIncrease', 'RitualRerollCostIncrease'];
+    const usual = cost(tablet(mods, false));
+    const sure = cost(tablet(mods, true));
+    expect(usual.bound).toBe('exact');
+    expect(sure.bound).toBe('exact');
+    expect(Math.abs(sure.expectedCost - usual.expectedCost) / usual.expectedCost).toBeLessThan(1e-6);
+  });
+
+  it('solves the rarest four the usual solve cannot put a number on', () => {
+    const rarest = ['MapAdditionalExile', 'MapAdditionalStoneCircle', 'MapAdditionalModifier', 'MapAdditionalUniqueMonsterModifier'];
+    expect(cost(tablet(rarest, false)).feasible).toBe(false);
+    const sure = cost(tablet(rarest, true));
+    expect(sure.feasible).toBe(true);
+    expect(sure.bound).toBe('exact');
+    // Hundreds of millions of exalts: ~1 roll in 150 × 1 in 70 × 1 in 200 × 1 in 150 a side, rerolled.
+    expect(sure.expectedCost).toBeGreaterThan(1e8);
+  });
+});
+

@@ -96,6 +96,12 @@ export type SolveRequest =
       readonly sell?: readonly number[];
       /** Fill the finished item's empty slots with Exalts, and charge for them — `MarkovOptions.fillOnFinish`. */
       readonly fillOnFinish?: boolean;
+      /**
+       * Solve a SMALL lattice the sure way: policy iteration from the heuristic policy, skipping phase A
+       * (`MarkovOptions.heuristicSeed`), each policy costed exactly (`MarkovOptions.exactEvaluation`).
+       * The Tablets tab's: a tablet's four rarest modifiers never settled otherwise, at any Search effort.
+       */
+      readonly smallLattice?: boolean;
     } & ExcludingRequest)
   | ({
       readonly kind: 'item';
@@ -398,6 +404,7 @@ export function runSolve(eng: Engine, req: SolveRequest, onProgress?: (p: SolveP
     // restart, so there is no "instead" to price, and the other solves stay the size they were.
     ...(fromWhite ? { restartCost: req.baseCost ?? WHITE_BASE_COST, keepRoutes: true } : {}),
     ...(req.fillOnFinish ? { fillOnFinish: true } : {}),
+    ...(req.smallLattice ? { heuristicSeed: true, exactEvaluation: true } : {}),
     ...(mdpClock === undefined ? {} : { maxMillis: mdpClock }),
     ...(onProgress
       ? { onProgress: (pr: MarkovProgress): void => onProgress({ phase: pr.phase, fraction: within(mdpSpan, toFraction(pr) * 1000, 1000) }) }

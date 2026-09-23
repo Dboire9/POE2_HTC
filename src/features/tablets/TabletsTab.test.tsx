@@ -145,6 +145,8 @@ describe('the Tablets tab — what it costs and what it sells for', () => {
       // Always run with four modifiers: the three slots not picked take anything, and are filled at the end.
       spare: { prefixes: 1, suffixes: 2 },
       fillOnFinish: true,
+      // Solved the sure way, which a tablet's small lattice affords.
+      smallLattice: true,
       // The app's Search effort: at the default the rarest pairs solve exactly instead of stopping at a bound.
       effort: { solver: 'policy' },
       watch: [],

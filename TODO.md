@@ -97,6 +97,11 @@ win, the big one needs enough extra rounds to lose badly. **A single before/afte
 craft was unaffected — it was not.** Only interleaved reps on a machine with a documented ~40% spread
 showed it, which is the third time that spread has produced a wrong conclusion in this file.
 
+**Used since 2026-09-23 where the switch is obvious: the Tablets tab** (`smallLattice` = `heuristicSeed`
++ `exactEvaluation`, a few hundred states — validation.md, "A tablet's rarest four"). Exact evaluation
+by dense solve is what made the seed pay there; on gear it tops out near 1,000 states, so the big crafts
+still need the switch below.
+
 **To make it shippable, the open problem is a principled switch**, not more tuning: something that
 predicts which side of the crossover a craft falls on. State count is the obvious candidate (1,166
 wins, 3,963 loses) but two points either side of a threshold is not a rule.

@@ -46,6 +46,27 @@ describe('replayPolicy — the solved policy played on real items', () => {
   });
 
   /**
+   * `exactEvaluation` solves each policy's chain outright instead of sweeping it. Where sweeping
+   * settles — here, at a tolerance of 1e-12 — the two are the same number, and the replay agrees with
+   * both; the setting only changes the crafts where sweeping never truly settles (TabletsTab, solve.test).
+   */
+  it('costs a policy exactly by solving its chain outright, the same number sweeping settles on', () => {
+    const base = baseOf(['A'], ['B']);
+    const data = dataOf(base, [mod('A', 'prefix', [['a1', 3], ['a2', 1]]), mod('B', 'suffix', [['b1', 2]])]);
+    const prices: Prices = { currency: { transmute: 1, augment: 1, regal: 2, exalt: 3, annul: 4, chaos: 5 }, omens: {} };
+    const solve = (exactEvaluation: boolean) => markovFromItem(data, prices, whiteItem(base, 100), [{ modId: 'A', minTierIndex: 1 }, { modId: 'B' }], {
+      restartCost: 0.5, tolerance: 1e-12, solver: 'policy', heuristicSeed: exactEvaluation, exactEvaluation,
+      replay: { runs: 20_000, seed: 11 },
+    });
+    const direct = solve(true);
+    const swept = solve(false);
+    expect(direct.bound).toBe('exact');
+    expect(Math.abs(direct.expectedCost - swept.expectedCost) / swept.expectedCost).toBeLessThan(1e-9);
+    const rp = played(direct.replay);
+    expect(Math.abs(rp.meanCost - direct.expectedCost)).toBeLessThan(3 * rp.stdErr);
+  });
+
+  /**
    * A watched mod's share, against a number worked out by hand. The pool is two prefixes, T (weight 1)
    * and W (weight 3), and the craft wants T on an empty Rare. The first Exalt lands W three times in
    * four — and that is the whole answer, whatever the policy does next: W has been seen, while the one

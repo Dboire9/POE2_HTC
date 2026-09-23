@@ -73,8 +73,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   craft out takes hundreds of thousands of orbs and fresh tablets EACH; the tab now stops after a few
   seconds and says so in words (*too long a craft to play out — about 270,183 orbs and fresh tablets a
   craft*), once, under the cost, which still stands. And when the solver stops before a number, it no
-  longer says it "ran out of time … a six-mod target": at Standard it had used its sweeps in 1.5 s —
-  raise Search effort (Exhaustive settles these in ~25 s).
+  longer says it "ran out of time … a six-mod target": it had used its sweeps, not its time.
+- **Every tablet you pick now gets a number, at any Search effort.** A tablet's four rarest modifiers
+  never settled before — Standard gave up in 1.5 s, and even Exhaustive's twenty million sweeps
+  "settled" short of the answer, so the planner flipped between two plans forever. A tablet's lattice is
+  a few hundred states, so the tab now solves it the sure way: each plan costed by solving its equations
+  outright instead of iterating them. Ritual's four rarest: ~9.2×10⁸ ex, in 0.08 s. Where the old solve
+  worked, the numbers are the same to the decimal; the two that needed Exhaustive move by 0.2–0.3%.
 
 - **A craft that can only finish by starting over no longer quotes "at most 0".** With Chaos and Annul
   both turned off, a tablet full of the wrong modifiers can only be binned, and the true expected cost

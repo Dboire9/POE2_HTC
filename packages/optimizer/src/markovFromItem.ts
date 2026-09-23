@@ -37,6 +37,7 @@ import { pricesForBase } from './cost.ts';
 import type { TierTarget } from './optimize.ts';
 import type { Spare } from './slots.ts';
 import { NO_SPARE, slotIndexGroups } from './slots.ts';
+import { solveDenseInPlace } from './denseSolve.ts';
 import type { ResolvedCandidate } from './markovSymmetry.ts';
 import {
   canonicalFilterFor, encoderFor, familiesOfTarget, mergeSlots, permutationClasses, slotMasksOf,
@@ -219,6 +220,13 @@ export interface MarkovOptions {
    * a principled way to know which side of it a craft falls on. See TODO 3.
    */
   readonly heuristicSeed?: boolean;
+  /**
+   * Cost each policy by solving its chain outright (dense elimination) rather than by sweeping it, when
+   * the chain has at most `DIRECT_MAX_STATES` states. Exact where sweeping only looks settled — see
+   * `evaluateClosedForm`. The Tablets tab sets it: a tablet's lattice is a few hundred states, and its
+   * rarest four-modifier crafts never settled otherwise. Off elsewhere, so gear keeps its numbers.
+   */
+  readonly exactEvaluation?: boolean;
   /**
    * Wall-clock ceiling in milliseconds, from the player's "how hard should I look?" setting.
    *
@@ -1039,6 +1047,8 @@ export function markovFromItem(
   // a sweep is short enough that the overshoot is irrelevant next to a multi-second budget.
   const deadline = opts.maxMillis === undefined ? Infinity : Date.now() + opts.maxMillis;
   const DEADLINE_CHECK = 32;
+  /** The largest chain `exactEvaluation` solves outright: ~0.3 s an evaluation at the limit. */
+  const DIRECT_MAX_STATES = 1_000;
 
   /**
    * Emit only when the number the UI would DISPLAY changes — and across the WHOLE solve, not per
@@ -1110,6 +1120,50 @@ export function markovFromItem(
       }
     }
     return false;
+  };
+
+  /**
+   * The closed form's chain solved outright: for every state `s` not terminal under `pol`,
+   *
+   *     (1 − self(s))·c(s) − Σ p(s→t)·c(t) = cost(s) + Σ p(s→u)·c(u)      t non-terminal, u terminal
+   *
+   * and the same with `q`, whose right side has no cost — one matrix, both solved at once
+   * (`solveDenseInPlace`), which is why it is kept to `DIRECT_MAX_STATES`. Writes `cOf`/`qOf` for those
+   * states; false when the system is singular (a loop with no way out) or the answer is not finite.
+   */
+  const solveChainDirect = (
+    pol: Int32Array, isTerm: Uint8Array, wTo: Int32Array[], wPr: Float64Array[],
+    selfW: Float64Array, spendOf: Float64Array, cOf: Float64Array, qOf: Float64Array,
+  ): boolean => {
+    const row = new Int32Array(N).fill(-1);
+    const states: number[] = [];
+    for (let i = 0; i < N; i++) {
+      if (isTerm[i] === 1) continue;
+      // Only loops back: no progress, as the sweeps read it too.
+      if (1 - selfW[i]! <= 1e-12) { cOf[i] = Infinity; qOf[i] = 1; continue; }
+      row[i] = states.length;
+      states.push(i);
+    }
+    const M = states.length;
+    const A = new Float64Array(M * M);
+    const bc = new Float64Array(M);
+    const bq = new Float64Array(M);
+    for (let r = 0; r < M; r++) {
+      const i = states[r]!;
+      const to = wTo[i]!; const pr = wPr[i]!;
+      A[r * M + r] = 1 - selfW[i]!;
+      bc[r] = compiled[i]![pol[i]!]!.cost + spendOf[i]!;
+      for (let j = 0; j < to.length; j++) {
+        const t = to[j]!;
+        if (t === i) continue; // an offer's self-weight, already in `selfW`
+        const at = row[t]!;
+        if (at >= 0) A[r * M + at] = A[r * M + at]! - pr[j]!;
+        else { bc[r] = bc[r]! + pr[j]! * cOf[t]!; bq[r] = bq[r]! + pr[j]! * qOf[t]!; }
+      }
+    }
+    if (!solveDenseInPlace(A, M, [bc, bq])) return false;
+    for (let r = 0; r < M; r++) { cOf[states[r]!] = bc[r]!; qOf[states[r]!] = bq[r]!; }
+    return true;
   };
 
   /**
@@ -1195,7 +1249,16 @@ export function markovFromItem(
     // NEVER above `maxIters`: that is the caller's budget for the whole solve, and a seed attempt
     // that quietly spent 100x it would be answering a question nobody asked.
     const cap = Math.min(evalCap ?? maxIters, maxIters);
-    for (let sweep = 0; sweep < cap; sweep++) {
+    // …except where a loop OTHER than restart barely contracts: a Chaos reroll among Rare states that
+    // lands the target 1 roll in a million. There the sweeps "settle" — each moves less than `tol` —
+    // while still far from the answer, and policy iteration, comparing plans on those numbers, flips
+    // between two of them forever (a tablet's four rarest modifiers: 598M ↔ 324M ex). `exactEvaluation`
+    // solves such a chain outright instead, when it is small enough (`solveChainDirect`).
+    let spine = 0;
+    if (opts.exactEvaluation) for (let i = 0; i < N; i++) if (isTerm[i] === 0) spine++;
+    if (opts.exactEvaluation && spine <= DIRECT_MAX_STATES) {
+      if (!solveChainDirect(pol, isTerm, wTo, wPr, selfW, spendOf, cOf, qOf)) return false;
+    } else for (let sweep = 0; sweep < cap; sweep++) {
       if (deadline !== Infinity && sweep % DEADLINE_CHECK === 0 && Date.now() > deadline) return false;
       let delta = 0;
       for (let i = 0; i < N; i++) {

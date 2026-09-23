@@ -576,8 +576,9 @@ your own craft, the tab says so: that's the tablet to stop on and sell. Pairs tu
 plan still bins plenty of tablets early — so the singles are the ones to watch for before you bin.
 
 A cost shown as a bound (**≤**) has no settled plan behind it, so there is nothing to play out and the
-rows say so. The tab uses the same **Search effort** as the rest of the app; at the default, even two of
-the rarest modifiers at once solve exactly.
+rows say so. Any tablet you pick gets an exact number, whatever the Search effort — even the four rarest
+modifiers on one tablet, in well under a second. At that rarity (hundreds of millions of exalts) a
+craft takes too many orbs to play out, so the tab says so and shows the cost alone.
 
 **Where the odds come from.** Nobody publishes tablet weights — the game files and poe2db both say 1 for
 every modifier. **Morce Faster** rolled three tablets and counted 19,147 modifiers, and that data is what

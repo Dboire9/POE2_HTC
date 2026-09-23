@@ -145,7 +145,10 @@ describe('the Spirit Star Sceptre, as photographed', () => {
     expect(r.expectedCost).toBeGreaterThan(0);
     // The step planner has to agree — all three planners quote the same craft.
     expect(optimizePareto(data, prices, runed, SPIRIT_STAR).frontier.length).toBeGreaterThan(0);
-  }, 120_000);
+    // Six modifiers at T1 on a Sceptre: ~65s of solving on a desktop, CPU-bound, and CI's runner is
+    // slower and runs test files side by side — at 120s it timed out there once (2026-09-23, on a
+    // commit that touched nothing this test runs). The limit is for a hang, not a stopwatch.
+  }, 300_000);
 });
 
 /**

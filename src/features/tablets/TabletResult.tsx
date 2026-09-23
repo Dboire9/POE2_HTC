@@ -73,8 +73,10 @@ export const TabletResult: React.FC<{
               ?? (markov.bound === 'exact' ? 'odds not played out' : 'no odds while the cost is only a bound')}
           {single && <> · <span className="tabular-nums">{oneIn(single.share)}</span> rolls on that side</>}
         </span>
-        {tradePrice(entry.mods)}
-        {price && cost !== undefined && price.ex > cost && (
+        {/* Only a jackpot has a price of its own: it sells high whatever else is on the tablet. Any
+            other modifier is worth what the whole tablet is worth, which one search cannot say. */}
+        {entry.tier === 'jackpot' && tradePrice(entry.mods)}
+        {entry.tier === 'jackpot' && price && cost !== undefined && price.ex > cost && (
           <span className="text-emerald-400">worth more than the tablet you asked for</span>
         )}
         {entry.note && <span className="text-xs text-muted-foreground">{entry.note}</span>}

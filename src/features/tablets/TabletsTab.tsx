@@ -113,7 +113,7 @@ const TabletsTab: React.FC = () => {
           ))}
         </div>
 
-        <TabletModPicker tablet={tablet} chosen={new Set(chosen)} ruledOut={ruledOut} onToggle={toggle} />
+        <TabletModPicker tablet={tablet} chosen={chosen} ruledOut={ruledOut} onToggle={toggle} />
 
         <div className="flex flex-wrap items-end gap-4">
           <label className="flex flex-col gap-1">

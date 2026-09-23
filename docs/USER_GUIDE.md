@@ -504,8 +504,9 @@ they thought they were opening.
 Precursor Tablets are crafted with the same orbs as gear, so the same solver prices them — but almost
 nothing else on the gear tabs applies, and the market works the other way round. They get their own tab.
 
-**Pick a tablet, tick up to four modifiers** — two prefixes and two suffixes, which is what a Rare tablet
-holds. Each one shows how often it lands: *1 in 7 rolls on this side*. Modifiers that can't share a
+**Pick a tablet and add up to four modifiers**, the same way the Plan tab picks gear modifiers: search,
+press **+** in the prefix or suffix list, and take one off again with **✕** under *Your tablet*. Two
+prefixes and two suffixes is what a Rare tablet holds. Each modifier shows how often it lands: *1 in 7 rolls on this side*. Modifiers that can't share a
 tablet grey out with the reason; on a tablet that can cross sides, because "Map contains an additional
 Essence" (a prefix) and "increased chance to contain Essences" (a suffix) are one family.
 
@@ -514,7 +515,8 @@ the same policy graph the other tabs use.
 
 **Then the market half, which you drive.** No price feed lists tablets — poe.ninja doesn't carry them and
 the trade site can't be read from a web page — so every price on this tab is one you typed. Each row has
-a **Search on trade** button that opens the official site with the search already filled in; you read the
+a **Search on trade** button that opens the official site with the search already filled in — instant
+buyout listings, cheapest first, so the price you see is one you can actually buy at; you read the
 listings and type the price back in. It's kept in your browser, with the day you typed it, and compared
 against what crafting costs.
 
@@ -523,9 +525,10 @@ were aiming at. The watch list shows those, in two groups: **sells high, whateve
 tablet** — an extra random map modifier, an extra Rare modifier on Unique monsters, and on a Ritual
 tablet an extra Favour reroll — and **adds to what the tablet sells for**, such as item and monster
 rarity, more Rare monsters, waystones, Azmeri spirits and the tablet's own mechanic. Each row says how
-often it turns up on the way to your craft, worked out by playing the plan out thousands of times, and
-has its own search and price box. When one you priced beats your own craft, the tab says so: that's the
-tablet to stop on and sell.
+often it turns up on the way to your craft, worked out by playing the plan out thousands of times. Only
+the first group has a search and a price box: a jackpot sells on its own, while anything else is worth
+what the whole tablet is worth, which a search for one modifier can't tell you. When a jackpot you priced
+beats your own craft, the tab says so: that's the tablet to stop on and sell.
 
 A cost shown as a bound (**≤**) has no settled plan behind it, so there is nothing to play out and the
 rows say so. Asking for two of the rarest modifiers at once is what usually gets you there.

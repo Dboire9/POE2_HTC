@@ -29,7 +29,7 @@ export interface TradeSearch {
 const HOST = 'https://www.pathofexile.com';
 
 /**
- * The URL for "this tablet, with these modifiers, cheapest first".
+ * The URL for "this tablet, with these modifiers, instant buyout, cheapest first".
  *
  * A single-id modifier joins one `and` group, since every one of them has to be on the item. A modifier
  * with several ids becomes its own `count ≥ 1` group: the trade site has no "this stat under any of its
@@ -47,7 +47,9 @@ export function tradeUrl({ league, baseName, stats }: TradeSearch): string {
   ];
   const query = {
     query: {
-      status: { option: 'online' },
+      // Instant buyout: a listing you can buy without the seller online, at the price it shows — the
+      // only price a player can act on without a whisper, so the one worth typing back in.
+      status: { option: 'securable' },
       type: baseName,
       ...(groups.length > 0 ? { stats: groups } : {}),
     },

@@ -77,26 +77,44 @@ describe('the Tablets tab — picking what you want', () => {
 
   it('rules out the same family on the other side, and says why', async () => {
     const user = await open();
-    await user.click(screen.getByRole('checkbox', { name: /Map contains an additional Essence/ }));
-    const essenceChance = screen.getByRole('checkbox', { name: /increased chance to contain Essences/ });
+    await user.click(screen.getByRole('button', { name: /Add .*Map contains an additional Essence/ }));
+    const essenceChance = screen.getByRole('button', { name: /Add .*increased chance to contain Essences/ });
     expect(essenceChance).toBeDisabled();
-    expect(essenceChance.closest('label')?.textContent).toMatch(/one of these at a time/);
+    expect(essenceChance.parentElement?.textContent).toMatch(/one of these at a time/);
   });
 
   it('stops at two a side', async () => {
     const user = await open();
     const prefixes = ['increased Gold found in Map', 'increased Experience gain in Map'];
-    for (const text of prefixes) await user.click(screen.getByRole('checkbox', { name: new RegExp(text) }));
-    const third = screen.getByRole('checkbox', { name: /increased Pack Size in Map/ });
+    for (const text of prefixes) await user.click(screen.getByRole('button', { name: new RegExp(`Add .*${text}`) }));
+    const third = screen.getByRole('button', { name: /Add .*increased Pack Size in Map/ });
     expect(third).toBeDisabled();
     // …and a suffix is still free.
-    expect(screen.getByRole('checkbox', { name: /increased Quantity of Waystones/ })).toBeEnabled();
+    expect(screen.getByRole('button', { name: /Add .*increased Quantity of Waystones/ })).toBeEnabled();
+  });
+
+  it('lists what you picked below, the way the Plan tab does, and takes one off again', async () => {
+    const user = await open();
+    await user.click(screen.getByRole('button', { name: /Add .*increased Gold found in Map/ }));
+    // Picked: out of the list above, into "Your tablet" below.
+    expect(screen.queryByRole('button', { name: /Add .*increased Gold found in Map/ })).toBeNull();
+    await user.click(screen.getByRole('button', { name: /Remove .*increased Gold found in Map from the tablet/ }));
+    expect(screen.getByRole('button', { name: /Add .*increased Gold found in Map/ })).toBeEnabled();
+    expect(screen.getByRole('button', { name: /What does it cost/ })).toBeDisabled();
+  });
+
+  it('narrows both lists to what you type', async () => {
+    const user = await open();
+    await user.type(screen.getByRole('textbox', { name: /Search tablet modifiers/ }), 'waystones');
+    const adds = screen.getAllByRole('button', { name: /^Add / }).map((b) => b.getAttribute('aria-label'));
+    expect(adds).toEqual([expect.stringMatching(/Quantity of Waystones found in Map/)]);
+    expect(screen.getByText('No matches')).toBeInTheDocument(); // the prefix side has none
   });
 });
 
 describe('the Tablets tab — what it costs and what it sells for', () => {
   const pick = async (user: ReturnType<typeof userEvent.setup>) => {
-    await user.click(screen.getByRole('checkbox', { name: /increased Gold found in Map/ }));
+    await user.click(screen.getByRole('button', { name: /Add .*increased Gold found in Map/ }));
     await user.click(screen.getByRole('button', { name: /What does it cost/ }));
   };
 
@@ -139,7 +157,7 @@ describe('the Tablets tab — what it costs and what it sells for', () => {
     await user.type(await screen.findByRole('textbox', { name: /Price of a Ritual Tablet/ }), '2000');
     await user.tab();
 
-    await user.click(screen.getByRole('checkbox', { name: /increased Experience gain in Map/ }));
+    await user.click(screen.getByRole('button', { name: /Add .*increased Experience gain in Map/ }));
     await user.click(screen.getByRole('button', { name: /What does it cost/ }));
     const next = await screen.findByRole('textbox', { name: /Gold found in Map, .*Experience gain in Map/ });
     // Left holding "2000", leaving the box would have saved it as this tablet's price too.
@@ -171,7 +189,7 @@ describe('the Tablets tab — what else you might roll', () => {
     vi.mocked(watchList).mockReturnValue([{ mods: ['Tablets/MapAdditionalModifier'], tier: 'jackpot', note: 'sells on its own' }]);
     solved(markov({ replay: { runs: 4_000, seen: [0.23], meanCost: 1600, stdErr: 20 } }));
     const user = await open();
-    await user.click(screen.getByRole('checkbox', { name: /increased Gold found in Map/ }));
+    await user.click(screen.getByRole('button', { name: /Add .*increased Gold found in Map/ }));
     await user.click(screen.getByRole('button', { name: /What does it cost/ }));
 
     const row = (await screen.findByText(/additional random Modifiers/, { selector: 'li > span' })).closest('li')!;
@@ -193,7 +211,7 @@ describe('the Tablets tab — what else you might roll', () => {
     ]);
     solved(markov({ replay: { runs: 1_000, seen: [0.04, 0.61, 0.07], meanCost: 1600, stdErr: 20 } }));
     const user = await open();
-    await user.click(screen.getByRole('checkbox', { name: /increased Gold found in Map/ }));
+    await user.click(screen.getByRole('button', { name: /Add .*increased Gold found in Map/ }));
     await user.click(screen.getByRole('button', { name: /What does it cost/ }));
 
     const tier = (title: string): string[] =>
@@ -206,13 +224,19 @@ describe('the Tablets tab — what else you might roll', () => {
     expect(tier('Adds to what the tablet sells for')).toEqual([
       expect.stringMatching(/Rarity of Items found in Map.*turns up in 61% of crafts/),
     ]);
+    // A jackpot has a price of its own; anything else is worth what the whole tablet is, so no box.
+    const [jackpot] = within(screen.getByText('Sells high, whatever else is on the tablet').closest('section')!).getAllByRole('listitem');
+    expect(within(jackpot!).getByRole('link', { name: /Search on trade/ })).toBeInTheDocument();
+    const good = within(screen.getByText('Adds to what the tablet sells for').closest('section')!).getByRole('listitem');
+    expect(within(good).queryByRole('link')).toBeNull();
+    expect(within(good).queryByRole('textbox')).toBeNull();
   });
 
   it('says when a price beats the tablet the player asked for', async () => {
     vi.mocked(watchList).mockReturnValue([{ mods: ['Tablets/MapAdditionalModifier'], tier: 'jackpot' }]);
     solved(markov({ replay: { runs: 100, seen: [0.1], meanCost: 1600, stdErr: 20 } }));
     const user = await open();
-    await user.click(screen.getByRole('checkbox', { name: /increased Gold found in Map/ }));
+    await user.click(screen.getByRole('button', { name: /Add .*increased Gold found in Map/ }));
     await user.click(screen.getByRole('button', { name: /What does it cost/ }));
     const row = (await screen.findByText(/additional random Modifiers/, { selector: 'li > span' })).closest('li')!;
     await user.type(within(row).getByRole('textbox'), '5000');
@@ -224,7 +248,7 @@ describe('the Tablets tab — what else you might roll', () => {
     vi.mocked(watchList).mockReturnValue([{ mods: ['Tablets/MapAdditionalModifier'], tier: 'jackpot' }]);
     solved(markov({ replayReason: 'the route plays a desecrate move the replay does not model' }));
     const user = await open();
-    await user.click(screen.getByRole('checkbox', { name: /increased Gold found in Map/ }));
+    await user.click(screen.getByRole('button', { name: /Add .*increased Gold found in Map/ }));
     await user.click(screen.getByRole('button', { name: /What does it cost/ }));
     expect(await screen.findByText(/the replay does not model/)).toBeInTheDocument();
   });
@@ -234,7 +258,7 @@ describe('the Tablets tab — what else you might roll', () => {
     vi.mocked(watchList).mockReturnValue([{ mods: ['Tablets/MapAdditionalModifier'], tier: 'jackpot' }]);
     solved(markov({ bound: 'upper', converged: false }));
     const user = await open();
-    await user.click(screen.getByRole('checkbox', { name: /increased Gold found in Map/ }));
+    await user.click(screen.getByRole('button', { name: /Add .*increased Gold found in Map/ }));
     await user.click(screen.getByRole('button', { name: /What does it cost/ }));
     expect(await screen.findByText(/no odds while the cost is only a bound/)).toBeInTheDocument();
     expect(screen.getByText(/Crafting it costs/).textContent).toMatch(/costs ≤ 1,587 ex/);

@@ -8,7 +8,7 @@ const query = (url: string): unknown =>
   JSON.parse(decodeURIComponent(new URL(url).search.replace(/^\?q=/, '')));
 
 describe('tradeUrl — a search the player clicks', () => {
-  it('names the league and base, asks for every modifier at once, cheapest first', () => {
+  it('names the league and base, asks for every modifier at once, instant buyout, cheapest first', () => {
     const url = tradeUrl({
       league: 'Forbidden Rites',
       baseName: 'Ritual Tablet',
@@ -17,7 +17,7 @@ describe('tradeUrl — a search the player clicks', () => {
     expect(url.startsWith('https://www.pathofexile.com/trade2/search/poe2/Forbidden%20Rites?q=')).toBe(true);
     expect(query(url)).toEqual({
       query: {
-        status: { option: 'online' },
+        status: { option: 'securable' }, // the trade site's "Instant Buyout"
         type: 'Ritual Tablet',
         stats: [{
           type: 'and', disabled: false,

@@ -39,6 +39,8 @@ import FrontierView from './FrontierView';
 import AlternativesView from './AlternativesView';
 import PolicyGraph from './PolicyGraph';
 import StartFromItem from './StartFromItem';
+import { GearTradeLink } from './GearTradeLink';
+import { slotsOfTargets } from '../../lib/gearTrade';
 import SolveProgress from './SolveProgress';
 import CurrencyExclusions from './CurrencyExclusions';
 import RuneHint from './RuneHint';
@@ -201,6 +203,9 @@ const EngineLab: React.FC = () => {
   // go, which is a claim about the SOLVE — reading the live setting would let it change under a result
   // that was computed with a different one.
   const [markovSpare, setMarkovSpare] = useState<Spare>(NO_SPARE);
+  // What the result on screen was solved FOR — the fields may change after it, and a trade search for
+  // "this item" has to name the item the numbers describe.
+  const [solvedFor, setSolvedFor] = useState<{ readonly baseId: string; readonly targets: readonly TargetInput[] } | null>(null);
   const [altBudget, setAltBudget] = useState<number>(0);
   const [runErr, setRunErr] = useState<string | null>(null);
   // The site was redeployed under this tab, so the solve could not load what it needed. Not an error
@@ -545,6 +550,7 @@ const EngineLab: React.FC = () => {
         setMarkovRun((n) => n + 1);
         setMarkovEffort(effortId);
         setMarkovSpare(spare);
+        setSolvedFor({ baseId, targets });
         if (res.alts) setAltBudget(b);
       })
       .catch((e) => {
@@ -1020,6 +1026,15 @@ const EngineLab: React.FC = () => {
               {formatBoundedCost(markov.bound, markov.expectedCost, engine ? priceBasis(engine).rates : undefined)}
             </span>
           </div>
+          {engine && solvedFor && (
+            <p className="flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
+              Or buy it already made — every modifier at the tier you asked or better:
+              <GearTradeLink
+                data={engine.data} league={priceBasis(engine).league} baseId={solvedFor.baseId}
+                slots={slotsOfTargets(solvedFor.targets)} rarity="nonunique" label="the finished item"
+              />
+            </p>
+          )}
           {/* Which way an unfinished solve leans depends on how it was started, so the copy follows
               `bound` rather than guessing. From a white base the solver seeds from a policy that never
               restarts — a real, if expensive, way to finish — and works DOWN from it, so stopping early
@@ -1055,6 +1070,7 @@ const EngineLab: React.FC = () => {
       {markov && !runErr && engine && (
         <StartFromItem
           key={markovRun} markov={markov} engine={engine} rates={priceBasis(engine).rates}
+          {...(solvedFor ? { solvedFor } : {})}
           carved={fractured.size > 0} ranAt={markovEffort} computing={computing} recompute={compute}
         />
       )}

@@ -29,6 +29,8 @@ import type { EngineHolding } from './engineTypes.ts';
 export interface BuyRow {
   /** Target-mod texts the item would already carry. */
   readonly present: readonly string[];
+  /** The same, as modifier ids per slot — for a trade search (`EngineHolding.positions`). */
+  readonly positions: readonly (readonly string[])[];
   /** Expected cost to finish from there. */
   readonly cost: number;
   /** How much it saves against a bare base — NEGATIVE when it costs more. */
@@ -48,6 +50,7 @@ export interface BuyAdvice {
 
 const rowOf = (h: EngineHolding, bare: number): BuyRow => ({
   present: h.present,
+  positions: h.positions,
   cost: h.cost,
   saving: bare - h.cost,
   share: bare === 0 ? 0 : (bare - h.cost) / bare,
@@ -98,6 +101,8 @@ export interface StartOption {
   /** The solver's state for this item — what `routeFor` draws the route from. */
   readonly key: string;
   readonly present: readonly string[];
+  /** The same, as modifier ids per slot — for a trade search (`EngineHolding.positions`). */
+  readonly positions: readonly (readonly string[])[];
   readonly rarity: 'magic' | 'rare';
   /** Expected cost to finish from it. */
   readonly finish: number;
@@ -135,7 +140,7 @@ export function startOptions(
   holdings: readonly EngineHolding[], scratch: number, k: number, prices: ReadonlyMap<string, number>,
 ): StartOption[] {
   const rows = holdings.filter((h) => h.present.length === k).map((h): StartOption => {
-    const base = { key: h.key, present: h.present, rarity: h.rarity, finish: h.cost, worthUpTo: Math.max(0, scratch - h.cost) };
+    const base = { key: h.key, present: h.present, positions: h.positions, rarity: h.rarity, finish: h.cost, worthUpTo: Math.max(0, scratch - h.cost) };
     const price = prices.get(h.key);
     return price !== undefined && Number.isFinite(price) && price >= 0 ? { ...base, price, total: price + h.cost } : base;
   });

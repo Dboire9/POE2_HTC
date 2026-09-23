@@ -34,6 +34,8 @@ import type { Spare } from '../../../packages/optimizer/src/slots.ts';
 import { NO_SPARE } from '../../../packages/optimizer/src/slots.ts';
 import { limitsWithRunes } from '../../../packages/engine/src/runes.ts';
 import QuickCurrencyCheck from './QuickCurrencyCheck';
+import { GearTradeLink } from './GearTradeLink';
+import { slotsOfTargets } from '../../lib/gearTrade';
 import PasteItem from './PasteItem';
 import WhatToBuy from './WhatToBuy';
 import RuneHint from './RuneHint';
@@ -184,6 +186,8 @@ const ItemActions: React.FC = () => {
   // The free slots the LAST SOLVE ran with. The policy graph's "Junk to clear" is a claim about that
   // solve, so it must not follow the live setting once the answer is on screen.
   const [markovSpare, setMarkovSpare] = useState<Spare>(NO_SPARE);
+  // What the result on screen was solved FOR, for its trade searches — the fields may change after it.
+  const [solvedFor, setSolvedFor] = useState<{ readonly baseId: string; readonly targets: readonly TargetInput[] } | null>(null);
   const [plan, setPlan] = useState<EngineResult | null>(null);
   const [markov, setMarkov] = useState<EngineMarkovResult | null>(null);
   const [planErr, setPlanErr] = useState<string | null>(null);
@@ -595,6 +599,7 @@ const ItemActions: React.FC = () => {
         // frontier alone when the target isn't MDP-modellable (perfect-essence / desecrate).
         setMarkov(res.markov);
         setMarkovSpare(spare);
+        setSolvedFor({ baseId, targets: target });
       })
       .catch((e) => {
         if (!current() || isCancelled(e)) return; // cancelling is what the user asked for, not an error
@@ -1141,8 +1146,20 @@ const ItemActions: React.FC = () => {
                   {' '}{finishAdvice}
                 </p>
               )}
+              {engine && solvedFor && (
+                <p className="flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
+                  Or buy one already made — every modifier at the tier you asked or better:
+                  <GearTradeLink
+                    data={engine.data} league={priceBasis(engine).league} baseId={solvedFor.baseId}
+                    slots={slotsOfTargets(solvedFor.targets)} rarity="nonunique" label="the finished item"
+                  />
+                </p>
+              )}
               <ItemWorth markov={markov} rates={rates} />
-              <WhatToBuy markov={markov} rates={rates} />
+              <WhatToBuy
+                markov={markov} rates={rates}
+                {...(engine && solvedFor ? { trade: { data: engine.data, league: priceBasis(engine).league, ...solvedFor } } : {})}
+              />
               <p className="text-[11px] text-muted-foreground">
                 The honest average spend to reach this target, playing the optimal policy — it weighs
                 Greater/Perfect Exalts and side omens, and <strong>recovers in place</strong> after a bad roll

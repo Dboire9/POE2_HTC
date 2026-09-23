@@ -3,7 +3,7 @@ import { bestStart, buyAdvice, parsePrice, startOptions, startSizes } from './st
 import type { EngineHolding } from './engineTypes';
 
 const h = (present: string[], cost: number, rarity: EngineHolding['rarity'] = 'rare'): EngineHolding =>
-  ({ present, cost, rarity, key: `${present.join('+')}/${rarity}` });
+  ({ present, positions: present.map((p) => [p]), cost, rarity, key: `${present.join('+')}/${rarity}` });
 
 /** A bare cost of 100, three targets, and one deliberate trap. */
 const HOLDINGS: EngineHolding[] = [

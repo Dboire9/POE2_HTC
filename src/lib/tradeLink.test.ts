@@ -12,6 +12,7 @@ describe('tradeUrl — a search the player clicks', () => {
     const url = tradeUrl({
       league: 'Forbidden Rites',
       baseName: 'Ritual Tablet',
+      require: [FULL_USES],
       stats: [{ ids: ['explicit.stat_1'] }, { ids: ['explicit.stat_2'] }],
     });
     expect(url.startsWith('https://www.pathofexile.com/trade2/search/poe2/Forbidden%20Rites?q=')).toBe(true);
@@ -33,7 +34,7 @@ describe('tradeUrl — a search the player clicks', () => {
 
   it('asks for ANY of a modifier’s ids when the data has more than one', () => {
     const url = tradeUrl({
-      league: 'L', baseName: 'Overseer Tablet',
+      league: 'L', baseName: 'Overseer Tablet', require: [FULL_USES],
       stats: [{ ids: ['a'] }, { ids: ['b', 'c'], ambiguous: true }],
     });
     const q = query(url) as { query: { stats: { type: string; filters: unknown[]; value?: unknown }[] } };
@@ -46,17 +47,17 @@ describe('tradeUrl — a search the player clicks', () => {
   });
 
   it('asks for an unused tablet of that base when no modifier is named', () => {
-    const q = query(tradeUrl({ league: 'L', baseName: 'Temple Tablet', stats: [] })) as { query: Record<string, unknown> };
+    const q = query(tradeUrl({ league: 'L', baseName: 'Temple Tablet', require: [FULL_USES], stats: [] })) as { query: Record<string, unknown> };
     expect(q.query['stats']).toEqual([{ type: 'and', filters: [FULL_USES], disabled: false }]);
     expect(q.query['type']).toBe('Temple Tablet');
   });
 
   it('asks for a plain tablet only when told to — Normal, unused, instant buyout', () => {
-    const plain = query(tradeUrl({ league: 'L', baseName: 'Ritual Tablet', stats: [], normalOnly: true })) as { query: Record<string, unknown> };
+    const plain = query(tradeUrl({ league: 'L', baseName: 'Ritual Tablet', rarity: 'normal', require: [FULL_USES], stats: [] })) as { query: Record<string, unknown> };
     expect(plain.query['filters']).toEqual({ type_filters: { filters: { rarity: { option: 'normal' } } } });
     expect(plain.query['stats']).toEqual([{ type: 'and', filters: [FULL_USES], disabled: false }]);
     expect(plain.query['status']).toEqual({ option: 'securable' });
-    const any = query(tradeUrl({ league: 'L', baseName: 'Ritual Tablet', stats: [] })) as { query: Record<string, unknown> };
+    const any = query(tradeUrl({ league: 'L', baseName: 'Ritual Tablet', require: [FULL_USES], stats: [] })) as { query: Record<string, unknown> };
     expect(any.query).not.toHaveProperty('filters');
   });
 });

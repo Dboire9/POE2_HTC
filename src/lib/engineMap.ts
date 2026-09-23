@@ -529,7 +529,7 @@ export function mapMarkov(
     // both places rather than two spellings of one state — then disambiguated, because a holding puts
     // several positions on ONE line and two of them can print identically.
     ...(res.holdings ? {
-      holdings: res.holdings.map((h) => ({ present: bySide(h.present), cost: h.cost, rarity: h.rarity, key: h.key })),
+      holdings: res.holdings.map((h) => ({ present: bySide(h.present), positions: h.present, cost: h.cost, rarity: h.rarity, key: h.key })),
     } : {}),
     ...(res.restartCost !== undefined ? { restartCost: res.restartCost } : {}),
     ...(res.routes ? { routes: res.routes } : {}),

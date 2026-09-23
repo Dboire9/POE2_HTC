@@ -301,10 +301,10 @@ describe('EngineLab — reset and compute routing', () => {
     const withStarts = {
       ...labMarkov, restartCost: 0, routes: {},
       holdings: [
-        { present: [], cost: 50, rarity: 'rare', key: 'e' },
-        { present: ['Normal Prefix'], cost: 30, rarity: 'rare', key: 'p' },
-        { present: ['Normal Suffix'], cost: 35, rarity: 'rare', key: 's' },
-        { present: ['Normal Prefix', 'Normal Suffix'], cost: 0, rarity: 'rare', key: 'g' },
+        { present: [], positions: [], cost: 50, rarity: 'rare', key: 'e' },
+        { present: ['Normal Prefix'], positions: [['np']], cost: 30, rarity: 'rare', key: 'p' },
+        { present: ['Normal Suffix'], positions: [['ns']], cost: 35, rarity: 'rare', key: 's' },
+        { present: ['Normal Prefix', 'Normal Suffix'], positions: [['np'], ['ns']], cost: 0, rarity: 'rare', key: 'g' },
       ],
     };
     mocks.optimizeItemMarkov.mockReturnValue(withStarts);

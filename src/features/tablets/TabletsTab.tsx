@@ -10,7 +10,7 @@ import { parsePrice } from '../../lib/startingItem';
 import { ODDS_CREDIT, PER_SIDE, listTablets, ruledOutBy, setPriceKey, watchList, type TabletBase } from '../../lib/tablets';
 import { readPrices, writePrice, type PriceEntry, type TypedPrice } from '../../lib/tabletPrices';
 import { priceUnits, type CostUnit } from '../../lib/currency';
-import { tradeUrl } from '../../lib/tradeLink';
+import { FULL_USES, tradeUrl } from '../../lib/tradeLink';
 import { toExcludedKeys, useExclusions } from '../../lib/currencyPrefs';
 import { limitsFor, useEffort } from '../../lib/searchEffort';
 import SolveProgressBar from '../engine/SolveProgress';
@@ -185,7 +185,7 @@ const TabletsTab: React.FC = () => {
             // What a plain one goes for, to type into the box: the same search as every other tablet
             // on this tab, less the modifiers, Normal only.
             <a
-              href={tradeUrl({ league: basis.league, baseName: tablet.name, stats: [], normalOnly: true })}
+              href={tradeUrl({ league: basis.league, baseName: tablet.name, rarity: 'normal', require: [FULL_USES], stats: [] })}
               target="_blank"
               rel="noopener noreferrer"
               className={cn('rounded border border-border px-2 py-1 text-xs hover:border-primary/60 hover:text-foreground', FOCUS)}

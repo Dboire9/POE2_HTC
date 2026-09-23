@@ -319,7 +319,7 @@ This project is licensed under the GNU Affero General Public License v3.0 (AGPL-
 - **Morce Faster** for the tablet rolling data — 19,147 modifiers counted across Ritual, Overseer and
   Temple tablets. Every odds figure on the Tablets tab rests on it; nothing else publishes tablet weights.
 - [Exiled Exchange 2](https://github.com/Kvan7/Exiled-Exchange-2) (MIT) for the trade-site stat ids the
-  tablet searches are built from.
+  tablet and gear searches are built from, and the trade site's item categories.
 
 ## 📞 Contact
 

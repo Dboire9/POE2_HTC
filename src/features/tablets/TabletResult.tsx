@@ -8,7 +8,7 @@ import {
   type TabletBase, type WatchEntry, type WatchMod, type WatchTier,
 } from '../../lib/tablets';
 import type { PriceEntry, TypedPrice } from '../../lib/tabletPrices';
-import { tradeUrl } from '../../lib/tradeLink';
+import { FULL_USES, tradeUrl } from '../../lib/tradeLink';
 import PolicyGraph from '../engine/PolicyGraph';
 import { oneIn } from './TabletModPicker';
 import { ProfitVerdict } from './ProfitVerdict';
@@ -86,7 +86,7 @@ export const TabletResult: React.FC<{
   const tradePrice = (mods: readonly WatchMod[]): React.ReactElement => (
     <TradePrice
       key={keyOf(mods)}
-      url={league ? tradeUrl({ league, baseName: tablet.name, stats: tradeStatsFor(mods) }) : ''}
+      url={league ? tradeUrl({ league, baseName: tablet.name, require: [FULL_USES], stats: tradeStatsFor(mods) }) : ''}
       loose={searchIsLoose(mods)}
       unit={unit}
       units={priceUnits(rates)}

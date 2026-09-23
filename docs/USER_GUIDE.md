@@ -257,6 +257,12 @@ crafts until you click **Show**.
 - **Pay at most** — crafting from scratch (a white base plus the craft) minus the cost to finish. Pay
   less than this for the item and you come out ahead. *not worth buying* means finishing from it costs
   as much as starting over.
+- **Search on trade** — under each price box: the official trade site, opened on that item — its
+  class, Magic or Rare, each modifier it carries at the tier your craft asks or better — instant buyout,
+  cheapest first. The finished item has one too, beside the true expected cost: **Or buy it already
+  made**. A **≈** means the search is looser than the item — a modifier the trade site has no stat for,
+  or one whose local and global versions share a search — so glance at the listings. The app only
+  builds the link; your browser opens it.
 - **Trade price** — the price sheet has no prices for items with specific modifiers, so type what you
   find on trade, in ex, chaos or div (pick the unit above the table). A dot or a comma both work: 0.5
   or 0,5. A box turns red when it cannot read what you typed.
@@ -277,7 +283,8 @@ five- and six-mod crafts at Standard — the section says so and offers **Comput
 Search effort up, in one click. At Exhaustive, the top, it says the craft is beyond what the solver can
 settle. It is not available on a craft that starts from fractured modifiers, which has no white base
 for a bought item to replace. The *I have an item* tab's **What to look for when you buy one** answers
-a different question: there you keep the item, so it never starts over.
+a different question: there you keep the item, so it never starts over. Its rows, and its finished item, have the
+same **Search on trade**.
 
 ---
 

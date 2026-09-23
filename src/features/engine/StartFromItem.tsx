@@ -1,13 +1,15 @@
 import React from 'react';
 import { Button } from '../../components/ui/button';
 import { Card } from '../../components/ui/card';
-import { routeFor, type Engine, type EngineMarkovResult } from '../../lib/engine';
+import { priceBasis, routeFor, type Engine, type EngineMarkovResult, type TargetInput } from '../../lib/engine';
 import { exactExalts, formatIn, pickUnit, type CostUnit, type Rates } from '../../lib/currency';
 import { PREFS_PREFIX } from '../../lib/currencyPrefs';
 import { EFFORT_PRESETS, nextEffort, setEffort } from '../../lib/searchEffort';
 import { bestStart, parsePrice, startOptions, startSizes, type StartOption } from '../../lib/startingItem';
 import { cn } from '../../lib/utils';
 import PolicyGraph from './PolicyGraph';
+import { GearTradeLink } from './GearTradeLink';
+import { slotsOfHolding } from '../../lib/gearTrade';
 
 /**
  * "Which item should I buy to start from — and how do I finish it from there?"
@@ -77,9 +79,11 @@ interface Props {
   readonly computing: boolean;
   /** Solve the same craft again at this Search effort. */
   readonly recompute: (effortId: string) => void;
+  /** The base and targets `markov` was solved for — each row's trade search asks for its modifiers at their tiers. */
+  readonly solvedFor?: { readonly baseId: string; readonly targets: readonly TargetInput[] };
 }
 
-const StartFromItem: React.FC<Props> = ({ markov, engine, rates, carved, ranAt, computing, recompute }) => {
+const StartFromItem: React.FC<Props> = ({ markov, engine, rates, carved, ranAt, computing, recompute, solvedFor }) => {
   const [hidden, setHidden] = useHidden();
   const bodyId = React.useId();
   const sizes = startSizes(markov.holdings);
@@ -270,6 +274,7 @@ const StartFromItem: React.FC<Props> = ({ markov, engine, rates, carved, ranAt, 
                     {worthNothing(r, scratch) ? 'not worth buying' : fmt(r.worthUpTo)}
                   </td>
                   <td className="py-1.5 pr-3 text-right">
+                    <div className="flex flex-col items-end gap-1">
                     <span className="inline-flex items-center gap-1">
                       <input
                         type="text" inputMode="decimal" autoComplete="off" placeholder="—"
@@ -285,6 +290,14 @@ const StartFromItem: React.FC<Props> = ({ markov, engine, rates, carved, ranAt, 
                       />
                       <span className="w-8 text-left text-muted-foreground">{priceUnit.label}</span>
                     </span>
+                    {/* The price comes from the trade site, so the search sits right under the box it fills. */}
+                    {solvedFor && (
+                      <GearTradeLink
+                        data={engine.data} league={priceBasis(engine).league} baseId={solvedFor.baseId}
+                        slots={slotsOfHolding(r.positions, solvedFor.targets)} rarity={r.rarity} label={nameOf(r)}
+                      />
+                    )}
+                    </div>
                   </td>
                   <td className="whitespace-nowrap py-1.5 pr-3 text-right tabular-nums" title={r.total === undefined ? undefined : exactExalts(r.total)}>
                     {r.total === undefined ? <span className="text-muted-foreground">—</span> : (

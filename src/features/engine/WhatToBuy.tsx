@@ -1,7 +1,10 @@
 import React from 'react';
 import { buyAdvice, type BuyRow } from '../../lib/startingItem';
 import { formatIn, pickUnit, exactExalts, type CostUnit, type Rates } from '../../lib/currency';
-import type { EngineMarkovResult } from '../../lib/engine';
+import type { EngineMarkovResult, TargetInput } from '../../lib/engine';
+import type { PatchData } from '../../../packages/engine/src/types';
+import { GearTradeLink } from './GearTradeLink';
+import { slotsOfHolding } from '../../lib/gearTrade';
 
 /**
  * "What should I already have when I buy one?"
@@ -38,19 +41,35 @@ const pct = (share: number): string => {
   return `${v < 1 ? v.toFixed(2) : v.toFixed(0)}%`;
 };
 
-const Row: React.FC<{ row: BuyRow; unit: CostUnit }> = ({ row, unit }) => (
+/** What a row's trade search needs: the craft the table was solved for. */
+interface TradeContext {
+  readonly data: PatchData;
+  readonly league: string | undefined;
+  readonly baseId: string;
+  readonly targets: readonly TargetInput[];
+}
+
+const Row: React.FC<{ row: BuyRow; unit: CostUnit; trade: TradeContext | undefined }> = ({ row, unit, trade }) => (
   <tr className="border-t border-border/60">
     <td className="py-1 pr-3 align-top">{row.present.join(' + ')}</td>
     <td className="py-1 pr-3 text-right tabular-nums align-top" title={exactExalts(row.cost)}>
       {formatIn(unit, row.cost)}
     </td>
-    <td className={`py-1 text-right tabular-nums align-top ${row.saving > 0 ? '' : 'text-amber-300'}`}>
+    <td className={`py-1 pr-3 text-right tabular-nums align-top ${row.saving > 0 ? '' : 'text-amber-300'}`}>
       {row.saving > 0 ? '−' : '+'}{pct(row.share)}
     </td>
+    {trade && (
+      <td className="py-1 text-right align-top">
+        <GearTradeLink
+          data={trade.data} league={trade.league} baseId={trade.baseId}
+          slots={slotsOfHolding(row.positions, trade.targets)} rarity="rare" label={`a Rare with ${row.present.join(' + ')}`}
+        />
+      </td>
+    )}
   </tr>
 );
 
-const WhatToBuy: React.FC<{ markov: EngineMarkovResult; rates?: Rates }> = ({ markov, rates }) => {
+const WhatToBuy: React.FC<{ markov: EngineMarkovResult; rates?: Rates; trade?: TradeContext }> = ({ markov, rates, trade }) => {
   const advice = buyAdvice(markov.holdings);
   if (!advice) return null;
 
@@ -104,10 +123,11 @@ const WhatToBuy: React.FC<{ markov: EngineMarkovResult; rates?: Rates }> = ({ ma
             <th className="font-normal pb-1">Already on it</th>
             <th className="font-normal pb-1 text-right">Finishing costs</th>
             <th className="font-normal pb-1 text-right">vs bare</th>
+            {trade && <th className="pb-1"><span className="sr-only">Trade search</span></th>}
           </tr>
         </thead>
         <tbody>
-          {advice.best.map((r) => <Row key={r.present.join('|')} row={r} unit={unit} />)}
+          {advice.best.map((r) => <Row key={r.present.join('|')} row={r} unit={unit} trade={trade} />)}
         </tbody>
       </table>
 

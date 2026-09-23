@@ -16,7 +16,7 @@ import StartFromItem from './StartFromItem';
 const HIDDEN_KEY = 'poe2htc.startFromItem.hidden.v1';
 
 const h = (present: string[], cost: number, rarity: 'magic' | 'rare' = 'rare'): EngineHolding =>
-  ({ present, cost, rarity, key: `${present.join('+')}/${rarity}` });
+  ({ present, positions: present.map((p) => [p]), cost, rarity, key: `${present.join('+')}/${rarity}` });
 
 /**
  * A from-white Lab result: crafting from scratch costs a 10 ex base plus 90 to craft, so 100, and every

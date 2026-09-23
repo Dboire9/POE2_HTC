@@ -410,6 +410,8 @@ export interface EngineHolding {
   /** Target-mod texts already on the item, one per filled slot; interchangeable alternatives read
    *  "Cold or Lightning". */
   readonly present: readonly string[];
+  /** The same slots as modifier ids — each slot the alternatives any one of which fills it — for a trade search. */
+  readonly positions: readonly (readonly string[])[];
   readonly cost: number;
   /** A Magic and a Rare holding the same mods finish differently — only the Magic one can Regal. */
   readonly rarity: 'magic' | 'rare';

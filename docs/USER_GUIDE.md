@@ -516,7 +516,7 @@ the same policy graph the other tabs use.
 **Then the market half, which you drive.** No price feed lists tablets — poe.ninja doesn't carry them and
 the trade site can't be read from a web page — so every price on this tab is one you typed. Each row has
 a **Search on trade** button that opens the official site with the search already filled in — instant
-buyout listings, cheapest first, so the price you see is one you can actually buy at; you read the
+buyout listings of unused tablets (all 10 uses left), cheapest first, so the price you see is one you can actually buy at; you read the
 listings and type the price back in. It's kept in your browser, with the day you typed it, and compared
 against what crafting costs.
 

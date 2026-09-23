@@ -15,7 +15,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   greyed out with the reason. Nobody publishes tablet weights, so the odds rest on **Morce Faster's**
   rolling data: 19,147 modifiers counted across the three tablets, credited on the tab.
   The market half is yours to drive, because no feed lists tablets: every row has a **Search on trade**
-  button that opens the official site with an instant-buyout search filled in, and a box for the price you read there.
+  button that opens the official site with an instant-buyout search for an unused tablet (10 uses left) filled in, and a box for the price you read there.
   Prices stay in your browser with the day you typed them, and sit next to what crafting costs.
   And while you roll for what you asked for, other things land — the **watch list** shows the valuable
   ones, hand-picked in two tiers: the few that sell high whatever else is on the tablet (an extra random

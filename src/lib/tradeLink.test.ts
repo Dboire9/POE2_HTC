@@ -2,13 +2,13 @@ import { describe, it, expect } from 'vitest';
 import { readFileSync } from 'node:fs';
 import { loadPatch } from '../../packages/engine/src/index.ts';
 import { TABLET_CATEGORY } from '../../packages/engine/src/types.ts';
-import { tradeUrl } from './tradeLink';
+import { FULL_USES, tradeUrl } from './tradeLink';
 
 const query = (url: string): unknown =>
   JSON.parse(decodeURIComponent(new URL(url).search.replace(/^\?q=/, '')));
 
 describe('tradeUrl — a search the player clicks', () => {
-  it('names the league and base, asks for every modifier at once, instant buyout, cheapest first', () => {
+  it('names the league and base, asks for an unused tablet with every modifier at once, instant buyout, cheapest first', () => {
     const url = tradeUrl({
       league: 'Forbidden Rites',
       baseName: 'Ritual Tablet',
@@ -21,7 +21,10 @@ describe('tradeUrl — a search the player clicks', () => {
         type: 'Ritual Tablet',
         stats: [{
           type: 'and', disabled: false,
-          filters: [{ id: 'explicit.stat_1', disabled: false }, { id: 'explicit.stat_2', disabled: false }],
+          filters: [
+            { id: 'pseudo.pseudo_number_of_uses_remaining', value: { min: 10 }, disabled: false }, // all 10 uses left
+            { id: 'explicit.stat_1', disabled: false }, { id: 'explicit.stat_2', disabled: false },
+          ],
         }],
       },
       sort: { price: 'asc' },
@@ -42,9 +45,9 @@ describe('tradeUrl — a search the player clicks', () => {
     });
   });
 
-  it('asks for the base alone when no modifier is named', () => {
+  it('asks for an unused tablet of that base when no modifier is named', () => {
     const q = query(tradeUrl({ league: 'L', baseName: 'Temple Tablet', stats: [] })) as { query: Record<string, unknown> };
-    expect(q.query['stats']).toBeUndefined();
+    expect(q.query['stats']).toEqual([{ type: 'and', filters: [FULL_USES], disabled: false }]);
     expect(q.query['type']).toBe('Temple Tablet');
   });
 });

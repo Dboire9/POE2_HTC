@@ -186,7 +186,7 @@ describe('the Tablets tab — what it costs and what it sells for', () => {
 
 describe('the Tablets tab — what else you might roll', () => {
   it('lists a valuable modifier, how often it turns up, and its own trade search', async () => {
-    vi.mocked(watchList).mockReturnValue([{ mods: [{ id: 'Tablets/MapAdditionalModifier' }], tier: 'jackpot', price: '~2 div', note: 'sells on its own' }]);
+    vi.mocked(watchList).mockReturnValue([{ mods: [{ id: 'Tablets/MapAdditionalModifier' }], tier: 'jackpot', note: 'sells on its own' }]);
     solved(markov({ replay: { runs: 4_000, seen: [0.23], meanCost: 1600, stdErr: 20 } }));
     const user = await open();
     await user.click(screen.getByRole('button', { name: /Add .*increased Gold found in Map/ }));
@@ -198,8 +198,8 @@ describe('the Tablets tab — what else you might roll', () => {
     expect(row.textContent).toMatch(/1 in 183 rolls on that side/);
     expect(within(row).getByRole('link', { name: /Search on trade/ })).toBeInTheDocument();
     expect(screen.getByText(/Played out 4,000 times/)).toBeInTheDocument();
-    // What Dorian saw it listed for, dated, so the reader knows how old the number is.
-    expect(row.textContent).toMatch(/~2 div when Dorian checked, \d+ \w{3}/);
+    // The tier is the claim; a remembered price would be stale within days, so none is shown.
+    expect(row.textContent).not.toMatch(/div|chaos|checked/);
     // It asked the solver for exactly the modifiers it lists.
     expect(vi.mocked(solve).mock.calls[0]![0]).toMatchObject({ watch: [[{ id: 'Tablets/MapAdditionalModifier' }]] });
   });
@@ -240,7 +240,7 @@ describe('the Tablets tab — what else you might roll', () => {
     expect(tier('Good')).toEqual([
       expect.stringMatching(/Rarity of Items found in Map.*turns up in 61% of crafts/),
     ]);
-    // Every entry is a set Dorian priced, so every row gets a search and a box.
+    // Every entry is a specific set, so every row gets a search and a box for today's price.
     const good = within(screen.getByText('Good').closest('section')!).getByRole('listitem');
     expect(within(good).getByRole('link', { name: /Search on trade/ })).toBeInTheDocument();
     expect(within(good).getByRole('textbox')).toBeInTheDocument();

@@ -86,7 +86,8 @@ export function ruledOutBy(data: PatchData, chosen: readonly string[]): Map<stri
 }
 
 /**
- * The valuable list's tiers, best first — Dorian's, from what each set sold for on the trade site.
+ * The valuable list's tiers, best first. The tier is the whole claim the tab makes about a set's value:
+ * a price goes stale within days, so the tab shows the tier and leaves today's price to the player.
  */
 export const WATCH_TIERS = ['superJackpot', 'jackpot', 'veryGood', 'good'] as const;
 export type WatchTier = (typeof WATCH_TIERS)[number];
@@ -102,8 +103,6 @@ export interface WatchMod {
 export interface WatchEntry {
   readonly mods: readonly WatchMod[];
   readonly tier: WatchTier;
-  /** What Dorian saw it listed for on `PRICED_ON`, in his words ("~20 div"). */
-  readonly price?: string;
   readonly note?: string;
 }
 
@@ -116,12 +115,8 @@ export interface CuratedEntry {
 }
 
 export const CURATED: {
-  readonly pricedOn: string;
   readonly tiers: Readonly<Record<WatchTier, readonly CuratedEntry[]>>;
 } = valuable;
-
-/** The day the list's prices were read off the trade site — they age, and the tab says how much. */
-export const PRICED_ON = CURATED.pricedOn;
 
 /** A stable key for a watched set: ids, with the priced value when there is one. */
 export const watchKey = (mods: readonly WatchMod[]): string[] =>
@@ -144,10 +139,9 @@ export function watchList(tablet: TabletBase, targets: readonly string[]): Watch
   const wanted = new Set(targets);
   return WATCH_TIERS.flatMap((tier) => CURATED.tiers[tier]
     .filter((e) => e.tablets.includes(tablet.id) && e.mods.every((m) => rolls.has(m.id)) && !e.mods.every((m) => wanted.has(m.id)))
-    .map(({ mods, price, note }): WatchEntry => ({
+    .map(({ mods, note }): WatchEntry => ({
       mods: mods.map(({ id, min, max }) => ({ id, ...(min === undefined ? {} : { min }), ...(max === undefined ? {} : { max }) })),
       tier,
-      ...(price === undefined ? {} : { price }),
       ...(note === undefined ? {} : { note }),
     })));
 }

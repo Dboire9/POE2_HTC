@@ -522,15 +522,15 @@ against what crafting costs.
 
 **While you roll for what you asked for, other things land.** Some are worth more than the tablet you
 were aiming at. The watch list shows those in four tiers — **super jackpot**, **jackpot**, **very good**
-and **good** — sorted by what each one actually sold for when Dorian checked the trade site, and that
-price is printed on the row with its date. The same set can sell very differently on each tablet, so
-each is listed for the tablets it was priced on: an extra Rare modifier on Unique monsters is ~5 div on
-a Temple tablet and a few chaos on the other two. Where the roll matters, the row names it — an extra
+and **good** — sorted by what each set sells for on the trade site. The same set can be worth very
+different amounts on each tablet, so each is listed for the tablets where it earns its tier: an extra
+Rare modifier on Unique monsters alone is a jackpot on a Temple tablet and only good on the other two. Where the roll matters, the row names it — an extra
 Favour reroll **3** times is its own row, apart from **1–2** — and the odds count only that roll, taking
 every value in a range as equally likely.
 
 Each row says how often it turns up on the way to your craft, worked out by playing the plan out
-thousands of times, and has its own search and price box for today's price. When one you priced beats
+thousands of times, and has its own search and price box — prices move, so the tier says how good a
+set is and today's price is yours to read. When one you priced beats
 your own craft, the tab says so: that's the tablet to stop on and sell. Expect the pairs to say 0% on a
 cheap plan — it bins a tablet at its first wrong modifier, so two unwanted ones rarely sit on it at once
 — while the singles are the ones to watch for before you bin.

@@ -4,7 +4,7 @@ import { cn } from '../../lib/utils';
 import type { EngineMarkovResult } from '../../lib/engineTypes';
 import { formatIn, pickUnit, type Rates } from '../../lib/currency';
 import {
-  PRICED_ON, WATCH_TIERS, searchIsLoose, tradeStatsFor, watchKey, watchText,
+  WATCH_TIERS, searchIsLoose, tradeStatsFor, watchKey, watchText,
   type TabletBase, type WatchEntry, type WatchMod, type WatchTier,
 } from '../../lib/tablets';
 import { priceKey, readPrices, writePrice, type TypedPrice } from '../../lib/tabletPrices';
@@ -28,9 +28,6 @@ const TIER_TITLE: Record<WatchTier, string> = {
   veryGood: 'Very good',
   good: 'Good',
 };
-
-/** "23 Sep" — when the list's prices were read, so a reader can tell how stale they are. */
-const pricedOn = new Date(`${PRICED_ON}T12:00:00Z`).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' });
 
 /**
  * The answer for one solved tablet: what crafting it costs, what it sells for, and what else can land on
@@ -89,9 +86,6 @@ export const TabletResult: React.FC<{
         {tradePrice(entry.mods)}
         {price && cost !== undefined && price.ex > cost && (
           <span className="text-emerald-400">worth more than the tablet you asked for</span>
-        )}
-        {entry.price && (
-          <span className="text-xs text-muted-foreground">{entry.price} when Dorian checked, {pricedOn}</span>
         )}
         {entry.note && <span className="text-xs text-muted-foreground">{entry.note}</span>}
       </li>

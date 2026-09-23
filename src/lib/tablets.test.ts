@@ -56,7 +56,7 @@ describe('what one pick rules out', () => {
   });
 });
 
-describe('Dorian’s valuable list', () => {
+describe('the valuable list', () => {
   const curated = WATCH_TIERS.flatMap((tier) => CURATED.tiers[tier]);
   const ids = (e: { mods: readonly { id: string }[] }): string => e.mods.map((m) => m.id).join(' + ');
   const shown = (t: TabletBase, targets: readonly string[] = []): string[] => watchList(t, targets).map(ids);
@@ -119,7 +119,6 @@ describe('Dorian’s valuable list', () => {
     expect(watchText(resolveMod(data, 'Tablets/RitualAdditionalReroll').text!, three.mods[0]!))
       .toBe('Ritual Altars in Map allow rerolling Favours 3 additional times');
     expect(watchText('Map has # additional random Modifiers', { id: 'x', min: 1, max: 2 })).toBe('Map has 1–2 additional random Modifiers');
-    expect(three.price).toBe('~200 chaos');
   });
 
   it('leaves out a set made only of what the player asked for, and nothing else', () => {

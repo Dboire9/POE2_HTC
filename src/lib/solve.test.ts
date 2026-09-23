@@ -78,7 +78,9 @@ describe('runSolve — dispatches to the same planners the UI called inline', ()
     const bare = runSolve(eng, { kind: 'lab', from, targets: twoAlloys });
     if (bare.kind !== 'lab') throw new Error('wrong kind');
     expect(bare.result).not.toEqual(got.result);
-  }, 60_000);
+    // ~17 s alone; over 60 s once the whole suite runs beside it (measured 62–69 s, 2026-09-23), so the
+    // limit is set for the loaded machine — the same call craftedCap.test made.
+  }, 300_000);
 
   it('carries them onto the item a from-item solve is handed', () => {
     const runes = ['astrids-creativity'];

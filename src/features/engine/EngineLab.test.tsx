@@ -283,6 +283,11 @@ describe('EngineLab — reset and compute routing', () => {
 
   // Reset cleared the step routes and left the true-cost card standing: a number, a route and — once
   // the panel beside it existed — a table of items to buy, all for a craft no longer on the screen.
+  it('marks the Tablets tab as new', async () => {
+    await loaded();
+    expect(screen.getByRole('button', { name: 'Tablets New' })).toBeInTheDocument();
+  });
+
   it('reset clears the true cost of the craft it removed', async () => {
     const user = userEvent.setup();
     await loaded();

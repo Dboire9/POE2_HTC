@@ -628,7 +628,11 @@ const EngineLab: React.FC = () => {
           onClick={() => setMode('tablets')}
           aria-pressed={mode === 'tablets'}
         >
-          Tablets
+          Tablets{' '}
+          {/* Shipped 2026-09-23: new enough that a returning player should notice it is there. */}
+          <span className="ml-1 rounded-full bg-emerald-500/20 px-1.5 py-px align-middle text-[10px] font-semibold uppercase tracking-wide text-emerald-700 dark:text-emerald-300">
+            New
+          </span>
         </button>
         {/* Browsing gear is not crafting, so it gets its own tab rather than a third panel stacked
             above the Item tab's pickers. Picking an item there lands on `I have an item`. */}

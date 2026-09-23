@@ -9,6 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- **A "New" badge on the Tablets tab**, so a returning player sees it is there.
+
 - **Make the tablet watch list your own.** Add your own sets to *While you roll for that, these can land*
   (one modifier, or two that land together) and hide the built-in ones; both are kept per tablet in your
   browser, and each change recounts the craft with the list as it stands.

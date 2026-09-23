@@ -8,7 +8,7 @@ import { isAppUpdated, isCancelled, prewarm, solve } from '../../lib/engineClien
 import type { SolveProgress } from '../../lib/solve';
 import { parsePrice } from '../../lib/startingItem';
 import { ODDS_CREDIT, PER_SIDE, listTablets, ruledOutBy, setPriceKey, watchList, type TabletBase } from '../../lib/tablets';
-import { readPrices, writePrice, type PriceEntry, type TypedPrice } from '../../lib/tabletPrices';
+import { readPrices, readShownUnit, writePrice, writeShownUnit, type PriceEntry, type TypedPrice } from '../../lib/tabletPrices';
 import { priceUnits, type CostUnit } from '../../lib/currency';
 import { FULL_USES, tradeUrl } from '../../lib/tradeLink';
 import { toExcludedKeys, useExclusions } from '../../lib/currencyPrefs';
@@ -38,7 +38,10 @@ const TabletsTab: React.FC = () => {
   const [tabletId, setTabletId] = useState('Tablets_ritual');
   const [chosen, setChosen] = useState<readonly string[]>([]);
   const [baseCost, setBaseCost] = useState('1');
-  const [baseUnit, setBaseUnit] = useState<CostUnit['key']>('exalt');
+  // The unit every number on the tab is shown in, and the one a new price box starts in: chaos unless
+  // the player picked another, remembered in this browser.
+  const [shownKey, setShownKey] = useState<CostUnit['key']>(readShownUnit);
+  const [baseUnit, setBaseUnit] = useState<CostUnit['key']>(shownKey);
   const [solved, setSolved] = useState<SolvedTablet | null>(null);
   // Every price the player typed, by set. Read once, at the first render: what they typed before is part
   // of the initial state. Kept here, not in the result, because a watch-list price is sent with the solve.
@@ -64,6 +67,8 @@ const TabletsTab: React.FC = () => {
   const basis = engine ? priceBasis(engine) : undefined;
   const units = priceUnits(basis?.rates);
   const plainUnit = units.find((u) => u.key === baseUnit) ?? units[0]!;
+  const shown = units.find((u) => u.key === shownKey) ?? units[0]!;
+  const showIn = (key: CostUnit['key']): void => { setShownKey(key); writeShownUnit(key); };
   const plainTyped = parsePrice(baseCost);
   const plainCost = plainTyped === undefined ? undefined : plainTyped * plainUnit.perExalt;
 
@@ -213,6 +218,9 @@ const TabletsTab: React.FC = () => {
           prices={prices}
           onPrice={onPrice}
           recounting={computing}
+          unit={shown}
+          units={units}
+          onUnit={showIn}
         />
       )}
 

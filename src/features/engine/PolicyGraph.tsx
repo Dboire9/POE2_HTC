@@ -1,6 +1,6 @@
 import React from 'react';
 import type { EngineMarkovResult, EnginePolicyNode, PolicyMod } from '../../lib/engine';
-import { formatIn, pickUnit, type Rates } from '../../lib/currency';
+import { formatIn, pickUnit, type CostUnit, type Rates } from '../../lib/currency';
 import { changesBetween, mainLine, type JunkChange, type StepChanges } from '../../lib/policyPath';
 import { cn } from '../../lib/utils';
 import type { Spare } from '../../../packages/optimizer/src/slots.ts';
@@ -755,14 +755,16 @@ const PolicyGraph: React.FC<{
    *  Defaults to none, which is what every craft without them means and what every caller meant
    *  before they existed. */
   spare?: Spare;
+  /** Show every cost in this unit rather than the one the largest cost suggests — the Tablets tab's choice. */
+  unit?: CostUnit;
 }> = ({
-  result, rates, startLabel = 'Your item', spare = NO_SPARE,
+  result, rates, startLabel = 'Your item', spare = NO_SPARE, unit: chosenUnit,
 }) => {
   const [showAll, setShowAll] = React.useState(false);
   if (!result.applicable || !result.feasible || result.nodes.length === 0) return null;
   // One unit across BOTH views, from the largest node cost — these are all the same quantity
   // (cost-to-finish from a state), so mixing units would defeat comparing them.
-  const unit = pickUnit(
+  const unit = chosenUnit ?? pickUnit(
     Math.max(0, ...result.nodes.map((n) => n.expectedCost).filter(Number.isFinite)),
     rates,
   );

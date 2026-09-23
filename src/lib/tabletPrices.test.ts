@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
-import { daysOld, priceKey, readPrices, writePrice } from './tabletPrices';
+import { daysOld, priceKey, readPrices, readShownUnit, writePrice, writeShownUnit } from './tabletPrices';
 
 beforeEach(() => localStorage.clear());
 afterEach(() => vi.restoreAllMocks());
@@ -42,3 +42,16 @@ describe('prices the player typed', () => {
     expect(() => writePrice('k', { ex: 1, unit: 'exalt' })).not.toThrow();
   });
 });
+
+describe('the unit the tab shows its numbers in', () => {
+  it('is chaos until the player picks another, and then that one', () => {
+    expect(readShownUnit()).toBe('chaos');
+    writeShownUnit('divine');
+    expect(readShownUnit()).toBe('divine');
+    localStorage.setItem('poe2htc.tablets.unit', 'mirror');
+    expect(readShownUnit()).toBe('chaos');
+    vi.spyOn(Storage.prototype, 'getItem').mockImplementation(() => { throw new Error('denied'); });
+    expect(readShownUnit()).toBe('chaos');
+  });
+});
+

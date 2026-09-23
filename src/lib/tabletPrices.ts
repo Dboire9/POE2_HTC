@@ -71,3 +71,23 @@ export function daysOld(price: TypedPrice, today = new Date()): number {
   const now = Date.parse(`${today.toISOString().slice(0, 10)}T00:00:00Z`);
   return Math.max(0, Math.round((now - then) / 86_400_000));
 }
+
+const UNIT_KEY = 'poe2htc.tablets.unit';
+
+/**
+ * The unit the Tablets tab shows its numbers in — Chaos Orbs unless the player picked another, since
+ * tablets trade in chaos (Dorian, 2026-09-23: "chaos is the default currency"). Per browser, guarded.
+ */
+export function readShownUnit(): CostUnit['key'] {
+  try {
+    const v = localStorage.getItem(UNIT_KEY);
+    return v === 'exalt' || v === 'chaos' || v === 'divine' ? v : 'chaos';
+  } catch {
+    return 'chaos';
+  }
+}
+
+export function writeShownUnit(unit: CostUnit['key']): void {
+  try { localStorage.setItem(UNIT_KEY, unit); } catch { /* the choice just does not persist */ }
+}
+

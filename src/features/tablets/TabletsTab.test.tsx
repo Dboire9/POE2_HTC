@@ -43,6 +43,8 @@ const solved = (res: EngineMarkovResult = markov()) => {
 
 beforeEach(() => {
   localStorage.clear();
+  // These cases read their figures in exalts, the solver's own unit; the chaos default has its own below.
+  localStorage.setItem('poe2htc.tablets.unit', 'exalt');
   vi.mocked(loadEngine).mockResolvedValue({ data, prices });
   vi.mocked(watchList).mockReturnValue([]);
   solved();
@@ -184,6 +186,20 @@ describe('the Tablets tab — what it costs and what it sells for', () => {
     await pick(again);
     expect(await screen.findByRole('textbox', { name: /Price of a Ritual Tablet/ })).toHaveValue('3');
     expect(screen.getByRole('combobox', { name: /Price of a Ritual Tablet.*: unit/ })).toHaveValue('chaos');
+  });
+
+  it('shows its numbers in chaos unless you pick another unit, and remembers the pick', async () => {
+    localStorage.removeItem('poe2htc.tablets.unit');
+    const user = await open();
+    await pick(user);
+    // 1 chaos for the plain tablet plus 1,587.3 ex of rolling, in chaos.
+    const chaos = prices.currency['chaos']!;
+    const inChaos = (1 * chaos + 1587.3) / chaos;
+    expect((await screen.findByText(/Crafting it costs/)).textContent).toContain(`${inChaos.toFixed(1)} chaos`);
+    expect(vi.mocked(solve).mock.calls[0]![0]).toMatchObject({ baseCost: chaos }); // the box starts in chaos too
+    await user.click(screen.getByRole('button', { name: 'div' }));
+    expect(screen.getByText(/Crafting it costs/).textContent).toMatch(/costs [\d.]+ div/);
+    expect(localStorage.getItem('poe2htc.tablets.unit')).toBe('divine');
   });
 
   it('searches the trade site for a plain tablet of the kind picked, to price the box beside it', async () => {

@@ -2,7 +2,7 @@ import React from 'react';
 import { Card } from '../../components/ui/card';
 import { cn } from '../../lib/utils';
 import type { EngineMarkovResult } from '../../lib/engineTypes';
-import { formatIn, pickUnit, priceUnits, type Rates } from '../../lib/currency';
+import { formatIn, type CostUnit, type Rates } from '../../lib/currency';
 import {
   WATCH_TIERS, searchIsLoose, setPriceKey, shareWithin, summarizePlan, tradeStatsFor, watchText,
   type TabletBase, type WatchEntry, type WatchMod, type WatchTier,
@@ -68,8 +68,12 @@ export const TabletResult: React.FC<{
   onPrice: (key: string, price: PriceEntry | undefined) => void;
   /** The craft is being solved again with prices just typed. */
   recounting: boolean;
-}> = ({ solved: { tablet, chosen, watch, markov, plainCost }, league, rates, orbPrices, prices, onPrice, recounting }) => {
-  const unit = pickUnit(markov.expectedCost, rates);
+  /** The unit every number here is shown in, and the one a new price box starts in. */
+  unit: CostUnit;
+  /** The units there is a rate for, to switch between. */
+  units: readonly CostUnit[];
+  onUnit: (key: CostUnit['key']) => void;
+}> = ({ solved: { tablet, chosen, watch, markov, plainCost }, league, rates, orbPrices, prices, onPrice, recounting, unit, units, onUnit }) => {
   // What the whole craft costs: the plain tablet you start from, then rolling it — restarts, and the
   // Exalts that fill it to four modifiers, included.
   const cost = markov.feasible ? plainCost + markov.expectedCost : undefined;
@@ -89,7 +93,7 @@ export const TabletResult: React.FC<{
       url={league ? tradeUrl({ league, baseName: tablet.name, require: [FULL_USES], stats: tradeStatsFor(mods) }) : ''}
       loose={searchIsLoose(mods)}
       unit={unit}
-      units={priceUnits(rates)}
+      units={units}
       price={prices[keyOf(mods)]}
       onPrice={(p) => onPrice(keyOf(mods), p)}
       label={`Price of a ${tablet.name} with ${label(mods).join(', ')}`}
@@ -146,7 +150,7 @@ export const TabletResult: React.FC<{
   const revenue = sales?.revenue ?? 0;
   const net = sales && markov.replay && revenue > 0 ? plainCost + markov.replay.meanCost - revenue : undefined;
   const anyWatchPriced = watch.some((e) => prices[keyOf(e.mods)]);
-  const price = (ex: number | undefined): string => (ex === undefined ? '?' : formatIn(pickUnit(ex, rates), ex));
+  const price = (ex: number | undefined): string => (ex === undefined ? '?' : formatIn(unit, ex));
   const plan = markov.replay ? summarizePlan(markov.replay.movesPerCraft) : undefined;
   // Why the plan goes the way it does, in the terms a player weighs: the prices of the alternatives.
   const why: Record<NonNullable<typeof plan>['strategy'], string> = {
@@ -163,7 +167,22 @@ export const TabletResult: React.FC<{
   return (
     <>
       <Card className="space-y-3 p-4">
-        <h3 className="text-sm font-semibold">{chosen.map(modText).join(' · ')}</h3>
+        <div className="flex flex-wrap items-start justify-between gap-2">
+          <h3 className="text-sm font-semibold">{chosen.map(modText).join(' · ')}</h3>
+          <div role="group" aria-label="Show prices in" className="inline-flex rounded-md border border-border bg-muted/40 p-0.5 text-xs">
+            {units.map((u) => (
+              <button
+                key={u.key}
+                type="button"
+                aria-pressed={u.key === unit.key}
+                onClick={() => onUnit(u.key)}
+                className={cn('rounded px-2 py-0.5', u.key === unit.key ? 'bg-background font-medium shadow-sm' : 'text-muted-foreground hover:text-foreground')}
+              >
+                {u.label}
+              </button>
+            ))}
+          </div>
+        </div>
         {cost === undefined ? (
           <p className="text-sm text-amber-400">{markov.reason ?? 'No route reaches this tablet.'}</p>
         ) : (
@@ -284,7 +303,7 @@ export const TabletResult: React.FC<{
         )}
       </Card>
 
-      {markov.feasible && <PolicyGraph result={markov} rates={rates} />}
+      {markov.feasible && <PolicyGraph result={markov} rates={rates} unit={unit} />}
     </>
   );
 };

@@ -1,12 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import { loadPatch } from '../../packages/engine/src/index.ts';
 import { familiesOf, resolveMod } from '../../packages/engine/src/pool.ts';
-import {
-  CURATED, ODDS_CREDIT, WATCH_TIERS, listTablets, ruledOutBy, searchIsLoose, shareWithin, summarizePlan,
-  tradeStatsFor, watchKey,
-  watchList, watchText,
-  type TabletBase,
-} from './tablets';
+import { CURATED, ODDS_CREDIT, WATCH_TIERS, listTablets, ruledOutBy, searchIsLoose, shareWithin, summarizePlan, tradeStatsFor, watchKey, watchList, watchText, type TabletBase, spendBreakdown } from './tablets';
 
 const data = loadPatch('data/patches/0.5.0');
 const tablets = listTablets(data);
@@ -165,3 +160,29 @@ describe('saying how a plan works', () => {
     expect(summarizePlan({ transmute: 1, augment: 1, regal: 1, exalt: 1 }).strategy).toBe('direct');
   });
 });
+
+describe('where a craft’s spend goes', () => {
+  const priceOf = (k: string): number | undefined => ({ transmute: 1.25, regal: 2.3, exalt: 1, chaos: 63 } as Record<string, number>)[k];
+
+  it('adds up to exactly what the verdict spends, the Exalts that fill the finished tablet included', () => {
+    // 57 fresh starts and one sale on the way: 59 plain tablets. The orbs come to 57×1.25 + 57×2.3 + 90×1
+    // + 27×63, and the replay charged 2 Exalts more at the finish.
+    const moves = { transmute: 57, regal: 57, exalt: 90, chaos: 27, restart: 57, sell: 1 };
+    const orbs = 57 * 1.25 + 57 * 2.3 + 90 + 27 * 63;
+    const plain = 130;
+    const meanCost = 58 * plain + orbs + 2;
+    const lines = spendBreakdown(moves, plain, meanCost, priceOf);
+    expect(lines.reduce((a, l) => a + l.total, 0)).toBeCloseTo(plain + meanCost, 9);
+    expect(lines.find((l) => l.name === 'plain tablets')).toMatchObject({ count: 59, each: 130 });
+    expect(lines.find((l) => l.name === 'Exalted Orbs filling the finished tablet')!.count).toBeCloseTo(2, 9);
+    expect(lines.find((l) => l.name === 'Chaos Orbs')).toMatchObject({ count: 27, each: 63 });
+    // Dearest first.
+    expect(lines.map((l) => l.total)).toEqual([...lines.map((l) => l.total)].sort((a, b) => b - a));
+  });
+
+  it('names one of something in the singular, and leaves out what was never used', () => {
+    const lines = spendBreakdown({ regal: 1 }, 10, 2.3, priceOf);
+    expect(lines.map((l) => l.name)).toEqual(['plain tablet', 'Regal Orb']);
+  });
+});
+

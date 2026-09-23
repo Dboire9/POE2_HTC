@@ -570,6 +570,11 @@ and a chart shows how often a craft finishes within any budget, shaded green up 
   less than, what 1 craft in 10 costs more than, and how often you finish if you spend no more than the
   tablet sells for. These come from playing the plan out thousands of times; a very long craft fits fewer
   in, and the tab says so.
+- **How is this worked out?** — opens the verdict's arithmetic: every orb and plain tablet one craft uses on
+  average, how many and at what price; what it gets — the tablet at your price, and each set sold on the
+  way, times how often it sold; the difference; and how sure the average is from the crafts played out,
+  saying so when a thin profit sits inside that margin. On the Ritual reroll at 130 ex a plain tablet,
+  the plain tablets themselves are ~120 of the ~152 chaos a craft spends.
 - **Plan a run** — how many tablets to craft to come out ahead **9 times in 10**, what that run should make,
   and how much to **have on hand**: the deepest a run that long goes before its sales pay you back. One
   craft is a gamble; several even it out. The shortest run that is safe leads, beside 1, 10 and 100 for

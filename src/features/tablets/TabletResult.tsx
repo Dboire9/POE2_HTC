@@ -4,7 +4,7 @@ import { cn } from '../../lib/utils';
 import type { EngineMarkovResult } from '../../lib/engineTypes';
 import { formatIn, type CostUnit, type Rates } from '../../lib/currency';
 import {
-  WATCH_TIERS, searchIsLoose, setPriceKey, shareWithin, summarizePlan, tradeStatsFor, watchText,
+  WATCH_TIERS, searchIsLoose, setPriceKey, shareWithin, spendBreakdown, summarizePlan, tradeStatsFor, watchText,
   type TabletBase, type WatchEntry, type WatchMod, type WatchTier,
 } from '../../lib/tablets';
 import type { PriceEntry, TypedPrice } from '../../lib/tabletPrices';
@@ -13,6 +13,7 @@ import PolicyGraph from '../engine/PolicyGraph';
 import { oneIn } from './TabletModPicker';
 import { ProfitVerdict } from './ProfitVerdict';
 import { RunPlanView } from './RunPlan';
+import { ProfitBreakdown } from './ProfitBreakdown';
 import { planRuns } from '../../lib/tabletRun';
 import { RiskChart } from './RiskChart';
 import { TradePrice } from './TradePrice';
@@ -64,7 +65,8 @@ export const TabletResult: React.FC<{
   league: string | undefined;
   rates: Rates | undefined;
   /** Chaos and Annul prices, for saying why the plan uses one and not the other. */
-  orbPrices: { readonly chaos?: number; readonly annul?: number };
+  /** Orb prices off the sheet, by key: the Why box quotes Chaos and Annul, the breakdown every orb it used. */
+  orbPrices: Readonly<Record<string, number | undefined>>;
   /** The prices the player typed, by set — the tab keeps them, since a watch-list price recounts the craft. */
   prices: Readonly<Record<string, TypedPrice>>;
   onPrice: (key: string, price: PriceEntry | undefined) => void;
@@ -155,8 +157,20 @@ export const TabletResult: React.FC<{
   const price = (ex: number | undefined): string => (ex === undefined ? '?' : formatIn(unit, ex));
   const plan = markov.replay ? summarizePlan(markov.replay.movesPerCraft) : undefined;
   // A run of crafts, once the tablet has a price: how many to make, what they should bring, what to have.
-  // Keyed on the numbers, not the arrays rebuilt every render: a plan is a million draws.
   const sale = targetPrice?.ex;
+  // The verdict taken apart: every orb and plain tablet a craft uses, against the tablet and the sales.
+  const breakdown = markov.replay && sale !== undefined ? {
+    spend: spendBreakdown(markov.replay.movesPerCraft, plainCost, markov.replay.meanCost, (k) => orbPrices[k]),
+    get: [
+      { name: 'The tablet you asked for', count: 1, each: sale, total: sale },
+      ...watch.flatMap((e, i) => {
+        const each = prices[keyOf(e.mods)]?.ex;
+        const n = sales?.perEntry[i] ?? 0;
+        return each !== undefined && n > 0 ? [{ name: `Sold on the way: ${label(e.mods).join(' + ')}`, count: n, each, total: n * each }] : [];
+      }),
+    ],
+  } : undefined;
+  // Keyed on the numbers, not the arrays rebuilt every render: a plan is a million draws.
   const runPlan = React.useMemo(() => {
     const replay = markov.replay;
     if (sale === undefined || !replay || replay.costPercentiles.length === 0) return undefined;
@@ -266,6 +280,13 @@ export const TabletResult: React.FC<{
               salesOnWay={revenue}
               fmt={(ex) => formatIn(unit, ex)}
             />
+            {breakdown && (
+              <ProfitBreakdown
+                spend={breakdown.spend} get={breakdown.get} runs={markov.replay!.runs} stdErr={markov.replay!.stdErr}
+                {...(net === undefined ? { exactSpend: cost } : {})}
+                fmt={(ex) => formatIn(unit, ex)}
+              />
+            )}
             {runPlan && (
               <RunPlanView plan={runPlan.plan} perCraft={runPlan.perCraft} fmt={(ex) => formatIn(unit, ex)} />
             )}

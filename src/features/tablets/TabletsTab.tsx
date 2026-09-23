@@ -214,7 +214,7 @@ const TabletsTab: React.FC = () => {
           solved={solved}
           league={basis?.league}
           rates={basis?.rates}
-          orbPrices={{ chaos: engine?.prices.currency['chaos'], annul: engine?.prices.currency['annul'] }}
+          orbPrices={engine?.prices.currency ?? {}}
           prices={prices}
           onPrice={onPrice}
           recounting={computing}

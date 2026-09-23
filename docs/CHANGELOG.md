@@ -9,6 +9,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- **"How is this worked out?" under the tablet profit.** The verdict taken apart: every orb and plain
+  tablet one craft uses on average, count × price; the tablet and each set sold on the way, count ×
+  price; the difference; and how sure the average is (±, 19 times in 20, from the crafts played out) —
+  flagged when a thin profit is inside that margin.
+
 - **Plan a run, on the Tablets tab.** Once your tablet has a price: how many to craft to come out ahead
   9 times in 10, what that run should make, and how much currency to have on hand before its sales pay
   you back — with 1, 10 and 100 beside it for scale. Played out by resampling the crafts the replay

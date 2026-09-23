@@ -217,3 +217,43 @@ export function summarizePlan(moves: Readonly<Record<string, number>>): PlanSumm
   const chaos = (moves['chaos'] ?? 0) >= 1;
   return { uses, strategy: fresh && chaos ? 'mixed' : fresh ? 'fresh' : chaos ? 'chaos' : 'direct' };
 }
+
+/** One line of what a craft costs on average: so many of something, at a price each. */
+export interface CostLine {
+  readonly name: string;
+  readonly count: number;
+  readonly each: number;
+  readonly total: number;
+}
+
+/**
+ * Where one craft's average spend goes, line by line — every orb and every plain tablet the played-out
+ * plan used, at its price — for the "how is this worked out" panel.
+ *
+ * The lines add up to exactly `plainCost + meanCost`, the spend the verdict shows: the replay counts
+ * each orb it plays (`movesPerCraft`) but not the Exalts that fill a finished tablet, which it charges
+ * at the end, so those are the remainder — named as Exalts, counted from their price. A plain tablet is
+ * bought for the first try, for each start over, and after each sale on the way.
+ */
+export function spendBreakdown(
+  moves: Readonly<Record<string, number>>, plainCost: number, meanCost: number,
+  priceOf: (currency: string) => number | undefined,
+): CostLine[] {
+  const line = (key: string, count: number, each: number): CostLine => {
+    const [one, many] = MOVE_NAMES[key] ?? [key, key];
+    return { name: Math.abs(count - 1) < 0.05 ? one : many, count, each, total: count * each };
+  };
+  const lines: CostLine[] = [line('restart', 1 + (moves['restart'] ?? 0) + (moves['sell'] ?? 0), plainCost)];
+  for (const key of ['transmute', 'augment', 'regal', 'exalt', 'chaos', 'annul']) {
+    const n = moves[key] ?? 0;
+    const each = priceOf(key);
+    if (n > 0 && each !== undefined) lines.push(line(key, n, each));
+  }
+  const counted = lines.reduce((a, l) => a + l.total, 0);
+  const fill = plainCost + meanCost - counted;
+  const exalt = priceOf('exalt');
+  if (exalt && fill > exalt * 0.01) {
+    lines.push({ name: 'Exalted Orbs filling the finished tablet', count: fill / exalt, each: exalt, total: fill });
+  }
+  return lines.filter((l) => l.count >= 0.005).sort((a, b) => b.total - a.total);
+}

@@ -270,6 +270,26 @@ describe('the Tablets tab — what it costs and what it sells for', () => {
     expect(rows.some((t) => t.startsWith('100'))).toBe(true);
   });
 
+  it('opens to the arithmetic behind the verdict: every orb and tablet, what it sells, the difference', async () => {
+    const costPercentiles = Array.from({ length: 101 }, (_, p) => p * 10);
+    // 5 plain tablets and 20 Transmutations and Regals a craft, for 500 ex of rolling on average.
+    solved(markov({ replay: { runs: 1_000, seen: [], meanCost: 500, stdErr: 5, costPercentiles, movesPerCraft: { restart: 4, transmute: 20, regal: 20 } } }));
+    const user = await open();
+    await pick(user);
+    await user.type(await screen.findByRole('textbox', { name: /Price of a Ritual Tablet/ }), '800');
+    await user.tab();
+    await user.click(await screen.findByText('How is this worked out?'));
+    const panel = screen.getByText('How is this worked out?').closest('details')!;
+    expect(panel.open).toBe(true);
+    const text = panel.textContent;
+    expect(text).toMatch(/plain tablets5/);          // the first one and four more
+    expect(text).toMatch(/Transmutations20/);
+    expect(text).toMatch(/The tablet you asked for1800 ex800 ex/);
+    // Nothing sold on the way, so the verdict uses the solver's exact 1 + 1,587.3 = 1,588 ex.
+    expect(text).toContain('800 ex − 1,588 ex = −788 ex loss a tablet');
+    expect(text).toMatch(/1,000 crafts pin the average spend to within ±9\.8 ex/);
+  });
+
   it('says no run makes a loss pay', async () => {
     const costPercentiles = Array.from({ length: 101 }, (_, p) => p * 10);
     solved(markov({ replay: { runs: 1_000, seen: [], meanCost: 500, stdErr: 5, costPercentiles, movesPerCraft: {} } }));

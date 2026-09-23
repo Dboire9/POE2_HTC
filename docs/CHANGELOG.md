@@ -75,6 +75,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   into the goal now names only what it lands. And junk is compared per side: a Chaos whose new junk
   landed as a prefix read "no change", beside the roll that really changed nothing; it now reads
   *clears a junk suffix · adds a junk prefix*. On every graph, gear included.
+- **A step that finishes the item says what it leaves, and counts all of it as onward.** Finishing
+  outcomes are drawn as one goal, so a Regal that finishes a Ritual tablet read "magic · 1 mod → 1 mod,
+  51% onward" — it now reads *adds a junk suffix (51%) or a junk prefix (49%)*, 100% onward, and a
+  Chaos that lands the target *clears a junk suffix · most likely lands …*. Each step into the goal is
+  one edge now, carrying the finished items it stands for; costs and plans are unchanged (the identity
+  recording still matches byte for byte).
 
 - **A tablet with four rare modifiers no longer ends in "a craft ran past 1000000 moves".** Playing such a
   craft out takes hundreds of thousands of orbs and fresh tablets EACH; the tab now stops after a few

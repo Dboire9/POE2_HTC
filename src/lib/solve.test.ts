@@ -6,6 +6,7 @@ import type { MarkovProgress } from '../../packages/optimizer/src/markovFromItem
 import {
   optimize, optimizeItem, optimizeItemMarkov, alternatives, listMods, routeFor, type ExistingItem,
 } from './engine.ts';
+import { mainLine } from './policyPath.ts';
 import { runSolve, toFraction, type SolveProgress, type SolveRequest } from './solve.ts';
 
 // `runSolve` exists so a compute can cross a Worker boundary as a plain message. Its entire job is to
@@ -483,6 +484,18 @@ describe('smallLattice — a tablet solved the sure way', () => {
     expect(usual.bound).toBe('exact');
     expect(sure.bound).toBe('exact');
     expect(Math.abs(sure.expectedCost - usual.expectedCost) / usual.expectedCost).toBeLessThan(1e-6);
+  });
+
+  it('draws a finishing Regal as one step, all of it onward, with the side its modifier lands on', () => {
+    // Dorian, 2026-09-23: "Regal · magic · 1 mod → 1 mod · 51% onward — say if it adds a suffix or prefix".
+    const r = runSolve(eng, {
+      kind: 'lab', from: { baseId: 'Tablets_ritual', level: 100 },
+      targets: [{ modId: 'Tablets/RitualAdditionalReroll', tierDisplay: 1 }], baseCost: 130,
+      spare: { prefixes: 2, suffixes: 1 }, fillOnFinish: true, excluded: ['annul'], smallLattice: true,
+    });
+    const regal = mainLine(cost(r)).steps.find((s) => s.action.startsWith('Regal'))!;
+    expect(regal.advance).toBeCloseTo(1, 9);
+    expect(regal.changes.finishes?.map((f) => f.junk)).toEqual([{ prefixes: 0, suffixes: 1 }, { prefixes: 1, suffixes: 0 }]);
   });
 
   it('solves the rarest four the usual solve cannot put a number on', () => {

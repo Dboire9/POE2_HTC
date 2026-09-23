@@ -105,6 +105,19 @@ export interface PolicyEdge {
   readonly prob: number;
   /** True when this outcome moves AWAY from the target (a "brick" — the back-arrow in the graph). */
   readonly regress: boolean;
+  /**
+   * On the one edge into the goal: the finished items it stands for, likeliest first. Every finished
+   * state is drawn as one goal (`routeFrom`'s fold), which would otherwise hide what the step leaves
+   * on the spare slots — a Regal that finishes a tablet puts its new modifier on one side or the other.
+   */
+  readonly finishes?: readonly GoalFinish[];
+}
+
+/** One finished item a step can land on: the junk it holds on each side, and how likely it is. */
+export interface GoalFinish {
+  readonly junkPrefixes: number;
+  readonly junkSuffixes: number;
+  readonly prob: number;
 }
 
 /**
@@ -256,12 +269,30 @@ export function routeFrom(t: RouteTable, root: number): { nodes: PolicyNode[]; e
       ...(action ? { action, actionCost: t.actCost[i]! } : {}),
     });
     if (!action) continue;
+    // Outcomes that finish the item fold onto the one goal, so they become ONE edge, where the first of
+    // them sat — their odds summed, or a step that always finishes read "51% onward" — that keeps the
+    // items it stands for when any of them holds junk (a clean finish is what the goal box shows).
+    let goalEdge = -1;
+    const finishes: { junkPrefixes: number; junkSuffixes: number; prob: number }[] = [];
     for (let j = t.outStart[i]!; j < t.outStart[i + 1]!; j++) {
-      const to = canonical(t.outTo[j]!);
-      edges.push({ from: key, to: t.keys[to]!, action, prob: t.outProb[j]!, regress: depthOf(to) > depthOf(i) });
+      const real = t.outTo[j]!;
+      const prob = t.outProb[j]!;
+      const to = canonical(real);
+      if (t.goal[real] === 1) {
+        const fin = decodeState(t.keys[real]!);
+        const same = finishes.find((f) => f.junkPrefixes === fin.jp && f.junkSuffixes === fin.js);
+        if (same) same.prob += prob;
+        else finishes.push({ junkPrefixes: fin.jp, junkSuffixes: fin.js, prob });
+        if (goalEdge >= 0) { edges[goalEdge] = { ...edges[goalEdge]!, prob: edges[goalEdge]!.prob + prob }; continue; }
+        goalEdge = edges.length;
+      }
+      edges.push({ from: key, to: t.keys[to]!, action, prob, regress: depthOf(to) > depthOf(i) });
       edgeFrom.push(i);
       edgeTo.push(to);
       if (at[to]! < 0) queue.push(to);
+    }
+    if (finishes.some((f) => f.junkPrefixes + f.junkSuffixes > 0)) {
+      edges[goalEdge] = { ...edges[goalEdge]!, finishes: finishes.sort((x, y) => y.prob - x.prob) };
     }
   }
 

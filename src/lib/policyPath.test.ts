@@ -146,19 +146,40 @@ describe('mainLine — what each step moves', () => {
   /**
    * Every finished state is drawn as one goal, the clean one, so its junk counts say nothing about the
    * item a step finishes on. A Chaos that swaps one of two junk suffixes for the target, finishing
-   * with the other on a spare slot, read "clears 2 junk mods" (Dorian, 2026-09-23).
+   * with the other on a spare slot, read "clears 2 junk mods" (Dorian, 2026-09-23). The edge carries
+   * the item it really finishes on.
    */
-  it('says nothing about junk on a step into the goal — only the target it lands', () => {
+  it('reads the junk a step into the goal leaves from the item it really finishes on', () => {
     const r = result(
       [
         withMods('a', 2, [], [], 0, { isStart: true, action: 'Chaos', junkSuffixes: 2 }),
         withMods('g', 0, ['Mana Regeneration Rate'], [], 0, { isGoal: true }),
       ],
-      [edge('a', 'g', 1)],
+      [{ ...edge('a', 'g', 1), finishes: [{ junkPrefixes: 0, junkSuffixes: 1, prob: 1 }] }],
     );
     const c = mainLine(r).steps[0]!.changes;
     expect(c.gained).toEqual(['Mana Regeneration Rate']);
-    expect(c.junk).toEqual({ prefixes: 0, suffixes: 0 });
+    expect(c.junk).toEqual({ prefixes: 0, suffixes: -1 }); // ONE junk suffix off, the target on
+    expect(c.finishes).toBeUndefined();
+  });
+
+  it('keeps each way a step can finish, when they differ in where the junk sits', () => {
+    // A Regal on a Magic tablet holding the target: its new modifier is junk on either side, and both
+    // finish it — one edge, all of the step, "adds a junk suffix (51%) or a junk prefix (49%)".
+    const r = result(
+      [
+        withMods('a', 1, ['T'], [], 0, { isStart: true, action: 'Regal', rarity: 'magic' }),
+        withMods('g', 0, ['T'], [], 0, { isGoal: true }),
+      ],
+      [{ ...edge('a', 'g', 1), finishes: [{ junkPrefixes: 0, junkSuffixes: 1, prob: 0.51 }, { junkPrefixes: 1, junkSuffixes: 0, prob: 0.49 }] }],
+    );
+    const step = mainLine(r).steps[0]!;
+    expect(step.advance).toBe(1);
+    expect(step.changes.junk).toEqual({ prefixes: 0, suffixes: 1 });
+    expect(step.changes.finishes).toEqual([
+      { junk: { prefixes: 0, suffixes: 1 }, share: 0.51 },
+      { junk: { prefixes: 1, suffixes: 0 }, share: 0.49 },
+    ]);
   });
 
   it('reports a target lost, and one newly blocked', () => {

@@ -398,6 +398,11 @@ export interface EnginePolicyEdge {
   readonly action: string;
   readonly prob: number;
   readonly regress: boolean;
+  /**
+   * On an edge into the goal, when a finished item it stands for holds junk: each such item's junk per
+   * side and its odds, likeliest first (`PolicyEdge.finishes`). The goal box is the clean one.
+   */
+  readonly finishes?: readonly { readonly junkPrefixes: number; readonly junkSuffixes: number; readonly prob: number }[];
 }
 
 /** One candidate starting item: target modifiers already on it, and what finishing then costs. */

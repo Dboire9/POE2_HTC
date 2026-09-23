@@ -54,8 +54,16 @@ export interface StepChanges {
    * Chaos that swaps a junk suffix for a junk prefix leaves the TOTAL alone — summed, that read as "no
    * change" beside the roll that really changed nothing. Zero into the goal: see `changesBetween`.
    */
-  readonly junk: { readonly prefixes: number; readonly suffixes: number };
+  readonly junk: JunkChange;
+  /**
+   * A step into the goal whose finished items differ in where the junk sits — a Regal finishing a
+   * tablet puts its new modifier on either side: each, as a change from here, with its share of the
+   * step. Absent when there is one way to finish; `junk` then says it.
+   */
+  readonly finishes?: readonly { readonly junk: JunkChange; readonly share: number }[];
 }
+
+export interface JunkChange { readonly prefixes: number; readonly suffixes: number }
 
 /**
  * `a` minus `b`, by TEXT.
@@ -77,19 +85,23 @@ const without = (a: readonly PolicyMod[], b: readonly PolicyMod[]): string[] => 
  * its own copy of this expression. Two copies of a diff are two chances to disagree about what a step
  * did — and they nearly did, the moment a position stopped being a bare string.
  */
-export function changesBetween(node: EnginePolicyNode, next: EnginePolicyNode): StepChanges {
+export function changesBetween(node: EnginePolicyNode, next: EnginePolicyNode, edge?: EnginePolicyEdge): StepChanges {
+  const from = (jp: number, js: number): JunkChange => ({ prefixes: jp - node.junkPrefixes, suffixes: js - node.junkSuffixes });
+  // Every finished state is drawn as ONE goal, the clean one (`routeFrom`'s fold), so its junk counts
+  // say nothing about the item a step finishes on — which keeps whatever junk the spare slots allow.
+  // Compared against them, a Chaos that swaps one junk suffix for the target read "clears 2 junk
+  // mods" (Dorian, 2026-09-23: "It only rerolls one mod"). The edge says what it really finishes on.
+  const fin = next.isGoal ? edge?.finishes : undefined;
+  const total = fin?.reduce((a, f) => a + f.prob, 0) ?? 0;
   return {
     gained: without(next.present, node.present),
     lost: without(node.present, next.present),
     blocked: without(next.blocked, node.blocked),
-    // Every finished state is drawn as ONE goal, the clean one (`routeFrom`'s fold), so its junk counts
-    // say nothing about the item a step finishes on — which keeps whatever junk the spare slots allow.
-    // Compared against them, a Chaos that swaps one junk suffix for the target read "clears 2 junk
-    // mods" (Dorian, 2026-09-23: "It only rerolls one mod").
-    junk: next.isGoal ? { prefixes: 0, suffixes: 0 } : {
-      prefixes: next.junkPrefixes - node.junkPrefixes,
-      suffixes: next.junkSuffixes - node.junkSuffixes,
-    },
+    // No `finishes` on a goal edge means every item it finishes on is clean — which the goal box is.
+    junk: fin?.[0] ? from(fin[0].junkPrefixes, fin[0].junkSuffixes) : from(next.junkPrefixes, next.junkSuffixes),
+    ...(fin && fin.length > 1
+      ? { finishes: fin.map((f) => ({ junk: from(f.junkPrefixes, f.junkSuffixes), share: f.prob / total })) }
+      : {}),
   };
 }
 
@@ -163,7 +175,7 @@ export function mainLine(result: EngineMarkovResult): MainLine {
     if (!best) return { steps: [] }; // stalled — let the caller fall back to the full graph
     steps.push({
       node, action: node.action ?? best.edge.action, next: best.to, advance: best.edge.prob, brick,
-      changes: changesBetween(node, best.to),
+      changes: changesBetween(node, best.to, best.edge),
     });
     node = best.to;
   }

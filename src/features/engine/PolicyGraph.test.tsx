@@ -249,6 +249,22 @@ describe('PolicyGraph — the route names the mods', () => {
   });
 });
 
+describe('a step into the goal', () => {
+  it('names the side a finishing Regal puts its modifier on, and counts both as onward', () => {
+    const r = result_({
+      nodes: [
+        { key: 'a', present: mods('T'), blocked: mods(), junkPrefixes: 0, junkSuffixes: 0, rarity: 'magic' as const, isStart: true, isGoal: false, depth: 1, expectedCost: 1, visitRate: 1, action: 'Regal' },
+        { key: 'g', present: mods('T'), blocked: mods(), junkPrefixes: 0, junkSuffixes: 0, rarity: 'rare' as const, isStart: false, isGoal: true, depth: 0, expectedCost: 0, visitRate: 1 },
+      ],
+      edges: [{ from: 'a', to: 'g', action: 'Regal', prob: 1, regress: false,
+        finishes: [{ junkPrefixes: 0, junkSuffixes: 1, prob: 0.51 }, { junkPrefixes: 1, junkSuffixes: 0, prob: 0.49 }] }],
+    });
+    render(<PolicyGraph result={r} />);
+    expect(screen.getAllByText(/adds a junk suffix \(51%\) or a junk prefix \(49%\)/).length).toBeGreaterThan(0);
+    expect(screen.getAllByText(/100% onward|100% chance this moves you onward/).length).toBeGreaterThan(0);
+  });
+});
+
 function result_(parts: Pick<EngineMarkovResult, 'nodes' | 'edges'>): EngineMarkovResult {
   return { applicable: true, feasible: true, expectedCost: 9, converged: true, bound: 'exact', assumedOdds: false, ...parts };
 }

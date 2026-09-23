@@ -1,7 +1,7 @@
 import React from 'react';
 import type { EngineMarkovResult, EnginePolicyNode, PolicyMod } from '../../lib/engine';
 import { formatIn, pickUnit, type Rates } from '../../lib/currency';
-import { changesBetween, mainLine, type StepChanges } from '../../lib/policyPath';
+import { changesBetween, mainLine, type JunkChange, type StepChanges } from '../../lib/policyPath';
 import { cn } from '../../lib/utils';
 import type { Spare } from '../../../packages/optimizer/src/slots.ts';
 import { NO_SPARE } from '../../../packages/optimizer/src/slots.ts';
@@ -83,6 +83,16 @@ const pct = (p: number): string => {
   return `${(p * 100).toPrecision(1)}%`;
 };
 
+/** A change in junk, per side: "clears a junk suffix · adds a junk prefix". Empty when none. */
+function junkWords(j: JunkChange): string {
+  const junk = (n: number, side: 'prefix' | 'suffix'): string => (n === 1 ? `a junk ${side}` : `${n} junk ${side}es`);
+  const sides = [[j.prefixes, 'prefix'], [j.suffixes, 'suffix']] as const;
+  return [
+    ...sides.filter(([n]) => n < 0).map(([n, side]) => `clears ${junk(-n, side)}`),
+    ...sides.filter(([n]) => n > 0).map(([n, side]) => `adds ${junk(n, side)}`),
+  ].join(' · ');
+}
+
 /**
  * What a step does, in words.
  *
@@ -94,12 +104,15 @@ const pct = (p: number): string => {
  */
 function describeStep(c: StepChanges): string {
   const parts: string[] = [];
-  const junk = (n: number, side: 'prefix' | 'suffix'): string => (n === 1 ? `a junk ${side}` : `${n} junk ${side}es`);
-  for (const [n, side] of [[c.junk.prefixes, 'prefix'], [c.junk.suffixes, 'suffix']] as const) {
-    if (n < 0) parts.push(`clears ${junk(-n, side)}`);
-  }
-  for (const [n, side] of [[c.junk.prefixes, 'prefix'], [c.junk.suffixes, 'suffix']] as const) {
-    if (n > 0) parts.push(`adds ${junk(n, side)}`);
+  if (c.finishes) {
+    // Finishes on more than one kind of item: "adds a junk suffix (51%) or a junk prefix (49%)".
+    const each = c.finishes.map((f) => ({ words: junkWords(f.junk), share: f.share }));
+    const verb = each[0]!.words.split(' ')[0]!;
+    const shared = each.every((e) => e.words.startsWith(`${verb} `) && !e.words.includes(' · '));
+    parts.push(each.map((e, i) => `${shared && i > 0 ? e.words.slice(verb.length + 1) : e.words || 'nothing else'} (${pct(e.share)})`).join(' or '));
+  } else {
+    const words = junkWords(c.junk);
+    if (words) parts.push(words);
   }
   if (c.lost.length > 0) parts.push(`loses ${c.lost.join(', ')}`);
   if (c.gained.length > 0) parts.push(`most likely lands ${c.gained.join(', ')}`);
@@ -429,7 +442,7 @@ const StateDetail: React.FC<{
                       bought item ends at. A step back onto a bought item is a real diff, and reads as one. */}
                   {to.isRestart ? 'start over from a new white base'
                     : to.isStart && to.rarity === 'normal' ? 'back to the base you started from, nothing on it'
-                    : describeStep(changesBetween(node, to)) || (to.isGoal ? 'reaches the target' : 'no change')}
+                    : describeStep(changesBetween(node, to, edge)) || (to.isGoal ? 'reaches the target' : 'no change')}
                   {edge.regress && <span className="text-amber-600 dark:text-amber-400"> — a step backwards</span>}
                 </span>
               </li>

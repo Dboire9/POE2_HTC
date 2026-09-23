@@ -476,7 +476,10 @@ function mapNode(data: PatchData, nd: PolicyNode, tierOf: TierOf): EnginePolicyN
 }
 
 const mapEdge = (data: PatchData, e: PolicyEdge): EnginePolicyEdge =>
-  ({ from: e.from, to: e.to, action: actionLabel(data, e.action), prob: e.prob, regress: e.regress });
+  ({
+    from: e.from, to: e.to, action: actionLabel(data, e.action), prob: e.prob, regress: e.regress,
+    ...(e.finishes ? { finishes: e.finishes } : {}),
+  });
 
 /** Same rule as the frontier's: only an unomened Desecration leans on the assumed spawn weight. */
 const leansOnAssumedOdds = (actions: Iterable<McAction>): boolean =>

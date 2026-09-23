@@ -45,7 +45,7 @@ export const StandInTip: React.FC<{
                 <a
                   href={url} target="_blank" rel="noopener noreferrer"
                   aria-label={`Search on trade for ${standInName(s)}`}
-                  title="Opens the trade site: Magic, 10 uses, this one modifier and nothing on the other side, instant buyout, cheapest first"
+                  title="Opens the trade site: Magic, 10 uses, holding only this side's modifier, instant buyout, cheapest first"
                   className={cn('rounded border border-border px-1.5 py-0.5 text-xs hover:border-primary/60 hover:text-foreground', FOCUS)}
                 >
                   Search on trade

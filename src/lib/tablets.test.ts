@@ -203,14 +203,14 @@ describe('the dearest plain tablet a craft still pays at', () => {
 });
 
 describe('searching for a Magic tablet already rolled', () => {
-  it('pins it exactly: one modifier a side, so "no empty prefix, an empty suffix" is one prefix alone', () => {
+  it('asks what the trade site answers: at most one empty slot on the OTHER side', () => {
+    // Checked on the site (Dorian, 2026-09-23): empty SUFFIX ≤ 1 lists prefix-only Magic tablets, and
+    // empty PREFIX ≤ 1 suffix-only ones.
     expect(standInFilters({ side: 'prefix', worth: 1 })).toEqual([
-      { id: 'pseudo.pseudo_number_of_empty_prefix_mods', value: { max: 0 }, disabled: false },
-      { id: 'pseudo.pseudo_number_of_empty_suffix_mods', value: { min: 1 }, disabled: false },
+      { id: 'pseudo.pseudo_number_of_empty_suffix_mods', value: { max: 1 }, disabled: false },
     ]);
     expect(standInFilters({ side: 'suffix', worth: 1 })).toEqual([
-      { id: 'pseudo.pseudo_number_of_empty_prefix_mods', value: { min: 1 }, disabled: false },
-      { id: 'pseudo.pseudo_number_of_empty_suffix_mods', value: { max: 0 }, disabled: false },
+      { id: 'pseudo.pseudo_number_of_empty_prefix_mods', value: { max: 1 }, disabled: false },
     ]);
   });
 });

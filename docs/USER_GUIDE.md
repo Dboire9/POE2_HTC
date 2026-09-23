@@ -572,8 +572,8 @@ and a chart shows how often a craft finishes within any budget, shaded green up 
   in, and the tab says so.
 - **Tip · buy a Magic one instead** — a Magic tablet with one modifier you don't want can stand in for a
   plain one. Both kinds are listed — one prefix and no suffix, one suffix and no prefix — with the most to
-  pay for each, priced from the same solve, and an exact **Search on trade** (10 uses, that one modifier,
-  nothing on the other side). Fishing a Ritual reroll (a suffix), the prefix one is worth about a plain
+  pay for each, priced from the same solve, and a **Search on trade** for it (10 uses; at most one empty
+  slot on the other side, which is how the trade site lists Magic tablets holding only that side). Fishing a Ritual reroll (a suffix), the prefix one is worth about a plain
   tablet — buy it only if it is cheaper — and the suffix one about half.
 - **Where it stops paying** — the dearest plain tablet the craft still pays at, and the cheapest the
   tablet can sell for, each beside what you typed. The plain-tablet line holds the plan fixed, so it is a

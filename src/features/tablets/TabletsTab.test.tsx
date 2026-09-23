@@ -321,8 +321,7 @@ describe('the Tablets tab — what it costs and what it sells for', () => {
     expect(q.filters).toEqual({ type_filters: { filters: { rarity: { option: 'magic' } } } });
     expect(q.stats[0]!.filters.map((f) => [f.id, f.value])).toEqual([
       ['pseudo.pseudo_number_of_uses_remaining', { min: 10 }],
-      ['pseudo.pseudo_number_of_empty_prefix_mods', { max: 0 }],
-      ['pseudo.pseudo_number_of_empty_suffix_mods', { min: 1 }],
+      ['pseudo.pseudo_number_of_empty_suffix_mods', { max: 1 }],
     ]);
   });
 

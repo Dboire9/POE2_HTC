@@ -308,13 +308,12 @@ export function standIns(value: (key: string) => number | undefined, fromPlain: 
 }
 
 /**
- * The trade filters for a stand-in: the trade site's "# Empty Prefix/Suffix Modifiers" pseudo stats. Exact
- * on a Magic tablet — one modifier a side — so "no suffix and no empty prefix" is one prefix and nothing else.
+ * The trade filter for a stand-in, as the trade site actually answers it on a Magic tablet (checked by
+ * Dorian on the site, 2026-09-23): "# Empty Prefix Modifiers" at most 1 lists the ones holding only a
+ * suffix, "# Empty Suffix Modifiers" at most 1 the ones holding only a prefix. One filter, on the OTHER side.
  */
-export function standInFilters(s: StandIn): { id: string; value: { min?: number; max?: number }; disabled: false }[] {
-  const held = (side: 'prefix' | 'suffix') => ({
-    id: `pseudo.pseudo_number_of_empty_${side}_mods`, value: s.side === side ? { max: 0 } : { min: 1 }, disabled: false as const,
-  });
-  return [held('prefix'), held('suffix')];
+export function standInFilters(s: StandIn): { id: string; value: { max: number }; disabled: false }[] {
+  const other = s.side === 'prefix' ? 'suffix' : 'prefix';
+  return [{ id: `pseudo.pseudo_number_of_empty_${other}_mods`, value: { max: 1 }, disabled: false }];
 }
 

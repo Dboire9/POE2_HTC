@@ -80,7 +80,7 @@ describe('the Tablets tab — picking what you want', () => {
     await user.click(screen.getByRole('button', { name: /Add .*Map contains an additional Essence/ }));
     const essenceChance = screen.getByRole('button', { name: /Add .*increased chance to contain Essences/ });
     expect(essenceChance).toBeDisabled();
-    expect(essenceChance.parentElement?.textContent).toMatch(/one of these at a time/);
+    expect(essenceChance.textContent).toMatch(/one of these at a time/); // on the row itself
   });
 
   it('stops at two a side', async () => {

@@ -12,7 +12,7 @@ const inputCls =
 const FOCUS_RING = 'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring rounded-sm';
 const CAP = PER_SIDE;
 
-/** One side's list: search-filtered, each row with its odds and a "+" — or, greyed, the reason it can't. */
+/** One side's list: search-filtered, each row its odds and a click to add — or, greyed, the reason it can't. */
 const Column: React.FC<{
   title: string;
   mods: readonly TabletMod[];
@@ -33,28 +33,29 @@ const Column: React.FC<{
         // and screen-reader users: it is real text, and the button points at it.
         const reasonId = reason === undefined ? undefined : `why-${m.id}`;
         return (
-          <div key={m.id} className={cn('flex items-center gap-1.5 px-2 py-1', reason !== undefined && 'opacity-45')} title={reason}>
-            <span className="min-w-0 flex-1 text-sm">
-              <span className="block">{m.text}</span>
-              <span className="block text-xs text-muted-foreground">
-                <span className="tabular-nums">{oneIn(m.share)}</span> rolls on this side
-                {m.seen < THIN_EVIDENCE && (
-                  <span title="Read from few sightings, so the odds are rough"> · seen {m.seen} times</span>
-                )}
-                {reasonId && <span id={reasonId}> · {reason}</span>}
-              </span>
+          // The whole row adds the modifier: one click, and a big target, rather than a small "+".
+          <button
+            key={m.id}
+            type="button"
+            onClick={() => onAdd(m.id)}
+            disabled={reason !== undefined}
+            title={reason}
+            aria-label={`Add ${m.text}`}
+            {...(reasonId ? { 'aria-describedby': reasonId } : {})}
+            className={cn(
+              'block w-full px-2 py-1 text-left text-sm hover:bg-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ring',
+              'disabled:cursor-not-allowed disabled:opacity-45 disabled:hover:bg-transparent',
+            )}
+          >
+            <span className="block">{m.text}</span>
+            <span className="block text-xs text-muted-foreground">
+              <span className="tabular-nums">{oneIn(m.share)}</span> rolls on this side
+              {m.seen < THIN_EVIDENCE && (
+                <span title="Read from few sightings, so the odds are rough"> · seen {m.seen} times</span>
+              )}
+              {reasonId && <span id={reasonId}> · {reason}</span>}
             </span>
-            <button
-              type="button"
-              onClick={() => onAdd(m.id)}
-              disabled={reason !== undefined}
-              className="grid h-7 w-7 shrink-0 place-items-center rounded-md border border-border text-lg leading-none hover:bg-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:cursor-not-allowed"
-              aria-label={`Add ${m.text}`}
-              {...(reasonId ? { 'aria-describedby': reasonId } : {})}
-            >
-              <span aria-hidden="true">+</span>
-            </button>
-          </div>
+          </button>
         );
       })}
     </div>
@@ -62,8 +63,7 @@ const Column: React.FC<{
 );
 
 /**
- * Pick what you want on the tablet, the way the Plan tab picks gear modifiers: search, add from the
- * prefix and suffix lists, and the picks listed below with a way to take each one off. At most two a
+ * Pick what you want on the tablet: search, click a modifier in the prefix or suffix list to add it, and the picks listed below with a way to take each one off. At most two a
  * side, and never two of one family — which on a tablet can span both sides ("Map contains an
  * additional Essence" and "increased chance to contain Essences" are one family). A ruled-out modifier
  * stays in the list and says why, rather than vanishing.

@@ -30,7 +30,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   tablet on average — net of what you sell on the way: price a set in the watch list and the craft is
   recounted with you selling it whenever that beats carrying on —
   what half the crafts cost less than, what 1 in 10 costs more than, and how often you finish within the
-  sale price. The rarest pairs solve exactly now (the tab uses the app's Search effort). A short **Why
+  sale price — drawn, too: spend-against-get bars and a chart of how often a craft finishes within a
+  budget, shaded up to the sale price, with each watch-list tier in its own colour. The rarest pairs solve exactly now (the tab uses the app's Search effort). A short **Why
   this plan** says how the plan gets there — fresh tablets, Chaos rerolls, or a mix — why that is cheaper
   at these prices, and what an average craft uses.
 - **"Any prefix / any suffix" — a slot you don't care about.** A target list has always meant *these

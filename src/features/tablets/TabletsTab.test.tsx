@@ -230,10 +230,13 @@ describe('the Tablets tab — what it costs and what it sells for', () => {
       movesPerCraft: { restart: 71, transmute: 72, augment: 3.2, regal: 1, exalt: 2 } } }));
     const user = await open();
     await pick(user);
-    const box = (await screen.findByText('Why this plan')).parentElement!;
+    const box = (await screen.findByText('Why this plan')).parentElement!.parentElement!;
+    expect(box.textContent).toMatch(/Fresh tablets/); // the strategy, as a badge
     // Restarts and no Chaos: a fresh tablet each miss, set against the Chaos Orb it beat.
     expect(box.textContent).toMatch(/starts a fresh tablet whenever a roll misses.*Chaos Orbs: each costs \d.*a new plain tablet costs 1 ex/);
-    expect(box.textContent).toMatch(/An average craft uses 72 plain tablets · 72 Transmutations · 3\.2 Augmentations · 2 Exalted Orbs · 1 Regal Orb/);
+    // One chip per currency, most used first.
+    expect([...box.querySelectorAll('strong')].map((c) => c.parentElement!.textContent)).toEqual(
+      ['72 plain tablets', '72 Transmutations', '3.2 Augmentations', '2 Exalted Orbs', '1 Regal Orb']);
     expect(box.textContent).toMatch(/No Annulment Orbs/);
   });
 

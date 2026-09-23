@@ -538,7 +538,9 @@ the craft costs net, and each priced row says how often you'd sell one. Hunting 
 extra modifiers on Ritual with plain tablets at 100 ex, selling at typical prices brings back ~62 div a
 craft — still far short of the ~1,000 div it costs, but it counts.
 
-**Is it worth crafting?** Type what the tablet sells for and the tab answers as an investment:
+**Is it worth crafting?** Type what the tablet sells for and the tab answers as an investment — two
+bars set what you spend against what you get, in amber and green, with the profit or loss above them,
+and a chart shows how often a craft finishes within any budget, shaded green up to the sale price:
 
 - **Profit (or loss) per tablet, on average** — the sale price minus what crafting costs, net of what
   you sell on the way (below).

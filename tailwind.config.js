@@ -71,11 +71,24 @@ export default {
           from: { transform: "translateX(-100%)" },
           to: { transform: "translateX(400%)" },
         },
+        // The Tablets result: bars grow into place, a chart line draws itself, a verdict fades up, and a
+        // super jackpot glows. Used through `motion-safe:` only, so reduced-motion readers get the still.
+        "grow-x": { from: { transform: "scaleX(0)" }, to: { transform: "scaleX(1)" } },
+        "draw": { from: { strokeDashoffset: "1" }, to: { strokeDashoffset: "0" } },
+        "fade-up": { from: { opacity: "0", transform: "translateY(6px)" }, to: { opacity: "1", transform: "translateY(0)" } },
+        "soft-glow": {
+          "0%, 100%": { boxShadow: "0 0 0 0 rgb(252 211 77 / 0)" },
+          "50%": { boxShadow: "0 0 10px 2px rgb(252 211 77 / 0.45)" },
+        },
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
         "accordion-up": "accordion-up 0.2s ease-out",
         "indeterminate": "indeterminate 1.2s ease-in-out infinite",
+        "grow-x": "grow-x 0.8s cubic-bezier(0.2, 0.8, 0.2, 1) both",
+        "draw": "draw 1.2s ease-out both",
+        "fade-up": "fade-up 0.45s ease-out both",
+        "soft-glow": "soft-glow 2.4s ease-in-out infinite",
       },
     },
   },

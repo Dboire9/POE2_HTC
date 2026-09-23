@@ -11,6 +11,8 @@ import type { TypedPrice } from '../../lib/tabletPrices';
 import { tradeUrl } from '../../lib/tradeLink';
 import PolicyGraph from '../engine/PolicyGraph';
 import { oneIn } from './TabletModPicker';
+import { ProfitVerdict } from './ProfitVerdict';
+import { RiskChart } from './RiskChart';
 import { TradePrice } from './TradePrice';
 
 /** One solve and everything it was asked: the tablet, the modifiers wanted, the watch list replayed. */
@@ -29,6 +31,22 @@ const TIER_TITLE: Record<WatchTier, string> = {
   jackpot: 'Jackpot',
   veryGood: 'Very good',
   good: 'Good',
+};
+
+/** Each tier's colour — its heading, its dot, and the bar of how often a row turns up. */
+const TIER_TONE: Record<WatchTier, { text: string; fill: string; dot: string }> = {
+  superJackpot: { text: 'text-amber-300', fill: 'bg-gradient-to-r from-amber-400 to-yellow-200', dot: 'bg-amber-300 motion-safe:animate-soft-glow' },
+  jackpot: { text: 'text-orange-300', fill: 'bg-orange-400', dot: 'bg-orange-400' },
+  veryGood: { text: 'text-violet-300', fill: 'bg-violet-400', dot: 'bg-violet-400' },
+  good: { text: 'text-sky-300', fill: 'bg-sky-400', dot: 'bg-sky-400' },
+};
+
+/** The plan's strategy as a coloured badge. */
+const STRATEGY: Record<'fresh' | 'chaos' | 'mixed' | 'direct', { label: string; tone: string }> = {
+  fresh: { label: 'Fresh tablets', tone: 'border-sky-400/50 bg-sky-400/15 text-sky-200' },
+  chaos: { label: 'Chaos rerolls', tone: 'border-violet-400/50 bg-violet-400/15 text-violet-200' },
+  mixed: { label: 'Fresh tablets + Chaos', tone: 'border-amber-400/50 bg-amber-400/15 text-amber-200' },
+  direct: { label: 'Straight up', tone: 'border-emerald-400/50 bg-emerald-400/15 text-emerald-200' },
 };
 
 /**
@@ -87,6 +105,15 @@ export const TabletResult: React.FC<{
     return (
       <li key={keyOf(entry.mods)} className="flex flex-wrap items-center gap-x-3 gap-y-1">
         <span>{label(entry.mods).join(' + ')}</span>
+        {seen !== undefined && (
+          <span className="inline-block h-1.5 w-16 overflow-hidden rounded-full bg-muted" aria-hidden="true">
+            <span
+              key={Math.round(seen * 1000)}
+              className={cn('block h-full origin-left rounded-full motion-safe:animate-grow-x', TIER_TONE[entry.tier].fill)}
+              style={{ width: `${Math.max(2, Math.round(seen * 100))}%` }}
+            />
+          </span>
+        )}
         <span className="text-xs text-muted-foreground">
           {seen !== undefined
             ? `turns up in ${Math.round(seen * 100)}% of crafts`
@@ -97,7 +124,7 @@ export const TabletResult: React.FC<{
         </span>
         {/* Once priced, what the plan does with it: sells it whenever that beats carrying on. */}
         {price && sold !== undefined && (
-          <span className="text-xs text-emerald-400">
+          <span className="rounded-full border border-emerald-400/40 bg-emerald-400/10 px-2 py-0.5 text-xs text-emerald-300 motion-safe:animate-fade-up">
             {sold >= 1 ? `you'd sell about ${howMany(sold)} a craft` : `you'd sell one in ${Math.round(sold * 100)}% of crafts`}
           </span>
         )}
@@ -117,7 +144,6 @@ export const TabletResult: React.FC<{
   // with the fresh tablets those sales force — what the craft then costs net.
   const revenue = sales?.revenue ?? 0;
   const net = sales && markov.replay && revenue > 0 ? plainCost + markov.replay.meanCost - revenue : undefined;
-  const profit = targetPrice && cost !== undefined ? targetPrice.ex - (net ?? cost) : undefined;
   const anyWatchPriced = watch.some((e) => prices[keyOf(e.mods)]);
   const price = (ex: number | undefined): string => (ex === undefined ? '?' : formatIn(pickUnit(ex, rates), ex));
   const plan = markov.replay ? summarizePlan(markov.replay.movesPerCraft) : undefined;
@@ -158,11 +184,21 @@ export const TabletResult: React.FC<{
             )}
             {plan && (
               <div className="space-y-1 rounded-md border border-border/60 bg-muted/30 p-3 text-sm">
-                <h4 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Why this plan</h4>
+                <div className="flex flex-wrap items-center gap-2">
+                  <h4 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Why this plan</h4>
+                  <span className={cn('rounded-full border px-2 py-0.5 text-xs font-medium', STRATEGY[plan.strategy].tone)}>
+                    {STRATEGY[plan.strategy].label}
+                  </span>
+                </div>
                 <p>{why[plan.strategy]}</p>
-                <p className="text-muted-foreground">
-                  An average craft uses {plan.uses.map((u) => `${howMany(u.perCraft)} ${u.name}`).join(' · ')}.
-                </p>
+                <div className="flex flex-wrap items-center gap-1.5 text-xs text-muted-foreground">
+                  <span>An average craft uses</span>
+                  {plan.uses.map((u) => (
+                    <span key={u.name} className="rounded-md border border-border bg-background/60 px-1.5 py-0.5">
+                      <strong className="tabular-nums text-foreground">{howMany(u.perCraft)}</strong> {u.name}
+                    </span>
+                  ))}
+                </div>
                 <p className="text-muted-foreground">
                   No Annulment Orbs ({price(orbPrices.annul)} each): on a tablet they rarely pay for themselves.
                 </p>
@@ -185,24 +221,21 @@ export const TabletResult: React.FC<{
               <span className="text-muted-foreground">What it sells for:</span>
               {tradePrice(asMods(chosen))}
             </div>
-            {targetPrice && profit !== undefined && (
-              <div className="space-y-1 text-sm">
-                <p className={cn('tabular-nums', profit >= 0 ? 'text-emerald-400' : 'text-amber-400')}>
-                  {profit >= 0
-                    ? `Profit per tablet: about ${formatIn(unit, profit)} on average`
-                    : `Loss per tablet: about ${formatIn(unit, -profit)} on average — buying one is cheaper`}
-                  {net !== undefined && (
-                    <span className="text-muted-foreground"> — counting what you sell on the way</span>
-                  )}
-                </p>
-                {spread && (
-                  <p className="text-muted-foreground">
-                    Spend up to what it sells for, and you finish{' '}
-                    <span className="tabular-nums text-foreground">{Math.round(shareWithin(spread, targetPrice.ex) * 100)}%</span>
-                    {' '}of the time.
-                  </p>
-                )}
-              </div>
+            <ProfitVerdict
+              spend={net !== undefined ? plainCost + markov.replay!.meanCost : cost}
+              salePrice={targetPrice?.ex}
+              salesOnWay={revenue}
+              fmt={(ex) => formatIn(unit, ex)}
+            />
+            {targetPrice && spread && (
+              <p className="text-sm text-muted-foreground">
+                Spend up to what it sells for, and you finish{' '}
+                <span className="tabular-nums text-foreground">{Math.round(shareWithin(spread, targetPrice.ex) * 100)}%</span>
+                {' '}of the time.
+              </p>
+            )}
+            {spread && (
+              <RiskChart percentiles={spread} mean={cost} salePrice={targetPrice?.ex} fmt={(ex) => formatIn(unit, ex)} />
             )}
           </>
         )}
@@ -226,7 +259,10 @@ export const TabletResult: React.FC<{
                 ? [watchRow(entry, markov.replay?.seen[i], sales?.perEntry[i])] : []));
               return rows.length === 0 ? null : (
                 <section key={tier} className="space-y-1">
-                  <h5 className="text-xs font-medium text-muted-foreground">{TIER_TITLE[tier]}</h5>
+                  <h5 className={cn('flex items-center gap-2 text-xs font-semibold', TIER_TONE[tier].text)}>
+                    <span className={cn('inline-block h-2 w-2 rounded-full', TIER_TONE[tier].dot)} aria-hidden="true" />
+                    {TIER_TITLE[tier]}
+                  </h5>
                   <ul className="space-y-1.5 text-sm">{rows}</ul>
                 </section>
               );

@@ -399,7 +399,9 @@ describe('the Tablets tab — what else you might roll', () => {
     const user = await open();
     await user.click(screen.getByRole('button', { name: /Add .*increased Gold found in Map/ }));
     await user.click(screen.getByRole('button', { name: /What does it cost/ }));
-    expect(await screen.findByText(/the replay does not model/)).toBeInTheDocument();
+    // Said once, under the cost; the row itself says only that it was not played out.
+    expect(await screen.findByText(/Not played out: the route plays a desecrate move the replay does not model/)).toBeInTheDocument();
+    expect(screen.getByText(/odds not played out/)).toBeInTheDocument();
   });
 
   it('says why there are no odds when the cost is only a bound', async () => {

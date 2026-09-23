@@ -44,7 +44,8 @@ export interface ReplayOptions {
   /**
    * Stop starting new crafts after this many milliseconds, and report the ones played — `runs` in the
    * result says how many that was, and `stdErr` widens to match. ABSENT means no clock, which keeps a
-   * test's numbers identical on every machine; only the app passes one.
+   * test's numbers identical on every machine; only the app passes one. Declines, with the reason, when
+   * even `MIN_RUNS` crafts would take `GIVE_UP_AFTER` times this.
    */
   readonly maxMillis?: number;
   /**
@@ -67,6 +68,13 @@ export interface ReplayOptions {
 
 /** Crafts played whatever the clock says, so a share is never read off a handful of them. */
 const MIN_RUNS = 64;
+/**
+ * …unless those crafts would take this many times the clock: then the replay declines rather than keep
+ * the player waiting. A four-modifier tablet whose rarest pieces are 1 roll in 150 needs over a million
+ * orbs and fresh tablets a craft — seconds EACH — and at that length the cost the model gives is all
+ * there is to say (Dorian, 2026-09-23: "a craft ran past 1000000 moves", after a long wait).
+ */
+const GIVE_UP_AFTER = 3;
 
 export interface ReplayResult {
   readonly ok: true;
@@ -301,10 +309,18 @@ export function replayPolicy(ctx: ReplayContext, opts: ReplayOptions): ReplayRep
   let sum = 0;
   let sumSq = 0;
   let movesTotal = 0;
+  let played = 0;
   const begun = Date.now();
   const deadline = opts.maxMillis === undefined ? Infinity : begun + opts.maxMillis;
+  const giveUpAt = opts.maxMillis === undefined ? Infinity : begun + GIVE_UP_AFTER * opts.maxMillis;
+  /**
+   * Why a craft this long is not played out, in the words the result shows: the crafts played so far
+   * when there are some, else the one that ran on.
+   */
+  const tooLong = (inThisOne: number): string => `too long a craft to play out — ${played > 0 && movesTotal / played > inThisOne
+    ? `about ${Math.round(movesTotal / played).toLocaleString('en')}`
+    : `over ${inThisOne.toLocaleString('en')}`} orbs and fresh tablets a craft`;
   let shown = 0;
-  let played = 0;
   const costs: number[] = [];
   const moveCount = new Map<string, number>();
   // The sell rule: priced entries, and what starting over is worth — both fixed for the whole replay.
@@ -378,7 +394,7 @@ export function replayPolicy(ctx: ReplayContext, opts: ReplayOptions): ReplayRep
         const sale = bestSale(item);
         const here = valueOf!(key);
         if (sale && here !== undefined && sale[1] - fillCostOf(item) > startOver - here) {
-          if (++moves > maxActions) return { ok: false, reason: `a craft ran past ${maxActions} moves` };
+          if (++moves > maxActions) return { ok: false, reason: tooLong(moves) };
           // Filled first — it can only gain: whatever lands is added, nothing comes off.
           const full = fillUp(item);
           const best = bestSale(full.item) ?? sale;
@@ -393,7 +409,9 @@ export function replayPolicy(ctx: ReplayContext, opts: ReplayOptions): ReplayRep
       }
       const action = policy.get(key);
       if (!action) return { ok: false, reason: `the policy has no move for state ${key}` };
-      if (++moves > maxActions) return { ok: false, reason: `a craft ran past ${maxActions} moves` };
+      if (++moves > maxActions) return { ok: false, reason: tooLong(moves) };
+      // The clock, read every 4,096 moves: a craft of millions of them is seconds on its own.
+      if ((moves & 4095) === 0 && played < MIN_RUNS && Date.now() > giveUpAt) return { ok: false, reason: tooLong(moves) };
       moveCount.set(action.currency, (moveCount.get(action.currency) ?? 0) + 1);
       const next = play(action, item);
       if (next === undefined) return { ok: false, reason: `the route plays a ${action.currency} move the replay does not model` };

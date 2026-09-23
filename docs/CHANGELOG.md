@@ -69,6 +69,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- **A tablet with four rare modifiers no longer ends in "a craft ran past 1000000 moves".** Playing such a
+  craft out takes hundreds of thousands of orbs and fresh tablets EACH; the tab now stops after a few
+  seconds and says so in words (*too long a craft to play out — about 270,183 orbs and fresh tablets a
+  craft*), once, under the cost, which still stands. And when the solver stops before a number, it no
+  longer says it "ran out of time … a six-mod target": at Standard it had used its sweeps in 1.5 s —
+  raise Search effort (Exhaustive settles these in ~25 s).
+
 - **A craft that can only finish by starting over no longer quotes "at most 0".** With Chaos and Annul
   both turned off, a tablet full of the wrong modifiers can only be binned, and the true expected cost
   came back as "≤ 0" — or, with the other solver, no number at all. It now solves exactly (a Temple

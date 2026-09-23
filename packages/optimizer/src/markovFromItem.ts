@@ -1446,15 +1446,17 @@ export function markovFromItem(
     // No converged V0 means no proper-policy value to seed from, and an unconverged 0-init V bounds
     // the restart problem in NEITHER direction: it is climbing toward the push-forward optimum, which
     // is the far larger number (~40x, measured). Rather than print a figure with no meaning, say what
-    // happened and what to do about it. Not seen on real data — the push-forward solve settles in
-    // ~12s at the 6-target cap, this model's maximum — so this is the guard, not a path.
+    // happened and what to do about it. Reached by a tablet's rarest four-modifier sets at Standard.
     if (!seedConverged) {
       // Which limit ran out decides whether "try harder" is advice or noise: a clock the caller set can
       // be raised, the sweep cap cannot.
       return fail(deadline === Infinity
         ? 'this craft needs more value-iteration sweeps than the solver allows — the step routes still cover it'
-        : 'the solver ran out of time before it could put a number on this craft — raise Search effort and '
-          + 'try again (a six-mod target at T1 needs the longest setting)', { stoppedEarly: true });
+        // Its clock OR its sweep cap: the app's Search effort raises both. A four-modifier tablet whose
+        // rarest pieces are 1 roll in 150 spends Standard's 100,000 sweeps in ~1.5 s and settles at
+        // Exhaustive in ~25 s — so this does not say "out of time" (it read so until 2026-09-23).
+        : 'the solver stopped before it could put a number on this craft — raise Search effort and try again '
+          + '(the rarest crafts need the longest setting)', { stoppedEarly: true });
     }
     // Phase A leaves the START at Infinity when nothing finishes the craft without starting over — a
     // tablet with no Chaos and no Annul, full of the wrong modifiers, can only be binned. Phase B then

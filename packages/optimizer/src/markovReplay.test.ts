@@ -297,6 +297,25 @@ describe('replayPolicy — the solved policy played on real items', () => {
     expect(played(none.replay).runs).toBe(64);
   });
 
+  /**
+   * A craft of ~15,000 moves — 1 roll in 2,001 lands the target — cannot play its 64
+   * crafts before a clock long run out, so the replay declines and says why in the player's words, not
+   * after a million moves. The runaway guard says the same thing when it trips first.
+   */
+  it('declines a craft too long to play out, in words, when even 64 would outrun the clock', () => {
+    const base = baseOf(['T', 'W'], []);
+    const data = dataOf(base, [mod('T', 'prefix', [['t', 1]]), mod('W', 'prefix', [['w', 2_000]])]);
+    const prices: Prices = { currency: { transmute: 1, augment: 1, regal: 2, exalt: 3, annul: 4, chaos: 1_000 }, omens: {} };
+    const solve = (replay: { maxMillis?: number; maxActions?: number }) =>
+      markovFromItem(data, prices, whiteItem(base, 100), [{ modId: 'T' }], {
+        restartCost: 0.5, maxIters: 10_000_000, replay: { runs: 64, seed: 3, ...replay },
+      }).replay;
+    expect(solve({ maxMillis: -1 })).toEqual({ ok: false, reason: 'too long a craft to play out — over 4,096 orbs and fresh tablets a craft' });
+    expect(solve({ maxActions: 1_000 })).toEqual({ ok: false, reason: 'too long a craft to play out — over 1,001 orbs and fresh tablets a craft' });
+    // With time to spare it plays them all.
+    expect(played(solve({ maxMillis: 60_000 })).runs).toBe(64);
+  });
+
   it('says how far along it is, a hundredth at a time, without touching the dice', () => {
     const base = baseOf(['A'], ['B']);
     const data = dataOf(base, [mod('A', 'prefix', [['a1', 3], ['a2', 1]]), mod('B', 'suffix', [['b1', 2]])]);

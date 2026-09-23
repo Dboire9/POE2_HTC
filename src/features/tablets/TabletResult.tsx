@@ -118,9 +118,9 @@ export const TabletResult: React.FC<{
         <span className="text-xs text-muted-foreground">
           {seen !== undefined
             ? `turns up in ${Math.round(seen * 100)}% of crafts`
-            : markov.replayReason
-              // Only a settled plan is played out: a bound's policy is not one anybody should follow.
-              ?? (markov.bound === 'exact' ? 'odds not played out' : 'no odds while the cost is only a bound')}
+            // Only a settled plan is played out: a bound's policy is not one anybody should follow. When the
+            // replay declined, the reason is said once, under the cost.
+            : markov.bound === 'exact' ? 'odds not played out' : 'no odds while the cost is only a bound'}
           {single && <> · <span className="tabular-nums">{oneIn(single.share)}</span> rolls on that side</>}
         </span>
         {/* Once priced, what the plan does with it: sells it whenever that beats carrying on. */}
@@ -176,6 +176,12 @@ export const TabletResult: React.FC<{
               on average, following the plan below — the plain tablet you start from and the Exalts that
               fill it to four modifiers included.
             </p>
+            {!markov.replay && markov.replayReason && (
+              <p className="text-sm text-muted-foreground">
+                Not played out: {markov.replayReason}. So there is no spread, no odds of what else lands and
+                nothing sold on the way — the cost above stands on its own.
+              </p>
+            )}
             {spread && (
               <p className="text-sm text-muted-foreground">
                 Half the crafts cost less than <span className="tabular-nums text-foreground">{formatIn(unit, spread[50]!)}</span>;

@@ -89,18 +89,33 @@ describe('the Tablets tab — picking what you want', () => {
     for (const text of prefixes) await user.click(screen.getByRole('button', { name: new RegExp(`Add .*${text}`) }));
     const third = screen.getByRole('button', { name: /Add .*increased Pack Size in Map/ });
     expect(third).toBeDisabled();
+    expect(third.textContent).toMatch(/this side is full/);
+    // The two picked stay clickable, so one can come off.
+    expect(screen.getByRole('button', { name: /Remove .*Gold found in Map from the tablet/ })).toBeEnabled();
     // …and a suffix is still free.
     expect(screen.getByRole('button', { name: /Add .*increased Quantity of Waystones/ })).toBeEnabled();
   });
 
-  it('lists what you picked below, the way the Plan tab does, and takes one off again', async () => {
+  it('highlights what you picked where it is, and a second click takes it off', async () => {
     const user = await open();
     await user.click(screen.getByRole('button', { name: /Add .*increased Gold found in Map/ }));
-    // Picked: out of the list above, into "Your tablet" below.
-    expect(screen.queryByRole('button', { name: /Add .*increased Gold found in Map/ })).toBeNull();
-    await user.click(screen.getByRole('button', { name: /Remove .*increased Gold found in Map from the tablet/ }));
-    expect(screen.getByRole('button', { name: /Add .*increased Gold found in Map/ })).toBeEnabled();
+    // Still in the list, in the same place — now pressed, and naming what the next click does.
+    const row = screen.getByRole('button', { name: /Remove .*increased Gold found in Map from the tablet/ });
+    expect(row).toHaveAttribute('aria-pressed', 'true');
+    expect(row).toBeEnabled();
+    // …and summed up at the top.
+    expect(screen.getByRole('button', { name: /^Remove #% increased Gold found in Map$/ })).toBeInTheDocument();
+    await user.click(row);
+    expect(screen.getByRole('button', { name: /Add .*increased Gold found in Map/ })).toHaveAttribute('aria-pressed', 'false');
     expect(screen.getByRole('button', { name: /What does it cost/ })).toBeDisabled();
+  });
+
+  it('takes a pick off from the summary too', async () => {
+    const user = await open();
+    await user.click(screen.getByRole('button', { name: /Add .*increased Gold found in Map/ }));
+    await user.click(screen.getByRole('button', { name: /^Remove #% increased Gold found in Map$/ }));
+    expect(screen.getByRole('button', { name: /Add .*increased Gold found in Map/ })).toHaveAttribute('aria-pressed', 'false');
+    expect(screen.getByText(/Click a modifier below to add it/)).toBeInTheDocument();
   });
 
   it('narrows both lists to what you type', async () => {

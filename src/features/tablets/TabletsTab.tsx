@@ -142,7 +142,7 @@ const TabletsTab: React.FC = () => {
           <Button onClick={compute} disabled={computing || chosen.length === 0} size="lg">
             {computing ? 'Working…' : 'What does it cost?'}
           </Button>
-          {chosen.length === 0 && <span className="text-xs text-muted-foreground">Tick the modifiers you want.</span>}
+          {chosen.length === 0 && <span className="text-xs text-muted-foreground">Pick at least one modifier.</span>}
         </div>
 
         {computing && <SolveProgressBar progress={progress} onCancel={() => cancelRef.current?.()} />}

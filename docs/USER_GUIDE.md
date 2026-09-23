@@ -504,8 +504,9 @@ they thought they were opening.
 Precursor Tablets are crafted with the same orbs as gear, so the same solver prices them — but almost
 nothing else on the gear tabs applies, and the market works the other way round. They get their own tab.
 
-**Pick a tablet and add up to four modifiers**: search, click a modifier in the prefix or suffix list to
-add it, and take one off again with **✕** under *Your tablet*. Two
+**Pick a tablet and add up to four modifiers**: click a modifier to add it — it stays where it is,
+highlighted with a tick — and click it again to take it off (or use its **✕** in *Your tablet* at the
+top). The search box narrows both lists. Two
 prefixes and two suffixes is what a Rare tablet holds. Each modifier shows how often it lands: *1 in 7 rolls on this side*. Modifiers that can't share a
 tablet grey out with the reason; on a tablet that can cross sides, because "Map contains an additional
 Essence" (a prefix) and "increased chance to contain Essences" (a suffix) are one family.

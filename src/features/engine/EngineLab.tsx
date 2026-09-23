@@ -754,12 +754,21 @@ const EngineLab: React.FC = () => {
               free slot is exactly that, so it switches to the precise wording too.
               "named" is added only where a free slot makes "2 mods" ambiguous about whether the free
               one counts; a craft with alternatives alone keeps the sentence it has always had. */}
-          <h3 className="text-sm font-bold">
-            {targets.length === slots.length && freeSlots === 0
-              ? `Target item (${targets.length} mod${targets.length !== 1 ? 's' : ''})`
-              : `Target item (${slots.length + freeSlots} slot${slots.length + freeSlots !== 1 ? 's' : ''}, `
-                + `${targets.length} mod${targets.length !== 1 ? 's' : ''}${freeSlots > 0 ? ' named' : ''})`}
-          </h3>
+          <div className="flex flex-wrap items-center justify-between gap-2">
+            <h3 className="text-sm font-bold">
+              {targets.length === slots.length && freeSlots === 0
+                ? `Target item (${targets.length} mod${targets.length !== 1 ? 's' : ''})`
+                : `Target item (${slots.length + freeSlots} slot${slots.length + freeSlots !== 1 ? 's' : ''}, `
+                  + `${targets.length} mod${targets.length !== 1 ? 's' : ''}${freeSlots > 0 ? ' named' : ''})`}
+            </h3>
+            {/* The item as it stands in the list, before any solve: what it goes for, ready made. */}
+            {engine && targets.length > 0 && (
+              <GearTradeLink
+                data={engine.data} league={priceBasis(engine).league} baseId={baseId}
+                slots={slotsOfTargets(targets)} rarity="nonunique" label="the target item"
+              />
+            )}
+          </div>
           {/* Two "gain as extra" targets are already legal — different families — so this unlocks
               nothing; it says what a rune would make of them, which nobody would otherwise think of. */}
           {engine && (

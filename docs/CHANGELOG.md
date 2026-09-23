@@ -9,8 +9,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- **Every item the planner shows has a Search on trade button.** The finished item (*Or buy it already
-  made*, beside the true expected cost), every row of *Start from an item you buy instead*, and every row
+- **Every item the planner shows has a Search on trade button.** The target item — beside the target
+  list, before anything is computed — the finished item (*Or buy it already made*, beside the true
+  expected cost), every row of *Start from an item you buy instead*, and every row
   of the Item tab's *What to look for when you buy one* open the official trade site on that item: its
   class, its rarity, each modifier at the tier your craft asks or better, instant buyout, cheapest first.
   The trade ids come from Exiled Exchange 2's data, matched to every gear modifier — Essence, Perfect

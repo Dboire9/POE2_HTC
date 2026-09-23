@@ -260,7 +260,7 @@ crafts until you click **Show**.
 - **Search on trade** — under each price box: the official trade site, opened on that item — its
   class, Magic or Rare, each modifier it carries at the tier your craft asks or better — instant buyout,
   cheapest first. The finished item has one too, beside the true expected cost: **Or buy it already
-  made**. A **≈** means the search is looser than the item — a modifier the trade site has no stat for,
+  made** — and so does the target itself, beside the target list on both tabs, before you compute. A **≈** means the search is looser than the item — a modifier the trade site has no stat for,
   or one whose local and global versions share a search — so glance at the listings. The app only
   builds the link; your browser opens it.
 - **Trade price** — the price sheet has no prices for items with specific modifiers, so type what you

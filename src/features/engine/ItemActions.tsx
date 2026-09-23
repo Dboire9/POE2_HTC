@@ -907,6 +907,17 @@ const ItemActions: React.FC = () => {
               );
             })()}
 
+            {/* The target as it stands in the list, before any solve: what it goes for, ready made. */}
+            {engine && target.length > 0 && (
+              <p className="flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
+                The target item, already made:
+                <GearTradeLink
+                  data={engine.data} league={priceBasis(engine).league} baseId={baseId}
+                  slots={slotsOfTargets(target)} rarity="nonunique" label="the target item"
+                />
+              </p>
+            )}
+
             {/* Same note as the Plan tab: these targets were always legal together, and the rune
                 that fuses them is the part no plan would otherwise mention. */}
             {engine && (

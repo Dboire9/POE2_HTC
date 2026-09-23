@@ -4,7 +4,7 @@ import { cn } from '../../lib/utils';
 import type { EngineMarkovResult } from '../../lib/engineTypes';
 import { formatIn, type CostUnit, type Rates } from '../../lib/currency';
 import {
-  WATCH_TIERS, searchIsLoose, setPriceKey, shareWithin, spendBreakdown, summarizePlan, tradeStatsFor, watchText,
+  WATCH_TIERS, plainBreakEven, searchIsLoose, setPriceKey, shareWithin, spendBreakdown, summarizePlan, tradeStatsFor, watchText,
   type TabletBase, type WatchEntry, type WatchMod, type WatchTier,
 } from '../../lib/tablets';
 import type { PriceEntry, TypedPrice } from '../../lib/tabletPrices';
@@ -280,6 +280,34 @@ export const TabletResult: React.FC<{
               salesOnWay={revenue}
               fmt={(ex) => formatIn(unit, ex)}
             />
+            {breakdown && sale !== undefined && (() => {
+              // Where it stops paying, both ways: the dearest plain tablet it still pays at, and the
+              // cheapest the tablet can sell for. The first is a floor — the plan adapts to the price.
+              const spendNow = net !== undefined ? plainCost + markov.replay!.meanCost : cost;
+              const most = plainBreakEven(breakdown.spend, sale + revenue);
+              const least = spendNow - revenue;
+              return (
+                <div className="space-y-1 rounded-lg border border-border/70 bg-background/40 p-3 text-sm">
+                  <p>
+                    {most === undefined
+                      ? <>No plain-tablet price makes it pay: the orbs alone cost more than it brings back.</>
+                      : <>
+                          Pays while a plain tablet costs{' '}
+                          <strong className="tabular-nums text-emerald-400">{formatIn(unit, most)} or less</strong>
+                          {' '}— you typed{' '}
+                          <span className={cn('tabular-nums', plainCost <= most ? 'text-emerald-300' : 'text-amber-300')}>{formatIn(unit, plainCost)}</span>.
+                          {' '}<span className="text-xs text-muted-foreground">At a dearer or cheaper tablet the plan adapts, so the real line may sit a little higher.</span>
+                        </>}
+                  </p>
+                  <p>
+                    Or while it sells for{' '}
+                    <strong className="tabular-nums text-emerald-400">{formatIn(unit, least)} or more</strong>
+                    {' '}— you typed{' '}
+                    <span className={cn('tabular-nums', sale >= least ? 'text-emerald-300' : 'text-amber-300')}>{formatIn(unit, sale)}</span>.
+                  </p>
+                </div>
+              );
+            })()}
             {breakdown && (
               <ProfitBreakdown
                 spend={breakdown.spend} get={breakdown.get} runs={markov.replay!.runs} stdErr={markov.replay!.stdErr}

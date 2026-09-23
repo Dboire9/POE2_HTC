@@ -290,6 +290,19 @@ describe('the Tablets tab — what it costs and what it sells for', () => {
     expect(text).toMatch(/1,000 crafts pin the average spend to within ±9\.8 ex/);
   });
 
+  it('says the dearest plain tablet it still pays at, and the cheapest it can sell for', async () => {
+    const costPercentiles = Array.from({ length: 101 }, (_, p) => p * 10);
+    // 5 plain tablets a craft at 1 ex, and 496 ex of orbs: against 800 back, (800 − 496) / 5 = 60.8.
+    solved(markov({ replay: { runs: 1_000, seen: [], meanCost: 500, stdErr: 5, costPercentiles, movesPerCraft: { restart: 4, transmute: 20, regal: 20 } } }));
+    const user = await open();
+    await pick(user);
+    await user.type(await screen.findByRole('textbox', { name: /Price of a Ritual Tablet/ }), '800');
+    await user.tab();
+    expect(await screen.findByText(/Pays while a plain tablet costs/)).toHaveTextContent('60.8 ex or less — you typed 1 ex');
+    // Nothing sold on the way: it needs to sell for the solver's 1,588 ex.
+    expect(screen.getByText(/Or while it sells for/)).toHaveTextContent('1,588 ex or more — you typed 800 ex');
+  });
+
   it('says no run makes a loss pay', async () => {
     const costPercentiles = Array.from({ length: 101 }, (_, p) => p * 10);
     solved(markov({ replay: { runs: 1_000, seen: [], meanCost: 500, stdErr: 5, costPercentiles, movesPerCraft: {} } }));

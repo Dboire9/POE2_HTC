@@ -9,6 +9,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- **Where a tablet craft stops paying.** Beside the verdict: *Pays while a plain tablet costs X or less* —
+  the plan's plain tablets and orbs per craft, held fixed, solved for the price that breaks even (a
+  floor: the plan adapts to any other price) — and *or while it sells for Y or more*. Ritual reroll:
+  ~154 ex; re-solved at exactly that price it comes out even (−0.2 ± 5.5 chaos).
+
 - **"How is this worked out?" under the tablet profit.** The verdict taken apart: every orb and plain
   tablet one craft uses on average, count × price; the tablet and each set sold on the way, count ×
   price; the difference; and how sure the average is (±, 19 times in 20, from the crafts played out) —

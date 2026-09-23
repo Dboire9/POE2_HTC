@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import { loadPatch } from '../../packages/engine/src/index.ts';
 import { familiesOf, resolveMod } from '../../packages/engine/src/pool.ts';
-import { CURATED, ODDS_CREDIT, WATCH_TIERS, listTablets, ruledOutBy, searchIsLoose, shareWithin, summarizePlan, tradeStatsFor, watchKey, watchList, watchText, type TabletBase, spendBreakdown } from './tablets';
+import { CURATED, ODDS_CREDIT, WATCH_TIERS, listTablets, ruledOutBy, searchIsLoose, shareWithin, summarizePlan, tradeStatsFor, watchKey, watchList, watchText, type TabletBase, spendBreakdown, plainBreakEven } from './tablets';
 
 const data = loadPatch('data/patches/0.5.0');
 const tablets = listTablets(data);
@@ -183,6 +183,22 @@ describe('where a craft’s spend goes', () => {
   it('names one of something in the singular, and leaves out what was never used', () => {
     const lines = spendBreakdown({ regal: 1 }, 10, 2.3, priceOf);
     expect(lines.map((l) => l.name)).toEqual(['plain tablet', 'Regal Orb']);
+  });
+});
+
+describe('the dearest plain tablet a craft still pays at', () => {
+  const lines = [
+    { name: 'plain tablets', count: 50, each: 2, total: 100, plain: true as const },
+    { name: 'Chaos Orbs', count: 20, each: 1, total: 20 },
+  ];
+
+  it('is where the spend, held to this plan, meets what the craft brings back', () => {
+    // 50 plain tablets and 20 of orbs, against 170 back: (170 − 20) / 50 = 3 a tablet.
+    expect(plainBreakEven(lines, 170)).toBe(3);
+  });
+
+  it('is none when the orbs alone cost more than the craft brings back', () => {
+    expect(plainBreakEven(lines, 15)).toBeUndefined();
   });
 });
 

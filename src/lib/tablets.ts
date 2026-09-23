@@ -224,6 +224,8 @@ export interface CostLine {
   readonly count: number;
   readonly each: number;
   readonly total: number;
+  /** The plain tablets a craft buys — the line whose price the player sets. */
+  readonly plain?: true;
 }
 
 /**
@@ -243,7 +245,7 @@ export function spendBreakdown(
     const [one, many] = MOVE_NAMES[key] ?? [key, key];
     return { name: Math.abs(count - 1) < 0.05 ? one : many, count, each, total: count * each };
   };
-  const lines: CostLine[] = [line('restart', 1 + (moves['restart'] ?? 0) + (moves['sell'] ?? 0), plainCost)];
+  const lines: CostLine[] = [{ ...line('restart', 1 + (moves['restart'] ?? 0) + (moves['sell'] ?? 0), plainCost), plain: true }];
   for (const key of ['transmute', 'augment', 'regal', 'exalt', 'chaos', 'annul']) {
     const n = moves[key] ?? 0;
     const each = priceOf(key);
@@ -257,3 +259,23 @@ export function spendBreakdown(
   }
   return lines.filter((l) => l.count >= 0.005).sort((a, b) => b.total - a.total);
 }
+
+/**
+ * The most a plain tablet can cost for the craft to still pay. Its plan buys `count` plain tablets a
+ * craft and spends the rest on orbs, so with the plan held fixed the spend is `price × count + orbs` —
+ * a straight line — and it breaks even where that meets what the craft brings back:
+ *
+ *     price ≤ (income − orbs) / count
+ *
+ * A floor, not an estimate: at any other price the plan re-optimises, and the plan the solver picks is
+ * never dearer than the one held fixed — so at this price or less the craft pays for certain, and the
+ * true line may sit a little higher. Undefined when no price makes it pay (the orbs alone cost more).
+ */
+export function plainBreakEven(lines: readonly CostLine[], income: number): number | undefined {
+  const plain = lines.find((l) => l.plain);
+  if (!plain || !(plain.count > 0)) return undefined;
+  const orbs = lines.filter((l) => !l.plain).reduce((a, l) => a + l.total, 0);
+  const most = (income - orbs) / plain.count;
+  return most > 0 ? most : undefined;
+}
+

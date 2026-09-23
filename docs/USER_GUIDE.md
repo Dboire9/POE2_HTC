@@ -570,6 +570,10 @@ and a chart shows how often a craft finishes within any budget, shaded green up 
   less than, what 1 craft in 10 costs more than, and how often you finish if you spend no more than the
   tablet sells for. These come from playing the plan out thousands of times; a very long craft fits fewer
   in, and the tab says so.
+- **Where it stops paying** — the dearest plain tablet the craft still pays at, and the cheapest the
+  tablet can sell for, each beside what you typed. The plain-tablet line holds the plan fixed, so it is a
+  floor: at a different price the plan adapts and can only do better. On the Ritual reroll it is
+  ~154 ex (2.44 chaos), and solving again at exactly that price comes out even.
 - **How is this worked out?** — opens the verdict's arithmetic: every orb and plain tablet one craft uses on
   average, how many and at what price; what it gets — the tablet at your price, and each set sold on the
   way, times how often it sold; the difference; and how sure the average is from the crafts played out,

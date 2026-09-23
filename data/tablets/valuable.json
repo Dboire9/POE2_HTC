@@ -295,6 +295,22 @@
         ],
         "mods": [
           {
+            "id": "Tablets/IncursionBossChance",
+            "reads": "#% chance to add a Vaal Beacon Unique Monster to the Map"
+          },
+          {
+            "id": "Tablets/IncursionTokenChance",
+            "reads": "#% chance to gain an additional Crystal from Vaal Beacons in Map"
+          }
+        ],
+        "price": "~3 div"
+      },
+      {
+        "tablets": [
+          "Tablets_temple"
+        ],
+        "mods": [
+          {
             "id": "Tablets/MapDroppedItemRarityIncrease",
             "reads": "#% increased Rarity of Items found in Map"
           },

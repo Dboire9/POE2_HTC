@@ -74,6 +74,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   seconds and says so in words (*too long a craft to play out — about 270,183 orbs and fresh tablets a
   craft*), once, under the cost, which still stands. And when the solver stops before a number, it no
   longer says it "ran out of time … a six-mod target": it had used its sweeps, not its time.
+- **Temple's watch list has a new pair**: a Vaal Beacon Unique Monster chance with the extra-Crystal
+  chance, *very good*, as Dorian priced it (~3 div).
 - **Every tablet you pick now gets a number, at any Search effort.** A tablet's four rarest modifiers
   never settled before — Standard gave up in 1.5 s, and even Exhaustive's twenty million sweeps
   "settled" short of the answer, so the planner flipped between two plans forever. A tablet's lattice is

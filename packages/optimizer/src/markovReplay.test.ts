@@ -106,6 +106,49 @@ describe('replayPolicy — the solved policy played on real items', () => {
     expect(plain.meanCost).toBe(none.meanCost);
   });
 
+  /**
+   * `fillOnFinish`: a finished item still has its empty slots filled, one Exalt each. On an item that
+   * already qualifies there is nothing else to do, so the cost is exactly that — worked by hand. On a
+   * real tablet the replay fills its own real items, so what filling adds has to match the solver's.
+   */
+  it('charges one Exalt per empty slot at finish, and the replay pays the same', () => {
+    const base = baseOf(['A'], ['B']);
+    const data = dataOf(base, [mod('A', 'prefix', [['a1', 1]]), mod('B', 'suffix', [['b1', 1]])]);
+    const prices: Prices = { currency: { exalt: 3, annul: 4, chaos: 5 }, omens: {} };
+    const held: ItemState = { base, level: 100, rarity: 'rare', prefixes: [{ modId: 'A', tierName: 'a1' }], suffixes: [] };
+    const spare = { prefixes: 2, suffixes: 3 };
+    // A Rare holding A, room for 3 + 3: five empty slots.
+    expect(markovFromItem(data, prices, held, [{ modId: 'A' }], { spare, fillOnFinish: true }).expectedCost).toBe(15);
+    expect(markovFromItem(data, prices, held, [{ modId: 'A' }], { spare }).expectedCost).toBe(0);
+
+    const real = loadPatch('data/patches/0.5.0');
+    const tablet = real.bases.get('Tablets_ritual')!;
+    const sheet = loadFrozenPrices();
+    const solve = (fillOnFinish: boolean) => markovFromItem(real, sheet, whiteItem(tablet, 100),
+      [{ modId: 'Tablets/MapDroppedGoldIncrease' }], {
+        restartCost: 1, spare: { prefixes: 1, suffixes: 2 }, ...(fillOnFinish ? { fillOnFinish } : {}),
+        replay: { runs: 5_000, seed: 7 },
+      });
+    const [bare, filled] = [solve(false), solve(true)];
+    const exalt = sheet.currency['exalt']!;
+    expect(filled.expectedCost).toBeGreaterThan(bare.expectedCost);
+    expect(filled.expectedCost).toBeLessThanOrEqual(bare.expectedCost + 3 * exalt);
+    // What the fill adds agrees between the two (1.06 against 1.08 Exalts, measured). The totals do not
+    // quite: free slots keep junk on the tablet, and the model does not take a junk family out of the
+    // next roll (TODO 23), so it OVERSTATES — by ~5% here, fill or no fill.
+    const [rb, rf] = [played(bare.replay), played(filled.replay)];
+    expect(Math.abs((rf.meanCost - rb.meanCost) - (filled.expectedCost - bare.expectedCost))).toBeLessThan(4 * Math.hypot(rf.stdErr, rb.stdErr));
+    expect(rf.meanCost).toBeLessThan(filled.expectedCost);
+    expect(rf.meanCost / filled.expectedCost).toBeGreaterThan(0.93);
+
+    // Policy iteration prices it by its own route — the closed form, where a goal ends the chain at
+    // its fill cost — and must land on the same number.
+    const pi = markovFromItem(real, sheet, whiteItem(tablet, 100), [{ modId: 'Tablets/MapDroppedGoldIncrease' }],
+      { restartCost: 1, spare: { prefixes: 1, suffixes: 2 }, fillOnFinish: true, solver: 'policy' });
+    expect(pi.bound).toBe('exact');
+    expect(pi.expectedCost).toBeCloseTo(filled.expectedCost, 2);
+  });
+
   it('declines a route that plays a move it does not model, rather than guessing', () => {
     // On the frozen 2026-08-22 sheet a bone is cheap enough that this craft's route desecrates.
     const real = loadPatch('data/patches/0.5.0');

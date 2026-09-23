@@ -511,7 +511,11 @@ tablet grey out with the reason; on a tablet that can cross sides, because "Map 
 Essence" (a prefix) and "increased chance to contain Essences" (a suffix) are one family.
 
 **Say what a plain tablet costs you** and the tab gives the true expected cost of crafting yours, with
-the same policy graph the other tabs use.
+the same policy graph the other tabs use. A tablet is always run with all four modifiers, so the cost is
+for a full one: whatever lands beside the modifiers you picked is fine and never annulled, and any slot
+still empty at the end is filled with an Exalt, which the cost includes — as it does the plain tablet you
+start from. (Two picked modifiers on a Ritual tablet: ~95 ex this way, against ~257 ex when the other
+two slots had to stay empty.) Nobody lists plain tablets on poe.ninja, so that price is yours to type.
 
 **Then the market half, which you drive.** No price feed lists tablets — poe.ninja doesn't carry them and
 the trade site can't be read from a web page — so every price on this tab is one you typed. Each row has
@@ -531,9 +535,8 @@ every value in a range as equally likely.
 Each row says how often it turns up on the way to your craft, worked out by playing the plan out
 thousands of times, and has its own search and price box — prices move, so the tier says how good a
 set is and today's price is yours to read. When one you priced beats
-your own craft, the tab says so: that's the tablet to stop on and sell. Expect the pairs to say 0% on a
-cheap plan — it bins a tablet at its first wrong modifier, so two unwanted ones rarely sit on it at once
-— while the singles are the ones to watch for before you bin.
+your own craft, the tab says so: that's the tablet to stop on and sell. Pairs turn up rarely — a cheap
+plan still bins plenty of tablets early — so the singles are the ones to watch for before you bin.
 
 A cost shown as a bound (**≤**) has no settled plan behind it, so there is nothing to play out and the
 rows say so. Asking for two of the rarest modifiers at once is what usually gets you there.

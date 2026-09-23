@@ -20,6 +20,8 @@ export interface SolvedTablet {
   /** The list the solver replayed — `markov.replay.seen[i]` is the odds of `watch[i]`. */
   readonly watch: readonly WatchEntry[];
   readonly markov: EngineMarkovResult;
+  /** The plain tablet the craft starts from. The model prices the restarts; this first one is added here. */
+  readonly plainCost: number;
 }
 
 const TIER_TITLE: Record<WatchTier, string> = {
@@ -38,12 +40,14 @@ export const TabletResult: React.FC<{
   solved: SolvedTablet;
   league: string | undefined;
   rates: Rates | undefined;
-}> = ({ solved: { tablet, chosen, watch, markov }, league, rates }) => {
+}> = ({ solved: { tablet, chosen, watch, markov, plainCost }, league, rates }) => {
   // Read once, at the first render: what the player typed before is part of the initial state, not
   // something that arrives a render later.
   const [prices, setPrices] = useState<Record<string, TypedPrice>>(readPrices);
   const unit = pickUnit(markov.expectedCost, rates);
-  const cost = markov.feasible ? markov.expectedCost : undefined;
+  // What the whole craft costs: the plain tablet you start from, then rolling it — restarts, and the
+  // Exalts that fill it to four modifiers, included.
+  const cost = markov.feasible ? plainCost + markov.expectedCost : undefined;
   const modOf = (id: string) => [...tablet.prefixes, ...tablet.suffixes].find((m) => m.id === id);
   const modText = (id: string): string => modOf(id)?.text ?? id;
   const asMods = (ids: readonly string[]): WatchMod[] => ids.map((id) => ({ id }));
@@ -106,7 +110,8 @@ export const TabletResult: React.FC<{
               <strong className="tabular-nums">
                 {markov.bound === 'lower' ? '≥ ' : markov.bound === 'upper' ? '≤ ' : ''}{formatIn(unit, cost)}
               </strong>{' '}
-              on average, following the plan below.
+              on average, following the plan below — the plain tablet you start from and the Exalts that
+              fill it to four modifiers included.
             </p>
             <div className="flex flex-wrap items-center gap-2 text-sm">
               <span className="text-muted-foreground">What it sells for:</span>

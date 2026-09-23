@@ -127,9 +127,13 @@ describe('the Tablets tab — what it costs and what it sells for', () => {
       from: { baseId: 'Tablets_ritual', level: 100 },
       targets: [{ modId: 'Tablets/MapDroppedGoldIncrease' }],
       baseCost: 1,
+      // Always run with four modifiers: the three slots not picked take anything, and are filled at the end.
+      spare: { prefixes: 1, suffixes: 2 },
+      fillOnFinish: true,
     });
-    // The number once, with its unit once — it once read "1,587 ex ex".
-    expect((await screen.findByText(/Crafting it costs/)).textContent).toMatch(/costs 1,587 ex on average/);
+    // The plain tablet you start from (1 ex) plus rolling it (1,587.3) — the number once, with its unit
+    // once (it once read "1,587 ex ex").
+    expect((await screen.findByText(/Crafting it costs/)).textContent).toMatch(/costs 1,588 ex on average/);
   });
 
   it('opens the trade site for the tablet it just costed, in the league the prices are from', async () => {
@@ -147,7 +151,7 @@ describe('the Tablets tab — what it costs and what it sells for', () => {
     const field = await screen.findByRole('textbox', { name: /Price of a Ritual Tablet/ });
     await user.type(field, '2000');
     await user.tab();
-    expect(await screen.findByText('crafting saves 413 ex')).toBeInTheDocument();
+    expect(await screen.findByText('crafting saves 412 ex')).toBeInTheDocument();
     expect(localStorage.getItem('poe2htc.tabletPrices')).toContain('2000');
   });
 
@@ -277,7 +281,7 @@ describe('the Tablets tab — what else you might roll', () => {
     await user.click(screen.getByRole('button', { name: /Add .*increased Gold found in Map/ }));
     await user.click(screen.getByRole('button', { name: /What does it cost/ }));
     expect(await screen.findByText(/no odds while the cost is only a bound/)).toBeInTheDocument();
-    expect(screen.getByText(/Crafting it costs/).textContent).toMatch(/costs ≤ 1,587 ex/);
+    expect(screen.getByText(/Crafting it costs/).textContent).toMatch(/costs ≤ 1,588 ex/);
   });
 
   it('credits the rolling data the odds come from', async () => {

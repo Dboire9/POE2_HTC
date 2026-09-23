@@ -21,6 +21,9 @@ export const ODDS_CREDIT = {
   rolls: Object.values(morce.tablets).reduce((n, t) => n + t.prefixesSeen + t.suffixesSeen, 0),
 } as const;
 
+/** Modifiers a tablet holds on each side — and a finished one always holds all of them. */
+export const PER_SIDE = 2;
+
 /** Under this many sightings, a modifier's weight is a rough estimate and the tab says so. */
 export const THIN_EVIDENCE = 100;
 

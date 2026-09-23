@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Badge } from '../../components/ui/badge';
 import { cn } from '../../lib/utils';
-import { THIN_EVIDENCE, type TabletBase, type TabletMod } from '../../lib/tablets';
+import { PER_SIDE, THIN_EVIDENCE, type TabletBase, type TabletMod } from '../../lib/tablets';
 
 /** "1 in 7" — the rolls it takes, on average, for one roll on that side to be this modifier. */
 export const oneIn = (share: number): string => `1 in ${share > 0 ? Math.round(1 / share).toLocaleString() : '—'}`;
@@ -10,7 +10,7 @@ export const oneIn = (share: number): string => `1 in ${share > 0 ? Math.round(1
 const inputCls =
   'h-9 w-full rounded-md border border-input bg-background px-2 text-sm ring-offset-background focus:outline-none focus:ring-2 focus:ring-ring';
 const FOCUS_RING = 'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring rounded-sm';
-const CAP = 2;
+const CAP = PER_SIDE;
 
 /** One side's list: search-filtered, each row with its odds and a "+" — or, greyed, the reason it can't. */
 const Column: React.FC<{

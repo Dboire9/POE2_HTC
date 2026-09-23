@@ -10,7 +10,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 - **Precursor Tablets have their own tab.** Pick a **Ritual**, **Overseer** or **Temple** tablet, add up
-  to four modifiers with the same search-and-add picker as gear, and the same solver that prices gear tells you what rolling it costs — with the odds
+  to four modifiers with the same search-and-add picker as gear, and the same solver that prices gear tells you what rolling it costs —
+  for a FULL tablet, since one is always run with all four: whatever lands beside your picks is kept, the
+  empty slots are filled with Exalts at the end, and the plain tablet you start from is counted — with the odds
   of each modifier beside it (*1 in 7 rolls on this side*), and the pairs that can never share a tablet
   greyed out with the reason. Nobody publishes tablet weights, so the odds rest on **Morce Faster's**
   rolling data: 19,147 modifiers counted across the three tablets, credited on the tab.

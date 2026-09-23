@@ -285,7 +285,10 @@ React web app: user inputs target item (base + mods + tiers), gets optimal craft
   entry naming the tablets it was priced for and, where the roll matters, the value (`min`/`max`, which
   the replay rolls uniformly — see `WatchMod`). Every id sits beside what it `reads`
   in game, because the internal ids mislead (`RitualMagicMonsters` reads "chance to be Rare").
-  `tablets.test.ts` holds each id to its text; match his lines by TEXT, never by id.
+  `tablets.test.ts` holds each id to its text; match his lines by TEXT, never by id. **A tablet is solved
+  FULL** (Dorian, 2026-09-23: always run with four modifiers): `spare` = every slot not picked, plus
+  `fillOnFinish`, which charges one Exalt per slot still empty as the cost of finishing (goal V = that,
+  in every solve path and the replay). The first plain tablet is added to the shown total once.
 - **A DIFFERENT MOD OF A TARGET'S FAMILY BLOCKS IT** (2026-09-21, `markovSiblings.ts`). A family can
   hold different mods — a Wand's five damage-type prefixes, its six "+level to … spell skills" suffixes,
   a tablet's "additional Essence" prefix and "chance to contain Essences" suffix — and rolling any of

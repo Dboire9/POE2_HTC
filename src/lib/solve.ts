@@ -89,6 +89,8 @@ export type SolveRequest =
        * two on top of the solve and only a from-white craft asks for it.
        */
       readonly watch?: readonly (readonly WatchMod[])[];
+      /** Fill the finished item's empty slots with Exalts, and charge for them — `MarkovOptions.fillOnFinish`. */
+      readonly fillOnFinish?: boolean;
     } & ExcludingRequest)
   | ({
       readonly kind: 'item';
@@ -387,6 +389,7 @@ export function runSolve(eng: Engine, req: SolveRequest, onProgress?: (p: SolveP
     // instead of a white base without solving again. From white only: a held or carved item has no
     // restart, so there is no "instead" to price, and the other solves stay the size they were.
     ...(fromWhite ? { restartCost: req.baseCost ?? WHITE_BASE_COST, keepRoutes: true } : {}),
+    ...(req.fillOnFinish ? { fillOnFinish: true } : {}),
     ...(mdpClock === undefined ? {} : { maxMillis: mdpClock }),
     ...(onProgress
       ? { onProgress: (pr: MarkovProgress): void => onProgress({ phase: pr.phase, fraction: within(mdpSpan, toFraction(pr) * 1000, 1000) }) }

@@ -7,7 +7,7 @@ import { loadEngine, priceBasis, type Engine } from '../../lib/engine';
 import { isAppUpdated, isCancelled, prewarm, solve } from '../../lib/engineClient';
 import type { SolveProgress } from '../../lib/solve';
 import { parsePrice } from '../../lib/startingItem';
-import { ODDS_CREDIT, listTablets, ruledOutBy, watchList } from '../../lib/tablets';
+import { ODDS_CREDIT, PER_SIDE, listTablets, ruledOutBy, watchList } from '../../lib/tablets';
 import { toExcludedKeys, useExclusions } from '../../lib/currencyPrefs';
 import SolveProgressBar from '../engine/SolveProgress';
 import { TabletModPicker } from './TabletModPicker';
@@ -64,11 +64,16 @@ const TabletsTab: React.FC = () => {
     setRunErr(null);
     setProgress(null);
     const cost = parsePrice(baseCost);
+    const picked = (side: readonly { id: string }[]): number => chosen.filter((id) => side.some((m) => m.id === id)).length;
     const handle = solve({
       kind: 'lab',
       from: { baseId: tablet.id, level: 100 },
       targets: chosen.map((modId) => ({ modId, tierDisplay: 1 })),
       ...(cost === undefined ? {} : { baseCost: cost }),
+      // A tablet is always run with all four modifiers: whatever lands beside the ones picked is fine,
+      // and any slot still empty at the end is filled with an Exalt, which the cost includes.
+      spare: { prefixes: PER_SIDE - picked(tablet.prefixes), suffixes: PER_SIDE - picked(tablet.suffixes) },
+      fillOnFinish: true,
       ...(watch.length > 0 ? { watch: watch.map((e) => e.mods) } : {}),
       ...(excludedKeys.length > 0 ? { excluded: excludedKeys } : {}),
     }, (p) => { if (current()) setProgress(p); });
@@ -76,7 +81,7 @@ const TabletsTab: React.FC = () => {
     handle.promise
       .then((res) => {
         if (!current() || res.kind !== 'lab') return;
-        setSolved({ tablet, chosen, watch, markov: res.markov });
+        setSolved({ tablet, chosen, watch, markov: res.markov, plainCost: cost ?? 0 });
       })
       .catch((e: unknown) => {
         if (!current() || isCancelled(e)) return;

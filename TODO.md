@@ -1433,8 +1433,8 @@ Left, roughly in the order a player would miss them:
 - **A roll's VALUE is ignored.** "Map has (1-2) additional random Modifiers" is worth far more at 2 than
   at 1, and neither the craft nor the search says so — no Divine Orb in the model (TODO 2), and no
   minimum on the search.
-- **Magic tablets.** A 1+1 tablet sells, and the model finishes every craft Rare, so a two-modifier
-  target is quoted with a Regal it may not need.
+- **Magic tablets — decided against (2026-09-23).** A tablet is always run with all four modifiers,
+  so every craft is solved for a full Rare (`fillOnFinish`); a 1+1 finish is not a goal.
 - **The other five tablets** (Breach, Expedition, Delirium, Abyss, Irradiated) have no rolling data
   behind them, which is the only reason they are absent.
 - **Alchemy, Erasure omens, Greater Exaltation** are not in the model (TODO 5d, 12b/12c). All three

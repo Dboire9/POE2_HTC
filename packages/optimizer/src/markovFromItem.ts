@@ -43,9 +43,9 @@ import {
 } from './markovSymmetry.ts';
 import type { ActionDef, McAction } from './markovActions.ts';
 import { actionCostOf, createActionSpace } from './markovActions.ts';
-import type { McTarget, StateKey, McRarity } from './markovState.ts';
+import type { McState, McTarget, StateKey, McRarity } from './markovState.ts';
 import {
-  FLAG_NONE, bit, classifyStart, decodeState,
+  FLAG_NONE, bit, classifyStart, decodeState, prefUsed, sufUsed,
   enumerateStates, has, isAccepting, popcount, representative, sideIndexOf,
 } from './markovState.ts';
 import type { PolicyEdge, PolicyNode, RouteTable } from './markovRoute.ts';
@@ -256,6 +256,15 @@ export interface MarkovOptions {
    * what an action can do. Absent ⇒ `NO_SPARE`, which is the goal set this solver has always had.
    */
   readonly spare?: Spare;
+  /**
+   * A finished item still has its empty slots filled, one Exalted Orb each. A Precursor Tablet is
+   * always run with all four modifiers, so a craft that stops at two still has two Exalts to pay —
+   * and an Exalt on a Rare with room always lands something, so that is exactly what filling costs.
+   * Charged as the cost of FINISHING in that state, so the policy weighs it like any other cost and
+   * may prefer to finish fuller; the replay pays it too. Absent ⇒ finishing is free, as it always was.
+   * It only has room to act where `spare` leaves slots open: a strict target finishes full or not at all.
+   */
+  readonly fillOnFinish?: boolean;
   /**
    * Carry the solved policy (`MarkovResult.routes`) on an exact result.
    *
@@ -573,6 +582,14 @@ export function markovFromItem(
   if (ungettable) return fail(`${ungettable.mod.id} can't roll at item level ${level}`);
 
   const side = sideIndexOf(list);
+  /** What finishing in `s` still costs: nothing, or with `fillOnFinish` one Exalt per empty slot. */
+  const exaltPrice = prices.currency['exalt'];
+  if (opts.fillOnFinish && !(exaltPrice !== undefined && Number.isFinite(exaltPrice) && exaltPrice >= 0)) {
+    return fail('filling the finished item needs an Exalted Orb price, and the sheet has none');
+  }
+  const fillCostOf = (s: McState): number => (opts.fillOnFinish
+    ? ((limits.prefixes - prefUsed(s, side)) + (limits.suffixes - sufUsed(s, side))) * exaltPrice!
+    : 0);
 
   /*
    * …and the OTHER half of the same idea: positions that cannot merge, because their families differ,
@@ -643,7 +660,7 @@ export function markovFromItem(
    */
   if (isAccepting(s0, slotMasks, spare, siblings.obstacles)) {
     return {
-      expectedCost: 0,
+      expectedCost: fillCostOf(s0),
       feasible: true,
       converged: true,
       bound: 'exact',
@@ -660,7 +677,7 @@ export function markovFromItem(
         isStart: true,
         isGoal: true,
         depth: 0,
-        expectedCost: 0,
+        expectedCost: fillCostOf(s0),
         visitRate: 1,
       }],
       edges: [],
@@ -831,9 +848,11 @@ export function markovFromItem(
   // ends. Phase A runs push-forward only; a state only a restart can rescue is Infinity to phase A,
   // and it must know that or it grinds its budget converging on a value with no finite limit.
   const isGoalIdx = new Uint8Array(N); // a flag rather than a Set: this is read in the innermost loop
+  /** A goal's value is what finishing there costs — 0 unless `fillOnFinish`. Every solve below seeds it. */
+  const finishCost = new Float64Array(N);
   for (const k of goalKeys) {
     const gi = idxOfState.get(k);
-    if (gi !== undefined) isGoalIdx[gi] = 1;
+    if (gi !== undefined) { isGoalIdx[gi] = 1; finishCost[gi] = fillCostOf(decodeState(k)); }
   }
   const prob1 = (withRestart: boolean): Uint8Array => {
     const inS = new Uint8Array(N).fill(1);
@@ -922,6 +941,10 @@ export function markovFromItem(
   /** Policy-improvement rounds. PI converges in a handful; this is a runaway guard, not a budget. */
   const maxRounds = opts.maxRounds ?? 200;
   const V = new Float64Array(N); // 0-initialised, as above
+  // …except a goal, which is worth what finishing there costs. The sweeps never write a goal, so this
+  // is where its value comes from, here and after every reset below.
+  const seedGoals = (): void => { for (let i = 0; i < N; i++) if (isGoalIdx[i] === 1) V[i] = finishCost[i]!; };
+  seedGoals();
   // Phase A's dead ends, a superset of phase B's. A state only a restart can rescue starts at Infinity,
   // which is still a valid seed for phase B — the seed only has to be an UPPER bound.
   for (let i = 0; i < N; i++) if (canReachPushForward[i] !== 1) V[i] = Infinity;
@@ -1137,7 +1160,9 @@ export function markovFromItem(
     const qOf = new Float64Array(N);
 
     for (let i = 0; i < N; i++) {
-      if (isGoalIdx[i] === 1 || canReach[i] !== 1) { isTerm[i] = 1; continue; }
+      // A goal ends the chain having cost what finishing there costs; a dead end ends it at nothing.
+      if (isGoalIdx[i] === 1) { isTerm[i] = 1; cOf[i] = finishCost[i]!; continue; }
+      if (canReach[i] !== 1) { isTerm[i] = 1; continue; }
       const k = pol[i]!;
       if (k < 0) { isTerm[i] = 1; continue; }
       const a = compiled[i]![k]!;
@@ -1203,7 +1228,7 @@ export function markovFromItem(
     const lambda = cOf[si]! / (1 - qs);
     if (!Number.isFinite(lambda)) return false;
     for (let i = 0; i < N; i++) {
-      if (isGoalIdx[i] === 1) { V[i] = 0; continue; }
+      if (isGoalIdx[i] === 1) { V[i] = finishCost[i]!; continue; }
       if (canReach[i] !== 1) continue;       // stays pinned at Infinity
       V[i] = cOf[i]! + qOf[i]! * lambda;
     }
@@ -1406,6 +1431,7 @@ export function markovFromItem(
   // falling back — otherwise phase A starts from an upper bound, climbs past it, and the phase-B
   // descent it is supposed to enable begins from the wrong side.
   V.fill(0);
+  seedGoals();
   for (let i = 0; i < N; i++) if (canReachPushForward[i] !== 1) V[i] = Infinity;
 
   const seedConverged = iterate(false, 0, canRestart ? 500 : 1000);
@@ -1562,6 +1588,8 @@ export function markovFromItem(
     ? replayPolicy({
       data, start, list, idxOf, encode, policy, blocks: siblings.blocks,
       isGoal: (s) => isAccepting(s, slotMasks, spare, siblings.obstacles),
+      ...(opts.fillOnFinish ? { finishCost: (item: ItemState) =>
+        ((limits.prefixes - item.prefixes.length) + (limits.suffixes - item.suffixes.length)) * exaltPrice! } : {}),
       costOf: (a) => actionCostOf(prices, a),
     }, opts.replay)
     : undefined;

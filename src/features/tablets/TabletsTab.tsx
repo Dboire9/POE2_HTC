@@ -9,6 +9,7 @@ import type { SolveProgress } from '../../lib/solve';
 import { parsePrice } from '../../lib/startingItem';
 import { ODDS_CREDIT, PER_SIDE, listTablets, ruledOutBy, watchList } from '../../lib/tablets';
 import { toExcludedKeys, useExclusions } from '../../lib/currencyPrefs';
+import { limitsFor, useEffort } from '../../lib/searchEffort';
 import SolveProgressBar from '../engine/SolveProgress';
 import { TabletModPicker } from './TabletModPicker';
 import { TabletResult, type SolvedTablet } from './TabletResult';
@@ -40,6 +41,9 @@ const TabletsTab: React.FC = () => {
   const cancelRef = React.useRef<(() => void) | null>(null);
   const runIdRef = React.useRef(0);
   const excludedKeys = toExcludedKeys(useExclusions());
+  // The Search effort the rest of the app uses. At the default a tablet's rarest pairs solve exactly in
+  // a fraction of a second; without it they stopped at a bound.
+  const effort = useEffort();
 
   useEffect(() => {
     prewarm();
@@ -74,7 +78,9 @@ const TabletsTab: React.FC = () => {
       // and any slot still empty at the end is filled with an Exalt, which the cost includes.
       spare: { prefixes: PER_SIDE - picked(tablet.prefixes), suffixes: PER_SIDE - picked(tablet.suffixes) },
       fillOnFinish: true,
-      ...(watch.length > 0 ? { watch: watch.map((e) => e.mods) } : {}),
+      // Always, even empty: the replay behind it also gives the spread of what a craft costs.
+      watch: watch.map((e) => e.mods),
+      effort: limitsFor(effort),
       ...(excludedKeys.length > 0 ? { excluded: excludedKeys } : {}),
     }, (p) => { if (current()) setProgress(p); });
     cancelRef.current = handle.cancel;

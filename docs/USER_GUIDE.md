@@ -521,8 +521,22 @@ two slots had to stay empty.) Nobody lists plain tablets on poe.ninja, so that p
 the trade site can't be read from a web page — so every price on this tab is one you typed. Each row has
 a **Search on trade** button that opens the official site with the search already filled in — instant
 buyout listings of unused tablets (all 10 uses left), cheapest first, so the price you see is one you can actually buy at; you read the
-listings and type the price back in. It's kept in your browser, with the day you typed it, and compared
-against what crafting costs.
+listings and type the price back in. It's kept in your browser, with the day you typed it.
+
+**Is it worth crafting?** Type what the tablet sells for and the tab answers as an investment:
+
+- **Profit (or loss) per tablet, on average** — the sale price, minus what crafting costs, plus what
+  you'd get for the good tablets the plan would otherwise throw away (priced at what you typed in the
+  watch list below; a row you haven't priced counts as nothing).
+- **How risky it is** — the average hides a wide spread, so the tab also says what half the crafts cost
+  less than, what 1 craft in 10 costs more than, and how often you finish if you spend no more than the
+  tablet sells for. These come from playing the plan out thousands of times; a very long craft fits fewer
+  in, and the tab says so.
+
+Worked through on Ritual tablets with a plain one at 100 ex: fishing for an extra Favour reroll costs ~16
+div on average for a tablet that sells for ~20, and finishes within 20 div about 3 times in 4; asking for
+the reroll *and* an extra Rare modifier on Unique monsters costs ~825 div for a ~22 div tablet. The price
+of a plain tablet moves every one of these numbers the most — check it before you start.
 
 **While you roll for what you asked for, other things land.** Some are worth more than the tablet you
 were aiming at. The watch list shows those in four tiers — **super jackpot**, **jackpot**, **very good**
@@ -539,7 +553,8 @@ your own craft, the tab says so: that's the tablet to stop on and sell. Pairs tu
 plan still bins plenty of tablets early — so the singles are the ones to watch for before you bin.
 
 A cost shown as a bound (**≤**) has no settled plan behind it, so there is nothing to play out and the
-rows say so. Asking for two of the rarest modifiers at once is what usually gets you there.
+rows say so. The tab uses the same **Search effort** as the rest of the app; at the default, even two of
+the rarest modifiers at once solve exactly.
 
 **Where the odds come from.** Nobody publishes tablet weights — the game files and poe2db both say 1 for
 every modifier. **Morce Faster** rolled three tablets and counted 19,147 modifiers, and that data is what

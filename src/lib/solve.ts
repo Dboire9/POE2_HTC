@@ -375,7 +375,9 @@ export function runSolve(eng: Engine, req: SolveRequest, onProgress?: (p: SolveP
     : { baseId: from.baseId, level: from.level, rarity: 'normal', prefixes: [], suffixes: [] });
   // Reported, not silent: this can run for seconds, and a bar that stops moving through a phase is the
   // thing that made a 24-second solve feel like ten minutes in the first place.
-  const watch = req.watch?.length ? req.watch : undefined;
+  // A watch list asks for the replay — an EMPTY one too: the spread of what a craft costs comes from
+  // the same walk, and the Tablets tab wants it whether or not anything is watched.
+  const watch = req.watch;
   const [modelFrom, modelTo] = hasBudget ? LAB_MDP_THEN_SEARCH : LAB_MDP_ALONE;
   const mdpSpan: Span = watch ? [modelFrom, modelFrom + (modelTo - modelFrom) * MODEL_BEFORE_REPLAY] : [modelFrom, modelTo];
   const replayProgress = emit('replay', [mdpSpan[1], modelTo]);

@@ -533,7 +533,10 @@ export function mapMarkov(
     // The replay, as plain numbers: the watch shares a caller asked for, and what the policy really
     // costs. A declined replay carries its reason instead, so a panel can say why a column is empty.
     ...(res.replay?.ok
-      ? { replay: { runs: res.replay.runs, seen: res.replay.seen, meanCost: res.replay.meanCost, stdErr: res.replay.stdErr } }
+      ? { replay: {
+        runs: res.replay.runs, seen: res.replay.seen, meanCost: res.replay.meanCost, stdErr: res.replay.stdErr,
+        costPercentiles: res.replay.costPercentiles, binned: res.replay.binned,
+      } }
       : {}),
     ...(res.replay && !res.replay.ok ? { replayReason: res.replay.reason } : {}),
     ...(res.reason ? { reason: res.reason } : {}),

@@ -1418,11 +1418,13 @@ Shipped: the three tablets, their odds from Morce Faster's counts, the craft's t
 and typed prices, and the watch list with Dorian's valuable list (17 modifiers in two tiers, 2026-09-22).
 Left, roughly in the order a player would miss them:
 
-- **Hunting a jackpot stops at a bound.** Asking for two of the rarest suffixes together — of Undertaking
-  and an extra Ritual reroll — ends at `bound: 'upper'` (≤ 49,282 ex, in 0.4 s) at the effort the tab
-  runs, so there is no settled plan to replay and the watch list shows no odds (it says why). The tab
-  passes no search effort; validation.md solved a craft of that size exactly, so a larger sweep budget
-  for tablets is the first thing to try.
+- **Selling mid-craft.** The profit counts good tablets the plan BINS (a lower bound: the plan is
+  unchanged). Stopping to sell a good tablet you are still working on — every single reroll you hit
+  while hunting a pair — is not counted: it needs a "sell when it's worth more than going on" rule in
+  the replay (V of the state vs the typed price). Measured 2026-09-23: binned credit alone is +1.6 div a
+  craft on Ritual reroll fishing at 100 ex a tablet, +55 div on the Unique + reroll pair (still −770).
+- *(Fixed 2026-09-23: the rarest pairs stopped at a bound because the tab passed no Search effort; it
+  passes the app's, and at Standard they solve exactly in ~0.1 s.)*
 - **Values are assumed uniform.** A priced roll ("rerolling Favours 3 times") is counted as one value
   of its range, each equally likely. Morce Faster's sheets counted modifiers, not values, so nothing
   checks that yet — a sheet of values would.

@@ -168,3 +168,25 @@ export function tradeStatsFor(mods: readonly (string | WatchMod)[]): TradeStat[]
 /** True when a search for these modifiers can also list a near-identical one (see `trade-stats.json`). */
 export const searchIsLoose = (mods: readonly (string | WatchMod)[]): boolean =>
   tradeStatsFor(mods).some((s) => s.ambiguous === true);
+
+/**
+ * The share of crafts that came in at or under `budget`, read off the replay's 0th–100th percentiles —
+ * "put this much in, and how often do you finish?". Nearest-rank, so it moves in whole percents.
+ */
+export function shareWithin(percentiles: readonly number[], budget: number): number {
+  let within = -1;
+  for (let p = 0; p < percentiles.length; p++) if (percentiles[p]! <= budget) within = p;
+  return within < 0 ? 0 : within / (percentiles.length - 1);
+}
+
+/**
+ * What selling the good tablets a craft would otherwise bin brings back, per craft: each binned set
+ * sells once, at the best price typed among the entries it held. An entry with no price counts as
+ * nothing — the tab never guesses a price.
+ */
+export function binnedCredit(
+  binned: readonly { readonly entries: readonly number[]; readonly perCraft: number }[],
+  priceOf: (entry: number) => number | undefined,
+): number {
+  return binned.reduce((sum, b) => sum + b.perCraft * Math.max(0, ...b.entries.map((k) => priceOf(k) ?? 0)), 0);
+}

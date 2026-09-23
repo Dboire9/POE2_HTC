@@ -6,6 +6,7 @@ import type { ReplayReport, ReplayResult } from './markovFromItem.ts';
 import type { Prices } from './cost.ts';
 import { loadFrozenPrices } from './frozenPrices.ts';
 import { encodeState } from './markovState.ts';
+import { percentiles } from './markovReplay.ts';
 
 const mod = (id: string, type: 'prefix' | 'suffix', tiers: [string, number][]): Mod => ({
   id, source: 'normal', type, family: id, tags: [], text: id,
@@ -147,6 +148,41 @@ describe('replayPolicy — the solved policy played on real items', () => {
       { restartCost: 1, spare: { prefixes: 1, suffixes: 2 }, fillOnFinish: true, solver: 'policy' });
     expect(pi.bound).toBe('exact');
     expect(pi.expectedCost).toBeCloseTo(filled.expectedCost, 2);
+  });
+
+  it('reads percentiles by nearest rank, 0th to 100th', () => {
+    const xs = Array.from({ length: 200 }, (_, i) => 200 - i); // 1..200, shuffled order
+    const p = percentiles(xs);
+    expect(p).toHaveLength(101);
+    expect([p[0], p[50], p[90], p[100]]).toEqual([1, 100, 180, 200]);
+    expect(percentiles([])).toEqual([]);
+  });
+
+  /**
+   * Fishing a Ritual tablet for the reroll with plain tablets at 100 ex: the plan bins ~71 tablets a
+   * craft, and some hold a set worth selling. The replay reports the spread of what a craft costs and
+   * how many of each such set it bins — the caller prices them.
+   */
+  it('reports what a craft costs as a spread, and the watched sets it throws away', () => {
+    const real = loadPatch('data/patches/0.5.0');
+    const tablet = real.bases.get('Tablets_ritual')!;
+    const two = { id: 'Tablets/MapAdditionalModifier', min: 2, max: 2 };
+    const r = markovFromItem(real, loadFrozenPrices(), whiteItem(tablet, 100), [{ modId: 'Tablets/RitualAdditionalReroll' }], {
+      restartCost: 100, spare: { prefixes: 2, suffixes: 1 }, fillOnFinish: true,
+      replay: { runs: 3_000, seed: 2, watch: [[two], ['Tablets/MapAdditionalUniqueMonsterModifier']] },
+    });
+    const rp = played(r.replay);
+    const p = rp.costPercentiles;
+    expect(p).toHaveLength(101);
+    for (let i = 1; i < p.length; i++) expect(p[i]!).toBeGreaterThanOrEqual(p[i - 1]!);
+    // A craft of many restarts: skewed, so half cost less than the mean and the worst tenth far more.
+    expect(p[50]!).toBeLessThan(rp.meanCost);
+    expect(p[90]!).toBeGreaterThan(1.5 * rp.meanCost);
+    // Each binned set names real entries, and something worth selling is binned most crafts.
+    for (const b of rp.binned) for (const k of b.entries) expect([0, 1]).toContain(k);
+    const perCraft = rp.binned.reduce((n, b) => n + b.perCraft, 0);
+    expect(perCraft).toBeGreaterThan(0.3);
+    expect(perCraft).toBeLessThan(3);
   });
 
   it('declines a route that plays a move it does not model, rather than guessing', () => {

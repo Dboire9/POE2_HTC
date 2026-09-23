@@ -4,7 +4,7 @@ import { cn } from '../../lib/utils';
 import type { EngineMarkovResult } from '../../lib/engineTypes';
 import { formatIn, pickUnit, type Rates } from '../../lib/currency';
 import {
-  WATCH_TIERS, searchIsLoose, tradeStatsFor, watchKey, watchText,
+  WATCH_TIERS, binnedCredit, searchIsLoose, shareWithin, tradeStatsFor, watchKey, watchText,
   type TabletBase, type WatchEntry, type WatchMod, type WatchTier,
 } from '../../lib/tablets';
 import { priceKey, readPrices, writePrice, type TypedPrice } from '../../lib/tabletPrices';
@@ -97,6 +97,14 @@ export const TabletResult: React.FC<{
   };
 
   const targetPrice = prices[keyOf(asMods(chosen))];
+  // The replay's spread is for rolling alone; the first plain tablet is added to every craft of it.
+  const spread = markov.replay?.costPercentiles.length ? markov.replay.costPercentiles.map((c) => c + plainCost) : undefined;
+  // What the good tablets the plan would bin bring back, at the prices typed in the watch list below.
+  const credit = markov.replay ? binnedCredit(markov.replay.binned, (k) => {
+    const entry = watch[k];
+    return entry ? prices[keyOf(entry.mods)]?.ex : undefined;
+  }) : 0;
+  const profit = targetPrice && cost !== undefined ? targetPrice.ex - cost + credit : undefined;
   return (
     <>
       <Card className="space-y-3 p-4">
@@ -113,17 +121,39 @@ export const TabletResult: React.FC<{
               on average, following the plan below — the plain tablet you start from and the Exalts that
               fill it to four modifiers included.
             </p>
+            {spread && (
+              <p className="text-sm text-muted-foreground">
+                Half the crafts cost less than <span className="tabular-nums text-foreground">{formatIn(unit, spread[50]!)}</span>;
+                {' '}1 in 10 costs more than <span className="tabular-nums text-foreground">{formatIn(unit, spread[90]!)}</span>
+                {' '}({markov.replay!.runs.toLocaleString()} crafts played out{markov.replay!.runs < 500 ? ' — a long craft, so a rough read' : ''}).
+              </p>
+            )}
             <div className="flex flex-wrap items-center gap-2 text-sm">
               <span className="text-muted-foreground">What it sells for:</span>
               {tradePrice(asMods(chosen))}
-              {targetPrice && (
-                <span className={cn('tabular-nums', targetPrice.ex >= cost ? 'text-emerald-400' : 'text-amber-400')}>
-                  {targetPrice.ex >= cost
-                    ? `crafting saves ${formatIn(unit, targetPrice.ex - cost)}`
-                    : `buying saves ${formatIn(unit, cost - targetPrice.ex)}`}
-                </span>
-              )}
             </div>
+            {targetPrice && profit !== undefined && (
+              <div className="space-y-1 text-sm">
+                <p className={cn('tabular-nums', profit >= 0 ? 'text-emerald-400' : 'text-amber-400')}>
+                  {profit >= 0
+                    ? `Profit per tablet: about ${formatIn(unit, profit)} on average`
+                    : `Loss per tablet: about ${formatIn(unit, -profit)} on average — buying one is cheaper`}
+                  {credit > 0 && (
+                    <span className="text-muted-foreground">
+                      {' '}— counting {formatIn(unit, credit)} from good tablets you’d sell instead of binning, at the
+                      prices you typed below
+                    </span>
+                  )}
+                </p>
+                {spread && (
+                  <p className="text-muted-foreground">
+                    Spend up to what it sells for, and you finish{' '}
+                    <span className="tabular-nums text-foreground">{Math.round(shareWithin(spread, targetPrice.ex) * 100)}%</span>
+                    {' '}of the time.
+                  </p>
+                )}
+              </div>
+            )}
           </>
         )}
 

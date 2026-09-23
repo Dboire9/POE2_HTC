@@ -483,6 +483,10 @@ export interface EngineMarkovResult {
     readonly seen: readonly number[];
     readonly meanCost: number;
     readonly stdErr: number;
+    /** What one craft cost, 0th–100th percentile (101 values) — see `ReplayResult.costPercentiles`. */
+    readonly costPercentiles: readonly number[];
+    /** Binned items that held watched sets, per craft, by the set of entries held — see `ReplayResult.binned`. */
+    readonly binned: readonly { readonly entries: readonly number[]; readonly perCraft: number }[];
   };
   readonly replayReason?: string;
   readonly nodes: readonly EnginePolicyNode[];

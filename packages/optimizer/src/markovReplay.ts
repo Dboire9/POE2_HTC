@@ -69,6 +69,20 @@ export interface ReplayResult {
   readonly meanActions: number;
   /** Per watch entry, in the order given: the share of crafts in which it was seen. */
   readonly seen: readonly number[];
+  /**
+   * What one craft costs, as its percentiles: `costPercentiles[p]` is the cost p% of the crafts played
+   * came in under (0–100, 101 values). The mean alone hides the question a player asks before starting —
+   * "if I put this much in, how likely am I to finish?" — and the spread is wide: on a rare target half
+   * the crafts cost well under the mean and one in ten several times it.
+   */
+  readonly costPercentiles: readonly number[];
+  /**
+   * The tablets — items — the policy THREW AWAY (a restart) while holding a watched set: per set of
+   * watch entries the binned item held at once, how many a craft bins on average. A player sells those
+   * instead of binning them, and what that brings back needs prices the replay does not have, so it
+   * reports the counts and the caller prices them — the best entry of each set, since an item sells once.
+   */
+  readonly binned: readonly { readonly entries: readonly number[]; readonly perCraft: number }[];
 }
 
 /** A replay, or why there is none. It declines rather than guesses: see `play`. */
@@ -270,6 +284,14 @@ export function replayPolicy(ctx: ReplayContext, opts: ReplayOptions): ReplayRep
   const deadline = opts.maxMillis === undefined ? Infinity : begun + opts.maxMillis;
   let shown = 0;
   let played = 0;
+  const costs: number[] = [];
+  const binnedBy = new Map<string, number>();
+  /** Which watch entries a binned item holds, recorded once per bin. */
+  const recordBin = (item: ItemState): void => {
+    const held: number[] = [];
+    for (let k = 0; k < watch.length; k++) if (watch[k]!.every((w) => holds(item, w))) held.push(k);
+    if (held.length > 0) { const key = held.join(','); binnedBy.set(key, (binnedBy.get(key) ?? 0) + 1); }
+  };
   for (let run = 0; run < runs; run++) {
     // Read every craft: one long craft takes tens of milliseconds, so reading it every 64 overshot a
     // 2-second clock by seconds and left a progress bar still for as long.
@@ -297,6 +319,7 @@ export function replayPolicy(ctx: ReplayContext, opts: ReplayOptions): ReplayRep
       const action = policy.get(key);
       if (!action) return { ok: false, reason: `the policy has no move for state ${key}` };
       if (++moves > maxActions) return { ok: false, reason: `a craft ran past ${maxActions} moves` };
+      if (action.currency === 'restart' && watch.length > 0) recordBin(item);
       const next = play(action, item);
       if (next === undefined) return { ok: false, reason: `the route plays a ${action.currency} move the replay does not model` };
       if (next === 'nothing-rolls') {
@@ -307,6 +330,7 @@ export function replayPolicy(ctx: ReplayContext, opts: ReplayOptions): ReplayRep
       look();
     }
     played++;
+    costs.push(cost);
     sum += cost;
     sumSq += cost * cost;
     movesTotal += moves;
@@ -321,5 +345,14 @@ export function replayPolicy(ctx: ReplayContext, opts: ReplayOptions): ReplayRep
     stdErr: Math.sqrt(variance / played),
     meanActions: movesTotal / played,
     seen: seenCount.map((c) => c / played),
+    costPercentiles: percentiles(costs),
+    binned: [...binnedBy].map(([key, n]) => ({ entries: key.split(',').map(Number), perCraft: n / played })),
   };
+}
+
+/** The 0th to 100th percentile of `xs`, nearest-rank — 101 values, however many crafts were played. */
+export function percentiles(xs: readonly number[]): number[] {
+  const sorted = [...xs].sort((a, b) => a - b);
+  if (sorted.length === 0) return [];
+  return Array.from({ length: 101 }, (_, p) => sorted[Math.min(sorted.length - 1, Math.max(0, Math.ceil((p / 100) * sorted.length) - 1))]!);
 }

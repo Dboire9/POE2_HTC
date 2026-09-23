@@ -26,6 +26,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   way (measured by playing your plan out thousands of times, with the progress bar following along), with
   its own search and price box; price one above your own craft and
   the tab says so: that is the tablet to stop on.
+  Type what your tablet sells for and the tab answers **is it worth crafting**: the profit or loss per
+  tablet on average — counting the good tablets you'd sell instead of binning, at the prices you typed —
+  what half the crafts cost less than, what 1 in 10 costs more than, and how often you finish within the
+  sale price. The rarest pairs solve exactly now (the tab uses the app's Search effort).
 - **"Any prefix / any suffix" — a slot you don't care about.** A target list has always meant *these
   modifiers and nothing else*, so anything you had not named had to come off before the app called the
   item finished. The only way to say "three prefixes I want, and whatever lands in the last suffix is

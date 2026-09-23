@@ -55,7 +55,10 @@ function lines(trade: GearTrade, data: PatchData, want: WantedMod): { ids: reado
     const lows = tier ? tier.ranges.slice(first, first + ranges).map((r) => r[0]!) : [];
     // "At least this tier's lowest roll" — the average of the two for an "Adds # to #" line, as the
     // trade site filters those. Never below zero: a minimum cannot say "at most this much reduced".
-    const min = lows.length > 0 && lows.every((x) => x >= 0) ? Math.floor(lows.reduce((a, b) => a + b, 0) / lows.length) : undefined;
+    // A single roll is kept exact — Life Regeneration's lowest T1 roll is 33.1, and rounding it down would
+    // let a 33.0 through; an "Adds # to #" average rounds down, since the site compares it to a half.
+    const min = lows.length === 0 || lows.some((x) => x < 0) ? undefined
+      : lows.length === 1 ? lows[0] : Math.floor(lows.reduce((a, b) => a + b, 0) / lows.length);
     const r = trade.rows[row]!;
     return { ids: r.ids, ambiguous: r.ambiguous === true, value: min === undefined ? undefined : { min } };
   });

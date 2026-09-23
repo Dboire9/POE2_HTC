@@ -32,6 +32,7 @@
 // Reads:  data/patches/0.5.0/{mods,base_items}.json + tools/refresh/cache/repoe_{mods,mods_by_base}.json
 // Writes: data/patches/0.5.0/{mods,base_items}.json ; prints a coverage summary.
 
+import { shownRange } from './displayUnits.mjs';
 import { readFileSync, writeFileSync } from 'node:fs';
 import { join, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -122,7 +123,7 @@ for (const rune of POOL_RUNES) {
         name: rm.name || gameId,
         ilvl: rm.required_level ?? 0,
         weight: RUNE_POOL_ASSUMED_WEIGHT,
-        ranges: (rm.stats || []).map((s) => [s.min, s.max]),
+        ranges: (rm.stats || []).map((s) => shownRange(s.id, [s.min, s.max])),
         stats: (rm.stats || []).map((s) => s.id),
       }));
       const rep = g.rows[0][1];

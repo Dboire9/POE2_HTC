@@ -78,6 +78,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- **Life Regeneration and Leech read in the game's own units.** The game stores a few stats finer than
+  it prints — Life Regeneration per MINUTE, Leech in hundredths of a percent — and the data kept the
+  stored numbers, so a Body Armour's best Life Regeneration tier read "1986–2160 Life Regeneration per
+  second" where the game says 33.1–36, Leech read 600–690% for 6–6.9%, and a Ritual tablet's free-reroll
+  chance 300–600% for 3–6%. 311 ranges over seven stats now ship as printed, the refresh converts them
+  on every rebuild (tools/refresh/displayUnits.mjs), and the trade searches ask for the printed numbers.
+
 - **The route shows the way crafts that finish actually go.** It followed only rolls that moved strictly
   closer, and on a craft that starts over the one such roll from the start is the lucky one: a Ritual
   reroll read "Transmute (0.3%) → Regal → ✓" beside a plan that plays Chaos 28 times a craft. It now

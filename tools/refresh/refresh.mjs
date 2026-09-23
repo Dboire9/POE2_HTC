@@ -13,6 +13,7 @@
 //
 // Usage: node tools/refresh/refresh.mjs [repoeDir=tools/refresh/cache] [outDir=data/patches/0.5.0] [baselineDir=data/patches/0.5]
 
+import { shownRange } from './displayUnits.mjs';
 import { templateFixedRoll } from './modText.mjs';
 import { twinsOf } from './twins.mjs';
 // How to read RePoE: which class a category is, which variant a base row stands for, what a mod's
@@ -82,7 +83,7 @@ function buildMod(baseId, type, group, modIds, baseTags) {
       name: rm.name || id,
       ilvl: rm.required_level ?? 0,
       weight: resolveWeight(rm, baseTags),
-      ranges: (rm.stats || []).map((s) => [s.min, s.max]),
+      ranges: (rm.stats || []).map((s) => shownRange(s.id, [s.min, s.max])),
       stats: (rm.stats || []).map((s) => s.id),
     };
   });

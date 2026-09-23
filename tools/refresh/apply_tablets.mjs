@@ -19,6 +19,7 @@
 //         <repoeDir>/repoe_{mods,mods_by_base,base_items}.json
 // Writes: data/patches/0.5.0/{mods,base_items}.json
 
+import { shownRange } from './displayUnits.mjs';
 import { readFileSync, writeFileSync } from 'node:fs';
 import { join, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -67,7 +68,7 @@ for (const [baseId, meta] of Object.entries(TABLETS)) {
         name: rm.name || ids[0],
         ilvl: rm.required_level ?? 0,
         weight: w.weight,
-        ranges: stats.map((s) => [s.min, s.max]),
+        ranges: stats.map((s) => shownRange(s.id, [s.min, s.max])),
         stats: stats.map((s) => s.id),
       }];
       mods.set(id, {

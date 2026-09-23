@@ -230,3 +230,32 @@ auditPatch('0.5', {
     'IncreaseSocketedGemLevel on Helmets_Normal',
   ]),
 });
+
+/**
+ * A stat the game STORES finer than it prints ships in the unit it prints. Read raw from RePoE a T1
+ * body armour read "1986–2160 Life Regeneration per second" — per minute, printed per second, so 33.1–36 —
+ * and a trade search for it asked for at least 1,986 (Dorian, 2026-09-23). See
+ * tools/refresh/displayUnits.mjs; no printed Life Regeneration or Leech roll is anywhere near 100.
+ */
+describe('stats stored in a finer unit than the game prints', () => {
+  const file = JSON.parse(readFileSync('data/patches/0.5.0/mods.json', 'utf8')) as {
+    mods: { id: string; tiers: { ranges: number[][]; stats?: string[] }[] }[];
+  };
+  const rolls = (test: RegExp): number[] => file.mods.flatMap((m) => m.tiers.flatMap((t) =>
+    (t.stats ?? []).flatMap((s, i) => (test.test(s) ? t.ranges[i] ?? [] : []))));
+
+  it('ship per second and in percent, as printed', () => {
+    const regen = rolls(/_per_minute(?:_|$)/);
+    const leech = rolls(/_permyriad(?:_|$)/);
+    expect(regen.length).toBeGreaterThan(300);
+    expect(leech.length).toBeGreaterThan(200);
+    expect(Math.max(...regen)).toBe(36);          // the best body armour roll: 2,160 a minute
+    expect(Math.max(...leech)).toBe(12);          // a Gloves rune modifier's 8–12%; the rolled best is 9.9
+  });
+
+  it('keep the best Life Regeneration tier the game prints', () => {
+    const armour = file.mods.find((m) => m.id === 'Body_Armours_str/LifeRegeneration')!;
+    expect(armour.tiers.at(-1)!.ranges).toEqual([[33.1, 36]]);
+    expect(armour.tiers[0]!.ranges).toEqual([[1, 2]]);
+  });
+});

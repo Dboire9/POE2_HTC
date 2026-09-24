@@ -19,6 +19,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- **True expected costs are no longer overstated when junk sits on the item.** The model left a junk
+  modifier's family in the next roll's pool, where the game takes it out, so every roll with junk on the
+  item was priced a little worse than it is. Measured against the plan played on real items, costs were
+  2–12% too high — worst on Precursor Tablets, whose pools are small. They now agree within 2%. Costs
+  with a paid base or on tablets drop by those amounts; crafts that bin every miss barely move.
+
 - **A craft loaded from scratch no longer keeps the last craft's free slots** — a streamer's item sent to
   the Plan tab carried over "any prefix / any suffix" slots it never asked for.
 

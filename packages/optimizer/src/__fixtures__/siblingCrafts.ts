@@ -80,8 +80,11 @@ export function markovIdentityCrafts(data: PatchData, prices: Prices): NamedMark
   const tier2 = resolveMod(data, wp0!).tiers.length - 2;
   const rare = (pre: PlacedMod[], suf: PlacedMod[]): ItemState =>
     ({ base: wands, level: LEVEL, rarity: 'rare', prefixes: pre, suffixes: suf });
+  // On the model the recording was made with: these lock that the sibling fix moved nothing it should
+  // not, a question the later junk-family correction (TODO 23, which moves every craft with junk on
+  // purpose) has no part in. Re-recording would lose what they were recorded to show.
   const solve = (start: ItemState, targets: TierTarget[], opts: MarkovOptions = {}) =>
-    (extra: MarkovOptions = {}): MarkovResult => markovFromItem(data, prices, start, targets, { ...opts, ...extra });
+    (extra: MarkovOptions = {}): MarkovResult => markovFromItem(data, prices, start, targets, { junkFamilies: false, ...opts, ...extra });
 
   return [
     { name: 'wands, white, free base, two targets', run: solve(whiteItem(wands, LEVEL), [any(wp0!), any(ws0!)], { restartCost: 0 }) },

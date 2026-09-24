@@ -233,21 +233,24 @@ describe('markovFromItem — v2 levers (orb strength + side exalts)', () => {
   });
 
   it('uses a Sinistral Exaltation to add a prefix when the suffix pool is all junk', () => {
-    // Prefix P (weight 1) is the target; suffix J (weight 100) is junk. A plain exalt rolls the junk
-    // suffix 100/101 of the time (then you must annul it). Omen of Sinistral Exaltation adds a PREFIX
-    // only → lands P in one move. Priced at 3 over the 1ex exalt, that certainty (E = 4) beats rolling.
+    // Prefix P (weight 1) is the target; three junk suffixes, each its own family (weight 100 each). A
+    // plain exalt rolls a junk suffix 300/301 of the time — and each one that lands leaves the pool (TODO
+    // 23), so the chance at P climbs, 1/301 → 1/201 → 1/101 → certain once the suffixes are full: about
+    // 3.97 exalts. Omen of Sinistral Exaltation adds a PREFIX only → lands P in one move, for 1 + 2 = 3.
+    // (With ONE junk family the omen never pays: once it lands, the next plain exalt is P for certain.)
+    const junk = ['J1', 'J2', 'J3'];
     const sideData: PatchData = {
       patch: 't',
       mods: new Map<string, Mod>([
         ['P', { id: 'P', source: 'normal', type: 'prefix', family: 'FP', tags: [], text: 'P', tiers: [{ name: 't', ilvl: 1, weight: 1, ranges: [] }] }],
-        ['J', { id: 'J', source: 'normal', type: 'suffix', family: 'FJ', tags: [], text: 'J', tiers: [{ name: 't', ilvl: 1, weight: 100, ranges: [] }] }],
+        ...junk.map((id): [string, Mod] => [id, { id, source: 'normal', type: 'suffix', family: `F${id}`, tags: [], text: id, tiers: [{ name: 't', ilvl: 1, weight: 100, ranges: [] }] }]),
       ]),
-      bases: new Map([['S', { ...base, pools: { normal: { prefixes: ['P'], suffixes: ['J'] }, desecrated: { prefixes: [], suffixes: [] }, essence: { prefixes: [], suffixes: [] } } }]]),
+      bases: new Map([['S', { ...base, pools: { normal: { prefixes: ['P'], suffixes: junk }, desecrated: { prefixes: [], suffixes: [] }, essence: { prefixes: [], suffixes: [] } } }]]),
     };
     const empty: ItemState = { base: sideData.bases.get('S')!, level: 100, rarity: 'rare', prefixes: [], suffixes: [] };
-    const sidePrices: Prices = { currency: { exalt: 1, annul: 1.5, chaos: 100 }, omens: { OmenofSinistralExaltation: 3, OmenofDextralExaltation: 3 } };
+    const sidePrices: Prices = { currency: { exalt: 1, annul: 1.5, chaos: 100 }, omens: { OmenofSinistralExaltation: 2, OmenofDextralExaltation: 2 } };
     const r = markovFromItem(sideData, sidePrices, empty, [{ modId: 'P' }]);
-    expect(r.expectedCost).toBeCloseTo(4, 6);
+    expect(r.expectedCost).toBeCloseTo(3, 6);
     expect(r.nodes.find((nd) => nd.isStart)!.action).toEqual({ currency: 'exalt', strength: 'base', side: 'prefix' });
   });
 });

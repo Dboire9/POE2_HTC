@@ -1402,7 +1402,12 @@ clone) with the key. It is stateless, so there is nothing for a Cancel to kill.
 Gauss-Seidel solve with self-loops divided out still needed 1,978 sweeps. It changed nothing drawn
 across 40 routes (docs/validation.md, 2026-09-11).
 
-## 23. A junk mod's family stays in the next roll's pool — OPEN, found 2026-09-21
+## 23. A junk mod's family stays in the next roll's pool — FIXED on average, 2026-09-24
+
+Fixed by the mean-field correction (`junkFamilies`, on by default): each junk mod takes out the family it
+holds on average, size-biased. Measured on 18 crafts against the replay (docs/validation.md): from 2–12%
+high to within 2% and 2.4 standard errors on every one, tablets included — so the exact small-pool solver
+below was not needed. What stays is the average's own error, inside the gate. The history:
 
 The lattice counts junk, never WHICH junk, so it cannot take a junk mod's family out of the next roll's
 pool the way the game does. Every roll with junk on board is priced at slightly worse odds than it

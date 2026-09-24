@@ -8,7 +8,7 @@
 // or omen with no price is NOT offered, so a missing price can't mint a free super-orb.
 
 import { CURRENCY_FLOOR, type ItemBase, type PatchData } from '../../engine/src/types.ts';
-import { excluded, modTierWeight, poolTotalWeight } from '../../engine/src/pool.ts';
+import { excluded, familiesOf, modTierWeight, poolTotalWeight } from '../../engine/src/pool.ts';
 import type { DesecrationBossOmen } from '../../engine/src/probability.ts';
 import { ANCIENT_BONE_FLOOR, DESECRATION_OFFER_COUNT, desecrationOmenForMod } from '../../engine/src/probability.ts';
 import type { CurrencyPolicy, Prices, PricedStep } from './cost.ts';
@@ -231,6 +231,12 @@ export interface ActionSpaceParams {
    * means none, which is every craft whose targets share a family with nothing the base can roll.
    */
   readonly siblings?: Pick<Siblings, 'sameSide' | 'blocks'>;
+  /**
+   * Take each junk mod's family out of the next roll's pool, as the game does — on average (TODO 23).
+   * The lattice counts junk, never which junk, so without this every roll with junk on the item is
+   * priced a little worse than it is. See `junkFamilyWeight`.
+   */
+  readonly junkFamilies?: boolean;
 }
 
 /**
@@ -309,6 +315,38 @@ export function createActionSpace(params: ActionSpaceParams): {
   /** The add-distribution from a state at ilvl `floor`, optionally constrained to one side (side omen).
    *  A weighted add lands a target at tier (→ present), the target below tier (→ blocked), or foreign
    *  junk (→ jp/js). Empty if no slot is open or nothing is addable; probabilities sum to 1. */
+  /**
+   * The weight a junk mod's family takes out of a roll's pool, on average — a MEAN-FIELD stand-in for the
+   * family the lattice does not record (TODO 23). Over the side's families no position holds, a junk mod
+   * that landed was drawn in proportion to its family's weight, so the family it took is on average
+   * Σw² / Σw — heavier than the mean family, which is why a plain mean undershoots. Per side and floor,
+   * cached: it depends on nothing else.
+   */
+  const positionFamilies = occupiedFamilies((1 << n) - 1, 0, list);
+  const junkMean = new Map<string, number>();
+  const junkFamilyWeight = (sd: 'prefix' | 'suffix', floor: number): number => {
+    const key = `${sd}:${floor}`;
+    const cached = junkMean.get(key);
+    if (cached !== undefined) return cached;
+    const byFamily = new Map<string, number>();
+    for (const id of sd === 'prefix' ? pools.normal.prefixes : pools.normal.suffixes) {
+      const mod = data.mods.get(id);
+      if (!mod) continue;
+      const fams = [...familiesOf(mod)];
+      if (fams.some((f) => positionFamilies.has(f))) continue;
+      const w = modTierWeight(mod, floor, level);
+      if (w <= 0) continue;
+      const k = fams.sort().join('|');
+      byFamily.set(k, (byFamily.get(k) ?? 0) + w);
+    }
+    let sum = 0;
+    let sumSq = 0;
+    for (const w of byFamily.values()) { sum += w; sumSq += w * w; }
+    const mean = sum > 0 ? sumSq / sum : 0;
+    junkMean.set(key, mean);
+    return mean;
+  };
+
   const addOutcomes = (
     s: McState, floor: number, constrainTo?: 'prefix' | 'suffix',
     /** Rarity the item ends at. Same as it started for an Exalt/Augment; 'magic' for a Transmute,
@@ -318,8 +356,25 @@ export function createActionSpace(params: ActionSpaceParams): {
     const prefixOpen = constrainTo !== 'suffix' && prefixOpenIn(s, into);
     const suffixOpen = constrainTo !== 'prefix' && suffixOpenIn(s, into);
     const occ = occupiedFamilies(s.present, s.blocked, list);
-    const prefTotal = prefixOpen ? poolTotalWeight(data, pools.normal.prefixes, floor, level, occ) : 0;
-    const sufTotal = suffixOpen ? poolTotalWeight(data, pools.normal.suffixes, floor, level, occ) : 0;
+    // What the positions could draw on each side: their own weight and their siblings'. The rest of the
+    // side is junk — which, with `junkFamilies`, the junk already on the item has made smaller.
+    const positionWeight = { prefix: 0, suffix: 0 };
+    for (let i = 0; i < n; i++) {
+      if (has(s.present, i) || has(s.blocked, i)) continue;
+      const t = list[i]!;
+      if (excluded(representative(t), occ)) continue;
+      positionWeight[t.type] += (rollable(t) ? anyWeight(t, floor) : 0) + siblingWeight(i, floor, false);
+    }
+    const sideTotal = (sd: 'prefix' | 'suffix', open: boolean, junkHeld: number): number => {
+      if (!open) return 0;
+      const total = poolTotalWeight(data, sd === 'prefix' ? pools.normal.prefixes : pools.normal.suffixes, floor, level, occ);
+      if (!params.junkFamilies || junkHeld === 0) return total;
+      // Never below what the positions draw on: the correction only ever shrinks the junk share.
+      const junk = Math.max(0, total - positionWeight[sd]);
+      return total - Math.min(junk, junkHeld * junkFamilyWeight(sd, floor));
+    };
+    const prefTotal = sideTotal('prefix', prefixOpen, s.jp);
+    const sufTotal = sideTotal('suffix', suffixOpen, s.js);
     const grand = prefTotal + sufTotal;
     const out: Dist = new Map();
     if (grand <= 0) return out;
@@ -558,14 +613,9 @@ export function createActionSpace(params: ActionSpaceParams): {
     // normal pool feels it. See desecrationBoneFor.
     const weigh = (ids: readonly string[], open: boolean): number =>
       (open ? poolTotalWeight(data, ids, floor, level, occ) : 0);
-    const prefNormal = weigh(pools.normal.prefixes, prefixOpen);
-    const prefDes = weigh(pools.desecrated.prefixes, prefixOpen);
-    const sufNormal = weigh(pools.normal.suffixes, suffixOpen);
-    const sufDes = weigh(pools.desecrated.suffixes, suffixOpen);
-    const grand = prefNormal + prefDes + sufNormal + sufDes;
-    if (grand <= 0) return out;
-    // Whole-family weight claimed by TARGETS, by side — the residue on each side is junk, whichever
-    // pool it came out of.
+    // The positions that can land, and the whole-family weight they claim by side — the residue on each
+    // side is junk, whichever pool it came out of.
+    const landing: number[] = [];
     const claimed = { prefix: 0, suffix: 0 };
     for (let i = 0; i < n; i++) {
       if (has(s.present, i) || has(s.blocked, i)) continue; // family already occupied
@@ -574,16 +624,31 @@ export function createActionSpace(params: ActionSpaceParams): {
       if (src !== 'normal' && src !== 'desecrated') continue; // essence-only mods are in neither pool
       if (excluded(representative(t), occ)) continue;
       if (!(t.type === 'prefix' ? prefixOpen : suffixOpen)) continue;
-      const succ = succWeight(t, floor);
-      const any = anyWeight(t, floor);
-      const sib = siblingWeight(i, floor, true);
-      if (succ > 0) addTo(out, encodeState(s.present | bit(i), s.blocked, s.jp, s.js, flagTarget(i), s.rarity), succ / grand);
-      const below = any - succ + sib;
-      if (below > 0) addTo(out, encodeState(s.present, s.blocked | bit(i), s.jp, s.js, flagTarget(i), s.rarity), below / grand);
-      claimed[t.type] += any + sib;
+      landing.push(i);
+      claimed[t.type] += anyWeight(t, floor) + siblingWeight(i, floor, true);
     }
-    const junkPref = Math.max(0, prefNormal + prefDes - claimed.prefix);
-    const junkSuf = Math.max(0, sufNormal + sufDes - claimed.suffix);
+    // With `junkFamilies`, the junk already on the item has taken its families out of the normal pool —
+    // on average, as in `addOutcomes`; never more than the side's junk.
+    const side = (sd: 'prefix' | 'suffix', open: boolean, junkHeld: number): number => {
+      const normal = weigh(sd === 'prefix' ? pools.normal.prefixes : pools.normal.suffixes, open);
+      const des = weigh(sd === 'prefix' ? pools.desecrated.prefixes : pools.desecrated.suffixes, open);
+      if (!params.junkFamilies || junkHeld === 0) return normal + des;
+      const junk = Math.max(0, normal + des - claimed[sd]);
+      return normal + des - Math.min(junk, junkHeld * junkFamilyWeight(sd, floor));
+    };
+    const prefTotal = side('prefix', prefixOpen, s.jp);
+    const sufTotal = side('suffix', suffixOpen, s.js);
+    const grand = prefTotal + sufTotal;
+    if (grand <= 0) return out;
+    for (const i of landing) {
+      const t = list[i]!;
+      const succ = succWeight(t, floor);
+      const below = anyWeight(t, floor) - succ + siblingWeight(i, floor, true);
+      if (succ > 0) addTo(out, encodeState(s.present | bit(i), s.blocked, s.jp, s.js, flagTarget(i), s.rarity), succ / grand);
+      if (below > 0) addTo(out, encodeState(s.present, s.blocked | bit(i), s.jp, s.js, flagTarget(i), s.rarity), below / grand);
+    }
+    const junkPref = Math.max(0, prefTotal - claimed.prefix);
+    const junkSuf = Math.max(0, sufTotal - claimed.suffix);
     if (junkPref > 0) addTo(out, encodeState(s.present, s.blocked, s.jp + 1, s.js, FLAG_JUNK_PREFIX, s.rarity), junkPref / grand);
     if (junkSuf > 0) addTo(out, encodeState(s.present, s.blocked, s.jp, s.js + 1, FLAG_JUNK_SUFFIX, s.rarity), junkSuf / grand);
     return out;

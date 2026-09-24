@@ -4731,6 +4731,48 @@ three modifiers at T2 (3,619, 0.5 s), a Body Armour with three at T2 (1,277, 0.3
 the sheet; what the choice rests on is the settling, which `exampleCrafts.test.ts` checks on the frozen
 sheet and e2e 2c in the browser.
 
+## A junk mod's family, out of the next roll — measured, then fixed (2026-09-24, TODO 23)
+
+`scripts/junk-bias.mts`: frozen sheet, no clock on the solve, the plan replayed 20,000 times (fewer where a
+two-minute replay clock ran out); gap = replay − solver, z in standard errors. Gear from white at item
+level 82; tablets as the Tablets tab asks (a 100 ex plain tablet, free positions, filled at the end, no
+Annulment, the exact small-lattice solve).
+
+| craft | before | after (rolls) | after (rolls + Desecration) |
+|---|---|---|---|
+| Wand 2 (T1), base 30 | −2.6% (z −3.9) | −2.1% (−3.3) | **−1.4% (−2.2)** |
+| Wand 2 (T2), base 30 | −0.4% (−0.6) | +0.5% (0.8) | −0.8% (−1.2) |
+| Wand 3 (T2), base 30 | −7.8% (−13.9) | −0.5% (−0.9) | +0.1% (0.2) |
+| Wand 3 (T2), base 0 | +0.3% (0.3) | +0.3% (0.4) | +0.6% (0.7) |
+| Ring 3 (T2), base 30 | −4.5% (−7.7) | −0.5% (−0.8) | +0.3% (0.5) |
+| Ring 2 (T1), base 30 | −4.0% (−6.4) | −1.8% (−2.8) | −0.6% (−1.0) |
+| Amulet 3 (T2), base 30 | −8.8% (−11.6) | +2.2% (2.5) | +1.8% (2.1) |
+| Body Armour 3 (T2), base 30 | −6.0% (−10.5) | −1.1% (−1.8) | −0.7% (−1.1) |
+| Body Armour 2 (T1), base 30 | −5.0% (−7.9) | −2.4% (−3.7) | **−0.5% (−0.7)** |
+| Staff 3 (T2), base 30 | −6.9% (−12.0) | +0.4% (0.7) | +1.5% (2.4) |
+| Staff 2 (T1), base 0 | +0.7% (0.9) | +0.7% (0.9) | +0.7% (0.9) |
+| Amulet 2 (T1), base 10 | −4.5% (−7.2) | −1.2% (−1.8) | +0.1% (0.2) |
+| Ritual 1 prefix | −10.0% (−13.0) | −1.4% (−1.7) | (no bones) |
+| Ritual 1+1 | −10.7% (−16.6) | +0.1% (0.1) | |
+| Ritual 2 prefixes | −2.0% (−2.8) | −0.4% (−0.5) | |
+| Overseer 1+1 | −12.0% (−18.8) | +0.4% (0.5) | |
+| Temple 1+1 | −12.2% (−19.1) | −0.4% (−0.5) | |
+| Temple 2+1 | −7.3% (−11.1) | +0.2% (0.2) | |
+
+The gate the plan set — every craft within 2% or 3 SE — failed on the first cut for the two bolded
+crafts, both of which Desecrate; the Desecration draw built its own pool without the correction.
+Corrected there too, every craft is inside it (largest 1.8%, 2.4 SE), and it became the default. A free
+base's crafts barely move: the policy bins every miss, so junk rarely stays. Tablets were worse than
+the 5% TODO 23 guessed, and the correction alone closed them, so no exact small-pool solver was built.
+
+Pinned numbers that moved with it, each on purpose: the sibling recordings now run on the model they were
+recorded with (`junkFamilies: false`, since they lock the sibling fix, not this); a test whose only
+suffix was one junk family (the Sinistral omen), and one whose "long" craft had a single junk family
+(the replay's too-long refusal), relied on the old model's error — once that junk lands, the game makes
+the target certain — and were rebuilt on several families; a Serle's Triumph test pinned a 1.5e-9
+DIRECTION the replay does not support (22,326 ± 134 without the rune, 22,362 ± 132 with it) and now
+pins "within 1%, not identical"; the Ritual reroll's route gained an Exalt after its Chaos.
+
 ## Still deferred
 - **Confirm the Omen of Whittling TIE rule in game** (2026-09-02): when two or more modifiers share
   the lowest item level, which does the Chaos Orb remove? Modelled as uniform — 50/50 on two — by the

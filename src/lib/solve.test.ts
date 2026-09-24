@@ -360,26 +360,26 @@ describe('progress reporting', () => {
 /**
  * TODO 20: with a bone priced, a from-white craft is solved without bones first and that plan seeds the
  * solve with them (markovBoneFree.ts). The frozen sheet prices a Wand's bone; three Wand targets a tier
- * below the top. A sweep cap rather than a clock makes the two-phase solve run out on every machine: at
- * 3,500 sweeps its first phase has not settled (it needs about 4,000) — and seeded, it does not need one.
+ * below the top. How much faster that is, and which crafts it rescues at Standard, is a measurement
+ * (docs/validation.md): a sweep window that separated the two solves here closed when the junk-family
+ * correction (TODO 23) changed how fast both converge, so this pins what the page shows instead.
  */
 describe('a from-white craft with a bone priced', () => {
   const frozen = { data: eng.data, prices: loadFrozenPrices() };
   const wand = eng.data.bases.get('Wands')!.pools.normal;
   const three = [wand.prefixes[0]!, wand.prefixes[1]!, wand.suffixes[0]!].map((modId) => ({ modId, tierDisplay: 2 }));
-  const capped = { maxMillis: 60_000, maxNodes: 100, maxSweeps: 3_500, solver: 'policy' as const };
+  const capped = { maxMillis: 60_000, maxNodes: 100, maxSweeps: 100_000, solver: 'policy' as const };
   const white = { baseId: 'Wands', level: 82, rarity: 'normal' as const, prefixes: [], suffixes: [] };
 
-  it('is solved without bones first, and settles where the two-phase solve alone cannot', () => {
-    const alone = optimizeItemMarkov(frozen, white, three, { restartCost: 0, solver: 'policy', maxIters: 3_500 });
-    expect(alone).toMatchObject({ feasible: false, stoppedEarly: true });
-    const uncapped = runSolve(frozen, { kind: 'lab', from: { baseId: 'Wands', level: 82 }, targets: three, effort: { ...capped, maxSweeps: 100_000 } });
+  it('is solved without bones first, and reaches the two-phase solve’s exact answer', () => {
+    const alone = optimizeItemMarkov(frozen, white, three, { restartCost: 0, solver: 'policy' });
+    expect(alone).toMatchObject({ feasible: true, bound: 'exact' });
 
     const seen: SolveProgress[] = [];
     const got = runSolve(frozen, { kind: 'lab', from: { baseId: 'Wands', level: 82 }, targets: three, effort: capped }, (p) => seen.push(p));
     expect(got.markov).toMatchObject({ applicable: true, feasible: true, bound: 'exact' });
     expect(got.markov.withoutBones).toBeUndefined();
-    expect(got.markov.expectedCost).toBeCloseTo(uncapped.markov.expectedCost, 6);
+    expect(got.markov.expectedCost).toBeCloseTo(alone.expectedCost, 6);
     // The bar: the solve without bones under its own label, then the one with them, never backwards.
     const labels = seen.map((p) => p.phase);
     expect(labels.indexOf('withoutBones')).toBeGreaterThan(-1);
@@ -566,11 +566,14 @@ describe('smallLattice — a tablet solved the sure way', () => {
       spare: { prefixes: 2, suffixes: 1 }, fillOnFinish: true, excluded: ['annul'], smallLattice: true,
     });
     const steps = mainLine(cost(r)).steps;
-    expect(steps.map((s) => s.action.split(' ')[0])).toEqual(['Transmute', 'Regal', 'Chaos']);
+    // Since the junk-family correction (TODO 23, 2026-09-24) the Chaos trades the junk suffix for a
+    // junk PREFIX — clearing the suffix side, its family out of the pool — and an Exalt then lands the
+    // reroll. The line still shows the Chaos the report asked about.
+    expect(steps.map((s) => s.action.split(' ')[0])).toEqual(['Transmute', 'Regal', 'Chaos', 'Exalt']);
     const chaos = steps[2]!;
-    expect(chaos.changes.gained).toEqual(['Ritual Altars in Map allow rerolling Favours # additional times']);
-    expect(chaos.changes.junk).toEqual({ prefixes: 0, suffixes: -1 }); // one junk suffix off, the reroll on
+    expect(chaos.changes.junk).toEqual({ prefixes: 1, suffixes: -1 });
     expect(chaos.repeats).toBeGreaterThan(0.4); // a junk suffix for a junk suffix: play it again
+    expect(steps[3]!.changes.gained).toEqual(['Ritual Altars in Map allow rerolling Favours # additional times']);
     // The Regal on the way can land it too, and says so.
     expect(steps[1]!.lands).toBeGreaterThan(0.003);
   });

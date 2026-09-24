@@ -321,13 +321,15 @@ describe('replayPolicy — the solved policy played on real items', () => {
   });
 
   /**
-   * A craft of ~15,000 moves — 1 roll in 2,001 lands the target — cannot play its 64
-   * crafts before a clock long run out, so the replay declines and says why in the player's words, not
-   * after a million moves. The runaway guard says the same thing when it trips first.
+   * A craft of thousands of moves — 1 roll in 4,001 lands the target — cannot play its 64 crafts before
+   * a clock long run out, so the replay declines and says why in the player's words, not after a million
+   * moves. The runaway guard says the same thing when it trips first. Twenty junk families, not one: a
+   * lone junk mod is out of the next roll once it lands (TODO 23), which makes the target certain.
    */
   it('declines a craft too long to play out, in words, when even 64 would outrun the clock', () => {
-    const base = baseOf(['T', 'W'], []);
-    const data = dataOf(base, [mod('T', 'prefix', [['t', 1]]), mod('W', 'prefix', [['w', 2_000]])]);
+    const junk = Array.from({ length: 20 }, (_, i) => `W${i}`);
+    const base = baseOf(['T', ...junk], []);
+    const data = dataOf(base, [mod('T', 'prefix', [['t', 1]]), ...junk.map((id) => mod(id, 'prefix', [['w', 200]]))]);
     const prices: Prices = { currency: { transmute: 1, augment: 1, regal: 2, exalt: 3, annul: 4, chaos: 1_000 }, omens: {} };
     const solve = (replay: { maxMillis?: number; maxActions?: number }) =>
       markovFromItem(data, prices, whiteItem(base, 100), [{ modId: 'T' }], {

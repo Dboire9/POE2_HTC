@@ -44,21 +44,20 @@ describe('a fourth suffix needs Serle’s Triumph', () => {
   });
 
   /**
-   * A craft that never WANTS a fourth suffix still costs a little more with the rune in, and that is
-   * the model being right rather than drifting: the extra slot is a slot JUNK can land in too, so an
-   * Exalt has one more way to miss. The difference is real but tiny — 22592.434291 against
-   * 22592.434257 on this craft, a relative 1.5e-9 — because the craft fills its suffixes long before
-   * the fourth slot matters.
+   * A craft that never WANTS a fourth suffix costs about the same with the rune in — the craft fills its
+   * suffixes long before a fourth slot matters. Played out 20,000 times each (2026-09-24): 22,326 ± 134
+   * without the rune and 22,362 ± 132 with it, the same within the dice.
    *
-   * Pinned as a direction rather than a number: dearer, never cheaper, and recognisably the same craft.
-   * Equality would be the wrong claim (it fails), and "close enough" alone would survive a rune that
-   * quietly did nothing.
+   * Pinned as "recognisably the same craft, and not ignored": within 1% of each other, never identical.
+   * It used to pin a DIRECTION (dearer with the rune, by 1.5e-9), but that was the model's arithmetic,
+   * not the game's: with the junk-family correction (TODO 23) the two lattices land 0.65% apart the
+   * other way, and the replays above say neither direction is real.
    */
-  it('costs slightly MORE even when the fourth suffix is never asked for', () => {
+  it('costs about the same when the fourth suffix is never asked for — and the rune is not ignored', () => {
     const without = markovFromItem(data, prices, whiteItem(plain, 82), THREE);
     const with_ = markovFromItem(data, prices, whiteItem(serles, 82), THREE);
     expect(without.feasible).toBe(true);
-    expect(with_.expectedCost).toBeGreaterThan(without.expectedCost);
-    expect(with_.expectedCost / without.expectedCost - 1).toBeLessThan(1e-6);
+    expect(with_.expectedCost).not.toBe(without.expectedCost);
+    expect(Math.abs(with_.expectedCost / without.expectedCost - 1)).toBeLessThan(0.01);
   });
 });

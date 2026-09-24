@@ -34,7 +34,7 @@ describe('a craft that only finishes by starting over', () => {
     expect(Math.abs(pi.expectedCost - vi.expectedCost) / pi.expectedCost).toBeLessThan(0.01);
     const rp = pi.replay;
     expect(rp?.ok).toBe(true);
-    // The model overstates slightly where junk stays on the item (TODO 23); never by more than this.
+    // Within the approximation that stays (a junk mod's family out of the pool on average — TODO 23).
     if (rp?.ok) expect(Math.abs(rp.meanCost - pi.expectedCost) / pi.expectedCost).toBeLessThan(0.08);
   }, 60_000);
 });

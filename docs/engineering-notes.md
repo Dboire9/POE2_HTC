@@ -649,10 +649,22 @@ Enforced in `packages/engine` (mostly `probability.ts`).
   share); anything else — the other side, or two targets at once — is an OBSTACLE position appended
   after the targets, in no slot, counted as junk by `isAccepting`. Carved siblings are only looked for
   when a Desecration is in play. Crafts with no sibling are byte-identical (`siblings.test.ts`).
-  **The junk family is still NOT removed from the next roll's pool** — the lattice cannot know which
-  junk landed — so the model OVERSTATES cost (up to ~7% measured on Wands, more on small pools like
-  tablets). Before the fix that error happened to cancel the sibling one on some crafts; after it, it
-  is visible on its own. `markovReplay.ts` measures both: it plays the policy on real items.
+  The junk family was then still NOT removed from the next roll's pool — the lattice cannot know which
+  junk landed — so the model OVERSTATED cost; the next entry is how that was fixed. `markovReplay.ts`
+  measures both: it plays the policy on real items. Crafts with no sibling stay byte-identical on the
+  model they were recorded with (`junkFamilies: false`).
+
+- **A junk mod's family comes out of the next roll's pool ON AVERAGE** (2026-09-24, TODO 23,
+  `junkFamilyWeight` in markovActions.ts; on unless `junkFamilies: false`). The lattice counts junk, not
+  which junk, so each junk mod on a side takes out the family it holds on average — SIZE-BIASED, Σw²/Σw
+  over the families no position holds, because a junk mod that landed was drawn in proportion to its
+  family's weight — never more than the side's junk share. In `addOutcomes` (Exalts, Transmutes,
+  Augments, Regals, a Chaos's add) and the unconstrained Desecration's normal pool. Measured on 18 crafts
+  against the replay (validation.md): from 2–12% high (tablets the worst, their pools are small) to
+  within 2% and 2.4 standard errors on all. The first cut covered the rolls only; the two crafts it left
+  outside the gate both used Desecration, and correcting that draw too brought them in. Still an
+  average: it gets two junk mods of a two-family pool exactly and one of them slightly short
+  (junkFamilies.test.ts), which is the residue left on the gear crafts.
 
 - **A FREE SLOT IS A COUNT PER SIDE, NEVER A TARGET** (2026-09-17). "Any prefix / any suffix" is
   `Spare { prefixes, suffixes }` in `slots.ts`, and the ONE place it does anything is `isAccepting`

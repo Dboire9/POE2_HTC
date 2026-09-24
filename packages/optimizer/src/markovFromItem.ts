@@ -241,6 +241,12 @@ export interface MarkovOptions {
    */
   readonly seedFrom?: RouteTable;
   /**
+   * Take each junk mod's family out of the next roll's pool, on average (`ActionSpaceParams.junkFamilies`,
+   * TODO 23). ON unless `false`: measured against the replay on 18 crafts, it takes the solver from 2–12%
+   * high to within 2% (docs/validation.md). `false` is the old model, kept for that comparison.
+   */
+  readonly junkFamilies?: boolean;
+  /**
    * Cost each policy by solving its chain outright (dense elimination) rather than by sweeping it, when
    * the chain has at most `DIRECT_MAX_STATES` states. Exact where sweeping only looks settled — see
    * `evaluateClosedForm`. The Tablets tab sets it: a tablet's lattice is a few hundred states, and its
@@ -728,6 +734,7 @@ export function markovFromItem(
   }
   const { actionsOf } = createActionSpace({
     data, prices, level, pools, list, side, desecratable, encode, limits, siblings,
+    junkFamilies: opts.junkFamilies !== false,
     bossTargetable: bossOmenAllowed(start.base.category),
     ...(opts.policy ? { policy: opts.policy } : {}),
     ...(opts.restartCost === undefined

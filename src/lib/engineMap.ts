@@ -542,6 +542,7 @@ export function mapMarkov(
       ? { replay: {
         runs: res.replay.runs, seen: res.replay.seen, meanCost: res.replay.meanCost, stdErr: res.replay.stdErr,
         costPercentiles: res.replay.costPercentiles, movesPerCraft: res.replay.movesPerCraft,
+        spendByMove: res.replay.spendByMove.map((m) => ({ label: actionLabel(data, m.action), count: m.count, spent: m.spent })),
         ...(res.replay.sales ? { sales: res.replay.sales } : {}),
       } }
       : {}),

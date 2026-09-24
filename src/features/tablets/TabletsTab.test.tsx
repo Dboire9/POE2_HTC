@@ -266,7 +266,7 @@ describe('the Tablets tab — what it costs and what it sells for', () => {
   it('says how risky a craft is, not only what it costs on average', async () => {
     // The p-th percentile of rolling it is 10p ex; the 1-ex plain tablet is added to every craft.
     const costPercentiles = Array.from({ length: 101 }, (_, p) => p * 10);
-    solved(markov({ replay: { runs: 1_000, seen: [], meanCost: 500, stdErr: 5, costPercentiles, movesPerCraft: {} } }));
+    solved(markov({ replay: { runs: 1_000, seen: [], meanCost: 500, stdErr: 5, costPercentiles, spendByMove: [], movesPerCraft: {} } }));
     const user = await open();
     await pick(user);
     expect(await screen.findByText(/Half the crafts cost less than/)).toHaveTextContent(
@@ -282,7 +282,7 @@ describe('the Tablets tab — what it costs and what it sells for', () => {
     // Each craft costs 1–1,001 ex (the plain tablet included), 501 on average, and sells for 800: one
     // craft is ahead ~80% of the time, so the run it recommends is longer than one.
     const costPercentiles = Array.from({ length: 101 }, (_, p) => p * 10);
-    solved(markov({ replay: { runs: 1_000, seen: [], meanCost: 500, stdErr: 5, costPercentiles, movesPerCraft: {} } }));
+    solved(markov({ replay: { runs: 1_000, seen: [], meanCost: 500, stdErr: 5, costPercentiles, spendByMove: [], movesPerCraft: {} } }));
     const user = await open();
     await pick(user);
     await user.type(await screen.findByRole('textbox', { name: /Price of a Ritual Tablet/ }), '800');
@@ -300,7 +300,7 @@ describe('the Tablets tab — what it costs and what it sells for', () => {
   it('opens to the arithmetic behind the verdict: every orb and tablet, what it sells, the difference', async () => {
     const costPercentiles = Array.from({ length: 101 }, (_, p) => p * 10);
     // 5 plain tablets and 20 Transmutations and Regals a craft, for 500 ex of rolling on average.
-    solved(markov({ replay: { runs: 1_000, seen: [], meanCost: 500, stdErr: 5, costPercentiles, movesPerCraft: { restart: 4, transmute: 20, regal: 20 } } }));
+    solved(markov({ replay: { runs: 1_000, seen: [], meanCost: 500, stdErr: 5, costPercentiles, spendByMove: [], movesPerCraft: { restart: 4, transmute: 20, regal: 20 } } }));
     const user = await open();
     await pick(user);
     await user.type(await screen.findByRole('textbox', { name: /Price of a Ritual Tablet/ }), '800');
@@ -320,7 +320,7 @@ describe('the Tablets tab — what it costs and what it sells for', () => {
   it('says the dearest plain tablet it still pays at, and the cheapest it can sell for', async () => {
     const costPercentiles = Array.from({ length: 101 }, (_, p) => p * 10);
     // 5 plain tablets a craft at 1 ex, and 496 ex of orbs: against 800 back, (800 − 496) / 5 = 60.8.
-    solved(markov({ replay: { runs: 1_000, seen: [], meanCost: 500, stdErr: 5, costPercentiles, movesPerCraft: { restart: 4, transmute: 20, regal: 20 } } }));
+    solved(markov({ replay: { runs: 1_000, seen: [], meanCost: 500, stdErr: 5, costPercentiles, spendByMove: [], movesPerCraft: { restart: 4, transmute: 20, regal: 20 } } }));
     const user = await open();
     await pick(user);
     await user.type(await screen.findByRole('textbox', { name: /Price of a Ritual Tablet/ }), '800');
@@ -406,7 +406,7 @@ describe('the Tablets tab — what it costs and what it sells for', () => {
 
   it('says no run makes a loss pay', async () => {
     const costPercentiles = Array.from({ length: 101 }, (_, p) => p * 10);
-    solved(markov({ replay: { runs: 1_000, seen: [], meanCost: 500, stdErr: 5, costPercentiles, movesPerCraft: {} } }));
+    solved(markov({ replay: { runs: 1_000, seen: [], meanCost: 500, stdErr: 5, costPercentiles, spendByMove: [], movesPerCraft: {} } }));
     const user = await open();
     await pick(user);
     await user.type(await screen.findByRole('textbox', { name: /Price of a Ritual Tablet/ }), '300');
@@ -416,7 +416,7 @@ describe('the Tablets tab — what it costs and what it sells for', () => {
 
   it('recounts the craft when you price what can land, selling it whenever that pays', async () => {
     vi.mocked(watchList).mockReturnValue([{ mods: [{ id: 'Tablets/MapAdditionalModifier' }], tier: 'veryGood' }]);
-    const replay = { runs: 1_000, seen: [0.4], meanCost: 1600, stdErr: 20, costPercentiles: [], movesPerCraft: {} };
+    const replay = { runs: 1_000, seen: [0.4], meanCost: 1600, stdErr: 20, costPercentiles: [], spendByMove: [], movesPerCraft: {} };
     const answer = (m: EngineMarkovResult) => ({
       promise: Promise.resolve({ kind: 'lab' as const, result: { frontier: [], plansEvaluated: 0, assumedOdds: false }, alts: null, markov: m }),
       cancel: vi.fn(),
@@ -451,7 +451,7 @@ describe('the Tablets tab — what it costs and what it sells for', () => {
 
   it('says why the plan goes the way it does, from what it actually plays', async () => {
     solved(markov({ replay: { runs: 1_000, seen: [], meanCost: 500, stdErr: 5, costPercentiles: [],
-      movesPerCraft: { restart: 71, transmute: 72, augment: 3.2, regal: 1, exalt: 2 } } }));
+      spendByMove: [], movesPerCraft: { restart: 71, transmute: 72, augment: 3.2, regal: 1, exalt: 2 } } }));
     const user = await open();
     await pick(user);
     const box = (await screen.findByText('Why this plan')).parentElement!.parentElement!;
@@ -500,7 +500,7 @@ describe('the Tablets tab — what it costs and what it sells for', () => {
 describe('the Tablets tab — what else you might roll', () => {
   it('lists a valuable modifier, how often it turns up, and its own trade search', async () => {
     vi.mocked(watchList).mockReturnValue([{ mods: [{ id: 'Tablets/MapAdditionalModifier' }], tier: 'jackpot', note: 'sells on its own' }]);
-    solved(markov({ replay: { runs: 4_000, seen: [0.23], meanCost: 1600, stdErr: 20, costPercentiles: [], movesPerCraft: {} } }));
+    solved(markov({ replay: { runs: 4_000, seen: [0.23], meanCost: 1600, stdErr: 20, costPercentiles: [], spendByMove: [], movesPerCraft: {} } }));
     const user = await open();
     await user.click(screen.getByRole('button', { name: /Add .*increased Gold found in Map/ }));
     await user.click(screen.getByRole('button', { name: /What does it cost/ }));
@@ -520,7 +520,7 @@ describe('the Tablets tab — what else you might roll', () => {
 
   it('names the value a row was priced at, searches for exactly that roll, and gives no per-roll odds', async () => {
     vi.mocked(watchList).mockReturnValue([{ mods: [{ id: 'Tablets/RitualAdditionalReroll', min: 3, max: 3 }], tier: 'superJackpot' }]);
-    solved(markov({ replay: { runs: 100, seen: [0.02], meanCost: 1600, stdErr: 20, costPercentiles: [], movesPerCraft: {} } }));
+    solved(markov({ replay: { runs: 100, seen: [0.02], meanCost: 1600, stdErr: 20, costPercentiles: [], spendByMove: [], movesPerCraft: {} } }));
     const user = await open();
     await user.click(screen.getByRole('button', { name: /Add .*increased Gold found in Map/ }));
     await user.click(screen.getByRole('button', { name: /What does it cost/ }));
@@ -539,7 +539,7 @@ describe('the Tablets tab — what else you might roll', () => {
       { mods: [{ id: 'Tablets/MapDroppedItemRarityIncrease' }], tier: 'good' },
       { mods: [{ id: 'Tablets/MapAdditionalUniqueMonsterModifier' }], tier: 'jackpot' },
     ]);
-    solved(markov({ replay: { runs: 1_000, seen: [0.04, 0.61, 0.07], meanCost: 1600, stdErr: 20, costPercentiles: [], movesPerCraft: {} } }));
+    solved(markov({ replay: { runs: 1_000, seen: [0.04, 0.61, 0.07], meanCost: 1600, stdErr: 20, costPercentiles: [], spendByMove: [], movesPerCraft: {} } }));
     const user = await open();
     await user.click(screen.getByRole('button', { name: /Add .*increased Gold found in Map/ }));
     await user.click(screen.getByRole('button', { name: /What does it cost/ }));
@@ -564,7 +564,7 @@ describe('the Tablets tab — what else you might roll', () => {
 
   it('says when a price beats the tablet the player asked for', async () => {
     vi.mocked(watchList).mockReturnValue([{ mods: [{ id: 'Tablets/MapAdditionalModifier' }], tier: 'jackpot' }]);
-    solved(markov({ replay: { runs: 100, seen: [0.1], meanCost: 1600, stdErr: 20, costPercentiles: [], movesPerCraft: {} } }));
+    solved(markov({ replay: { runs: 100, seen: [0.1], meanCost: 1600, stdErr: 20, costPercentiles: [], spendByMove: [], movesPerCraft: {} } }));
     const user = await open();
     await user.click(screen.getByRole('button', { name: /Add .*increased Gold found in Map/ }));
     await user.click(screen.getByRole('button', { name: /What does it cost/ }));

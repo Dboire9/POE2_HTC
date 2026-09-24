@@ -10,7 +10,7 @@ describe('the profit verdict', () => {
   it('sets what you spend against what you get, on one scale, and says the difference', () => {
     render(<ProfitVerdict spend={100} salePrice={150} salesOnWay={20} fmt={fmt} />);
     const verdict = screen.getByRole('img');
-    expect(verdict).toHaveAttribute('aria-label', 'You spend about 100 ex and get about 170 ex: a profit of 70 ex a tablet.');
+    expect(verdict).toHaveAttribute('aria-label', 'You spend about 100 ex and get about 170 ex: a profit of 70 ex per tablet.');
     expect(verdict.textContent).toMatch(/Profit per tablet: about 70 ex.*counting what you sell on the way/);
     // The larger of the two fills the track; the other is drawn to the same scale.
     const fills = [...verdict.querySelectorAll<HTMLElement>('[style]')].map((e) => e.style.width);

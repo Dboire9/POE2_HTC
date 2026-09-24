@@ -1,12 +1,12 @@
 import React from 'react';
 import { cn } from '../../lib/utils';
-import type { RunPlan } from '../../lib/tabletRun';
+import type { RunPlan } from '../../lib/profit';
 
 const pct = (x: number): string => (x >= 0.995 ? '100%' : x < 0.005 ? 'under 1%' : `${Math.round(x * 100)}%`);
 
 /**
  * "How many should I craft, and what do I need to start?" — a run of crafts, read off the replay
- * (tabletRun.ts). The shortest run that finishes ahead 9 times in 10 leads, with what it should make and
+ * (profit.ts). The shortest run that finishes ahead 9 times in 10 leads, with what it should make and
  * what to have on hand; 1, 10 and 100 sit beside it for scale — "you do not need 100, do what is best".
  */
 export const RunPlanView: React.FC<{
@@ -14,10 +14,12 @@ export const RunPlanView: React.FC<{
   /** What one craft makes on average — its sign decides the headline. */
   perCraft: number;
   fmt: (ex: number) => string;
-}> = ({ plan, perCraft, fmt }) => {
+  /** What is crafted, one and many: a tablet on the Tablets tab, an item on the gear tabs. */
+  noun?: readonly [string, string];
+}> = ({ plan, perCraft, fmt, noun: [one, many] = ['tablet', 'tablets'] }) => {
   if (plan.rows.length === 0) return null;
   const best = plan.rows.find((r) => r.crafts === plan.best);
-  const tablets = (n: number): string => `${n.toLocaleString('en')} tablet${n === 1 ? '' : 's'}`;
+  const tablets = (n: number): string => `${n.toLocaleString('en')} ${n === 1 ? one : many}`;
   return (
     <div className="space-y-2 rounded-lg border border-border/70 bg-background/40 p-3">
       <h4 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Plan a run</h4>
@@ -31,7 +33,7 @@ export const RunPlanView: React.FC<{
             before its sales pay you back, 9 times in 10.
           </>
         ) : perCraft > 0 ? (
-          <>It pays on average, but no run up to 500 tablets comes out ahead 9 times in 10 — at any size you would craft, it stays a gamble.</>
+          <>It pays on average, but no run up to 500 {many} comes out ahead 9 times in 10 — at any size you would craft, it stays a gamble.</>
         ) : (
           <>No number of crafts turns this into a profit: each loses about <strong className="tabular-nums text-amber-400">{fmt(-perCraft)}</strong> on average, and more crafts only add the losses up.</>
         )}
@@ -40,7 +42,7 @@ export const RunPlanView: React.FC<{
         <table className="w-full text-xs tabular-nums">
           <thead>
             <tr className="text-left text-muted-foreground">
-              <th className="pb-1 font-normal">Tablets crafted</th>
+              <th className="pb-1 font-normal">{many.charAt(0).toUpperCase() + many.slice(1)} crafted</th>
               <th className="pb-1 text-right font-normal">Ahead at the end</th>
               <th className="pb-1 text-right font-normal">Profit on average</th>
               <th className="pb-1 text-right font-normal" title="What to have on hand so 9 runs in 10 never run dry before a sale pays back">Have on hand</th>
@@ -61,8 +63,8 @@ export const RunPlanView: React.FC<{
         </table>
       </div>
       <p className="text-[11px] text-muted-foreground">
-        Each run crafts one tablet after another, selling each as it is done — played out thousands of times from the
-        crafts above. More tablets make the average more certain, never bigger per tablet.
+        Each run crafts one {one} after another, selling each as it is done — played out thousands of times from the
+        crafts above. More {many} make the average more certain, never bigger per {one}.
       </p>
     </div>
   );

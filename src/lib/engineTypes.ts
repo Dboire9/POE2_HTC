@@ -485,7 +485,8 @@ export interface EngineMarkovResult {
   readonly restartCost?: number;
   /**
    * The solved policy over the whole lattice, opaque to the UI: `routeFor` walks it to draw the route
-   * from any starting item without solving again. From-white Lab solves only, exact ones only.
+   * from any starting item, and `stepFor` reads it one move at a time (Craft along), without solving
+   * again. Every exact solve carries it.
    */
   readonly routes?: RouteTable;
   /**
@@ -508,6 +509,8 @@ export interface EngineMarkovResult {
     readonly sales?: { readonly revenue: number; readonly perEntry: readonly number[] };
     /** What following the plan spends, per craft on average, by currency (`restart` = a fresh base). */
     readonly movesPerCraft: Readonly<Record<string, number>>;
+    /** The same, move by move as priced (strength and omens named): uses a craft and spend a craft. */
+    readonly spendByMove: readonly { readonly label: string; readonly count: number; readonly spent: number }[];
   };
   readonly replayReason?: string;
   readonly nodes: readonly EnginePolicyNode[];

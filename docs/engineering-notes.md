@@ -1156,8 +1156,8 @@ Enforced in `packages/engine` (mostly `probability.ts`).
   the player paid, and the copy says so. A Desecration's outcomes are the odds of what is KEPT, so the
   panel ranks them by V (the solver keeps the cheapest to finish from), and the route table carries
   `rerollAbove` — the line `keepWeights` rerolls below — because odds that assume a reroll rule are only
-  followable with the rule in hand. Sessions are per tab, keyed by the solve request less its effort and
-  budget fields (`craftSig`): the same request builds the same states, so a saved place survives a price
+  followable with the rule in hand. Sessions are per tab, keyed by the solve request less its effort,
+  budget and play-out fields (`craftSig`): the same request builds the same states, so a saved place survives a price
   refresh and the next move is read from the new plan. Every solve now keeps the route table (it used to
   be from-white Lab solves only), and the panel appears wherever the solve is exact. Named "Craft along" because the Item tab
   already calls its fixed sequences "Step-by-step routes".
@@ -1173,6 +1173,21 @@ Enforced in `packages/engine` (mostly `probability.ts`).
   `computing` while its replacement is still running. `useEngine` replaced three copies of the load.
   Two tests read component SOURCE by file name (`UserGuide.test.tsx`, `responsive.test.tsx`), so moving
   markup between files means updating them.
+
+- **"Play it out" is a button, and it replays the request on screen** (2026-09-24, `CostSpread.tsx`,
+  `CraftToSell.tsx`). Every exact gear plan can be played now — the replay learned a Desecration's offer
+  (three draws, the cheapest to finish kept, an Echoes reroll once above `rerollAbove` with the omen
+  charged only then), Essences, the Perfect Essence and the Omen of Light — but a play-out spends its whole
+  4 s clock on any craft past two modifiers and fits a few hundred crafts into it (validation.md), so it
+  runs when asked rather than on every solve. It solves the stored request again (`LabRun` / `ItemRun`:
+  the request and what its result describes, which replaced five separate pieces of state) rather than
+  the fields as they stand, so the spread always sits beside the numbers it describes — and it does not
+  re-key the start panel (`markovRun`), being the same craft. The per-move bill (`spendByMove`) is
+  tallied where the replay spends, so on gear it sums to the replay mean exactly; tablets keep
+  `spendBreakdown`, whose fill-to-four Exalts are charged at the finish rather than as moves. Craft to
+  sell reuses the Tablets tab's verdict, run plan and breakdown (`src/features/profit/`) and counts the
+  white base as a tablet craft counts its first tablet. Gear sale prices have their own storage key
+  (`gearPrices`), keyed by base + each slot's modifiers at their tiers — exactly what the trade search asks.
 
 ## Tablets
 
@@ -1190,7 +1205,7 @@ is under Data pipeline and what ships.
 - **Profit = the sale + what sold on the way − what the craft spent, plain tablets included.** The replay
   sells a watched tablet whenever its typed price beats carrying on (`sell`), filling it to four
   modifiers first. `plainBreakEven` is the plain-tablet price at which the solved policy breaks even — a
-  linear floor for that policy, not a re-solve per price. The run plan (`tabletRun.ts`) resamples the
+  linear floor for that policy, not a re-solve per price. The run plan (`planRuns`, profit.ts) resamples the
   replay's cost percentiles — 2,000 runs of up to 500 crafts — and reports the shortest run that ends
   ahead 9 times in 10, with the bankroll it needs.
 - **Stand-ins are Magic only: one prefix, or one suffix** (2026-09-23). A Rare with a single modifier is

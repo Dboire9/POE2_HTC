@@ -1,4 +1,6 @@
-// "How many tablets should I craft, and what do I need to start?" — a RUN of crafts, read off the replay.
+// Whether a craft pays, read off the replay — shared by the Tablets tab and the Plan tab's "Craft to sell".
+//
+// "How many should I craft, and what do I need to start?" — a RUN of crafts.
 //
 // One craft is a coin with a long tail: the average says +2 chaos, but half the crafts land cheap and one
 // in ten costs three times the average. What evens it out is doing it several times, and the question a
@@ -86,4 +88,24 @@ export function planRuns(percentiles: readonly number[], meanCost: number, incom
     crafts: n, ahead: aheadAt[n]!, profit: n * perCraft, bankroll: bankrollAt[n]!,
   }));
   return best === undefined ? { rows } : { rows, best };
+}
+
+/**
+ * The share of crafts that came in at or under `budget`, read off the replay's 0th–100th percentiles —
+ * "put this much in, and how often do you finish?". Nearest-rank, so it moves in whole percents.
+ */
+export function shareWithin(percentiles: readonly number[], budget: number): number {
+  let within = -1;
+  for (let p = 0; p < percentiles.length; p++) if (percentiles[p]! <= budget) within = p;
+  return within < 0 ? 0 : within / (percentiles.length - 1);
+}
+
+/** One line of what a craft costs on average: so many of something, at a price each. */
+export interface CostLine {
+  readonly name: string;
+  readonly count: number;
+  readonly each: number;
+  readonly total: number;
+  /** The line whose price the player sets — a tablet craft's plain tablets. */
+  readonly plain?: true;
 }

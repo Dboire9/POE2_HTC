@@ -272,13 +272,15 @@ describe('replayPolicy — the solved policy played on real items', () => {
     expect(rp.sales!.revenue).toBeCloseTo(rp.sales!.perEntry[0]! * 100 + rp.sales!.perEntry[1]! * 150, 6);
   });
 
-  it('declines a route that plays a move it does not model, rather than guessing', () => {
+  it('plays a route that desecrates, where it used to decline — most gear routes do', () => {
     // On the frozen 2026-08-22 sheet a bone is cheap enough that this craft's route desecrates.
     const real = loadPatch('data/patches/0.5.0');
     const r = markovFromItem(real, loadFrozenPrices(), whiteItem(real.bases.get('Wands')!, 82),
-      [{ modId: 'Wands/WeaponSpellDamage' }], { restartCost: 0, replay: { runs: 200, seed: 1 } });
-    expect(r.replay?.ok).toBe(false);
-    expect(r.replay && !r.replay.ok ? r.replay.reason : '').toMatch(/desecrate/);
+      [{ modId: 'Wands/WeaponSpellDamage' }], { restartCost: 0, replay: { runs: 2000, seed: 1 } });
+    const rp = played(r.replay);
+    expect(rp.movesPerCraft['desecrate']).toBeGreaterThan(0);
+    // Every move is on the bill, and the bill is what a craft spends.
+    expect(rp.spendByMove.reduce((a, m) => a + m.spent, 0)).toBeCloseTo(rp.meanCost, 6);
   });
 
   it('is reproducible per seed, and the seed matters', () => {
@@ -331,8 +333,8 @@ describe('replayPolicy — the solved policy played on real items', () => {
       markovFromItem(data, prices, whiteItem(base, 100), [{ modId: 'T' }], {
         restartCost: 0.5, maxIters: 10_000_000, replay: { runs: 64, seed: 3, ...replay },
       }).replay;
-    expect(solve({ maxMillis: -1 })).toEqual({ ok: false, reason: 'too long a craft to play out — over 4,096 orbs and fresh tablets a craft' });
-    expect(solve({ maxActions: 1_000 })).toEqual({ ok: false, reason: 'too long a craft to play out — over 1,001 orbs and fresh tablets a craft' });
+    expect(solve({ maxMillis: -1 })).toEqual({ ok: false, reason: 'too long a craft to play out — over 4,096 orbs and restarts a craft' });
+    expect(solve({ maxActions: 1_000 })).toEqual({ ok: false, reason: 'too long a craft to play out — over 1,001 orbs and restarts a craft' });
     // With time to spare it plays them all.
     expect(played(solve({ maxMillis: 60_000 })).runs).toBe(64);
   });
@@ -356,3 +358,73 @@ describe('replayPolicy — the solved policy played on real items', () => {
     });
   });
 });
+
+/**
+ * The moves only a solve with bones or essences plays, played concretely — on the hand-computed crafts of
+ * markovEssenceDesecrate.test.ts, where nothing is abstracted away, so the crafts played must average the
+ * solver's own figure: a Desecration's offer (keep the best of three) at 9/7, with an Omen of Abyssal
+ * Echoes rerolling a bad offer once at 47/45, an Omen of Light at 1.3, a Perfect Essence at 15.
+ */
+describe('replayPolicy — Desecrations, the Omen of Light and a Perfect Essence', () => {
+  const mk = (id: string, type: 'prefix' | 'suffix', family: string, source: Mod['source']): Mod => ({
+    id, source, type, family, tags: source === 'desecrated' ? ['kurgal_mod'] : [], text: id,
+    tiers: [{ name: 't1', ilvl: 1, weight: source === 'normal' ? 100 : source === 'perfect_essence' ? 0 : 1, ranges: [] }],
+  });
+  const base: ItemBase = {
+    id: 'S', name: 'S', category: 'Wands',
+    pools: {
+      normal: { prefixes: ['NP1'], suffixes: ['NS1'] },
+      desecrated: { prefixes: ['DP1'], suffixes: ['DS1'] },
+      essence: { prefixes: ['PE1'], suffixes: [] },
+    },
+  };
+  const data: PatchData = {
+    patch: 't',
+    mods: new Map([
+      ['NP1', mk('NP1', 'prefix', 'Fp1', 'normal')], ['NS1', mk('NS1', 'suffix', 'Fs1', 'normal')],
+      ['DP1', mk('DP1', 'prefix', 'FdP', 'desecrated')], ['DS1', mk('DS1', 'suffix', 'FdS', 'desecrated')],
+      ['PE1', mk('PE1', 'prefix', 'Fpe', 'perfect_essence')],
+    ]),
+    bases: new Map([['S', base]]),
+  };
+  const placed = (modId: string, fractured = false) => (fractured ? { modId, tierName: 't1', fractured: true } : { modId, tierName: 't1' });
+  const rare = (pre: ItemState['prefixes'], suf: ItemState['suffixes']): ItemState => ({ base, level: 100, rarity: 'rare', prefixes: pre, suffixes: suf });
+  const bones = (omens: Record<string, number>): Prices => ({ currency: { exalt: 1, annul: 1, chaos: 99, desecrate: 1 }, omens });
+
+  it.each([
+    ['a plain offer', {}, 9 / 7],
+    ['an Omen of Abyssal Echoes at 0.1, rerolling a bad offer once', { OmenofAbyssalEchoes: 0.1 }, 47 / 45],
+  ] as const)('keeps the best of three draws and averages V: %s', (_, omens, v) => {
+    const r = markovFromItem(data, bones(omens), rare([placed('NP1', true)], []), [{ modId: 'NP1' }, { modId: 'DP1' }],
+      { tolerance: 1e-12, replay: { runs: 100_000, seed: 3 } });
+    expect(r.expectedCost).toBeCloseTo(v, 9);
+    const rp = played(r.replay);
+    expect(Math.abs(rp.meanCost - v)).toBeLessThan(4 * rp.stdErr);
+    expect(rp.movesPerCraft['desecrate']).toBeGreaterThan(1);
+  });
+
+  it('spends the Echoes omen only when it rerolls: one offer in eight here', () => {
+    const r = markovFromItem(data, bones({ OmenofAbyssalEchoes: 0.1 }), rare([placed('NP1', true)], []),
+      [{ modId: 'NP1' }, { modId: 'DP1' }], { tolerance: 1e-12, replay: { runs: 100_000, seed: 3 } });
+    const bone = played(r.replay).spendByMove.find((m) => m.action.currency === 'desecrate')!;
+    expect(bone.spent / bone.count).toBeCloseTo(1 + 0.1 / 8, 3);
+  });
+
+  it('takes the carved mod off for certain with an Omen of Light: 1.3, every craft', () => {
+    const r = markovFromItem(data, bones({ OmenofLight: 0.3, OmenofDextralAnnulment: 5 }), rare([placed('NP1')], [placed('DS1')]),
+      [{ modId: 'NP1' }], { tolerance: 1e-12, replay: { runs: 1000, seed: 1 } });
+    expect(r.expectedCost).toBeCloseTo(1.3, 9);
+    const rp = played(r.replay);
+    expect(rp.meanCost).toBeCloseTo(1.3, 9);
+    expect(rp.stdErr).toBeCloseTo(0, 6); // every craft the same; only floating-point residue
+  });
+
+  it('eats one mod and forces its own with a Perfect Essence: 15 under a Crystallisation omen', () => {
+    const prices: Prices = { currency: { exalt: 1, annul: 1, chaos: 99, perfect_essence: 15 }, omens: { OmenofSinistralCrystallisation: 0 } };
+    const r = markovFromItem(data, prices, rare([placed('NP1')], [placed('NS1')]), [{ modId: 'NS1' }, { modId: 'PE1' }],
+      { tolerance: 1e-12, replay: { runs: 1000, seed: 1 } });
+    expect(r.expectedCost).toBeCloseTo(15, 9);
+    expect(played(r.replay).meanCost).toBeCloseTo(15, 9);
+  });
+});
+

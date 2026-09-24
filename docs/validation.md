@@ -4636,6 +4636,35 @@ climb from zero, so stopping short undershoots — and the exact figure is above
 Overseer's and Temple's four rarest: 7.10×10⁸ and 7.32×10⁸ ex, 46 ms and 34 ms. Gear is untouched: the
 option is off unless asked for.
 
+## Playing a gear plan out — every craft, for a few seconds (2026-09-24)
+
+The replay used to decline 6 of 8 gear crafts from white: their plans use a Desecration, which it could
+not play. It now plays a Desecration's offer (three draws; the one kept is the cheapest to finish; with an
+Omen of Abyssal Echoes the offer is thrown back once when even its best is above the plan's line, and the
+omen is charged only then), an Essence, a Perfect Essence and an Omen of Light — each held to a
+hand-computed craft in `markovReplay.test.ts` (9/7, 47/45, 1 + 0.1/8, 1.3, 15).
+
+`scripts/replay-coverage.mts`: live sheet, Standard, from white, the first prefixes and suffixes of each
+base at their second tier; each craft solved plain, then again with `playOut`. Single runs.
+
+| craft | solve | with play-out | crafts played | replay mean ± SE | solver | gap |
+|---|---|---|---|---|---|---|
+| Wands ×2 | 115 ms | 4,090 ms | 10,916 | 204.3 ± 1.9 | 204.1 | +0.1% |
+| Wands ×3 | 747 ms | 4,779 ms | 501 | 3,626.0 ± 158.9 | 3,699.6 | −2.0% |
+| Wands ×4 | 4,770 ms | 7,809 ms | 240 | 9,648.5 ± 552.8 | 10,176.8 | −5.2% |
+| Body Armour (str) ×3 | 308 ms | 4,295 ms | 1,337 | 1,300.3 ± 34.1 | 1,244.8 | +4.5% |
+| Body Armour (str) ×4 | 1,381 ms | 5,553 ms | 771 | 4,149.7 ± 147.9 | 4,277.8 | −3.0% |
+| Amulets ×3 | 910 ms | 4,932 ms | 226 | 7,674.1 ± 478.5 | 8,002.8 | −4.1% |
+| Rings ×3 | 308 ms | 4,349 ms | 582 | 3,102.2 ± 125.1 | 3,108.6 | −0.2% |
+| Staves ×3 | 834 ms | 4,860 ms | 481 | 3,756.4 ± 165.1 | 3,741.2 | +0.4% |
+
+All 8 played, every replay mean within 2 standard errors of the solver's cost (the widest, Body Armour ×3,
+1.6). Past two modifiers a play-out spends its whole 4 s clock — 20,000 crafts would take minutes — and
+a few hundred crafts pin the median and the tenths but not the far tail. Hence a button ("Play it out")
+rather than part of every solve, and "a rough read" under 500 crafts. The negative gaps lean the way of
+TODO 23's bias (the solver prices a roll with junk on the item slightly worse than the game), inside the
+noise at these counts.
+
 ## Still deferred
 - **Confirm the Omen of Whittling TIE rule in game** (2026-09-02): when two or more modifiers share
   the lowest item level, which does the Chaos Orb remove? Modelled as uniform — 50/50 on two — by the

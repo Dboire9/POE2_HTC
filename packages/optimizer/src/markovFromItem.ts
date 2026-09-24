@@ -33,7 +33,7 @@ import { modTierWeight, resolveMod } from '../../engine/src/pool.ts';
 import { bossOmenAllowed, isEssenceMod } from '../../engine/src/probability.ts';
 import { limitsOf } from '../../engine/src/item.ts';
 import type { CurrencyPolicy, Prices } from './cost.ts';
-import { pricesForBase } from './cost.ts';
+import { ECHOES_OMEN, pricesForBase } from './cost.ts';
 import type { TierTarget } from './optimize.ts';
 import type { Spare } from './slots.ts';
 import { NO_SPARE, slotIndexGroups } from './slots.ts';
@@ -1684,6 +1684,15 @@ export function markovFromItem(
       ...(opts.fillOnFinish ? { finishCost: (item: ItemState) =>
         ((limits.prefixes - item.prefixes.length) + (limits.suffixes - item.suffixes.length)) * exaltPrice! } : {}),
       costOf: (a) => actionCostOf(prices, a),
+      // An omened Desecration rerolls where the plan does, at the line the table records.
+      ...(prices.omens[ECHOES_OMEN] !== undefined ? { reroll: {
+        cost: prices.omens[ECHOES_OMEN],
+        above: (key: StateKey) => {
+          const i = idxOfState.get(key);
+          const v = i === undefined ? NaN : rerollAbove[i]!;
+          return Number.isFinite(v) ? v : undefined;
+        },
+      } } : {}),
     }, opts.replay)
     : undefined;
   // Its own read, at the STARTING rarity — see the note above on why that differs from `holdings`.

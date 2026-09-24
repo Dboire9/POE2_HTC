@@ -6,6 +6,7 @@
 // costs and how often a watched modifier turns up on the way are the solver's answers (`solve.ts`), and
 // this file never guesses at them.
 
+import type { CostLine } from './profit';
 import type { PatchData } from '../../packages/engine/src/types.ts';
 import { TABLET_CATEGORY } from '../../packages/engine/src/types.ts';
 import { familiesOf, resolveMod } from '../../packages/engine/src/pool.ts';
@@ -193,16 +194,6 @@ export function tradeStatsFor(mods: readonly (string | WatchMod)[]): TradeStat[]
 export const searchIsLoose = (mods: readonly (string | WatchMod)[]): boolean =>
   tradeStatsFor(mods).some((s) => s.ambiguous === true);
 
-/**
- * The share of crafts that came in at or under `budget`, read off the replay's 0th–100th percentiles —
- * "put this much in, and how often do you finish?". Nearest-rank, so it moves in whole percents.
- */
-export function shareWithin(percentiles: readonly number[], budget: number): number {
-  let within = -1;
-  for (let p = 0; p < percentiles.length; p++) if (percentiles[p]! <= budget) within = p;
-  return within < 0 ? 0 : within / (percentiles.length - 1);
-}
-
 /** How a solved plan gets there, read off what following it spends — the "why this way" of the tab. */
 export interface PlanSummary {
   /** What an average craft uses, most first — plain tablets counted with the one you start from. */
@@ -263,16 +254,6 @@ export function summarizePlan(moves: Readonly<Record<string, number>>, start: St
   const fresh = (moves['restart'] ?? 0) >= 1;
   const chaos = (moves['chaos'] ?? 0) >= 1;
   return { uses, strategy: fresh && chaos ? 'mixed' : fresh ? 'fresh' : chaos ? 'chaos' : 'direct' };
-}
-
-/** One line of what a craft costs on average: so many of something, at a price each. */
-export interface CostLine {
-  readonly name: string;
-  readonly count: number;
-  readonly each: number;
-  readonly total: number;
-  /** The plain tablets a craft buys — the line whose price the player sets. */
-  readonly plain?: true;
 }
 
 /**

@@ -20,7 +20,7 @@ import { useEngine } from '../engine/useEngine';
 import { useSolveRunner } from '../engine/useSolveRunner';
 import { TabletModPicker } from './TabletModPicker';
 import { TabletResult, type SolvedTablet } from './TabletResult';
-import { PriceInput } from './PriceInput';
+import { PriceInput } from '../profit/PriceInput';
 
 const FOCUS = 'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring';
 const tabCls = (on: boolean): string => cn(

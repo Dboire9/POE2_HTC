@@ -5,7 +5,7 @@ import type { CostUnit } from '../../lib/currency';
 const FOCUS = 'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring';
 
 /**
- * A price as the trade site shows it: a number, and the orb it is listed in. Tablets list in exalts,
+ * A price as the trade site shows it: a number, and the orb it is listed in. Listings are in exalts,
  * Chaos or Divine Orbs, so the player picks the one they read rather than converting by hand; the
  * caller turns it into exalts with `perExalt`.
  */

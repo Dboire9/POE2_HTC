@@ -15,6 +15,7 @@ const PHASE_LABEL: Record<Progress['phase'], string> = {
   compile: 'Preparing the solver…',
   solve: 'Finding the cheapest route…',
   replay: 'Counting what else can land…',
+  playout: 'Playing the plan out…',
   plan: 'Weighing every crafting order…',
   alternatives: 'Checking what your budget buys…',
 };

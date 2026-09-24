@@ -16,7 +16,7 @@ import type { ItemCraft } from './useItemCraft';
 const ItemResults: React.FC<{ it: ItemCraft }> = ({ it }) => {
   const {
     engine, rates, stale, plan, planErr, markov, trueCostAnswered, solvedFor, alongSig, markovSpare, showRoutes,
-    setShowRoutes, excludedKeys,
+    setShowRoutes, excludedKeys, playOut, computing,
   } = it;
   const effort = useEffort();
   /**
@@ -73,6 +73,7 @@ const ItemResults: React.FC<{ it: ItemCraft }> = ({ it }) => {
         <TrueCostCard
           markov={markov} rates={rates} spare={markovSpare}
           along={engine && alongSig ? { engine, tab: 'item', sig: alongSig, plain: 'Your item' } : undefined}
+          playOut={{ run: playOut, busy: computing }}
         >
           {markov.bound === 'lower' && (
             <p className="rounded-md border border-amber-500/50 bg-amber-500/10 px-2 py-1.5 text-[11px] text-amber-700 dark:text-amber-300">

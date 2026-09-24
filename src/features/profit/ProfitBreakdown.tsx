@@ -1,15 +1,19 @@
 import React from 'react';
 import { cn } from '../../lib/utils';
-import type { CostLine } from '../../lib/tablets';
+import type { CostLine } from '../../lib/profit';
 
-const count = (n: number): string => (n >= 100 ? Math.round(n).toLocaleString('en') : n >= 10 ? n.toFixed(1) : n.toFixed(2).replace(/\.?0+$/, ''));
+// A move a craft plays only now and then still gets its line — a rare Perfect Exalt can be a real share
+// of the bill — so a count too small for two decimals says so rather than rounding to "0".
+const count = (n: number): string => (n >= 100 ? Math.round(n).toLocaleString('en') : n >= 10 ? n.toFixed(1)
+  : n > 0 && n < 0.005 ? '< 0.01' : n.toFixed(2).replace(/\.?0+$/, ''));
 
 /**
  * "Why is this a profit?" — the verdict's two numbers taken apart, for the player who wants to check them.
  *
- * What one craft spends on average, line by line (every orb and every plain tablet the played-out plan
- * used, at its price — `spendBreakdown`), against what it gets (the tablet asked for at its typed price,
- * and each priced set sold on the way, times how often it sold), and the difference. Then how sure that
+ * What one craft spends on average, line by line (every orb and every base or plain tablet the
+ * played-out plan used, at its price — `spendBreakdown` on a tablet, `spendLines` on gear), against what
+ * it gets (what was asked for at its typed price, and each priced set sold on the way, times how often
+ * it sold), and the difference. Then how sure that
  * average is: it comes from a finite number of crafts played out, and a thin profit can sit inside the
  * noise — which is said, rather than left for the player to find out.
  */
@@ -23,7 +27,11 @@ export const ProfitBreakdown: React.FC<{
   /** Standard error of one craft's average spend. */
   stdErr: number;
   fmt: (ex: number) => string;
-}> = ({ spend, get, exactSpend, runs, stdErr, fmt }) => {
+  /** What one craft covers, in a sentence — from where it starts to what it ends on. */
+  about?: React.ReactNode;
+  /** What is crafted — "a tablet", "an item". */
+  noun?: string;
+}> = ({ spend, get, exactSpend, runs, stdErr, fmt, about, noun = 'a tablet' }) => {
   const spent = spend.reduce((a, l) => a + l.total, 0);
   const got = get.reduce((a, l) => a + l.total, 0);
   const verdictSpend = exactSpend ?? spent;
@@ -62,8 +70,8 @@ export const ProfitBreakdown: React.FC<{
       </summary>
       <div className="mt-3 space-y-3">
         <p className="text-xs text-muted-foreground">
-          One craft, on average — {runs.toLocaleString('en')} crafts played out following the plan below, each
-          starting from a plain tablet and ending on the tablet you asked for, filled to four modifiers.
+          One craft, on average — {runs.toLocaleString('en')} crafts played out following the plan below, each{' '}
+          {about ?? 'starting from a plain tablet and ending on the tablet you asked for, filled to four modifiers.'}
         </p>
         <div className="overflow-x-auto">{table('You spend', spend, spent, 'text-amber-300')}</div>
         {exactSpend !== undefined && (
@@ -74,7 +82,7 @@ export const ProfitBreakdown: React.FC<{
         )}
         <div className="overflow-x-auto">{table('You get', get, got, 'text-emerald-300')}</div>
         <p className={cn('font-semibold', profit >= 0 ? 'text-emerald-400' : 'text-amber-400')}>
-          {fmt(got)} − {fmt(verdictSpend)} = {profit >= 0 ? '' : '−'}{fmt(Math.abs(profit))} {profit >= 0 ? 'profit' : 'loss'} a tablet
+          {fmt(got)} − {fmt(verdictSpend)} = {profit >= 0 ? '' : '−'}{fmt(Math.abs(profit))} {profit >= 0 ? 'profit' : 'loss'} {noun}
         </p>
         <p className="text-xs text-muted-foreground">
           How sure: {runs.toLocaleString('en')} crafts pin the average spend to within ±{fmt(margin)}, 19 times in 20.

@@ -4,21 +4,21 @@ import { cn } from '../../lib/utils';
 import type { EngineMarkovResult } from '../../lib/engineTypes';
 import { formatIn, type CostUnit, type Rates } from '../../lib/currency';
 import {
-  START_NAMES, WATCH_TIERS, plainBreakEven, searchIsLoose, standIns as listStandIns, setPriceKey, shareWithin, spendBreakdown, summarizePlan, tradeStatsFor, watchText,
+  START_NAMES, WATCH_TIERS, plainBreakEven, searchIsLoose, standIns as listStandIns, setPriceKey, spendBreakdown, summarizePlan, tradeStatsFor, watchText,
   type StartKind, type TabletBase, type WatchEntry, type WatchMod, type WatchTier,
 } from '../../lib/tablets';
 import type { PriceEntry, TypedPrice } from '../../lib/tabletPrices';
 import { FULL_USES, tradeUrl } from '../../lib/tradeLink';
 import PolicyGraph from '../engine/PolicyGraph';
 import { oneIn } from './TabletModPicker';
-import { ProfitVerdict } from './ProfitVerdict';
-import { RunPlanView } from './RunPlan';
+import { ProfitVerdict } from '../profit/ProfitVerdict';
+import { RunPlanView } from '../profit/RunPlan';
 import { StandInTip } from './StandInTip';
 import { TabletMoves } from './TabletMoves';
 import { AddWatch } from './AddWatch';
-import { ProfitBreakdown } from './ProfitBreakdown';
-import { planRuns } from '../../lib/tabletRun';
-import { RiskChart } from './RiskChart';
+import { ProfitBreakdown } from '../profit/ProfitBreakdown';
+import { planRuns, shareWithin } from '../../lib/profit';
+import { RiskChart } from '../profit/RiskChart';
 import { TradePrice } from './TradePrice';
 
 /** One solve and everything it was asked: the tablet, the modifiers wanted, the watch list replayed. */

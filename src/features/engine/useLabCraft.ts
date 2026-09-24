@@ -17,6 +17,28 @@ import { formatChance } from '../../lib/currency';
 import { useSolveRunner } from './useSolveRunner';
 import type { SolveRequest } from '../../lib/solve';
 import { craftSig } from '../../lib/craftAlong';
+import { gearPriceKey, gearPrices, type PriceEntry, type TypedPrice } from '../../lib/typedPrices';
+import { slotsOfTargets } from '../../lib/gearTrade';
+
+/**
+ * A solve the Plan tab ran, and what its answer describes: the request, and the fields it was built
+ * from. The fields can change after it and the result on screen cannot, so everything that labels the
+ * result reads from here — and it is kept whole so "Play it out" runs exactly this craft again.
+ */
+interface LabRun {
+  readonly req: SolveRequest;
+  /** The Search effort it ran at: the start panel's "compute again" steps up from THIS, not the dropdown. */
+  readonly effortId: string;
+  /**
+   * The free slots it ran with. The graph says how much junk really has to go, which is a claim about
+   * the SOLVE — reading the live setting would let it change under a result computed with another one.
+   */
+  readonly spare: Spare;
+  /** Its base and targets — a trade search for "this item" has to name the item the numbers describe. */
+  readonly solvedFor: { readonly baseId: string; readonly targets: readonly TargetInput[] };
+  /** The budget the alternatives were searched under. */
+  readonly budget: number;
+}
 
 /**
  * Everything the Plan tab knows and does: the craft being built, the rules the picker enforces, the
@@ -62,19 +84,23 @@ export function useLabCraft(engine: Engine | null) {
   const [alts, setAlts] = useState<EngineAlternatives | null>(null);
   const [markov, setMarkov] = useState<EngineMarkovResult | null>(null);
   // Bumped per solve result, so a panel keyed on it starts fresh — typed prices belong to ONE craft's rows.
+  // Not by a play-out, which is the same craft again.
   const [markovRun, setMarkovRun] = useState(0);
-  // The Search effort that solve ran at: the start panel's "compute again" steps up from THIS, not the dropdown.
-  const [markovEffort, setMarkovEffort] = useState('');
-  // …and the free slots it ran with, for the same reason. The graph says how much junk really has to
-  // go, which is a claim about the SOLVE — reading the live setting would let it change under a result
-  // that was computed with a different one.
-  const [markovSpare, setMarkovSpare] = useState<Spare>(NO_SPARE);
-  // What the result on screen was solved FOR — the fields may change after it, and a trade search for
-  // "this item" has to name the item the numbers describe.
-  const [solvedFor, setSolvedFor] = useState<{ readonly baseId: string; readonly targets: readonly TargetInput[] } | null>(null);
-  const [altBudget, setAltBudget] = useState<number>(0);
+  const [solved, setSolved] = useState<LabRun | null>(null);
+  const markovEffort = solved?.effortId ?? '';
+  const markovSpare = solved?.spare ?? NO_SPARE;
+  const solvedFor = solved?.solvedFor ?? null;
+  const altBudget = solved?.budget ?? 0;
   // Which craft the result on screen is, for Craft along to pick up a saved place in (`craftSig`).
-  const [alongSig, setAlongSig] = useState<string | null>(null);
+  const alongSig = solved ? craftSig('lab', solved.req) : null;
+  // What the finished item sells for, as the player typed it — kept per item (`gearPriceKey`), so the
+  // same craft solved again, today or next week, finds it.
+  const [salePrices, setSalePrices] = useState<Record<string, TypedPrice>>(gearPrices.read);
+  const saleKey = solvedFor ? gearPriceKey(solvedFor.baseId, slotsOfTargets(solvedFor.targets)) : null;
+  const sale = saleKey === null ? undefined : salePrices[saleKey];
+  const setSale = (price: PriceEntry | undefined): void => {
+    if (saleKey !== null) setSalePrices(gearPrices.write(saleKey, price));
+  };
   const [runErr, setRunErr] = useState<string | null>(null);
   // The site was redeployed under this tab, so the solve could not load what it needed. Not an error
   // the player can act on except by reloading, so it gets its own notice rather than `runErr`'s card.
@@ -317,10 +343,29 @@ export function useLabCraft(engine: Engine | null) {
   // Runs in the same Web Worker as the from-item planner. These calls are fast (a few ms), so this is
   // about having ONE compute path rather than a fast one here and a slow one there — and about the main
   // thread never running the optimizer at all.
-  const compute = (effortId: string = effort) => {
-    if (!engine || targets.length === 0) return;
+  const run = (job: LabRun, playOut = false) => {
     setRunErr(null);
     setStale(false);
+    runner.run(playOut ? { ...job.req, playOut: true } : job.req, {
+      onResult: (res) => {
+        if (res.kind !== 'lab') return;
+        setResult(res.result);
+        setAlts(res.alts);
+        setMarkov(res.markov);
+        if (!playOut) setMarkovRun((n) => n + 1);
+        setSolved(job);
+      },
+      onError: (e, appUpdated) => {
+        setResult(null);
+        setAlts(null);
+        if (appUpdated) { setMarkov(null); setStale(true); return; }
+        setRunErr(e instanceof Error ? e.message : String(e));
+      },
+    });
+  };
+
+  const compute = (effortId: string = effort) => {
+    if (!engine || targets.length === 0) return;
 
     const fromItem = fractured.size > 0;
     const b = Number(budget);
@@ -343,27 +388,15 @@ export function useLabCraft(engine: Engine | null) {
       ...(runes.length > 0 ? { runes } : {}),
       ...(freeSlots > 0 ? { spare } : {}),
     };
-    runner.run(req, {
-      onResult: (res) => {
-        if (res.kind !== 'lab') return;
-        setResult(res.result);
-        setAlts(res.alts);
-        setMarkov(res.markov);
-        setMarkovRun((n) => n + 1);
-        setMarkovEffort(effortId);
-        setMarkovSpare(spare);
-        setSolvedFor({ baseId, targets });
-        setAlongSig(craftSig('lab', req));
-        if (res.alts) setAltBudget(b);
-      },
-      onError: (e, appUpdated) => {
-        setResult(null);
-        setAlts(null);
-        if (appUpdated) { setMarkov(null); setStale(true); return; }
-        setRunErr(e instanceof Error ? e.message : String(e));
-      },
-    });
+    run({ req, effortId, spare, solvedFor: { baseId, targets }, budget: b });
   };
+
+  /**
+   * "Play it out": the craft on screen solved again, and its plan played out on real items — the spread
+   * of what one craft costs. The request that produced the result, not the fields as they stand now,
+   * so the spread describes the numbers it sits beside.
+   */
+  const playOut = () => { if (solved) run(solved, true); };
 
   const canCompute = targets.length > 0 && !runner.computing && !essenceFractureConflict;
   const onPickTier = (modId: string, t: number) => setPickTier((p) => ({ ...p, [modId]: t }));
@@ -377,7 +410,8 @@ export function useLabCraft(engine: Engine | null) {
     regularEssenceUsed, desecratedUsed, normalTargets, bossTargetable, desecrationNeedsRare,
     essenceFractureConflict, excludedKeys,
     result, alts, altBudget, markov, markovRun, markovEffort, markovSpare, solvedFor, alongSig, runErr, stale,
-    computing: runner.computing, progress: runner.progress, cancel: runner.cancel, compute, canCompute,
+    sale, setSale, saleKey,
+    computing: runner.computing, progress: runner.progress, cancel: runner.cancel, compute, playOut, canCompute,
     share, reset, outcome,
   };
 }

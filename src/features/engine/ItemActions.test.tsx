@@ -863,3 +863,31 @@ describe('a true cost that did not settle', () => {
     expect(warn.textContent).not.toMatch(/itself the answer/);
   });
 });
+
+describe('ItemActions — playing the plan out', () => {
+  it('solves the item on screen again, played out, and shows what a craft can cost', async () => {
+    const user = userEvent.setup();
+    await loaded();
+    await user.click(screen.getByRole('button', { name: /Full plan to a target/i }));
+    await user.selectOptions(screen.getByRole('combobox', { name: /Add a target mod/i }), 'np');
+    await user.click(screen.getByRole('button', { name: /Compute plan/i }));
+    const play = await screen.findByRole('button', { name: 'Play it out' });
+    const before = mocks.optimizeItemMarkov.mock.calls.length;
+    mocks.optimizeItemMarkov.mockReturnValue({
+      ...okMarkov,
+      replay: {
+        runs: 2_000, seen: [], meanCost: 5, stdErr: 0.1, movesPerCraft: {}, spendByMove: [],
+        costPercentiles: Array.from({ length: 101 }, (_, p) => p / 10),
+      },
+    });
+    await user.click(play);
+    await waitFor(() => expect(mocks.optimizeItemMarkov.mock.calls.length).toBe(before + 1));
+    const [, heldItem, wanted, opts] = mocks.optimizeItemMarkov.mock.calls.at(-1) as unknown[];
+    expect(opts).toMatchObject({ replay: { watch: [], maxMillis: 4_000 } });
+    expect(mocks.optimizeItemMarkov.mock.calls[before - 1]!.slice(1, 3)).toEqual([heldItem, wanted]);
+    // Your item never starts over, so no base is added: the spread is finishing it alone.
+    expect(await screen.findByText(/Half the crafts cost less than/)).toHaveTextContent(
+      'Half the crafts cost less than 5 ex. The luckiest 1 in 10 costs under 1 ex; the unluckiest 1 in 10 more than 9 ex.');
+    mocks.optimizeItemMarkov.mockReturnValue(okMarkov);
+  });
+});

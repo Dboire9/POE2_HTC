@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { planRuns } from './tabletRun';
+import { planRuns } from './profit';
 
 /** A craft whose cost at the p-th percentile is f(p). */
 const table = (f: (p: number) => number): number[] => Array.from({ length: 101 }, (_, p) => f(p));

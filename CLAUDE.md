@@ -19,7 +19,9 @@ code is one function, `api/feedback.ts`.
   shell and holds the Plan tab's state through `useLabCraft` (it never unmounts, so the Lab keeps its
   result across tab switches); the Item tab is `ItemActions` + `useItemCraft`. Every tab loads the engine
   with `useEngine` and runs solves with `useSolveRunner`; both gear tabs draw a true cost in `TrueCostCard`,
-  which also hosts Craft along (`CraftAlong.tsx`: the solved plan read one move at a time).
+  which also hosts what a craft can cost (`CostSpread.tsx`, "Play it out"), the Plan tab's Craft to sell
+  and Craft along (`CraftAlong.tsx`: the solved plan read one move at a time). The profit tools — verdict,
+  run plan, breakdown, risk chart, price box — live in `src/features/profit/`, shared with the Tablets tab.
 - `packages/engine` — the game rules: pools, weights, probabilities, item state. Pure TS, no I/O, no DOM.
 - `packages/optimizer` — the planners. Step routes: `optimize.ts` (from white), `fromItem.ts`,
   `alternatives.ts`. True expected cost: `markovFromItem.ts` and the other `markov*.ts`. Pricing: `cost.ts`.

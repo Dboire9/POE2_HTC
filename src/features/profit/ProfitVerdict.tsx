@@ -2,19 +2,21 @@ import React from 'react';
 import { cn } from '../../lib/utils';
 
 /**
- * Is this tablet worth crafting — at a glance. Two bars on one scale, what you SPEND against what you
- * GET (the tablet's price, plus what you sell on the way), and the difference as the headline in the
+ * Is it worth crafting — at a glance. Two bars on one scale, what you SPEND against what you
+ * GET (its price, plus what you sell on the way), and the difference as the headline in the
  * colour of its sign. The bars grow in whenever the numbers change, so a price typed visibly moves them.
  */
 export const ProfitVerdict: React.FC<{
-  /** Everything a craft spends on average: the plain tablet, rolling it, the tablets sales force. */
+  /** Everything a craft spends on average: the first base or tablet, rolling it, the fresh ones sales force. */
   spend: number;
-  /** What the tablet you asked for sells for, as typed — absent until the player types it. */
+  /** What the item or tablet asked for sells for, as typed — absent until the player types it. */
   salePrice: number | undefined;
   /** What selling priced sets on the way brings back per craft (0 when nothing is priced). */
   salesOnWay: number;
   fmt: (ex: number) => string;
-}> = ({ spend, salePrice, salesOnWay, fmt }) => {
+  /** What is crafted: "tablet" on the Tablets tab, "item" on the gear tabs. */
+  noun?: string;
+}> = ({ spend, salePrice, salesOnWay, fmt, noun = 'tablet' }) => {
   const get = (salePrice ?? 0) + salesOnWay;
   const profit = salePrice === undefined ? undefined : get - spend;
   const scale = Math.max(spend, get, 1e-9);
@@ -28,7 +30,7 @@ export const ProfitVerdict: React.FC<{
       role="img"
       aria-label={profit === undefined
         ? `You spend about ${fmt(spend)} a craft. Type what it sells for to see if it pays.`
-        : `You spend about ${fmt(spend)} and get about ${fmt(get)}: a ${profit >= 0 ? 'profit' : 'loss'} of ${fmt(Math.abs(profit))} a tablet.`}
+        : `You spend about ${fmt(spend)} and get about ${fmt(get)}: a ${profit >= 0 ? 'profit' : 'loss'} of ${fmt(Math.abs(profit))} per ${noun}.`}
     >
       <p
         key={`verdict-${key}`}
@@ -40,8 +42,8 @@ export const ProfitVerdict: React.FC<{
         {profit === undefined
           ? 'Type what it sells for below to see if it pays'
           : profit >= 0
-            ? `▲ Profit per tablet: about ${fmt(profit)} on average`
-            : `▼ Loss per tablet: about ${fmt(-profit)} on average — buying one is cheaper`}
+            ? `▲ Profit per ${noun}: about ${fmt(profit)} on average`
+            : `▼ Loss per ${noun}: about ${fmt(-profit)} on average — buying one is cheaper`}
         {profit !== undefined && salesOnWay > 0 && (
           <span className="text-sm font-normal text-muted-foreground"> — counting what you sell on the way</span>
         )}
@@ -65,7 +67,7 @@ export const ProfitVerdict: React.FC<{
       </Bar>
       {salesOnWay > 0 && (
         <p className="flex items-center gap-2 text-xs text-muted-foreground">
-          <span className="inline-block h-2 w-4 rounded-sm bg-emerald-500" /> the tablet you asked for
+          <span className="inline-block h-2 w-4 rounded-sm bg-emerald-500" /> the {noun} you asked for
           <span className="inline-block h-2 w-4 rounded-sm bg-emerald-300/60" /> what you sell on the way
         </p>
       )}

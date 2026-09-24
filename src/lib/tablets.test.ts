@@ -1,7 +1,8 @@
 import { describe, it, expect } from 'vitest';
 import { loadPatch } from '../../packages/engine/src/index.ts';
 import { familiesOf, resolveMod } from '../../packages/engine/src/pool.ts';
-import { CURATED, CURATED_TIERS, ODDS_CREDIT, WATCH_TIERS, listTablets, setPriceKey, ruledOutBy, searchIsLoose, shareWithin, summarizePlan, tradeStatsFor, watchKey, watchList, watchText, type TabletBase, spendBreakdown, plainBreakEven, standInFilters } from './tablets';
+import {CURATED, CURATED_TIERS, ODDS_CREDIT, WATCH_TIERS, listTablets, setPriceKey, ruledOutBy, searchIsLoose, summarizePlan, tradeStatsFor, watchKey, watchList, watchText, type TabletBase, spendBreakdown, plainBreakEven, standInFilters } from './tablets';
+import { shareWithin } from './profit';
 
 const data = loadPatch('data/patches/0.5.0');
 const tablets = listTablets(data);

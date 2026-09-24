@@ -29,6 +29,12 @@ import type { Spare } from '../../packages/optimizer/src/slots.ts';
  */
 interface ExcludingRequest {
   /**
+   * Also play the solved plan out on real items (markovReplay.ts) — the spread of what one craft costs,
+   * for the gear tabs' "Play it out". On demand, because it runs to a clock of its own: seconds a
+   * compute nobody asked it of would wait through. The Tablets tab gets it from its watch list instead.
+   */
+  readonly playOut?: boolean;
+  /**
    * Price-sheet keys for currencies and omens the player doesn't have ('chaos_perfect',
    * 'OmenofLight', …). An array, not a Set, so the worker message is plainly structured-clone-safe;
    * `runSolve` rebuilds the Set once per solve.
@@ -128,7 +134,7 @@ export type SolveResult =
  * Every phase that can report. `item` runs the MDP's three; `lab` runs planning, the MDP, a replay of
  * its policy when the request has a watch list, and, when a budget is set, the budget search.
  */
-export type SolvePhase = MarkovProgress['phase'] | 'plan' | 'replay' | 'alternatives';
+export type SolvePhase = MarkovProgress['phase'] | 'plan' | 'replay' | 'playout' | 'alternatives';
 
 /**
  * How far along a solve is, as a single 0–1 fraction the UI can render directly.
@@ -211,6 +217,13 @@ const REPLAY_MILLIS = 2_000;
  * standing still while it plays.
  */
 const MODEL_BEFORE_REPLAY = 0.1;
+/**
+ * A gear craft played out on request: longer than a tablet's, since the player asked and is watching the
+ * bar, and a long gear craft fits only a few hundred crafts into two seconds. The model's share of the bar
+ * is larger too — a gear solve can itself take seconds, where a tablet's takes milliseconds.
+ */
+const PLAYOUT_MILLIS = 4_000;
+const MODEL_BEFORE_PLAYOUT = 0.5;
 
 /**
  * A lab compute's split depends on whether a budget was set, which is why these can't be a static
@@ -355,15 +368,21 @@ export function runSolve(eng: Engine, req: SolveRequest, onProgress?: (p: SolveP
     const plan = frontierOrReason(() => optimizeItem(eng, runed(req.item), req.targets,
       planShare === undefined ? planOpts : { ...planOpts, maxMillis: planShare }));
     // The honest expected cost + optimal-policy graph.
+    const mdpSpan: Span = req.playOut ? [ITEM_MDP[0], ITEM_MDP[0] + (ITEM_MDP[1] - ITEM_MDP[0]) * MODEL_BEFORE_PLAYOUT] : ITEM_MDP;
     const mdpReport = onProgress
-      ? { onProgress: (p: MarkovProgress): void => onProgress({ phase: p.phase, fraction: within(ITEM_MDP, toFraction(p) * 1000, 1000) }) }
+      ? { onProgress: (p: MarkovProgress): void => onProgress({ phase: p.phase, fraction: within(mdpSpan, toFraction(p) * 1000, 1000) }) }
       : {};
+    const playOut = req.playOut ? { replay: {
+      runs: REPLAY_RUNS, seed: 1, watch: [], maxMillis: PLAYOUT_MILLIS,
+      onProgress: (fraction: number): void => onProgress?.({ phase: 'playout', fraction: within([mdpSpan[1], ITEM_MDP[1]], fraction, 1) }),
+    } } : {};
     // …and the whole solved policy, so Craft along can follow the plan move by move from the item you hold
     // without another solve (exact solves only — the solver attaches it to nothing else).
-    const mdpOpts = spared(withSweepLimit(withPolicy({ ...mdpReport, keepRoutes: true })));
+    const mdpOpts = spared(withSweepLimit(withPolicy({ ...mdpReport, ...playOut, keepRoutes: true })));
     const remaining = clockLeft();
     const markov = markovOrReason(() => optimizeItemMarkov(eng, runed(req.item), req.targets,
       remaining === undefined ? mdpOpts : { ...mdpOpts, maxMillis: remaining }));
+    if (req.playOut) onProgress?.({ phase: 'playout', fraction: 1 });
     return { kind: 'item', plan, markov };
   }
 
@@ -396,14 +415,16 @@ export function runSolve(eng: Engine, req: SolveRequest, onProgress?: (p: SolveP
   // thing that made a 24-second solve feel like ten minutes in the first place.
   // A watch list asks for the replay — an EMPTY one too: the spread of what a craft costs comes from
   // the same walk, and the Tablets tab wants it whether or not anything is watched.
-  const watch = req.watch;
+  const watch = req.watch ?? (req.playOut ? [] : undefined);
+  const replayPhase: SolvePhase = req.watch ? 'replay' : 'playout';
   const [modelFrom, modelTo] = hasBudget ? LAB_MDP_THEN_SEARCH : LAB_MDP_ALONE;
-  const mdpSpan: Span = watch ? [modelFrom, modelFrom + (modelTo - modelFrom) * MODEL_BEFORE_REPLAY] : [modelFrom, modelTo];
-  const replayProgress = emit('replay', [mdpSpan[1], modelTo]);
+  const modelShare = req.watch ? MODEL_BEFORE_REPLAY : MODEL_BEFORE_PLAYOUT;
+  const mdpSpan: Span = watch ? [modelFrom, modelFrom + (modelTo - modelFrom) * modelShare] : [modelFrom, modelTo];
+  const replayProgress = emit(replayPhase, [mdpSpan[1], modelTo]);
   const mdpClock = clockLeft();
   const markov = markovOrReason(() => optimizeItemMarkov(eng, mdpItem, req.targets, spared(withSweepLimit(withPolicy({
     ...(watch ? { replay: {
-      runs: REPLAY_RUNS, seed: 1, watch, maxMillis: REPLAY_MILLIS,
+      runs: REPLAY_RUNS, seed: 1, watch, maxMillis: req.watch ? REPLAY_MILLIS : PLAYOUT_MILLIS,
       ...(req.sell?.some((p) => p > 0) ? { sell: req.sell } : {}),
       onProgress: (fraction: number): void => replayProgress(fraction, 1),
     } } : {}),
@@ -424,7 +445,7 @@ export function runSolve(eng: Engine, req: SolveRequest, onProgress?: (p: SolveP
     // The MODEL finishes the bar now, not planning — planning is the first ~30% of it. Reporting
     // `plan: 1` here would jump the label backwards after the model had already reported done, and
     // `solve` after a replay would do the same.
-    onProgress?.({ phase: watch ? 'replay' : 'solve', fraction: 1 });
+    onProgress?.({ phase: watch ? replayPhase : 'solve', fraction: 1 });
     return { kind: 'lab', result, alts: null, markov };
   }
 

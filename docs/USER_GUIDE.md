@@ -21,6 +21,8 @@ that one are meant to agree; if they ever don't, ALGORITHM.md is the one that's 
   - [The bound markers: "≥ x" and "≤ x"](#the-bound-markers--x-and--x)
   - [The policy graph](#the-policy-graph)
   - [Craft along](#craft-along)
+  - [What a craft can cost](#what-a-craft-can-cost)
+  - [Craft to sell](#craft-to-sell)
   - [Start from an item you buy instead](#start-from-an-item-you-buy-instead)
 - [I have an item](#i-have-an-item)
   - [Quick currency check](#quick-currency-check)
@@ -258,6 +260,38 @@ finishing still costs on average.
 
 It needs an exact answer: a result shown as "≥ x" or "≤ x" does not have the plan for every state yet —
 raise Search effort. The Item tab has it too, starting from the item you hold.
+
+### What a craft can cost
+
+The true expected cost is an average, and one craft is a draw: most crafts cost less than the average, and
+a few cost several times it. **Play it out**, under the true expected cost, plays the plan on real items
+for a few seconds and shows the spread:
+
+- **Half the crafts cost less than** a figure — the middle craft.
+- **The luckiest 1 in 10** costs under one figure, **the unluckiest 1 in 10** more than another.
+- A curve of **how often a craft finishes within a budget**, for any budget. With a **Budget** typed on
+  the Plan tab, it also says what share of crafts that budget covers.
+
+From a white base, every craft counts the base it starts from (your **Base cost**). A long craft fits only
+a few hundred crafts into those seconds, and the panel says so — *a rough read*. A result shown as "≥ x"
+or "≤ x" is not played out: its plan has not settled, so it is not one to follow yet. The Item tab has it
+too, for finishing the item you hold.
+
+### Craft to sell
+
+On the Plan tab, beside the finished item's **Search on trade**, type what it sells for, and the tab says
+whether crafting it pays:
+
+- **Profit per item** or **Loss per item** — the price, less the white base and the true expected cost.
+- Once the plan is played out: **how often one craft pays for itself** (how often a craft costs less than
+  the price), and **Plan a run** — how many items to craft to come out ahead 9 times in 10, what that run
+  makes, and what to have on hand before its sales pay you back.
+- **How is this worked out?** takes the verdict apart: every move the crafts played — Greater and Perfect
+  orbs and omens named — how often, at what price, against the sale.
+
+The price is kept in this browser for that item, so solving the same craft again finds it. On a carved
+base, what the base cost you is not counted: add it yourself. A cost shown as "≥ x" or "≤ x" gets no
+verdict — a bound is not a cost to subtract — so raise Search effort first.
 
 ### Start from an item you buy instead
 

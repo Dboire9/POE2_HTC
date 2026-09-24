@@ -41,12 +41,12 @@ export const undo = (s: CraftSession): CraftSession => {
 
 /**
  * What identifies a craft: its solve request, less what cannot change the plan's states — the Search
- * effort, and the budget search's own fields. The same request always builds the same states, so a
- * session saved for it stays valid after the price sheet refreshes; the next move is then simply read
- * from the new plan.
+ * effort, the budget search's own fields, and whether the plan was also played out. The same request
+ * always builds the same states, so a session saved for it stays valid after the price sheet refreshes;
+ * the next move is then simply read from the new plan.
  */
 export function craftSig(tab: CraftTab, req: object): string {
-  const { effort: _effort, budget: _budget, want: _want, ...kept } = req as Record<string, unknown>;
+  const { effort: _effort, budget: _budget, want: _want, playOut: _playOut, watch: _watch, sell: _sell, ...kept } = req as Record<string, unknown>;
   return JSON.stringify([tab, kept]);
 }
 

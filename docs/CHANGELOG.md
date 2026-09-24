@@ -9,6 +9,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- **What a craft can cost — not only on average.** Under the true expected cost on both gear tabs, *Play
+  it out* plays the plan on real items for a few seconds: half the crafts cost less than X, the luckiest
+  and unluckiest 1 in 10, and the curve of how often a craft finishes within a budget — with the Plan
+  tab's Budget read against it. Every plan can be played out now, a Desecration's offer (and an Omen of
+  Abyssal Echoes' reroll), an Essence, a Perfect Essence and an Omen of Light included.
+
+- **Craft to sell.** On the Plan tab, type what the finished item sells for, beside its trade search: the
+  verdict (profit or loss per item, the white base counted), and once played out how often one craft
+  pays for itself, how many to craft, and every move on the bill — the Tablets tab's tools, shared.
+
 - **Craft along: follow the plan with the game open.** Under the true expected cost, open *Craft along*:
   it shows the next orb for the item you have now; use it in game, pick what happened, and the next move
   comes up — no new solve. It keeps count of what you have spent, says which of a Desecration's three

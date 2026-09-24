@@ -1,5 +1,5 @@
 import React, { useLayoutEffect, useRef, useState } from 'react';
-import { shareWithin } from '../../lib/tablets';
+import { shareWithin } from '../../lib/profit';
 
 const H = 200;
 const PAD = { l: 40, r: 14, t: 16, b: 30 };

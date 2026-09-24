@@ -193,6 +193,34 @@ describe('runSolve — dispatches to the same planners the UI called inline', ()
     expect(routeFor(eng, m, 'not-a-state')).toBeNull();
   });
 
+  // "Play it out" on the gear tabs: the same solve, its plan then played on real items to a clock of its own
+  // — seconds, which the bar has to show moving, under its own label, to the end.
+  it('plays the plan out when asked, on both gear tabs, and only then', () => {
+    const plain = runSolve(eng, { kind: 'lab', from: { baseId: 'Wands', level: 82 }, targets, baseCost: 7 });
+    if (plain.kind !== 'lab') throw new Error('wrong kind');
+    expect(plain.markov.replay).toBeUndefined();
+    for (const req of [
+      { kind: 'lab', from: { baseId: 'Wands', level: 82 }, targets, baseCost: 7, playOut: true },
+      { kind: 'item', item, targets, playOut: true },
+    ] satisfies SolveRequest[]) {
+      const seen: SolveProgress[] = [];
+      const m = runSolve(eng, req, (p) => seen.push(p)).markov;
+      const r = m.replay!;
+      expect(r.runs).toBeGreaterThan(1_000);
+      expect(r.seen).toEqual([]);
+      expect(r.costPercentiles).toHaveLength(101);
+      // The line-by-line bill adds up to what the crafts spent — restarts included, at the base price.
+      expect(r.spendByMove.reduce((a, l) => a + l.spent, 0)).toBeCloseTo(r.meanCost, 6);
+      expect(seen.filter((p) => p.phase === 'playout').length).toBeGreaterThan(1);
+      for (let i = 1; i < seen.length; i++) expect(seen[i]!.fraction).toBeGreaterThanOrEqual(seen[i - 1]!.fraction);
+      expect(seen[seen.length - 1]).toEqual({ phase: 'playout', fraction: 1 });
+      if (req.kind === 'lab') {
+        expect(m.expectedCost).toBeCloseTo(plain.markov.expectedCost, 9);
+        expect(r.spendByMove.find((l) => l.label === 'Start over with a new base')?.count).toBeGreaterThan(0);
+      }
+    }
+  });
+
   it('item returns both the frontier and the MDP, matching the direct calls', () => {
     const got = runSolve(eng, { kind: 'item', item, targets });
     if (got.kind !== 'item') throw new Error('wrong kind');

@@ -736,3 +736,92 @@ describe('EngineLab — a free slot', () => {
     expect(screen.queryByRole('button', { name: /Leave one suffix free/i })).toBeNull();
   });
 });
+
+describe('EngineLab — what a craft can cost, and whether it pays', () => {
+  /** `labMarkov` played out: a 1 ex white base, and the p-th percentile of rolling it at 10p ex. */
+  const played = {
+    ...labMarkov, expectedCost: 499, restartCost: 1,
+    replay: {
+      runs: 1_000, seen: [], meanCost: 500, stdErr: 5, movesPerCraft: {},
+      costPercentiles: Array.from({ length: 101 }, (_, p) => p * 10),
+      spendByMove: [
+        { label: 'Transmute (Greater)', count: 30, spent: 300 },
+        { label: 'Regal', count: 18, spent: 180 },
+        { label: 'Start over with a new base', count: 20, spent: 20 },
+      ],
+    },
+  };
+  beforeEach(() => localStorage.removeItem('poe2htc.gearPrices'));
+
+  it('plays out the craft on screen, not the fields as they have changed since', async () => {
+    const user = userEvent.setup();
+    await loaded();
+    await user.click(addButton('Normal Prefix'));
+    await user.click(screen.getByRole('button', { name: /Find plans/i }));
+    const play = await screen.findByRole('button', { name: 'Play it out' });
+    // The fields move on; the answer on screen is still the one-prefix craft.
+    await user.click(addButton('Normal Suffix'));
+    mocks.optimizeItemMarkov.mockReturnValue(played);
+    await user.click(play);
+    await waitFor(() => expect(mocks.optimizeItemMarkov).toHaveBeenCalledTimes(2));
+    const [first, again] = mocks.optimizeItemMarkov.mock.calls as unknown[][];
+    expect(again![2]).toEqual(first![2]);
+    expect((first![3] as { replay?: unknown }).replay).toBeUndefined();
+    expect((again![3] as { replay?: unknown }).replay).toMatchObject({ watch: [], maxMillis: 4_000 });
+    expect(await screen.findByText(/Half the crafts cost less than/)).toHaveTextContent(
+      'Half the crafts cost less than 501 ex. The luckiest 1 in 10 costs under 101 ex; the unluckiest 1 in 10 more than 901 ex.');
+    expect(screen.queryByRole('button', { name: 'Play it out' })).toBeNull();
+  });
+
+  it('reads the Budget against the spread, and a price typed for the item against all of it', async () => {
+    mocks.optimizeItemMarkov.mockReturnValue(played);
+    const user = userEvent.setup();
+    await loaded();
+    await user.type(screen.getByRole('spinbutton', { name: /Budget/ }), '501');
+    await user.click(addButton('Normal Prefix'));
+    await user.click(screen.getByRole('button', { name: /Find plans/i }));
+    // 501 ex covers the crafts up to the 50th percentile, the base included.
+    expect(await screen.findByText(/Your budget of/)).toHaveTextContent('Your budget of 501 ex covers 50% of crafts.');
+
+    await user.type(screen.getByRole('textbox', { name: 'What the finished item sells for' }), '800');
+    await user.tab();
+    // The white base and the solver's 499: 800 − 500.
+    expect(await screen.findByText(/Profit per item/)).toHaveTextContent('Profit per item: about 300 ex on average');
+    expect(screen.getByText(/pays for itself/)).toHaveTextContent(
+      'One craft pays for itself 79% of the time — how often a craft costs less than the 800 ex it sells for.');
+    expect(screen.getByText(/and you come out ahead/)).toBeInTheDocument();
+    await user.click(screen.getByText('How is this worked out?'));
+    const bill = screen.getByText('How is this worked out?').closest('details')!.textContent;
+    expect(bill).toMatch(/Transmute \(Greater\)30/);
+    expect(bill).toMatch(/Start over with a new base20/);
+    expect(bill).toMatch(/The white base you start from1/);
+    // The moves and the first base: 501, against the solver's exact 500.
+    expect(bill).toContain('The crafts played out spent 501 ex on average; the verdict uses the solver’s exact figure, 500 ex');
+    expect(bill).toContain('800 ex − 500 ex = 300 ex profit an item');
+    // Kept for this item, whatever order its modifiers were picked in.
+    expect(JSON.parse(localStorage.getItem('poe2htc.gearPrices')!)).toMatchObject({ 'Wands|np@1': { ex: 800 } });
+  });
+
+  it('keeps the prices typed on the start panel when the same craft is played out', async () => {
+    const withStarts = {
+      ...labMarkov, restartCost: 0, routes: {},
+      holdings: [
+        { present: [], positions: [], cost: 50, rarity: 'rare', key: 'e' },
+        { present: ['Normal Prefix'], positions: [['np']], cost: 30, rarity: 'rare', key: 'p' },
+        { present: ['Normal Suffix'], positions: [['ns']], cost: 35, rarity: 'rare', key: 's' },
+        { present: ['Normal Prefix', 'Normal Suffix'], positions: [['np'], ['ns']], cost: 0, rarity: 'rare', key: 'g' },
+      ],
+    };
+    mocks.optimizeItemMarkov.mockReturnValue(withStarts);
+    const user = userEvent.setup();
+    await loaded();
+    await user.click(addButton('Normal Prefix'));
+    await user.click(screen.getByRole('button', { name: /Find plans/i }));
+    const price = () => screen.getByRole('textbox', { name: /Trade price for Rare · Normal Prefix,/ });
+    await user.type(price(), '12');
+    mocks.optimizeItemMarkov.mockReturnValue({ ...withStarts, replay: played.replay });
+    await user.click(screen.getByRole('button', { name: 'Play it out' }));
+    expect(await screen.findByText(/Half the crafts cost less than/)).toBeInTheDocument();
+    expect(price()).toHaveValue('12');
+  });
+});

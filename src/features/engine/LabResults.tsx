@@ -2,20 +2,20 @@ import React from 'react';
 import { Card } from '../../components/ui/card';
 import { priceBasis } from '../../lib/engine';
 import { EFFORT_PRESETS, isTopEffort, useEffort } from '../../lib/searchEffort';
-import { slotsOfTargets } from '../../lib/gearTrade';
 import AppUpdatedNotice from './AppUpdatedNotice';
 import FrontierView from './FrontierView';
 import AlternativesView from './AlternativesView';
 import StartFromItem from './StartFromItem';
-import { GearTradeLink } from './GearTradeLink';
 import TrueCostCard from './TrueCostCard';
+import CraftToSell from './CraftToSell';
 import type { LabCraft } from './useLabCraft';
 
 /** The Plan tab's answers: the true cost and its route, the items to start from instead, the step routes. */
 const LabResults: React.FC<{ lab: LabCraft }> = ({ lab }) => {
   const {
     stale, runErr, markov, result, engine, solvedFor, alongSig, markovSpare, markovRun, fractured, markovEffort,
-    computing, compute, desecrationNeedsRare, normalTargets, excludedKeys, freeSlots, alts, altBudget,
+    computing, compute, playOut, desecrationNeedsRare, normalTargets, excludedKeys, freeSlots, alts, altBudget,
+    budget, sale, setSale, saleKey,
   } = lab;
   const effort = useEffort();
   // "Raise Search effort" is the app's standing answer to a solve that stopped early, and it is good
@@ -33,6 +33,8 @@ const LabResults: React.FC<{ lab: LabCraft }> = ({ lab }) => {
     ? <>This is <strong>{topLabel}</strong> already — the craft is beyond what the solver can settle.</>
     : <>Raise <strong>Search effort</strong> to let it finish.</>;
   const rates = engine ? priceBasis(engine).rates : undefined;
+  // The Budget as typed, read against the spread of what a craft costs — blank or unreadable is none.
+  const budgetEx = budget.trim() !== '' && Number(budget) > 0 ? Number(budget) : undefined;
   return (
     <>
       {/* "Cannot craft this target" asserted about the GAME over a message that may only describe a
@@ -63,16 +65,14 @@ const LabResults: React.FC<{ lab: LabCraft }> = ({ lab }) => {
         <TrueCostCard
           markov={markov} rates={rates} spare={markovSpare}
           along={engine && alongSig ? { engine, tab: 'lab', sig: alongSig, plain: 'A white base' } : undefined}
-        >
-          {engine && solvedFor && (
-            <p className="flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
-              Or buy it already made — every modifier at the tier you asked or better:
-              <GearTradeLink
-                data={engine.data} league={priceBasis(engine).league} baseId={solvedFor.baseId}
-                slots={slotsOfTargets(solvedFor.targets)} rarity="nonunique" label="the finished item"
-              />
-            </p>
+          playOut={{ run: playOut, busy: computing }} budget={budgetEx} sale={sale?.ex}
+          sell={engine && solvedFor && saleKey !== null && (
+            <CraftToSell
+              engine={engine} markov={markov} solvedFor={solvedFor} rates={rates}
+              sale={sale} saleKey={saleKey} onSale={setSale}
+            />
           )}
+        >
           {/* Which way an unfinished solve leans depends on how it was started, so the copy follows
               `bound` rather than guessing. From a white base the solver seeds from a policy that never
               restarts — a real, if expensive, way to finish — and works DOWN from it, so stopping early

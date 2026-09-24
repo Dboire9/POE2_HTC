@@ -21,6 +21,19 @@ import { craftSig } from '../../lib/craftAlong';
 export const CAP: Record<'magic' | 'rare', number> = { magic: 1, rare: 3 };
 
 /**
+ * A solve the Item tab ran, and what its answer describes. The item and target can change after it and
+ * the result on screen cannot, so what labels the result reads from here — and it is kept whole so
+ * "Play it out" runs exactly this craft again.
+ */
+interface ItemRun {
+  readonly req: SolveRequest;
+  /** The free slots it ran with — the policy graph's "Junk to clear" is a claim about that solve. */
+  readonly spare: Spare;
+  /** Its base and targets, for the result's trade searches. */
+  readonly solvedFor: { readonly baseId: string; readonly targets: readonly TargetInput[] };
+}
+
+/**
  * Everything the Item tab knows and does: the item you hold, the target, the solve and its result.
  *
  * Called by `ItemActions`, which unmounts whenever another tab is picked, so a result here does not
@@ -50,11 +63,11 @@ export function useItemCraft() {
   // Lab tab has, read by the same guard and sent to the same solve.
   const [spare, setSpare] = useField('item', 'spare');
   const freeSlots = spare.prefixes + spare.suffixes;
-  // The free slots the LAST SOLVE ran with. The policy graph's "Junk to clear" is a claim about that
-  // solve, so it must not follow the live setting once the answer is on screen.
-  const [markovSpare, setMarkovSpare] = useState<Spare>(NO_SPARE);
-  // What the result on screen was solved FOR, for its trade searches — the fields may change after it.
-  const [solvedFor, setSolvedFor] = useState<{ readonly baseId: string; readonly targets: readonly TargetInput[] } | null>(null);
+  const [solved, setSolved] = useState<ItemRun | null>(null);
+  const markovSpare = solved?.spare ?? NO_SPARE;
+  const solvedFor = solved?.solvedFor ?? null;
+  // Which craft the result on screen is, for Craft along to pick up a saved place in (`craftSig`).
+  const alongSig = solved ? craftSig('item', solved.req) : null;
   const [plan, setPlan] = useState<EngineResult | null>(null);
   const [markov, setMarkov] = useState<EngineMarkovResult | null>(null);
   const [planErr, setPlanErr] = useState<string | null>(null);
@@ -66,8 +79,6 @@ export function useItemCraft() {
   const [tookMs, setTookMs] = useState<number | null>(null);
   // Collapsed by default whenever the true-cost model answered — see `trueCostAnswered`.
   const [showRoutes, setShowRoutes] = useState(false);
-  // Which craft the result on screen is, for Craft along to pick up a saved place in (`craftSig`).
-  const [alongSig, setAlongSig] = useState<string | null>(null);
   const excludedKeys = toExcludedKeys(useExclusions());
   const effort = useEffort();
   // Exalts-per-chaos / per-divine, so a huge cost reads as a quantity rather than a wall of digits.
@@ -404,16 +415,10 @@ export function useItemCraft() {
   // Runs in a Web Worker: this is the multi-second solve (a 3-target craft takes ~3.9s), and running it
   // here would lock the page for its whole duration. The old `setTimeout(…, 0)` tried to let a spinner
   // paint first, but that is a race against the frame deadline and lost about half the time.
-  const compute = () => {
-    if (!engine || target.length === 0) return;
+  const run = (job: ItemRun, playOut = false) => {
     setPlanErr(null); setStale(false); setTookMs(null);
-    const req: SolveRequest = {
-      kind: 'item', item, targets: target, effort: limitsFor(effort),
-      ...(excludedKeys.length > 0 ? { excluded: excludedKeys } : {}),
-      ...(freeSlots > 0 ? { spare } : {}),
-    };
     runner.run(
-      req,
+      playOut ? { ...job.req, playOut: true } : job.req,
       {
         onResult: (res) => {
           if (res.kind !== 'item') return;
@@ -421,9 +426,7 @@ export function useItemCraft() {
           // The honest expected cost + optimal-policy graph (push-forward MDP). Falls back silently to the
           // frontier alone when the target isn't MDP-modellable (perfect-essence / desecrate).
           setMarkov(res.markov);
-          setMarkovSpare(spare);
-          setSolvedFor({ baseId, targets: target });
-          setAlongSig(craftSig('item', req));
+          setSolved(job);
         },
         onError: (e, appUpdated) => {
           setPlan(null); setMarkov(null);
@@ -436,6 +439,22 @@ export function useItemCraft() {
     );
   };
 
+  const compute = () => {
+    if (!engine || target.length === 0) return;
+    run({
+      req: {
+        kind: 'item', item, targets: target, effort: limitsFor(effort),
+        ...(excludedKeys.length > 0 ? { excluded: excludedKeys } : {}),
+        ...(freeSlots > 0 ? { spare } : {}),
+      },
+      spare,
+      solvedFor: { baseId, targets: target },
+    });
+  };
+
+  /** "Play it out": the craft on screen solved again and played out on real items — see `useLabCraft`. */
+  const playOut = () => { if (solved) run(solved, true); };
+
   return {
     engine, loadErr, rates, bases, baseId, changeBase, level, setLevel, rarity, setRarity, runes, setRunes,
     category, prefixes, suffixes, search, setSearch, filtered, capOf, occupiedFamilies, addItemMod,
@@ -445,7 +464,7 @@ export function useItemCraft() {
     addingTo, setAddingTo, blockFor, spareBlock, addSpare, addTarget, startAlternative, removeTargetMod,
     copyItemToTarget, targetState, patchTarget, clearPlan, targetSlots, excludedKeys, blockedBy,
     plan, markov, markovSpare, solvedFor, alongSig, planErr, stale, trueCostAnswered, showRoutes, setShowRoutes,
-    tookMs, computing: runner.computing, progress: runner.progress, cancel: runner.cancel, compute,
+    tookMs, computing: runner.computing, progress: runner.progress, cancel: runner.cancel, compute, playOut,
   };
 }
 

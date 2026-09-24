@@ -6,13 +6,16 @@ import { exactExalts, formatBoundedCost, type Rates } from '../../lib/currency';
 import type { Spare } from '../../../packages/optimizer/src/slots.ts';
 import PolicyGraph from './PolicyGraph';
 import CraftAlong from './CraftAlong';
+import CostSpread, { type PlayOut } from './CostSpread';
 
 /**
  * The true expected cost of a craft and its policy route — the card both gear tabs draw.
  *
- * Each tab puts its own lines between the figure and the graph (`children`): what it says about a
- * bound, the trade search for the finished item, and, on the Item tab, what the held item is worth.
- * One card rather than two copies, so what every true-cost answer shows is added once.
+ * Each tab puts its own lines under the figure (`children`): what it says about a bound and, on the
+ * Item tab, the trade search for the finished item and what the held item is worth. Then what every
+ * answer shows — what one craft can cost once played out, the Plan tab's "Craft to sell" (`sell`, which
+ * carries that tab's trade search), Craft along, the route. One card rather than two copies, so what
+ * every true-cost answer shows is added once.
  */
 const TrueCostCard: React.FC<{
   markov: EngineMarkovResult;
@@ -24,8 +27,15 @@ const TrueCostCard: React.FC<{
    * state, which an exact solve does.
    */
   along?: { readonly engine: Engine; readonly tab: CraftTab; readonly sig: string; readonly plain: string } | undefined;
+  /** "Play it out" — the spread of what one craft costs, on request (`CostSpread`). */
+  playOut?: PlayOut | undefined;
+  /** The Plan tab's Budget, and what the finished item sells for: both read against the spread. */
+  budget?: number | undefined;
+  sale?: number | undefined;
+  /** Under the spread, reading the same play-out: the Plan tab's "Craft to sell". */
+  sell?: React.ReactNode;
   children?: React.ReactNode;
-}> = ({ markov, rates, spare, along, children }) => (
+}> = ({ markov, rates, spare, along, playOut, budget, sale, sell, children }) => (
   <Card className="p-4 space-y-3">
     <div className="flex flex-wrap items-baseline justify-between gap-2">
       <h3 className="text-sm font-bold">True expected cost</h3>
@@ -38,6 +48,8 @@ const TrueCostCard: React.FC<{
       </span>
     </div>
     {children}
+    <CostSpread markov={markov} rates={rates} playOut={playOut} budget={budget} sale={sale} />
+    {sell}
     {along && markov.routes && (
       <CraftAlong key={along.sig} engine={along.engine} markov={markov} tab={along.tab} sig={along.sig} rates={rates} plain={along.plain} />
     )}

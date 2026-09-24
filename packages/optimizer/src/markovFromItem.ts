@@ -56,6 +56,7 @@ import { startCandidates } from './markovStarts.ts';
 import type { ReplayOptions, ReplayReport } from './markovReplay.ts';
 import { replayPolicy } from './markovReplay.ts';
 import { resolveSiblings } from './markovSiblings.ts';
+import { projectPlan } from './markovSeed.ts';
 
 // The action vocabulary is this module's public face too — callers (the facade, the UI, tests) import
 // it from here rather than reaching into markovActions.ts. So are the route's shapes, which live beside
@@ -233,6 +234,13 @@ export interface MarkovOptions {
    */
   readonly heuristicSeed?: boolean;
   /**
+   * Seed policy iteration from ANOTHER solve's plan for the same craft — the one without bones
+   * (markovBoneFree.ts) — read in this solve's states (`projectPlan`), the guessed policy filling the
+   * states it has no counterpart for. Skips phase A like `heuristicSeed`; falls back the same way when
+   * the seed turns out improper or does not settle inside its cap. Policy solver only.
+   */
+  readonly seedFrom?: RouteTable;
+  /**
    * Cost each policy by solving its chain outright (dense elimination) rather than by sweeping it, when
    * the chain has at most `DIRECT_MAX_STATES` states. Exact where sweeping only looks settled — see
    * `evaluateClosedForm`. The Tablets tab sets it: a tablet's lattice is a few hundred states, and its
@@ -305,6 +313,51 @@ export interface MarkovOptions {
 /** How often the O(states) loops report. Frequent enough to animate, rare enough to cost nothing. */
 const PROGRESS_STRIDE = 64;
 
+/** Either grade of bone — Preserved (`desecrate`) or Ancient (`desecrate_ancient`), as price-sheet keys. */
+export const BONE_KEYS = ['desecrate', 'desecrate_ancient'] as const;
+
+/**
+ * Whether a Desecration is in this craft's model, and why (`MarkovResult.bones`): `required` for a
+ * desecrated target or a carved mod already on the item, `optional` when only a priced bone puts it
+ * there, absent when neither does or the player excluded bones. Known before solving, so a caller can
+ * plan around it (markovBoneFree.ts).
+ *
+ * A desecrated target to craft, a flagged mod on the item to clear — or simply a bone on the price
+ * sheet. A bone OFFERS three modifiers and you keep one, so it can be the cheapest way to add an
+ * ORDINARY mod, and whether it is depends on what a miss would cost, which only the solve knows.
+ *
+ * A price test used to stand here — bones only when one cost less than `DESECRATION_OFFER_COUNT`
+ * Exalts — sold as a necessary condition: the offer at most triples the chance of a hit, so a dearer
+ * bone "cannot win". That weighs one bone against three Exalts, but three Exalts put three mods on
+ * the item and a bone puts one, and every miss is a mod to take off again (an Annulment, which may
+ * take a target instead) or the item itself. What the offer buys is not a hit; it is not having to
+ * take a miss. Measured 2026-09-10 on a held Rare Wand: a jawbone priced at 30 Exalts still takes the
+ * craft from 4,073.8ex to 2,608.8ex. By then the market had closed the test on every base (jawbone
+ * 4.2ex, rib 21ex, collarbone 110ex, Exalt 1ex), so no craft desecrated for an ordinary mod.
+ *
+ * What the test protected is real, and now paid for: the flag axis, ~3x the states and 2-8x the solve
+ * time on a craft that would not otherwise have used it. TODO 20.
+ *
+ * An ABSENT price reads as "no bone", not as a free one: `stepCost` turns a missing key into 0, and
+ * a 0 here would switch desecration on for every base in a sheet that simply doesn't price bones.
+ */
+export function boneRole(
+  data: PatchData, rawPrices: Prices, start: ItemState, targets: readonly TierTarget[], policy?: CurrencyPolicy,
+): MarkovResult['bones'] {
+  const prices = pricesForBase(rawPrices, start.base);
+  // None of it matters if the player has excluded the currency: with no Desecration in the action space
+  // nothing can ever set the flag, so enumerating the axis is pure cost. Checked here rather than left
+  // to `allowsAction`, which prunes ACTIONS and cannot shrink the lattice.
+  const allowed = BONE_KEYS.some((k) => !policy?.excluded.has(k));
+  const priced = BONE_KEYS.some((k) => prices.currency[k] !== undefined && !policy?.excluded.has(k));
+  // A mod a bone placed is on the held item exactly when `classifyStart` will flag one — read off the
+  // item itself. A merged slot shares one source, so the targets as named answer for the merged list.
+  const needs = targets.some((t) => data.mods.get(t.modId)?.source === 'desecrated')
+    || [...start.prefixes, ...start.suffixes].some((p) => p.desecrated === true || data.mods.get(p.modId)?.source === 'desecrated');
+  if (!allowed || !(needs || priced)) return undefined;
+  return needs ? 'required' : 'optional';
+}
+
 /**
  * Most CANDIDATE mods the lattice is enumerated for.
  *
@@ -322,9 +375,9 @@ const MAX_CANDIDATES = 9;
 export function markovFromItem(
   data: PatchData, rawPrices: Prices, start: ItemState, targets: readonly TierTarget[], opts: MarkovOptions = {},
 ): MarkovResult {
-  // Known once the targets are resolved; a failure after that says it too, so a caller can tell a craft
-  // that could be planned without bones from one that needs them.
-  let bones: MarkovResult['bones'];
+  // Said on every answer, a failure's too, so a caller can tell a craft that could be planned without
+  // bones from one that needs them.
+  const bones = boneRole(data, rawPrices, start, targets, opts.policy);
   const fail = (reason: string, why: { stoppedEarly?: true } = {}): MarkovResult => ({
     expectedCost: Infinity, feasible: false, converged: true, bound: 'exact',
     reason, nodes: [], edges: [], policy: new Map(), ...why, ...(bones ? { bones } : {}),
@@ -396,43 +449,8 @@ export function markovFromItem(
    */
   const merged = mergeSlots(cands, slotIndexGroups(targets));
   const slots = merged.slots;
-  /*
-   * Is Desecration in play at all?
-   *
-   * A desecrated target to craft, a flagged mod on the item to clear — or simply a bone on the price
-   * sheet. A bone OFFERS three modifiers and you keep one, so it can be the cheapest way to add an
-   * ORDINARY mod, and whether it is depends on what a miss would cost, which only the solve knows.
-   *
-   * A price test used to stand here — bones only when one cost less than `DESECRATION_OFFER_COUNT`
-   * Exalts — sold as a necessary condition: the offer at most triples the chance of a hit, so a dearer
-   * bone "cannot win". That weighs one bone against three Exalts, but three Exalts put three mods on
-   * the item and a bone puts one, and every miss is a mod to take off again (an Annulment, which may
-   * take a target instead) or the item itself. What the offer buys is not a hit; it is not having to
-   * take a miss. Measured 2026-09-10 on a held Rare Wand: a jawbone priced at 30 Exalts still takes the
-   * craft from 4,073.8ex to 2,608.8ex. By then the market had closed the test on every base (jawbone
-   * 4.2ex, rib 21ex, collarbone 110ex, Exalt 1ex), so no craft desecrated for an ordinary mod.
-   *
-   * What the test protected is real, and now paid for: the flag axis, ~3x the states and 2-8x the solve
-   * time on a craft that would not otherwise have used it. TODO 20.
-   *
-   * An ABSENT price reads as "no bone", not as a free one: `stepCost` turns a missing key into 0, and
-   * a 0 here would switch desecration on for every base in a sheet that simply doesn't price bones.
-   */
-  // Either grade of bone will do — Preserved (`desecrate`) or Ancient (`desecrate_ancient`), each
-  // already resolved for this base by `pricesForBase`.
-  const BONE_KEYS = ['desecrate', 'desecrate_ancient'] as const;
-  // …and none of it matters if the player has excluded the currency: with no Desecration in the action
-  // space nothing can ever set the flag, so enumerating the axis is pure cost. Worth checking here
-  // rather than leaving to `allowsAction`, which prunes ACTIONS and cannot shrink the lattice.
-  const bonesAllowed = BONE_KEYS.some((k) => !opts.policy?.excluded.has(k));
-  const bonePriced = BONE_KEYS.some((k) => prices.currency[k] !== undefined && !opts.policy?.excluded.has(k));
-  // A mod a bone placed is on the held item exactly when `classifyStart` will flag one — read here off
-  // the item itself, because the family siblings below depend on this and `s0` depends on them.
-  const holdsCarved = [...start.prefixes, ...start.suffixes]
-    .some((p) => p.desecrated === true || data.mods.get(p.modId)?.source === 'desecrated');
-  const needsBone = merged.targets.some((t) => representative(t).source === 'desecrated') || holdsCarved;
-  const desecratable = bonesAllowed && (needsBone || bonePriced);
-  if (desecratable) bones = needsBone ? 'required' : 'optional';
+  // Is Desecration in play at all — see `boneRole`.
+  const desecratable = bones !== undefined;
   /*
    * Then every OTHER mod the base can roll into a target's family (markovSiblings.ts). A same-side one
    * lands its target as blocked, as an off-tier roll does; anything else becomes an OBSTACLE position,
@@ -1501,11 +1519,26 @@ export function markovFromItem(
    *
    * Only for the policy solver. Value iteration has no use for a policy.
    */
-  const fastSeeded = canRestart && opts.solver === 'policy' && !opts.iterativeEval && opts.heuristicSeed === true
-    // The cap is a budget for the GUESS, not for the answer: cheap enough that a bad seed costs a
-    // fraction of a second, generous enough that a good one settles inside it.
-    ? iteratePolicy(0, 1000, heuristicPolicy(), 20_000)
-    : false;
+  /** The guessed policy, with another solve's plan wherever it has a move this lattice can play. */
+  const seededPolicy = (seed: RouteTable): Int32Array => {
+    const pol = heuristicPolicy();
+    const moveAt = projectPlan(seed, list.map(idsOf), allStates);
+    for (let i = 0; i < N; i++) {
+      if (isGoalIdx[i] === 1 || canReach[i] !== 1) continue;
+      const m = moveAt(i);
+      if (!m) continue;
+      const want = JSON.stringify(m);
+      const k = compiled[i]!.findIndex((a) => JSON.stringify(a.def.action) === want);
+      if (k >= 0) pol[i] = k;
+    }
+    return pol;
+  };
+  const seedPol = canRestart && opts.solver === 'policy' && !opts.iterativeEval
+    ? (opts.seedFrom ? seededPolicy(opts.seedFrom) : opts.heuristicSeed === true ? heuristicPolicy() : undefined)
+    : undefined;
+  // The cap is a budget for the GUESS, not for the answer: cheap enough that a bad seed costs a
+  // fraction of a second, generous enough that a good one settles inside it.
+  const fastSeeded = seedPol ? iteratePolicy(0, 1000, seedPol, 20_000) : false;
 
   let converged: boolean;
   let bound: MarkovResult['bound'];

@@ -1,65 +1,68 @@
-// A number for a craft the solve with bones could not settle (TODO 20).
+// A craft with bones solved from the plan without them (TODO 20).
 //
-// With a bone priced, a craft carries the Desecration flag axis — about three times the states and two
-// to eight times the solve time — so a craft that settles in five seconds without bones can run past the
-// clock with them. From a white base, a solve that runs out before its first phase settles has no number
-// at all (`stoppedEarly`). Measured at Standard (docs/validation.md, 2026-09-24): Amulets 5×T2 comes back
-// empty, and Wands 5×T2 and Rings 5×T2 settle on one run and come back empty on the next.
+// With a bone priced, a craft carries the Desecration flag axis — about three times the states — and the
+// two-phase solve spends 92–98% of its time in phase A, computing a value to seed phase B from. The same
+// craft without bones is several times faster, and its plan is a far better seed: any plan without
+// Desecration is proper in the lattice with it (the flag gates only bones), so its closed-form value is a
+// valid phase-B seed, and policy iteration only has to find where a bone pays. Measured (validation.md,
+// 2026-09-24): identical exact costs, 2.5–9x faster, and Amulets, Rings and Wands 5×T2 settle at
+// Standard, where two of them gave no number at all.
 //
-// A plan without Desecration is a plan the player can follow, so its exact cost is an honest CEILING on
-// the craft with bones: they can only make it cheaper. So where bones are optional — only a priced bone
-// put them in the model (`MarkovResult.bones`) — and the solve with them ran out, this solves the craft
-// again without them, on a clock of its own AFTER the first one, and answers with that ceiling when it
-// is the better answer. After, not out of a share of the same clock: a reserve cost Wands 5×T2 the exact
-// answer it reaches in 14 of Standard's 15 seconds.
+// So where bones are optional — only a priced bone put them in the model (`boneRole`) — and the craft can
+// start over, this solves it without bones first and seeds the solve with them from that plan. If the
+// solve with bones still runs out, the plan without them answers as a CEILING: a plan the player can
+// follow, whose exact cost bones can only lower.
 
 import type { ItemState, PatchData } from '../../engine/src/types.ts';
 import type { Prices } from './cost.ts';
 import type { TierTarget } from './optimize.ts';
-import { markovFromItem, type MarkovOptions, type MarkovProgress, type MarkovResult } from './markovFromItem.ts';
+import {
+  BONE_KEYS, boneRole, markovFromItem, type MarkovOptions, type MarkovProgress, type MarkovResult,
+} from './markovFromItem.ts';
 
-/** The two grades of bone, as price-sheet keys — what "without Desecration" leaves out. */
-export const BONE_KEYS = ['desecrate', 'desecrate_ancient'] as const;
+export { BONE_KEYS };
 
 export interface BoneFreeOptions {
-  /** The clock the solve without bones gets, on top of the first one's. */
+  /** The clock the solve without bones gets, apart from the one with them (`MarkovOptions.maxMillis`). */
   readonly maxMillis?: number;
-  /** Its progress, apart from the first solve's: it starts over from nothing. */
+  /** Its progress, apart from the solve with bones: they are two solves, each from nothing. */
   readonly onProgress?: (p: MarkovProgress) => void;
 }
 
 /**
- * `markovFromItem`, and when it ran out on a from-white craft whose bones are optional, the exact cost
- * of the best plan without them instead — marked `withoutBones`, `bound: 'upper'` — if that solve
- * settles and beats what the first one reached. Otherwise the first answer, untouched.
+ * `markovFromItem` — for a from-white craft whose bones are optional, solved without bones first and
+ * seeded from that plan; answered by that plan, marked `withoutBones` with `bound: 'upper'`, when the
+ * solve with bones still runs out and reaches nothing lower. Any other craft is solved as it was.
  */
-export function markovWithBoneFreeCeiling(
+export function markovBoneFreeFirst(
   data: PatchData, prices: Prices, start: ItemState, targets: readonly TierTarget[], opts: MarkovOptions,
-  fallback: BoneFreeOptions = {},
+  first: BoneFreeOptions = {},
 ): MarkovResult {
-  const res = markovFromItem(data, prices, start, targets, opts);
-  // Nothing, or a ceiling: what a solve that can start over leaves when it runs out. A solve from an item
-  // held climbs instead and stops on a floor, which a ceiling from elsewhere does not replace.
-  const unsettled = res.stoppedEarly === true || (res.feasible && res.bound === 'upper');
-  if (res.bones !== 'optional' || !unsettled) return res;
-
-  // A play-out is for a settled plan, and the first solve's progress is not this one's.
+  if (boneRole(data, prices, start, targets, opts.policy) !== 'optional' || opts.restartCost === undefined) {
+    return markovFromItem(data, prices, start, targets, opts);
+  }
+  // A play-out is for the answer, and the solve with bones has its own clock and progress.
   const { replay: _replay, onProgress: _onProgress, maxMillis: _maxMillis, ...same } = opts;
   const free = markovFromItem(data, prices, start, targets, {
     ...same,
+    keepRoutes: true,
     policy: { excluded: new Set([...(opts.policy?.excluded ?? []), ...BONE_KEYS]) },
-    ...(fallback.maxMillis === undefined ? {} : { maxMillis: fallback.maxMillis }),
-    ...(fallback.onProgress ? { onProgress: fallback.onProgress } : {}),
+    ...(first.maxMillis === undefined ? {} : { maxMillis: first.maxMillis }),
+    ...(first.onProgress ? { onProgress: first.onProgress } : {}),
   });
-  return lowerCeiling(res, free);
+  const seed = free.feasible && free.bound === 'exact' ? free.routes : undefined;
+  const res = markovFromItem(data, prices, start, targets, seed ? { ...opts, seedFrom: seed } : opts);
+  // Nothing, or a ceiling: what a solve that can start over leaves when it runs out.
+  const unsettled = res.stoppedEarly === true || (res.feasible && res.bound === 'upper');
+  return unsettled ? lowerCeiling(res, free) : res;
 }
 
 /**
- * Which of the two to give: the plan without bones, as a ceiling, when it settled and the first solve
- * reached nothing lower — a first solve that ran out on a ceiling of its own may already be under it.
+ * Which of the two to give: the plan without bones, as a ceiling, when it settled and the solve with
+ * bones reached nothing lower — one that ran out on a ceiling of its own may already be under it.
  */
-export function lowerCeiling(first: MarkovResult, withoutBones: MarkovResult): MarkovResult {
-  if (!withoutBones.feasible || withoutBones.bound !== 'exact') return first;
-  if (first.feasible && first.expectedCost <= withoutBones.expectedCost) return first;
+export function lowerCeiling(withBones: MarkovResult, withoutBones: MarkovResult): MarkovResult {
+  if (!withoutBones.feasible || withoutBones.bound !== 'exact') return withBones;
+  if (withBones.feasible && withBones.expectedCost <= withoutBones.expectedCost) return withBones;
   return { ...withoutBones, converged: false, bound: 'upper', withoutBones: true };
 }

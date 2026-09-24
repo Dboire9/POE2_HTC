@@ -31,7 +31,7 @@ import { stepProbability, type PlanStep } from '../../packages/engine/src/plan.t
 import { optimizePareto, type OptimizeParetoOptions } from '../../packages/optimizer/src/optimize.ts';
 import { optimizeFromItem } from '../../packages/optimizer/src/fromItem.ts';
 import { markovFromItem, type MarkovOptions } from '../../packages/optimizer/src/markovFromItem.ts';
-import { markovWithBoneFreeCeiling, type BoneFreeOptions } from '../../packages/optimizer/src/markovBoneFree.ts';
+import { markovBoneFreeFirst, type BoneFreeOptions } from '../../packages/optimizer/src/markovBoneFree.ts';
 import { routeFrom, stepFrom } from '../../packages/optimizer/src/markovRoute.ts';
 import {
   alternativesFromWhite, alternativesFromItem, type AlternativesOptions,
@@ -297,15 +297,16 @@ export function optimizeItem(
  */
 export function optimizeItemMarkov(
   eng: Engine, item: ExistingItem, targets: readonly TargetInput[], opts: MarkovOptions = {},
-  /** A from-white craft whose solve with bones runs out answers with the best plan without them, on this
-   *  clock of its own (`markovBoneFree.ts`). Absent ⇒ it answers with what it reached. */
+  /** A from-white craft whose bones are optional is solved without them first, on this clock of its own,
+   *  and that plan seeds the solve with them — or answers as a ceiling (`markovBoneFree.ts`). Absent ⇒
+   *  the craft is solved once, as it always was. */
   withoutBones?: BoneFreeOptions,
 ): EngineMarkovResult {
   const { data, prices } = eng;
   const state = buildItemState(data, item);
   const tiers = toTierTargets(data, targets);
   const res = withoutBones
-    ? markovWithBoneFreeCeiling(data, prices, state, tiers, opts, withoutBones)
+    ? markovBoneFreeFirst(data, prices, state, tiers, opts, withoutBones)
     : markovFromItem(data, prices, state, tiers, opts);
   // `targets` is handed on so every position can carry the tier it was ASKED at. It is the UI-shaped
   // list, which is the only place `tierDisplay` survives — `toTierTargets` converts it to the engine's

@@ -9,12 +9,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- **A number for big crafts that used to come back empty.** With a bone priced, a big craft from a white
-  base could run past its Search effort with no number at all — at Standard, Amulets and Rings with five
-  modifiers did, and Wands with five settled on one run and not the next. Now, when the craft does not
-  need a bone, the Plan tab solves it once more without Desecration (up to the Search effort's time
-  again) and shows that plan's exact cost as a ceiling — "≤ x", with its route — saying that bones can
-  only make it cheaper.
+- **Big crafts with bones settle, and faster.** With a bone priced, a big craft from a white base could
+  run past its Search effort with no number at all — at Standard, Amulets and Rings with five modifiers
+  did. The Plan tab now solves such a craft without Desecration first and starts the solve with bones
+  from that plan: the same exact costs, 2.5 to 9 times faster, and those crafts settle at Standard. If the
+  solve with bones still runs out, the plan without Desecration answers as a ceiling — "≤ x", with its
+  route — saying that bones can only make it cheaper.
 
 - **What a craft can cost — not only on average.** Under the true expected cost on both gear tabs, *Play
   it out* plays the plan on real items for a few seconds: half the crafts cost less than X, the luckiest

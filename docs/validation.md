@@ -4690,6 +4690,31 @@ every craft that settled gives the same number; **Amulets ×5 → "≤ 198,667 e
 Amulets ×5 57,105 (45.4 s) — so the ceilings are 1.8x and 3.5x the answer, and bones save 39–71% on the
 4- and 5-modifier crafts here. A real ceiling, not an estimate, which is how the page words it.
 
+**Then seeded, the same day.** The plan without bones is proper in the lattice with them, so it can seed
+policy iteration and skip phase A (`seedFrom`, `projectPlan`). Standard's limits, interleaved, 2 reps;
+"seeded" is the solve without bones + the seeded solve with them:
+
+| craft | two-phase | seeded |
+|---|---|---|
+| Wands ×4 | 3.4 s, 3.2 s | 0.8+0.3 s, 0.7+0.3 s |
+| Body Armour (str) ×5 | 6.8 s, 6.8 s | 1.7+0.8 s, 1.4+0.7 s |
+| Amulets ×4 | 5.8 s, 8.0 s | 1.1+0.3 s, 1.0+0.3 s |
+| Rings ×4 | 2.3 s, 2.2 s | 0.6+0.3 s, 0.5+0.3 s |
+| Wands ×5 | none (15.7 s), 13.8 s | 4.7+0.6 s, 3.7+0.7 s |
+| Rings ×5 | none, none | 1.4+0.8 s, 1.8+0.8 s |
+| Amulets ×5 | none, none | 5.7+1.1 s, 5.7+0.9 s |
+
+Every seeded cost identical to the two-phase one where that settled, and to Exhaustive's where it did
+not (Rings 27,451, Amulets 57,105). The Aldur staff (fubgun's, six targets with the Cold-or-Lightning
+slot, Exhaustive's limits, 4 interleaved reps): two-phase 28.7–38.0 s (median ~36 s), seeded 6.9–9.9 s
+(median ~8.7 s), 57,380.4 ex every time — the gate the plan set (1.5x on the median, identical costs)
+passed by a wide margin. (At today's prices the staff settles far faster than the ~450 s of 2026-09-10.)
+
+Through the app (`scripts/bone-fallback.mts`, Standard, the seeded path on): all twelve settle — Wands
+×3/×4/×5 0.4/1.7/8.0 s, Body Armour 0.4/1.0/3.2 s, Amulets 0.4/1.8/8.3 s (57,105), Staves ×3 0.3 s, Rings
+×4/×5 0.8/3.8 s (27,451) — same costs as above. The ceiling without bones now shows only when even the
+seeded solve runs out.
+
 ## Still deferred
 - **Confirm the Omen of Whittling TIE rule in game** (2026-09-02): when two or more modifiers share
   the lowest item level, which does the Chaos Orb remove? Modelled as uniform — 50/50 on two — by the

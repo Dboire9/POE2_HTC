@@ -942,20 +942,21 @@ Enforced in `packages/engine` (mostly `probability.ts`).
   not bounded by anything (the `ItemWorth` rule). Every row assumes NO junk in the other slots, so a
   real listing costs at least that to finish — both panels say so.
 
-- **A from-white craft whose solve with bones runs out answers with the plan WITHOUT bones, as a
-  ceiling — solved after the budget, not out of it** (2026-09-24, `markovBoneFree.ts`, TODO 20). A plan
-  without Desecration is playable in the model with it, so its exact cost bounds the craft from above.
-  The result says whether bones were `optional` (only a priced bone put the flag axis there) or
-  `required` (a desecrated target, a carved mod held), and only an optional one gets the second solve —
-  a required one could not reach its target without bones. The second solve gets the Search effort's
-  whole clock AGAIN rather than a reserved share of the first: a reserve fails the gate the plan set,
-  because Wands 5×T2 settles at Standard in 13.8–14.7 s and would lose its exact answer to any share
-  big enough to fit the Amulets 5×T2 fallback (5.0 s). It answers with the lower of the two ceilings
-  when the first solve ran out holding one (`lowerCeiling`). The bar carries on from where the first
-  solve left it, under "Solving it again without Desecration…", and the Lab says the time went past the
-  preset. **The existing guessed seed (`heuristicSeed`) does not rescue these crafts**: measured
-  interleaved on seven bone crafts, it was never faster and left Body Armour 5×T2 and Wands 5×T2 with
-  no number where the two-phase solve settled them (validation.md).
+- **A from-white craft with a bone priced is solved WITHOUT bones first, and that plan seeds the solve
+  with them** (2026-09-24, `markovBoneFree.ts`, `markovSeed.ts`, TODO 20). Any plan without Desecration
+  is proper in the lattice with it (the flag gates only bones), so its closed-form value is a valid
+  phase-B seed, and policy iteration then only has to find where a bone pays — the same door
+  `heuristicSeed` opens, with a far better guess behind it. `projectPlan` reads the other plan in this
+  lattice's states: positions matched on the mod ids they hold (carved-pool siblings exist only with
+  bones, and order may differ), a flagged state or one with an extra position filled left to the
+  guessed policy. Measured interleaved (validation.md): identical exact costs, 2.5–9x faster on the bone
+  table, ~4x on the Aldur staff, and Amulets / Rings / Wands 5×T2 settle at Standard. Only where bones
+  are `optional` (`boneRole`, known before solving — a `required` bone has nothing to seed from) and the
+  craft can start over. **The guessed seed alone does NOT do this**: `heuristicSeed` on the same crafts
+  was never faster and lost Body Armour and Wands 5×T2 outright. If the seeded solve still runs out, the
+  plan without bones answers as a CEILING (`lowerCeiling`, `withoutBones`): playable, so bones can only
+  lower it. Its clock is its own, the same as the solve with bones, and the bar gives it the first 75%
+  of the model's span ("Solving it without Desecration first…").
 
 ## The step planners
 

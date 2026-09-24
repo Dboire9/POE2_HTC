@@ -1333,7 +1333,11 @@ line in `profileItems.test.ts` pin it.
 
 **Verify.** New rows get the CoE check every other category had.
 
-## 20. A bone in play costs 2-8x the solve time — OPEN, found 2026-09-10
+## 20. A bone in play costs 2-8x the solve time — OPEN for crafts that NEED a bone, found 2026-09-10
+
+Optional bones are handled since 2026-09-24 (seeded from the plan without them, below). What stays open
+is a craft whose bone is required — a desecrated target — which has no plan without bones to seed from:
+Zizaran's ring, at the end of this item.
 
 The price gate that kept Desecration off crafts it "could never help" was unsound and is gone
 (docs/validation.md, 2026-09-10), so every craft with bones priced and allowed carries the flag axis.
@@ -1344,11 +1348,9 @@ staff takes roughly 450 s of Exhaustive's 900 s. The price of a right answer, no
 
 Two ways to buy the time back:
 
-- **Seed the bone solve with the bone-free policy** — still open. Any bone-free policy is proper in the
-  bigger lattice (the flag gates only bones), so its closed-form value is a valid phase-B seed — the door
-  `heuristicSeed` already opens to skip phase A, which is 92-98% of a solve. The bone-free solve is the
-  fast one. Not `heuristicSeed` itself: measured interleaved on seven bone crafts (2026-09-24,
-  docs/validation.md) the guessed seed was never faster and lost Body Armour and Wands 5×T2 outright.
+- ~~**Seed the bone solve with the bone-free policy.**~~ DONE 2026-09-24 (`markovBoneFree.ts`,
+  `markovSeed.ts`): identical exact costs, 2.5–9x faster on the bone table and ~4x on the Aldur staff
+  (docs/validation.md). The guessed seed (`heuristicSeed`) alone was measured too and never helped.
 - ~~**Answer from the bone-free solve when the bone solve runs out.**~~ DONE 2026-09-24
   (`markovBoneFree.ts`): a from-white craft whose bones are optional and whose solve runs out gets the
   plan without bones as a ceiling, solved after the budget on a clock of its own. At Standard, Amulets and

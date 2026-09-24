@@ -224,6 +224,11 @@ const MODEL_BEFORE_REPLAY = 0.1;
  */
 const PLAYOUT_MILLIS = 4_000;
 const MODEL_BEFORE_PLAYOUT = 0.5;
+/**
+ * The model's share of the bar the solve without bones takes, when a craft is solved that way first
+ * (markovBoneFree.ts): measured at 75–90% of the pair's time, the seeded solve with bones the rest.
+ */
+const BONE_FREE_SHARE = 0.75;
 
 /**
  * A lab compute's split depends on whether a budget was set, which is why these can't be a static
@@ -421,14 +426,14 @@ export function runSolve(eng: Engine, req: SolveRequest, onProgress?: (p: SolveP
   const modelShare = req.watch ? MODEL_BEFORE_REPLAY : MODEL_BEFORE_PLAYOUT;
   const mdpSpan: Span = watch ? [modelFrom, modelFrom + (modelTo - modelFrom) * modelShare] : [modelFrom, modelTo];
   const replayProgress = emit(replayPhase, [mdpSpan[1], modelTo]);
-  // Where the model has got the bar to, and under which label: a solve without bones that runs after it
-  // (below) carries on from there rather than starting the bar over, and the end keeps the last label.
-  let reached = mdpSpan[0];
+  // A craft whose bones are optional is two solves (markovBoneFree.ts): without bones first, over the
+  // first part of the model's span, then with them over the rest. The end keeps the last label.
+  const split = mdpSpan[0] + (mdpSpan[1] - mdpSpan[0]) * BONE_FREE_SHARE;
+  let freeRan = false;
   let lastPhase: SolvePhase = 'solve';
-  const report = (phase: SolvePhase, fraction: number): void => {
-    reached = fraction;
+  const report = (phase: SolvePhase, span: Span, pr: MarkovProgress): void => {
     lastPhase = phase;
-    onProgress?.({ phase, fraction });
+    onProgress?.({ phase, fraction: within(span, toFraction(pr) * 1000, 1000) });
   };
   const mdpClock = clockLeft();
   const markov = markovOrReason(() => optimizeItemMarkov(eng, mdpItem, req.targets, spared(withSweepLimit(withPolicy({
@@ -446,18 +451,14 @@ export function runSolve(eng: Engine, req: SolveRequest, onProgress?: (p: SolveP
     ...(req.smallLattice ? { heuristicSeed: true, exactEvaluation: true } : {}),
     ...(mdpClock === undefined ? {} : { maxMillis: mdpClock }),
     ...(onProgress
-      ? { onProgress: (pr: MarkovProgress): void => report(pr.phase, within(mdpSpan, toFraction(pr) * 1000, 1000)) }
+      ? { onProgress: (pr: MarkovProgress): void => report(pr.phase, freeRan ? [split, mdpSpan[1]] : mdpSpan, pr) }
       : {}),
   }))), {
-    // A white base whose solve with bones runs out gets the best plan without them, on a clock of its
-    // own AFTER the effort's — the whole preset again (markovBoneFree.ts; a share of the first clock cost
-    // a craft its exact answer). A ceiling instead of nothing; the page says it took the extra time.
-    ...(eff ? { maxMillis: eff.maxMillis } : {}),
+    // The solve without bones gets a clock of its own, the same as the one with them: its plan seeds
+    // that solve, or answers as a ceiling if it runs out.
+    ...(mdpClock === undefined ? {} : { maxMillis: mdpClock }),
     ...(onProgress
-      ? { onProgress: (pr: MarkovProgress): void => {
-        lastPhase = 'withoutBones';
-        onProgress({ phase: lastPhase, fraction: within([reached, mdpSpan[1]], toFraction(pr) * 1000, 1000) });
-      } }
+      ? { onProgress: (pr: MarkovProgress): void => { freeRan = true; report('withoutBones', [mdpSpan[0], split], pr); } }
       : {}),
   }));
 

@@ -32,8 +32,6 @@ const LabResults: React.FC<{ lab: LabCraft }> = ({ lab }) => {
   const boneAdvice = topped
     ? <>at <strong>{topLabel}</strong> the solver cannot say how much cheaper</>
     : <>raise <strong>Search effort</strong> to find out how much cheaper</>;
-  // The preset the result on screen ran at, by name: the solve without bones took time past it.
-  const ranAtLabel = EFFORT_PRESETS.find((p) => p.id === markovEffort)?.label ?? 'the Search effort';
   const finishAdvice = topped
     ? <>This is <strong>{topLabel}</strong> already — the craft is beyond what the solver can settle.</>
     : <>Raise <strong>Search effort</strong> to let it finish.</>;
@@ -83,13 +81,13 @@ const LabResults: React.FC<{ lab: LabCraft }> = ({ lab }) => {
               restarts — a real, if expensive, way to finish — and works DOWN from it, so stopping early
               leaves a ceiling. From an item it starts at zero and works up, leaving a floor. */}
           {markov.withoutBones ? (
-            // The solve with bones ran out, and this is the one without them (markovBoneFree.ts): a plan
-            // the player can follow, so a real ceiling — but a different plan, which the note has to say.
+            // The solve with bones ran out even seeded from the plan without them, and this is that plan
+            // (markovBoneFree.ts): one the player can follow, so a real ceiling — but a different plan,
+            // which the note has to say.
             <p className="rounded-md border border-amber-500/50 bg-amber-500/10 px-2 py-1.5 text-[11px] text-amber-700 dark:text-amber-300">
-              ⚠ With Desecration in play the solver ran out of time on this craft, so it solved it once more{' '}
-              <strong>without Desecration</strong>, past the time {ranAtLabel} allows. This is the exact cost of
-              that plan, and a <strong>ceiling</strong>: bones can only make the craft cheaper. The route below
-              uses none — {boneAdvice}.
+              ⚠ Even starting from the best plan <strong>without Desecration</strong>, the solver ran out of time
+              before this craft settled with it. This is that plan’s exact cost, and a <strong>ceiling</strong>:
+              bones can only make the craft cheaper. The route below uses none — {boneAdvice}.
             </p>
           ) : markov.bound === 'upper' && (
             <p className="rounded-md border border-amber-500/50 bg-amber-500/10 px-2 py-1.5 text-[11px] text-amber-700 dark:text-amber-300">

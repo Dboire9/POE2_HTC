@@ -71,8 +71,9 @@ npm run lint && npm run type-check && npm run type-check:engine && npm run type-
 - **Work lands on `beta`; production is `main`.** Commit, push `beta`, check CI. **`main` moves only when
   the maintainer says so** — then fast-forward it to `beta`. Vercel builds every branch, so `beta` has its
   own preview.
-- **Never force-push.** The daily price bot merges straight to `main`, so `main` is often ahead of `beta`:
-  merge `main` into `beta`, then push. A direct push to `main` prints `remote: Bypassed rule
+- **Never force-push.** Two bots merge straight to `main` — prices daily (`refresh-prices.yml`), streamer
+  gear on Mondays (`refresh-streamers.yml`) — so `main` is often ahead of `beta`: merge `main` into `beta`,
+  then push. A direct push to `main` prints `remote: Bypassed rule
   violations` — expected.
 - Check CI through the public API: `https://api.github.com/repos/Dboire9/POE2_HTC/commits/<sha>/check-runs`
   (and `…/status` for Vercel). Unauthenticated calls are limited to 60 an hour — poll 45 s or more apart.

@@ -1,8 +1,8 @@
 // Crafts to try on an empty Plan tab — so a first visit sees what the app answers before learning the
 // picker. Each is chosen to settle EXACTLY at Standard in a second or two (measured 2026-09-24 on the
-// live sheet, docs/validation.md; `exampleCrafts.test.ts` holds each to settling on the frozen sheet), so
-// the first thing a player sees is a real answer, never a bound or a long wait. Loaded the way a
-// streamer's item is (`craftFromScratch`), then solved.
+// live sheet, docs/validation.md; `exampleCrafts.test.ts` holds each to settling within Standard's
+// sweeps on the frozen sheet), so the first thing a player sees is a real answer, never a bound or a
+// long wait. Loaded the way a streamer's item is (`craftFromScratch`), then solved.
 
 import type { CraftGoal } from './engineTypes';
 

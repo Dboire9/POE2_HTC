@@ -93,6 +93,19 @@ async function main() {
   }
 
   const file = join(ROOT, `data/streamers/${PATCH}.json`);
+  // Nothing read at all is poe.ninja down or the endpoint changed — never "every streamer quit". Writing
+  // it would publish an empty tab, and an empty list passes every test, so the weekly job
+  // (refresh-streamers.yml) would merge it. Keep the last sheet and fail loudly instead.
+  if (out.length === 0) throw new Error('no profile could be read — keeping the last sheet');
+  // A streamer the last sheet had and this one lacks may be a private profile or a deleted character,
+  // or a fetch that failed once. The weekly job merges only a CLEAN verdict; this holds it for a read.
+  const before = (() => {
+    try { return JSON.parse(readFileSync(file, 'utf8')).characters.map((c) => c.profile); } catch { return []; }
+  })();
+  const missing = before.filter((p) => !out.some((c) => c.profile === p));
+  console.log(missing.length === 0
+    ? 'STREAMERS-VERDICT: clean'
+    : `STREAMERS-VERDICT: review — ${missing.length} of ${before.length} streamers could not be read this time: ${missing.join(', ')}`);
   const payload = { patch: PATCH, updated: new Date().toISOString().slice(0, 10), source: 'poe.ninja profiles', characters: out };
   if (DRY) { console.log(`\n--dry-run: ${out.length} character(s); not writing.`); return; }
   mkdirSync(dirname(file), { recursive: true });

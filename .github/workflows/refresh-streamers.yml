@@ -1,0 +1,215 @@
+name: Refresh streamer gear
+
+# The Streamer gear tab reads a committed snapshot (`data/streamers/0.5.0.json`), resolved from poe.ninja
+# profiles by `npm run update-streamers`. It was refreshed by hand, so it aged. This runs it weekly and
+# opens a pull request — and MERGES it itself when two things hold, the price bot's pattern
+# (refresh-prices.yml, whose comments carry the reasons in full):
+#
+#   verdict  the fetch ends with a `STREAMERS-VERDICT:` line — is every streamer the last sheet had
+#            still there? One missing may be a private profile or a failed fetch; a human reads it.
+#   tests    does the app still work on the new sheet? The WHOLE suite, run here.
+#
+#   both clean  -> merge automatically; Vercel redeploys.
+#   either not  -> leave the PR open, titled REVIEW NEEDED, and say which in the body.
+#
+# A fetch that reads NOTHING fails before any PR (fetch.mjs refuses to write an empty sheet), and a
+# refused merge fails the job, so no outcome is silent.
+
+on:
+  schedule:
+    # Mondays, 06:30 UTC — after the daily price refresh, so the two never race for main. One request
+    # per profile plus one per current character: a handful a week, from one runner.
+    - cron: '30 6 * * 1'
+  workflow_dispatch:
+
+jobs:
+  refresh:
+    name: Fetch streamer gear and open a PR
+    runs-on: ubuntu-latest
+
+    # Declared rather than inherited: push one branch, open and merge one PR.
+    permissions:
+      contents: write
+      pull-requests: write
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v5
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v5
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      # `tee` for the log and the PR body; `pipefail` so the pipe cannot mask the script's exit.
+      - name: Fetch streamer gear from poe.ninja
+        shell: bash
+        run: |
+          set -euo pipefail
+          npm run update-streamers 2>&1 | tee /tmp/refresh.log
+
+      # The sheet carries the day it was written, so it changes on every run: a change to that line
+      # ALONE is no change, and opening a PR for it would bury the ones that matter.
+      - name: Did any gear change, and did every streamer come back?
+        id: diff
+        shell: bash
+        run: |
+          set -euo pipefail
+          if git diff -U0 -- data/streamers | grep -E '^[+-][^+-]' | grep -qvE '^[+-][[:space:]]*"updated":'; then
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+            git diff --stat -- data/streamers
+          else
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+            git checkout -- data/streamers
+            echo "No gear changed. Nothing to open a PR for."
+          fi
+          # Absent means the script changed shape or died mid-run: the safe reading is "a human looks".
+          if grep -q '^STREAMERS-VERDICT: clean' /tmp/refresh.log; then
+            echo "verdict=clean" >> "$GITHUB_OUTPUT"
+          else
+            echo "verdict=review" >> "$GITHUB_OUTPUT"
+            { echo "why<<EOF"; grep '^STREAMERS-VERDICT:' /tmp/refresh.log || echo "STREAMERS-VERDICT: absent from the log"; echo "EOF"; } >> "$GITHUB_OUTPUT"
+          fi
+
+      # Here, not on the PR: a PR opened with GITHUB_TOKEN triggers no workflows. `continue-on-error` so
+      # a failure still OPENS the PR, held; the job fails at the end (last step).
+      - name: Guard the new sheet against the whole test suite
+        id: guard
+        if: steps.diff.outputs.changed == 'true'
+        continue-on-error: true
+        shell: bash
+        run: |
+          set -uo pipefail
+          if npm test 2>&1 | tee /tmp/guard.log; then
+            echo "passed=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "passed=false" >> "$GITHUB_OUTPUT"
+            echo "::error::The test suite failed against the refreshed streamer sheet. Held for review."
+          fi
+
+      - name: Combine the verdict with the test result
+        id: verdict
+        if: steps.diff.outputs.changed == 'true'
+        shell: bash
+        env:
+          FETCHED: ${{ steps.diff.outputs.verdict }}
+          WHY: ${{ steps.diff.outputs.why }}
+          TESTS: ${{ steps.guard.outputs.passed }}
+        run: |
+          set -euo pipefail
+          if [ "$FETCHED" = clean ] && [ "$TESTS" = true ]; then
+            echo "verdict=clean" >> "$GITHUB_OUTPUT"
+          else
+            echo "verdict=review" >> "$GITHUB_OUTPUT"
+          fi
+          {
+            echo "why<<VERDICT_EOF"
+            [ "$FETCHED" = clean ] || echo "${WHY:-STREAMERS-VERDICT: review}"
+            [ "$TESTS" = true ] || echo "TESTS FAILED against the refreshed sheet — see the job log."
+            echo "VERDICT_EOF"
+          } >> "$GITHUB_OUTPUT"
+
+      - name: Open or update the pull request, and merge it if the sheet is clean
+        id: pr
+        if: steps.diff.outputs.changed == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          BASE: ${{ github.ref_name }}
+          VERDICT: ${{ steps.verdict.outputs.verdict }}
+          WHY: ${{ steps.verdict.outputs.why }}
+          TESTS: ${{ steps.guard.outputs.passed }}
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          trap 'echo "::error::The PR step failed at line $LINENO: $BASH_COMMAND" >&2' ERR
+          branch=chore/refresh-streamers
+
+          git config user.name  "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git switch -C "$branch"
+          git add data/streamers
+          git commit -m "Refresh streamer gear from poe.ninja"
+          # A fixed branch, force-pushed: a re-run updates the one open PR. Only this job writes here.
+          git push --force origin "$branch"
+
+          if [ "$VERDICT" = clean ]; then
+            title="Refresh streamer gear from poe.ninja"
+          else
+            title="REVIEW NEEDED — refresh streamer gear from poe.ninja"
+          fi
+
+          {
+            echo "Automated weekly refresh of \`data/streamers/0.5.0.json\` from poe.ninja profiles."
+            echo
+            if [ "$VERDICT" = clean ]; then
+              echo "> [!NOTE]"
+              echo "> Every streamer came back and the suite passed, so this **merges itself**."
+            else
+              echo "> [!CAUTION]"
+              echo "> **Held for review — not merged.**"
+              echo "$WHY" | sed 's/^/> /'
+            fi
+            echo
+            echo "The whole test suite ran against the new sheet in the refresh job — a PR opened by"
+            echo "\`GITHUB_TOKEN\` does not trigger CI, so that check has to run there rather than here."
+            echo
+            # Vitest colours its output under CI; strip the escape codes before reading it, and never let
+            # the summary stop the PR (see refresh-prices.yml, 2026-09-11).
+            sed 's/\x1b\[[0-9;]*m//g' /tmp/guard.log > /tmp/guard.txt
+            if [ "$TESTS" = true ]; then
+              echo '```'
+              grep -E '^\s+(Test Files|Tests) ' /tmp/guard.txt | tail -2 || echo "(no summary line in the test log)"
+              echo '```'
+            else
+              echo "<details open><summary>Failing tests</summary>"
+              echo
+              echo '```'
+              grep -m 40 -E '^\s+×|^\s+(Test Files|Tests) ' /tmp/guard.txt || echo "(no failing-test lines in the log — see the job log)"
+              echo '```'
+              echo
+              echo "</details>"
+            fi
+            echo
+            echo "<details><summary>Full refresh output</summary>"
+            echo
+            echo '```'
+            cat /tmp/refresh.log
+            echo '```'
+            echo
+            echo "</details>"
+          } > /tmp/pr-body.md
+
+          # Open PRs only: `pr view` would fall back to last week's merged one and edit it instead.
+          open_pr=$(gh pr list --head "$branch" --state open --json number --jq '.[0].number // empty')
+          if [ -n "$open_pr" ]; then
+            gh pr edit "$open_pr" --title "$title" --body-file /tmp/pr-body.md
+            pr="$open_pr"
+          else
+            gh pr create --base "$BASE" --head "$branch" --title "$title" --body-file /tmp/pr-body.md
+            pr=$(gh pr list --head "$branch" --state open --json number --jq '.[0].number')
+          fi
+
+          if [ "$VERDICT" != clean ]; then
+            echo "::warning::Held for review, not merged. $WHY"
+            exit 0
+          fi
+
+          # A refused merge FAILS the job: an unmerged PR with the ordinary title is the automation
+          # quietly not working.
+          if gh pr merge "$pr" --squash --delete-branch; then
+            echo "Merged #$pr. Vercel will redeploy from $BASE."
+          else
+            echo "::error::The sheet was clean but the merge was REFUSED. PR #$pr is open and ready to merge by hand."
+            exit 1
+          fi
+
+      # `continue-on-error` above keeps the job green; re-raise a failing suite now that the PR exists.
+      - name: Fail the job if the suite failed
+        if: steps.diff.outputs.changed == 'true' && steps.guard.outputs.passed != 'true'
+        run: |
+          echo "The test suite failed against the refreshed streamer sheet. The PR is open and held for review."
+          exit 1

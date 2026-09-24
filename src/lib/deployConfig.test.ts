@@ -185,64 +185,11 @@ describe('no throwaway probes in the suite', () => {
 });
 
 /**
- * The price bot merges to `main` on its own, daily, at 06:00 UTC with nobody watching — so its
- * safeguards are the ones least likely to be noticed when they stop working, and nothing else in the
- * suite executes that file. Same reasoning as `vercel.json` above, and the same limitation: these are
- * assertions about TEXT, not about what GitHub will do with it. They pin decisions, not behaviour.
- *
- * Three ways it went quiet before 2026-09-08, each fixed and each pinned here.
+ * The PR step of a refresh bot — the price bot's, and the streamer bot's, which copies it — RUN under
+ * bash with `git` and `gh` stubbed, against vitest output captured with `CI=true` (see the price bot's
+ * note below for the 2026-09-11 failure this exists for).
  */
-describe('the price refresh bot cannot merge quietly', () => {
-  const wf = readFileSync('.github/workflows/refresh-prices.yml', 'utf8');
-
-  /**
-   * It ran `priceResolution` and `costConsistency` only. Those are the sheet's own contract and they
-   * pass on data that is wrong in ways they were never asked about — the league rollover that
-   * collapsed 272 Alloy prices to one median went through them green, while `src/lib/alloys.test.ts`
-   * (which reads the live sheet on purpose) would have caught it and was not in the list.
-   */
-  it('guards a refresh with the whole test suite, not a curated list', () => {
-    expect(wf).toMatch(/if npm test 2>&1 \| tee/);
-    expect(wf).not.toMatch(/npx vitest run packages\/optimizer\/src\/priceResolution/);
-  });
-
-  /**
-   * The guard is `continue-on-error` so that a failure still OPENS the PR — the artifact you need to
-   * see what the bad data was. That makes the job green by default, so the failure has to be re-raised
-   * afterwards or a red suite would report success.
-   */
-  it('re-raises a failing suite, since continue-on-error swallows it', () => {
-    expect(wf).toMatch(/continue-on-error: true/);
-    expect(wf).toMatch(/steps\.guard\.outputs\.passed != 'true'/);
-  });
-
-  /**
-   * A refused merge used to log `::warning::` and exit 0. The PR it leaves behind carries the ORDINARY
-   * title, so it looks exactly like the ones that merged themselves — an automation quietly not
-   * working, which is the case that most needs the email.
-   */
-  it('fails the job when a clean merge is refused', () => {
-    const refused = wf.slice(wf.indexOf('if gh pr merge'));
-    expect(refused).toMatch(/::error::/);
-    expect(refused).toMatch(/exit 1/);
-    expect(refused).not.toMatch(/::warning::Depth check was clean/);
-  });
-
-  /** Both questions gate the merge: is the data backed by a market, and does the app work on it? */
-  it('merges only when the depth verdict AND the tests are clean', () => {
-    expect(wf).toMatch(/\[ "\$DEPTH" = clean \] && \[ "\$TESTS" = true \]/);
-  });
-
-  /**
-   * Everything above reads the workflow as TEXT, and on 2026-09-11 the text passed all of it while the
-   * PR step died on its first real run: vitest colours its output whenever `CI` is set — always, on a
-   * runner — so `grep '^\s+Tests'` matched nothing, `pipefail` made that fatal, and the step exited 1
-   * between the branch push and `gh pr create` with nothing in the log to say why. No PR, no prices.
-   *
-   * So this RUNS the step's own script, lifted out of the YAML, under bash, with `git` and `gh`
-   * stubbed on PATH, against vitest output captured from a run with `CI=true` (escape codes and all).
-   * A local run will not show those colours: vitest switches them off when it detects an AI agent.
-   */
+function describePrStep(wf: string): void {
   describe.skipIf(process.platform === 'win32')('the PR step, executed against coloured vitest output', () => {
     const lines = wf.split('\n');
     const runAt = lines.findIndex((l, i) => i > lines.findIndex((m) => m.trim() === 'id: pr') && /^\s+run: \|$/.test(l));
@@ -315,6 +262,68 @@ describe('the price refresh bot cannot merge quietly', () => {
       expect(r.gh).toBe('');
     });
   });
+}
+
+/**
+ * The price bot merges to `main` on its own, daily, at 06:00 UTC with nobody watching — so its
+ * safeguards are the ones least likely to be noticed when they stop working, and nothing else in the
+ * suite executes that file. Same reasoning as `vercel.json` above, and the same limitation: these are
+ * assertions about TEXT, not about what GitHub will do with it. They pin decisions, not behaviour.
+ *
+ * Three ways it went quiet before 2026-09-08, each fixed and each pinned here.
+ */
+describe('the price refresh bot cannot merge quietly', () => {
+  const wf = readFileSync('.github/workflows/refresh-prices.yml', 'utf8');
+
+  /**
+   * It ran `priceResolution` and `costConsistency` only. Those are the sheet's own contract and they
+   * pass on data that is wrong in ways they were never asked about — the league rollover that
+   * collapsed 272 Alloy prices to one median went through them green, while `src/lib/alloys.test.ts`
+   * (which reads the live sheet on purpose) would have caught it and was not in the list.
+   */
+  it('guards a refresh with the whole test suite, not a curated list', () => {
+    expect(wf).toMatch(/if npm test 2>&1 \| tee/);
+    expect(wf).not.toMatch(/npx vitest run packages\/optimizer\/src\/priceResolution/);
+  });
+
+  /**
+   * The guard is `continue-on-error` so that a failure still OPENS the PR — the artifact you need to
+   * see what the bad data was. That makes the job green by default, so the failure has to be re-raised
+   * afterwards or a red suite would report success.
+   */
+  it('re-raises a failing suite, since continue-on-error swallows it', () => {
+    expect(wf).toMatch(/continue-on-error: true/);
+    expect(wf).toMatch(/steps\.guard\.outputs\.passed != 'true'/);
+  });
+
+  /**
+   * A refused merge used to log `::warning::` and exit 0. The PR it leaves behind carries the ORDINARY
+   * title, so it looks exactly like the ones that merged themselves — an automation quietly not
+   * working, which is the case that most needs the email.
+   */
+  it('fails the job when a clean merge is refused', () => {
+    const refused = wf.slice(wf.indexOf('if gh pr merge'));
+    expect(refused).toMatch(/::error::/);
+    expect(refused).toMatch(/exit 1/);
+    expect(refused).not.toMatch(/::warning::Depth check was clean/);
+  });
+
+  /** Both questions gate the merge: is the data backed by a market, and does the app work on it? */
+  it('merges only when the depth verdict AND the tests are clean', () => {
+    expect(wf).toMatch(/\[ "\$DEPTH" = clean \] && \[ "\$TESTS" = true \]/);
+  });
+
+  /**
+   * Everything above reads the workflow as TEXT, and on 2026-09-11 the text passed all of it while the
+   * PR step died on its first real run: vitest colours its output whenever `CI` is set — always, on a
+   * runner — so `grep '^\s+Tests'` matched nothing, `pipefail` made that fatal, and the step exited 1
+   * between the branch push and `gh pr create` with nothing in the log to say why. No PR, no prices.
+   *
+   * So this RUNS the step's own script, lifted out of the YAML, under bash, with `git` and `gh`
+   * stubbed on PATH, against vitest output captured from a run with `CI=true` (escape codes and all).
+   * A local run will not show those colours: vitest switches them off when it detects an AI agent.
+   */
+  describePrStep(wf);
 });
 
 /**
@@ -342,4 +351,88 @@ describe('early-league prices are held for a read', () => {
     expect(sheet.leagueSince).toMatch(/^\d{4}-\d{2}-\d{2}$/);
     expect(sheet.league).toBeTruthy();
   });
+});
+
+/**
+ * The weekly streamer-gear bot (2026-09-24): the price bot's pattern, so the same promises — least
+ * permission, the whole suite, a held PR that says why, a refused merge that fails the job — plus its
+ * own: a run where only the sheet's date moved opens nothing, and a streamer gone missing holds the PR.
+ */
+describe('the streamer refresh bot cannot merge quietly either', () => {
+  const wf = readFileSync('.github/workflows/refresh-streamers.yml', 'utf8');
+
+  it('runs weekly, with only the permissions its one job needs', () => {
+    expect(wf).toMatch(/cron: '30 6 \* \* 1'/);
+    expect(wf.indexOf('permissions:')).toBeGreaterThan(wf.indexOf('jobs:'));
+    expect(wf).toMatch(/permissions:\n\s+contents: write\n\s+pull-requests: write\n/);
+  });
+
+  it('guards with the whole suite, re-raises a failure, and merges only when the fetch AND the tests are clean', () => {
+    expect(wf).toMatch(/if npm test 2>&1 \| tee/);
+    expect(wf).toMatch(/continue-on-error: true/);
+    expect(wf).toMatch(/steps\.guard\.outputs\.passed != 'true'/);
+    expect(wf).toMatch(/\[ "\$FETCHED" = clean \] && \[ "\$TESTS" = true \]/);
+    const refused = wf.slice(wf.indexOf('if gh pr merge'));
+    expect(refused).toMatch(/::error::/);
+    expect(refused).toMatch(/exit 1/);
+  });
+
+  /** In the fetch itself: an empty read never becomes a sheet, and a missing streamer is named. */
+  it('never writes a sheet with nobody on it, and says who went missing', () => {
+    const fetch = readFileSync('tools/streamers/fetch.mjs', 'utf8');
+    expect(fetch).toMatch(/if \(out\.length === 0\) throw/);
+    expect(fetch.indexOf('if (out.length === 0) throw')).toBeLessThan(fetch.indexOf('writeFileSync(file'));
+    expect(fetch).toMatch(/STREAMERS-VERDICT: clean/);
+    expect(fetch).toMatch(/STREAMERS-VERDICT: review/);
+  });
+
+  /** The diff step, RUN: `git diff` stubbed to print what a refresh would leave behind. */
+  describe.skipIf(process.platform === 'win32')('the diff step, executed', () => {
+    const lines = wf.split('\n');
+    const runAt = lines.findIndex((l, i) => i > lines.findIndex((m) => m.trim() === 'id: diff') && /^\s+run: \|$/.test(l));
+    const indent = lines[runAt]!.search(/\S/);
+    const end = lines.findIndex((l, i) => i > runAt && l.trim() !== '' && l.search(/\S/) <= indent);
+    const script = lines.slice(runAt + 1, end).map((l) => l.slice(indent + 2)).join('\n');
+
+    function runDiff(diff: string, log: string) {
+      const dir = mkdtempSync(join(tmpdir(), 'diff-step-'));
+      const bin = join(dir, 'bin');
+      mkdirSync(bin);
+      writeFileSync(join(dir, 'diff.txt'), diff);
+      writeFileSync(join(bin, 'git'), [
+        '#!/bin/sh',
+        `echo "$*" >> '${dir}/git.calls'`,
+        `[ "$1" = diff ] && cat '${dir}/diff.txt'`,
+        'exit 0',
+      ].join('\n'), { mode: 0o755 });
+      writeFileSync(join(dir, 'refresh.log'), log);
+      const r = spawnSync('bash', ['-c', script.split('/tmp/').join(`${dir}/`)], {
+        encoding: 'utf8', env: { PATH: `${bin}:${process.env.PATH}`, GITHUB_OUTPUT: join(dir, 'out') },
+      });
+      const read = (f: string) => (existsSync(join(dir, f)) ? readFileSync(join(dir, f), 'utf8') : '');
+      return { status: r.status, out: read('out'), git: read('git.calls') };
+    }
+    const header = '--- a/data/streamers/0.5.0.json\n+++ b/data/streamers/0.5.0.json\n@@ -3 +3 @@\n';
+
+    it('opens nothing when only the date moved, and puts the file back', () => {
+      const r = runDiff(`${header}-  "updated": "2026-09-17",\n+  "updated": "2026-09-24",\n`, 'STREAMERS-VERDICT: clean\n');
+      expect(r.status).toBe(0);
+      expect(r.out).toMatch(/^changed=false$/m);
+      expect(r.git).toMatch(/^checkout -- data\/streamers$/m);
+    });
+
+    it('opens a PR when gear moved, clean only when every streamer came back', () => {
+      const gear = `${header}-          "modId": "Wands/A",\n+          "modId": "Wands/B",\n`;
+      const clean = runDiff(gear, 'STREAMERS-VERDICT: clean\n');
+      expect(clean.out).toMatch(/^changed=true$/m);
+      expect(clean.out).toMatch(/^verdict=clean$/m);
+      const missing = runDiff(gear, 'STREAMERS-VERDICT: review — 1 of 5 streamers could not be read this time: x\n');
+      expect(missing.out).toMatch(/^verdict=review$/m);
+      expect(missing.out).toContain('1 of 5 streamers could not be read');
+      // No verdict at all is a script that changed or died: a human reads it.
+      expect(runDiff(gear, '').out).toMatch(/^verdict=review$/m);
+    });
+  });
+
+  describePrStep(wf);
 });

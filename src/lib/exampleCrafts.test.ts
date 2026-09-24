@@ -23,13 +23,16 @@ describe('the example crafts on an empty Plan tab', () => {
     }
   });
 
-  // Chosen so the first answer a player sees is a number, not a bound: each settles under Standard's
-  // own limits. On the frozen sheet, so a price refresh cannot flake this.
-  it('each settle exactly under Standard’s limits', () => {
+  // Chosen so the first answer a player sees is a number, not a bound: each settles within Standard's
+  // sweep cap. On the frozen sheet, so a price refresh cannot flake this — and with the clock lifted, so a
+  // loaded machine cannot either: under the full suite these ran past 30 s where alone they take ~3 s. The
+  // clock half (0.3–1.6 s each) is a measurement, in validation.md.
+  it('each settle exactly within Standard’s sweeps', () => {
     const eng = { data, prices: loadFrozenPrices() };
+    const effort = { ...limitsFor('standard'), maxMillis: 600_000 };
     for (const { name, goal } of EXAMPLE_CRAFTS) {
-      const got = runSolve(eng, { kind: 'lab', from: { baseId: goal.baseId, level: goal.level }, targets: goal.targets, effort: limitsFor('standard') });
+      const got = runSolve(eng, { kind: 'lab', from: { baseId: goal.baseId, level: goal.level }, targets: goal.targets, effort });
       expect(got.markov, name).toMatchObject({ applicable: true, feasible: true, bound: 'exact' });
     }
-  });
+  }, 300_000);
 });

@@ -1317,6 +1317,12 @@ is under Data pipeline and what ships.
   `captureException`'s SECOND ARGUMENT** — hanging them off the Error type-checks, runs, reports, and
   silently drops them; `sentry.test.ts` mutation-pins that, the queue's copy of it, and the queue cap.
 
+- **Streamer gear is refreshed by a weekly bot that merges itself** (2026-09-24,
+  `refresh-streamers.yml`) — the price bot's pattern: the whole suite as the guard, a held PR that says
+  why, a refused merge that fails the job. Its own two rules: the sheet stamps its date on every run, so a
+  diff of that line alone is NO change (else a PR every Monday); and a streamer the last sheet had and this
+  run could not read holds the PR (`STREAMERS-VERDICT`), since a private profile and a failed fetch look
+  alike. A run that reads nobody refuses to write at all — an empty list passes every test.
 - **`api/feedback.ts` is the site's ONE server function ("Rate the app" and, since 2026-09-24, "What do
   you want next?" — `topic: 'next'`, words only, tagged apart; the two panels share `feedbackForm.tsx`
   for the route, bot check, honeypot and refusals), and its order is the

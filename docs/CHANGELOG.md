@@ -9,6 +9,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- **Streamer gear refreshes itself every week.** A Monday job reads each streamer's current gear from
+  poe.ninja, runs the whole test suite on it, and merges it when every streamer came back and the suite
+  passed — otherwise it opens a pull request marked REVIEW NEEDED. A week with no change opens nothing.
+
 - **Crafts to try on an empty Plan tab.** *Or try one*: a caster Wand, a life and resistances Ring, an
   armour Body Armour and a Spirit Amulet, each loaded and solved in one click — chosen to settle exactly
   at Standard in a second or two, so a first visit sees an answer before learning the picker.

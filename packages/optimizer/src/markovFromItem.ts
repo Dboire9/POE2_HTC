@@ -960,6 +960,8 @@ export function markovFromItem(
   const keptScratch = new Float64Array(widestOffer);
   /** P(the offer was thrown back) in the latest `keepWeights` call — read straight after it, never later. */
   let lastThrow = 0;
+  /** …and the line it threw back below: an offer whose best is dearer to finish from than this. */
+  let lastBar = Infinity;
   /** `x ** m`, but an offer is three, and Math.pow is a real cost in the hottest loop of the solve. */
   const powOffer = (x: number, m: number): number => (m === 3 ? x * x * x : x ** m);
   /**
@@ -1021,8 +1023,10 @@ export function markovFromItem(
       tailPow = nextPow;
     }
     lastThrow = 0;
+    lastBar = Infinity;
     if (a.rerollCost === Infinity) return fresh;
     const bar = fresh + a.rerollCost; // anything no worse than paying for a fresh offer is kept
+    lastBar = bar;
     let thrown = 0;
     for (let j = 0; j < K; j++) if (V[a.to[j]!]! > bar) thrown += w[j]!;
     if (thrown === 0) return fresh;
@@ -1620,6 +1624,7 @@ export function markovFromItem(
   const outStart = new Int32Array(N + 1);
   const outTo: number[] = [];
   const outProb: number[] = [];
+  const rerollAbove = new Float64Array(N).fill(NaN);
   for (let i = 0; i < N; i++) {
     outStart[i] = outTo.length;
     const key = allStates[i]!;
@@ -1627,6 +1632,9 @@ export function markovFromItem(
     const a = bestAction(key);
     if (!a) continue;
     const shown = published(a);
+    // `published` keeps the omen only where the plan rerolls, having just run the keep rule — so the
+    // line it rerolls below is fresh in `lastBar`, and a player following the plan needs it.
+    if (shown.action.currency === 'desecrate' && shown.action.echoes) rerollAbove[i] = lastBar;
     policy.set(key, shown.action);
     // Deduplicated only to keep the table small; two spellings of one move would merely cost a slot.
     const id = JSON.stringify(shown.action);
@@ -1645,7 +1653,7 @@ export function markovFromItem(
     keys: allStates, value: V, act, actions, actCost,
     outStart, outTo: Int32Array.from(outTo), outProb: Float64Array.from(outProb),
     goal: isGoalIdx, goalIdx: idxOfState.get(goalKey)!,
-    restartIdx: startIdx, canRestart,
+    restartIdx: startIdx, canRestart, rerollAbove,
     positions: list.map(idsOf), slotMasks, obstacles: siblings.obstacles,
   };
 

@@ -1148,6 +1148,20 @@ Enforced in `packages/engine` (mostly `probability.ts`).
   (`loadGearTrade`), downloaded the first time a link is drawn. A single-roll minimum is the tier's own;
   an "Adds # to #" line searches its average, floored.
 
+- **Craft along reads the solved table one move at a time** (2026-09-24, `CraftAlong.tsx`). No new solve:
+  `stepFor` → `stepFrom` returns a state, its move and its realized outcomes, built by the SAME reader as
+  `routeFrom` (`tableReader`), so a state reads the same in the panel as in the graph — a test holds every
+  state of five crafts to that. Spend is Σ `actCost` of the moves picked, which for an Echoes-omened
+  Desecration already includes the omen's expected spend, so "spent" is an average per move, not what
+  the player paid, and the copy says so. A Desecration's outcomes are the odds of what is KEPT, so the
+  panel ranks them by V (the solver keeps the cheapest to finish from), and the route table carries
+  `rerollAbove` — the line `keepWeights` rerolls below — because odds that assume a reroll rule are only
+  followable with the rule in hand. Sessions are per tab, keyed by the solve request less its effort and
+  budget fields (`craftSig`): the same request builds the same states, so a saved place survives a price
+  refresh and the next move is read from the new plan. Every solve now keeps the route table (it used to
+  be from-white Lab solves only), and the panel appears wherever the solve is exact. Named "Craft along" because the Item tab
+  already calls its fixed sequences "Step-by-step routes".
+
 - **Each gear tab is a hook plus a few cards** (2026-09-24). `EngineLab` and `ItemActions` had grown to
   1,129 and 1,242 lines, one component each. Their state and handlers moved, as written, into
   `useLabCraft` / `useItemCraft`, and the markup into `LabSetup` / `LabTargets` / `LabResults` and

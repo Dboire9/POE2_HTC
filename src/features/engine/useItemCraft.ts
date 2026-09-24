@@ -14,6 +14,8 @@ import { NO_SPARE } from '../../../packages/optimizer/src/slots.ts';
 import { limitsWithRunes } from '../../../packages/engine/src/runes.ts';
 import { useDefaultBase, useEngine } from './useEngine';
 import { useSolveRunner } from './useSolveRunner';
+import type { SolveRequest } from '../../lib/solve';
+import { craftSig } from '../../lib/craftAlong';
 
 /** Rarity → per-side slot cap (magic = 1 prefix + 1 suffix, rare = 3 + 3). */
 export const CAP: Record<'magic' | 'rare', number> = { magic: 1, rare: 3 };
@@ -64,6 +66,8 @@ export function useItemCraft() {
   const [tookMs, setTookMs] = useState<number | null>(null);
   // Collapsed by default whenever the true-cost model answered — see `trueCostAnswered`.
   const [showRoutes, setShowRoutes] = useState(false);
+  // Which craft the result on screen is, for Craft along to pick up a saved place in (`craftSig`).
+  const [alongSig, setAlongSig] = useState<string | null>(null);
   const excludedKeys = toExcludedKeys(useExclusions());
   const effort = useEffort();
   // Exalts-per-chaos / per-divine, so a huge cost reads as a quantity rather than a wall of digits.
@@ -403,12 +407,13 @@ export function useItemCraft() {
   const compute = () => {
     if (!engine || target.length === 0) return;
     setPlanErr(null); setStale(false); setTookMs(null);
+    const req: SolveRequest = {
+      kind: 'item', item, targets: target, effort: limitsFor(effort),
+      ...(excludedKeys.length > 0 ? { excluded: excludedKeys } : {}),
+      ...(freeSlots > 0 ? { spare } : {}),
+    };
     runner.run(
-      {
-        kind: 'item', item, targets: target, effort: limitsFor(effort),
-        ...(excludedKeys.length > 0 ? { excluded: excludedKeys } : {}),
-        ...(freeSlots > 0 ? { spare } : {}),
-      },
+      req,
       {
         onResult: (res) => {
           if (res.kind !== 'item') return;
@@ -418,6 +423,7 @@ export function useItemCraft() {
           setMarkov(res.markov);
           setMarkovSpare(spare);
           setSolvedFor({ baseId, targets: target });
+          setAlongSig(craftSig('item', req));
         },
         onError: (e, appUpdated) => {
           setPlan(null); setMarkov(null);
@@ -438,7 +444,7 @@ export function useItemCraft() {
     target, spare, setSpare, freeSlots, modById, targetable, perfect, desecratedTargets, onItem,
     addingTo, setAddingTo, blockFor, spareBlock, addSpare, addTarget, startAlternative, removeTargetMod,
     copyItemToTarget, targetState, patchTarget, clearPlan, targetSlots, excludedKeys, blockedBy,
-    plan, markov, markovSpare, solvedFor, planErr, stale, trueCostAnswered, showRoutes, setShowRoutes,
+    plan, markov, markovSpare, solvedFor, alongSig, planErr, stale, trueCostAnswered, showRoutes, setShowRoutes,
     tookMs, computing: runner.computing, progress: runner.progress, cancel: runner.cancel, compute,
   };
 }

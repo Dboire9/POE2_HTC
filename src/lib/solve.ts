@@ -358,7 +358,9 @@ export function runSolve(eng: Engine, req: SolveRequest, onProgress?: (p: SolveP
     const mdpReport = onProgress
       ? { onProgress: (p: MarkovProgress): void => onProgress({ phase: p.phase, fraction: within(ITEM_MDP, toFraction(p) * 1000, 1000) }) }
       : {};
-    const mdpOpts = spared(withSweepLimit(withPolicy(mdpReport)));
+    // …and the whole solved policy, so Craft along can follow the plan move by move from the item you hold
+    // without another solve (exact solves only — the solver attaches it to nothing else).
+    const mdpOpts = spared(withSweepLimit(withPolicy({ ...mdpReport, keepRoutes: true })));
     const remaining = clockLeft();
     const markov = markovOrReason(() => optimizeItemMarkov(eng, runed(req.item), req.targets,
       remaining === undefined ? mdpOpts : { ...mdpOpts, maxMillis: remaining }));
@@ -405,10 +407,11 @@ export function runSolve(eng: Engine, req: SolveRequest, onProgress?: (p: SolveP
       ...(req.sell?.some((p) => p > 0) ? { sell: req.sell } : {}),
       onProgress: (fraction: number): void => replayProgress(fraction, 1),
     } } : {}),
-    // …and the whole solved policy, so the Lab can draw the route from any item a player might buy
-    // instead of a white base without solving again. From white only: a held or carved item has no
-    // restart, so there is no "instead" to price, and the other solves stay the size they were.
-    ...(fromWhite || req.rebuyable ? { restartCost: req.baseCost ?? WHITE_BASE_COST, keepRoutes: true } : {}),
+    // …and the whole solved policy: the Lab draws the route from any item a player might buy instead of
+    // a white base without solving again, and Craft along follows the plan move by move — which a carved
+    // item's craft needs as much as a white base's. Only a white base (or a rebuyable item) can restart.
+    ...(fromWhite || req.rebuyable ? { restartCost: req.baseCost ?? WHITE_BASE_COST } : {}),
+    keepRoutes: true,
     ...(req.fillOnFinish ? { fillOnFinish: true } : {}),
     ...(req.smallLattice ? { heuristicSeed: true, exactEvaluation: true } : {}),
     ...(mdpClock === undefined ? {} : { maxMillis: mdpClock }),

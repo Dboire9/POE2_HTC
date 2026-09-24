@@ -1,9 +1,11 @@
 import React from 'react';
 import { Card } from '../../components/ui/card';
-import type { EngineMarkovResult } from '../../lib/engine';
+import type { Engine, EngineMarkovResult } from '../../lib/engine';
+import type { CraftTab } from '../../lib/craftAlong';
 import { exactExalts, formatBoundedCost, type Rates } from '../../lib/currency';
 import type { Spare } from '../../../packages/optimizer/src/slots.ts';
 import PolicyGraph from './PolicyGraph';
+import CraftAlong from './CraftAlong';
 
 /**
  * The true expected cost of a craft and its policy route — the card both gear tabs draw.
@@ -17,8 +19,13 @@ const TrueCostCard: React.FC<{
   rates: Rates | undefined;
   /** The free slots the solve RAN with — the graph's "junk to clear" is a claim about that solve. */
   spare: Spare;
+  /**
+   * Follow this plan move by move (`CraftAlong`). Drawn only when the solve carries the plan for every
+   * state, which an exact solve does.
+   */
+  along?: { readonly engine: Engine; readonly tab: CraftTab; readonly sig: string; readonly plain: string } | undefined;
   children?: React.ReactNode;
-}> = ({ markov, rates, spare, children }) => (
+}> = ({ markov, rates, spare, along, children }) => (
   <Card className="p-4 space-y-3">
     <div className="flex flex-wrap items-baseline justify-between gap-2">
       <h3 className="text-sm font-bold">True expected cost</h3>
@@ -31,6 +38,9 @@ const TrueCostCard: React.FC<{
       </span>
     </div>
     {children}
+    {along && markov.routes && (
+      <CraftAlong key={along.sig} engine={along.engine} markov={markov} tab={along.tab} sig={along.sig} rates={rates} plain={along.plain} />
+    )}
     {/* The graph's legend lives IN PolicyGraph, which is the only place that knows whether the
         picture or the route list is on screen. */}
     <PolicyGraph result={markov} rates={rates} spare={spare} />

@@ -9,6 +9,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- **Craft along: follow the plan with the game open.** Under the true expected cost, open *Craft along*:
+  it shows the next orb for the item you have now; use it in game, pick what happened, and the next move
+  comes up — no new solve. It keeps count of what you have spent, says which of a Desecration's three
+  modifiers to keep (best first) and, with an Omen of Abyssal Echoes, when to throw them back. Undo takes
+  back a mis-click, and your place is kept in this browser. On both gear tabs, for an exact result.
+
 - **A "New" badge on the Tablets tab**, so a returning player sees it is there.
 
 - **Make the tablet watch list your own.** Add your own sets to *While you roll for that, these can land*

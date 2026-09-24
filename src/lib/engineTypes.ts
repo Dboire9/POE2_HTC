@@ -389,6 +389,18 @@ export interface EnginePolicyNode {
   readonly expectedCost: number;
   /** Human label of the optimal currency here (absent at the goal), e.g. "Annul (Sinistral)". */
   readonly action?: string;
+  /** What playing `action` once costs on average (exalt-equivalents) — the omen's expected spend included. */
+  readonly actionCost?: number;
+  /**
+   * The move is a Desecration: it OFFERS three modifiers and the player keeps one. Its edges are the odds
+   * of what is KEPT, following the plan's rule — keep the one that is cheapest to finish from.
+   */
+  readonly keepsOne?: true;
+  /**
+   * With an Omen of Abyssal Echoes: throw the offer back when even its best costs more than this to
+   * finish from (exalt-equivalents). Absent where the plan never rerolls.
+   */
+  readonly rerollAbove?: number;
 }
 
 /** One policy transition (arrow). `regress` marks a brick — the outcome that sends you backward. */

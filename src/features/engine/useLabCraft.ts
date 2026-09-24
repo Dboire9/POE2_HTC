@@ -15,6 +15,8 @@ import { toast } from 'sonner';
 import { nextSlotId, roomOnSide, slotCounts, slotsOf, whyNotAdd } from '../../lib/targetSlots';
 import { formatChance } from '../../lib/currency';
 import { useSolveRunner } from './useSolveRunner';
+import type { SolveRequest } from '../../lib/solve';
+import { craftSig } from '../../lib/craftAlong';
 
 /**
  * Everything the Plan tab knows and does: the craft being built, the rules the picker enforces, the
@@ -71,6 +73,8 @@ export function useLabCraft(engine: Engine | null) {
   // "this item" has to name the item the numbers describe.
   const [solvedFor, setSolvedFor] = useState<{ readonly baseId: string; readonly targets: readonly TargetInput[] } | null>(null);
   const [altBudget, setAltBudget] = useState<number>(0);
+  // Which craft the result on screen is, for Craft along to pick up a saved place in (`craftSig`).
+  const [alongSig, setAlongSig] = useState<string | null>(null);
   const [runErr, setRunErr] = useState<string | null>(null);
   // The site was redeployed under this tab, so the solve could not load what it needed. Not an error
   // the player can act on except by reloading, so it gets its own notice rather than `runErr`'s card.
@@ -328,7 +332,7 @@ export function useLabCraft(engine: Engine | null) {
     const bc = Number(baseCost);
     const hasBaseCost = baseCost.trim() !== '' && Number.isFinite(bc) && bc >= 0;
 
-    runner.run({
+    const req: SolveRequest = {
       kind: 'lab',
       from: fromItem ? { item: carvedItem() } : { baseId, level },
       targets,
@@ -338,7 +342,8 @@ export function useLabCraft(engine: Engine | null) {
       ...(excludedKeys.length > 0 ? { excluded: excludedKeys } : {}),
       ...(runes.length > 0 ? { runes } : {}),
       ...(freeSlots > 0 ? { spare } : {}),
-    }, {
+    };
+    runner.run(req, {
       onResult: (res) => {
         if (res.kind !== 'lab') return;
         setResult(res.result);
@@ -348,6 +353,7 @@ export function useLabCraft(engine: Engine | null) {
         setMarkovEffort(effortId);
         setMarkovSpare(spare);
         setSolvedFor({ baseId, targets });
+        setAlongSig(craftSig('lab', req));
         if (res.alts) setAltBudget(b);
       },
       onError: (e, appUpdated) => {
@@ -370,7 +376,7 @@ export function useLabCraft(engine: Engine | null) {
     addTarget, startAlternative, removeTarget, patchTarget, toggleFractured, togglePinned,
     regularEssenceUsed, desecratedUsed, normalTargets, bossTargetable, desecrationNeedsRare,
     essenceFractureConflict, excludedKeys,
-    result, alts, altBudget, markov, markovRun, markovEffort, markovSpare, solvedFor, runErr, stale,
+    result, alts, altBudget, markov, markovRun, markovEffort, markovSpare, solvedFor, alongSig, runErr, stale,
     computing: runner.computing, progress: runner.progress, cancel: runner.cancel, compute, canCompute,
     share, reset, outcome,
   };

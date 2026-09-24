@@ -1463,6 +1463,20 @@ Left, roughly in the order a player would miss them:
 - **Alchemy, Erasure omens, Greater Exaltation** are not in the model (TODO 5d, 12b/12c). All three
   would only make a tablet CHEAPER than quoted, so the number stays honest meanwhile.
 
+## 26. Craft along — what it does not do yet — OPEN, 2026-09-24
+
+Shipped: the solved plan read one move at a time on both gear tabs (`CraftAlong.tsx`), with spend, Undo,
+a Desecration's keep order and the Echoes reroll line, the place kept per browser. Left:
+
+- **Paste the item to jump to its state.** Today the player clicks what happened; pasting the item
+  (Ctrl+C in game) would re-sync after a mis-click or a break. The route table needs a small classifier
+  for that — each position's tier floors, the sibling map, the symmetry classes — so `classifyStart` and
+  the solve's `encoderFor` can run on the main thread. Test: `keyOfItem` equals every `holdings[].key`.
+- **Only exact solves.** A ceiling ("≤ x") comes from a playable policy and could be followed too,
+  flagged as not proven cheapest; the table is attached only to exact solves today.
+- **Spend is the plan's average per move**, not what was paid: a reroll taken or not with the Echoes
+  omen is counted at its expected cost either way.
+
 ## What 1.0 means — ALL FIVE SHIPPED, prepared 2026-09-02
 
 The definition written on 2026-09-01 was: §7 the docs describe the app that exists, §8 prices refresh

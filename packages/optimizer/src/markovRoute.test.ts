@@ -8,7 +8,7 @@ import type { TierTarget } from './optimize.ts';
 import { loadFrozenPrices } from './frozenPrices.ts';
 import { loadPrices } from './loadPrices.ts';
 import type { Prices } from './cost.ts';
-import { routeFrom } from './markovRoute.ts';
+import { routeFrom, stepFrom } from './markovRoute.ts';
 
 const real = loadPatch('data/patches/0.5.0');
 const wand = real.bases.get('Wands')!;
@@ -86,6 +86,26 @@ describe('routeFrom — the graph from any state, walked over the solved policy'
     });
     expect(played).toBe(r.policy.size);
   });
+
+  /**
+   * Craft along reads the plan one move at a time (`stepFrom`), and the player compares what they see
+   * with the graph above it — so each state and its outcomes must read exactly as the route draws them.
+   */
+  it.each(CRAFTS)('reads each state and its outcomes one move at a time, as the route draws them: $name', (craft) => {
+    const { r, t } = solve(craft);
+    const at = new Map(t.keys.map((k, i) => [k as string, i]));
+    for (const drawn of r.nodes) {
+      const { nodes, edges } = stepFrom(t, at.get(drawn.key)!);
+      const { visitRate: _drawnRate, ...asDrawn } = drawn;
+      const { visitRate: _stepRate, ...here } = nodes[0]!;
+      expect(here, drawn.key).toEqual({ ...asDrawn, isStart: true });
+      expect(edges, drawn.key).toEqual(r.edges.filter((e) => e.from === drawn.key));
+      if (edges.length > 0) expect(edges.reduce((a, e) => a + e.prob, 0)).toBeCloseTo(1, 12);
+      // Every outcome is a state of the step, or the item as it was — never one the step cannot name.
+      for (const e of edges) expect(e.to === drawn.key || nodes.some((n) => n.key === e.to), e.to).toBe(true);
+      expect(new Set(nodes.map((n) => n.key)).size).toBe(nodes.length);
+    }
+  });
 });
 
 /**
@@ -156,6 +176,20 @@ describe('a route from a starting item, derived by hand', () => {
     expect(nodes[0]!.action?.currency).toBe('restart');
     expect(edges).toEqual([expect.objectContaining({ from: nodes[0]!.key, to: nodes[1]!.key, prob: 1 })]);
     expect(nodes[1]!.isRestart).toBe(true);
+  });
+
+  /** One move at a time, "start over" is a move like any other: a player following along keeps going. */
+  it('reads "start over" as a move, one step at a time, landing on the fresh base with its own move', () => {
+    const r = solve(20);
+    const t = r.routes!;
+    const { nodes, edges } = stepFrom(t, t.keys.indexOf(row(r, 'rare', ['T']).key));
+    expect(nodes[0]!.action?.currency).toBe('restart');
+    expect(nodes[0]!.actionCost).toBe(3); // another white base
+    expect(edges).toEqual([expect.objectContaining({ to: t.keys[t.restartIdx], prob: 1 })]);
+    const white = nodes[1]!;
+    expect(white.key).toBe(t.keys[t.restartIdx]);
+    expect(white.isRestart).toBeUndefined();
+    expect(white.action?.currency).toBe('transmute');
   });
 });
 

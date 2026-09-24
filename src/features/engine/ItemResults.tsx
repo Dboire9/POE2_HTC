@@ -15,7 +15,7 @@ import type { ItemCraft } from './useItemCraft';
 /** The Item tab's answers: the true cost of finishing your item, and the step routes behind a disclosure. */
 const ItemResults: React.FC<{ it: ItemCraft }> = ({ it }) => {
   const {
-    engine, rates, stale, plan, planErr, markov, trueCostAnswered, solvedFor, markovSpare, showRoutes,
+    engine, rates, stale, plan, planErr, markov, trueCostAnswered, solvedFor, alongSig, markovSpare, showRoutes,
     setShowRoutes, excludedKeys,
   } = it;
   const effort = useEffort();
@@ -70,7 +70,10 @@ const ItemResults: React.FC<{ it: ItemCraft }> = ({ it }) => {
         </Card>
       )}
       {plan && !planErr && markov?.applicable && markov.feasible && (
-        <TrueCostCard markov={markov} rates={rates} spare={markovSpare}>
+        <TrueCostCard
+          markov={markov} rates={rates} spare={markovSpare}
+          along={engine && alongSig ? { engine, tab: 'item', sig: alongSig, plain: 'Your item' } : undefined}
+        >
           {markov.bound === 'lower' && (
             <p className="rounded-md border border-amber-500/50 bg-amber-500/10 px-2 py-1.5 text-[11px] text-amber-700 dark:text-amber-300">
               {/* This used to end "which is itself the answer: on this target, it isn't close" — an

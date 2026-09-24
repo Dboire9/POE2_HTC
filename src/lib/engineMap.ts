@@ -472,6 +472,9 @@ function mapNode(data: PatchData, nd: PolicyNode, tierOf: TierOf): EnginePolicyN
     visitRate: nd.visitRate,
     expectedCost: nd.expectedCost,
     ...(nd.action ? { action: actionLabel(data, nd.action) } : {}),
+    ...(nd.actionCost !== undefined ? { actionCost: nd.actionCost } : {}),
+    ...(nd.action?.currency === 'desecrate' ? { keepsOne: true as const } : {}),
+    ...(nd.rerollAbove !== undefined ? { rerollAbove: nd.rerollAbove } : {}),
   };
 }
 

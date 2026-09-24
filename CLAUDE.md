@@ -18,7 +18,8 @@ code is one function, `api/feedback.ts`.
   **Streamer gear** (beta). `src/lib/engine.ts` is the browser facade over the engine. `EngineLab` is the
   shell and holds the Plan tab's state through `useLabCraft` (it never unmounts, so the Lab keeps its
   result across tab switches); the Item tab is `ItemActions` + `useItemCraft`. Every tab loads the engine
-  with `useEngine` and runs solves with `useSolveRunner`; both gear tabs draw a true cost in `TrueCostCard`.
+  with `useEngine` and runs solves with `useSolveRunner`; both gear tabs draw a true cost in `TrueCostCard`,
+  which also hosts Craft along (`CraftAlong.tsx`: the solved plan read one move at a time).
 - `packages/engine` — the game rules: pools, weights, probabilities, item state. Pure TS, no I/O, no DOM.
 - `packages/optimizer` — the planners. Step routes: `optimize.ts` (from white), `fromItem.ts`,
   `alternatives.ts`. True expected cost: `markovFromItem.ts` and the other `markov*.ts`. Pricing: `cost.ts`.

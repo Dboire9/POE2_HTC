@@ -14,7 +14,7 @@ import type { LabCraft } from './useLabCraft';
 /** The Plan tab's answers: the true cost and its route, the items to start from instead, the step routes. */
 const LabResults: React.FC<{ lab: LabCraft }> = ({ lab }) => {
   const {
-    stale, runErr, markov, result, engine, solvedFor, markovSpare, markovRun, fractured, markovEffort,
+    stale, runErr, markov, result, engine, solvedFor, alongSig, markovSpare, markovRun, fractured, markovEffort,
     computing, compute, desecrationNeedsRare, normalTargets, excludedKeys, freeSlots, alts, altBudget,
   } = lab;
   const effort = useEffort();
@@ -60,7 +60,10 @@ const LabResults: React.FC<{ lab: LabCraft }> = ({ lab }) => {
           policy may also simply start over, which is why its number is believable here (see
           WHITE_BASE_COST in solve.ts). */}
       {markov && !runErr && markov.applicable && markov.feasible && (
-        <TrueCostCard markov={markov} rates={rates} spare={markovSpare}>
+        <TrueCostCard
+          markov={markov} rates={rates} spare={markovSpare}
+          along={engine && alongSig ? { engine, tab: 'lab', sig: alongSig, plain: 'A white base' } : undefined}
+        >
           {engine && solvedFor && (
             <p className="flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
               Or buy it already made — every modifier at the tier you asked or better:

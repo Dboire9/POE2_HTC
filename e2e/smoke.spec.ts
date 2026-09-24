@@ -74,6 +74,28 @@ test('2 — lab compute: a craft solves in the Worker and renders a cost', async
   expect(errors.filter(cspish), 'CSP refusals').toEqual([]);
 });
 
+test('2b — craft along: the plan is followed one move at a time from the result', async ({ page }) => {
+  const errors = watchForErrors(page);
+  await page.goto('/');
+  await waitForReady(page);
+
+  await addFirstMod(page);
+  await page.getByRole('button', { name: 'Find plans' }).click();
+
+  // A one-mod craft settles exactly, so the result carries the plan for every state.
+  const along = page.getByRole('button', { name: /Craft along/ });
+  await expect(along).toBeVisible({ timeout: 60_000 });
+  await along.click();
+  const panel = page.getByRole('region', { name: 'Craft along' });
+  await expect(panel.getByText(/over 0 moves/)).toBeVisible();
+
+  // Pick the first outcome offered: the move is counted and the panel moves on to the next one.
+  await panel.getByRole('button').filter({ hasNotText: /^(Undo|Start again|Hide)$/ }).first().click();
+  await expect(panel.getByText(/over 1 move\b/)).toBeVisible();
+
+  expect(errors.filter(cspish), 'CSP refusals').toEqual([]);
+});
+
 test('3 — item compute: the from-item planner answers on a held item', async ({ page }) => {
   const errors = watchForErrors(page);
   await page.goto('/');

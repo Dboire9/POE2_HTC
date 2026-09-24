@@ -66,6 +66,11 @@ export interface PolicyNode {
    * then. The action's plain price for everything else; undefined at the goal.
    */
   readonly actionCost?: number;
+  /**
+   * For a Desecration carrying an Omen of Abyssal Echoes: throw the offer back when even the best of its
+   * three costs more than this to finish from (`RouteTable.rerollAbove`). Absent everywhere else.
+   */
+  readonly rerollAbove?: number;
   /** The item's rarity here. Without it a 2-mod Magic item and a 2-mod Rare item render identically
    *  while behaving completely differently — one of them cannot take an Exalt at all. */
   readonly rarity: McRarity;
@@ -154,6 +159,13 @@ export interface RouteTable {
   readonly restartIdx: number;
   /** Whether "start over" is a move at all — a from-white craft only. */
   readonly canRestart: boolean;
+  /**
+   * Where the policy plays a Desecration with an Omen of Abyssal Echoes, the value above which it throws
+   * the offer back: reroll when the BEST of the three costs more than this to finish from, keep it
+   * otherwise. NaN where the move rerolls nothing — the realized odds already assume the player follows
+   * this rule, so a player shown the odds needs the rule as well.
+   */
+  readonly rerollAbove: Float64Array;
   /** The mod ids that can fill each position, for naming a state's mods. */
   readonly positions: readonly (readonly string[])[];
   readonly slotMasks: readonly number[];
@@ -213,8 +225,14 @@ export function flagFieldsOf(
  * carrying what crafting from scratch costs, and not walked, because what follows it is the
  * from-scratch plan the Lab already shows beside this one.
  */
-export function routeFrom(t: RouteTable, root: number): { nodes: PolicyNode[]; edges: PolicyEdge[] } {
-  const endsAtRestart = t.canRestart && root !== t.restartIdx;
+/**
+ * Reading states and moves out of a table — the pieces `routeFrom` and `stepFrom` both build from, so
+ * the whole route and the one-step view can never describe a state or a move two different ways.
+ *
+ * `endsAtRestart`: the white base is a terminal carrying what crafting from scratch costs (a route
+ * from a BOUGHT item), rather than a state with a move of its own.
+ */
+function tableReader(t: RouteTable, endsAtRestart: boolean) {
   /**
    * Fold every goal state onto one key for display.
    *
@@ -225,7 +243,7 @@ export function routeFrom(t: RouteTable, root: number): { nodes: PolicyNode[]; e
    */
   const canonical = (i: number): number => (t.goal[i] === 1 ? t.goalIdx : i);
   const obstacleMask = t.obstacles.prefix | t.obstacles.suffix;
-  // Distance-to-goal per state, decoded once: the walk asks it of both ends of every edge.
+  // Distance-to-goal per state, decoded once: a walk asks it of both ends of every edge.
   const depthMemo = new Int32Array(t.keys.length).fill(-1);
   const depthOf = (i: number): number => {
     let d = depthMemo[i]!;
@@ -233,6 +251,78 @@ export function routeFrom(t: RouteTable, root: number): { nodes: PolicyNode[]; e
     return d;
   };
   const named = (mask: number): (readonly string[])[] => t.positions.filter((_, i) => has(mask, i));
+
+  /** State `i` as a node, `isStart` when it is the root of what is being drawn. */
+  const nodeAt = (i: number, isStart: boolean): Omit<PolicyNode, 'visitRate'> => {
+    const key = t.keys[i]!;
+    const st = decodeState(key);
+    const isGoal = t.goal[i] === 1;
+    const isRestart = endsAtRestart && i === t.restartIdx;
+    const a = isGoal || isRestart ? -1 : t.act[i]!;
+    const action = a >= 0 ? t.actions[a]! : undefined;
+    const reroll = t.rerollAbove[i]!;
+    return {
+      key,
+      present: named(st.present & ~obstacleMask),
+      blocked: named(st.blocked),
+      ...((st.present & obstacleMask) !== 0 ? { obstacles: named(st.present & obstacleMask) } : {}),
+      junkPrefixes: st.jp, junkSuffixes: st.js, rarity: st.rarity,
+      ...flagFieldsOf(st, t.positions, t.obstacles),
+      isStart, isGoal, ...(isRestart ? { isRestart: true as const } : {}),
+      depth: depthOf(i), expectedCost: t.value[i] ?? Infinity,
+      ...(action ? { action, actionCost: t.actCost[i]! } : {}),
+      ...(action && Number.isFinite(reroll) ? { rerollAbove: reroll } : {}),
+    };
+  };
+
+  /**
+   * State `i`'s outcomes under its move, and the state each edge ends in (canonical).
+   *
+   * Outcomes that finish the item fold onto the one goal, so they become ONE edge, where the first of
+   * them sat — their odds summed, or a step that always finishes read "51% onward" — that keeps the
+   * items it stands for when any of them holds junk (a clean finish is what the goal box shows).
+   */
+  const outcomesOf = (i: number, action: McAction): { edges: PolicyEdge[]; to: number[] } => {
+    const key = t.keys[i]!;
+    const edges: PolicyEdge[] = [];
+    const to: number[] = [];
+    let goalEdge = -1;
+    const finishes: { junkPrefixes: number; junkSuffixes: number; prob: number }[] = [];
+    for (let j = t.outStart[i]!; j < t.outStart[i + 1]!; j++) {
+      const real = t.outTo[j]!;
+      const prob = t.outProb[j]!;
+      const end = canonical(real);
+      if (t.goal[real] === 1) {
+        const fin = decodeState(t.keys[real]!);
+        const same = finishes.find((f) => f.junkPrefixes === fin.jp && f.junkSuffixes === fin.js);
+        if (same) same.prob += prob;
+        else finishes.push({ junkPrefixes: fin.jp, junkSuffixes: fin.js, prob });
+        if (goalEdge >= 0) { edges[goalEdge] = { ...edges[goalEdge]!, prob: edges[goalEdge]!.prob + prob }; continue; }
+        goalEdge = edges.length;
+      }
+      edges.push({ from: key, to: t.keys[end]!, action, prob, regress: depthOf(end) > depthOf(i) });
+      to.push(end);
+    }
+    if (finishes.some((f) => f.junkPrefixes + f.junkSuffixes > 0)) {
+      edges[goalEdge] = { ...edges[goalEdge]!, finishes: finishes.sort((x, y) => y.prob - x.prob) };
+    }
+    return { edges, to };
+  };
+
+  return { nodeAt, outcomesOf };
+}
+
+/**
+ * The graph the optimal policy draws from `root`: every state it can reach, and the arrows between.
+ *
+ * From the craft's own start this is the graph the result has always carried. From any other state it
+ * is the route a player would follow after buying that item — with one difference: when the root is
+ * not the start, "start over" is where the route ENDS. The white base is drawn once, as a terminal
+ * carrying what crafting from scratch costs, and not walked, because what follows it is the
+ * from-scratch plan the Lab already shows beside this one.
+ */
+export function routeFrom(t: RouteTable, root: number): { nodes: PolicyNode[]; edges: PolicyEdge[] } {
+  const read = tableReader(t, t.canRestart && root !== t.restartIdx);
 
   // Two phases on purpose: the BFS below discovers the states and their edges, and `visitRate` is a
   // property of the finished GRAPH — it cannot be known for a node until every path into it exists.
@@ -251,48 +341,16 @@ export function routeFrom(t: RouteTable, root: number): { nodes: PolicyNode[]; e
     const i = queue[head]!;
     if (at[i]! >= 0) continue;
     at[i] = nodes.length;
-    const key = t.keys[i]!;
-    const st = decodeState(key);
-    const isGoal = t.goal[i] === 1;
-    const isRestart = endsAtRestart && i === t.restartIdx;
-    const a = isGoal || isRestart ? -1 : t.act[i]!;
-    const action = a >= 0 ? t.actions[a]! : undefined;
-    nodes.push({
-      key,
-      present: named(st.present & ~obstacleMask),
-      blocked: named(st.blocked),
-      ...((st.present & obstacleMask) !== 0 ? { obstacles: named(st.present & obstacleMask) } : {}),
-      junkPrefixes: st.jp, junkSuffixes: st.js, rarity: st.rarity,
-      ...flagFieldsOf(st, t.positions, t.obstacles),
-      isStart: i === root, isGoal, ...(isRestart ? { isRestart: true as const } : {}),
-      depth: depthOf(i), expectedCost: t.value[i] ?? Infinity,
-      ...(action ? { action, actionCost: t.actCost[i]! } : {}),
-    });
-    if (!action) continue;
-    // Outcomes that finish the item fold onto the one goal, so they become ONE edge, where the first of
-    // them sat — their odds summed, or a step that always finishes read "51% onward" — that keeps the
-    // items it stands for when any of them holds junk (a clean finish is what the goal box shows).
-    let goalEdge = -1;
-    const finishes: { junkPrefixes: number; junkSuffixes: number; prob: number }[] = [];
-    for (let j = t.outStart[i]!; j < t.outStart[i + 1]!; j++) {
-      const real = t.outTo[j]!;
-      const prob = t.outProb[j]!;
-      const to = canonical(real);
-      if (t.goal[real] === 1) {
-        const fin = decodeState(t.keys[real]!);
-        const same = finishes.find((f) => f.junkPrefixes === fin.jp && f.junkSuffixes === fin.js);
-        if (same) same.prob += prob;
-        else finishes.push({ junkPrefixes: fin.jp, junkSuffixes: fin.js, prob });
-        if (goalEdge >= 0) { edges[goalEdge] = { ...edges[goalEdge]!, prob: edges[goalEdge]!.prob + prob }; continue; }
-        goalEdge = edges.length;
-      }
-      edges.push({ from: key, to: t.keys[to]!, action, prob, regress: depthOf(to) > depthOf(i) });
+    const node = read.nodeAt(i, i === root);
+    nodes.push(node);
+    if (!node.action) continue;
+    const out = read.outcomesOf(i, node.action);
+    for (let k = 0; k < out.edges.length; k++) {
+      const to = out.to[k]!;
+      edges.push(out.edges[k]!);
       edgeFrom.push(i);
       edgeTo.push(to);
       if (at[to]! < 0) queue.push(to);
-    }
-    if (finishes.some((f) => f.junkPrefixes + f.junkSuffixes > 0)) {
-      edges[goalEdge] = { ...edges[goalEdge]!, finishes: finishes.sort((x, y) => y.prob - x.prob) };
     }
   }
 
@@ -402,4 +460,29 @@ export function routeFrom(t: RouteTable, root: number): { nodes: PolicyNode[]; e
     nodes: nodes.map((nd, j) => ({ ...nd, visitRate: forward[j]! * toGoal[j]! })),
     edges,
   };
+}
+
+/**
+ * One move from state `i`: the state, what the policy plays there, and every state that move can leave
+ * the item in — what a player following the plan needs after each orb, without walking the whole route.
+ *
+ * Built by the same reader as `routeFrom`, so a state and its outcomes read exactly as they do in the
+ * graph. "Start over" is a move like any other here (its outcome is the fresh base, with a move of its
+ * own), because the player following along keeps going. `visitRate` means nothing for one step: the
+ * state is 1, its outcomes 0. An outcome that leaves the item as it was is an edge back to `i`, with no
+ * second node for it.
+ */
+export function stepFrom(t: RouteTable, i: number): { nodes: PolicyNode[]; edges: PolicyEdge[] } {
+  const read = tableReader(t, false);
+  const here: PolicyNode = { ...read.nodeAt(i, true), visitRate: 1 };
+  if (!here.action) return { nodes: [here], edges: [] };
+  const out = read.outcomesOf(i, here.action);
+  const seen = new Set<number>([i]);
+  const next: PolicyNode[] = [];
+  for (const j of out.to) {
+    if (seen.has(j)) continue;
+    seen.add(j);
+    next.push({ ...read.nodeAt(j, false), visitRate: 0 });
+  }
+  return { nodes: [here, ...next], edges: out.edges };
 }

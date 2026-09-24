@@ -157,17 +157,16 @@ describe('runSolve — dispatches to the same planners the UI called inline', ()
    * pays to ship it. The echoed `restartCost` is what the Lab's "worth up to" is summed against, read
    * from the result because the Base cost field can change after the solve.
    */
-  it('carries the solved policy on a from-white Lab solve, and on nothing else', () => {
+  // Craft along follows the plan move by move on every tab, so every exact solve carries it — but only a
+  // white base can start over, so only it carries a restart cost.
+  it('carries the solved policy on every solve, and a restart cost only from a white base', () => {
     const white = runSolve(eng, { kind: 'lab', from: { baseId: 'Wands', level: 82 }, targets, baseCost: 7 });
     const carved = runSolve(eng, { kind: 'lab', from: { item }, targets });
     const held = runSolve(eng, { kind: 'item', item, targets });
     if (white.kind !== 'lab' || carved.kind !== 'lab' || held.kind !== 'item') throw new Error('wrong kind');
-    expect(white.markov.routes).toBeDefined();
     expect(white.markov.restartCost).toBe(7);
-    for (const m of [carved.markov, held.markov]) {
-      expect(m.routes).toBeUndefined();
-      expect(m.restartCost).toBeUndefined();
-    }
+    for (const m of [white.markov, carved.markov, held.markov]) expect(m.routes).toBeDefined();
+    for (const m of [carved.markov, held.markov]) expect(m.restartCost).toBeUndefined();
   });
 
   it('draws the route from any starting item of a Lab result, ready for the graph', () => {
@@ -198,7 +197,8 @@ describe('runSolve — dispatches to the same planners the UI called inline', ()
     const got = runSolve(eng, { kind: 'item', item, targets });
     if (got.kind !== 'item') throw new Error('wrong kind');
     expect(got.plan).toEqual(optimizeItem(eng, item, targets));
-    expect(got.markov).toEqual(optimizeItemMarkov(eng, item, targets));
+    // With the solved policy kept, as the Item tab asks for it (Craft along reads it).
+    expect(got.markov).toEqual(optimizeItemMarkov(eng, item, targets, { keepRoutes: true }));
   });
 
   // A progress callback must not perturb the answer — it is observation, not participation.

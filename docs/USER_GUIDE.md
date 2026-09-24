@@ -20,6 +20,7 @@ that one are meant to agree; if they ever don't, ALGORITHM.md is the one that's 
   - [True expected cost — and why it's lower](#true-expected-cost--and-why-its-lower)
   - [The bound markers: "≥ x" and "≤ x"](#the-bound-markers--x-and--x)
   - [The policy graph](#the-policy-graph)
+  - [Craft along](#craft-along)
   - [Start from an item you buy instead](#start-from-an-item-you-buy-instead)
 - [I have an item](#i-have-an-item)
   - [Quick currency check](#quick-currency-check)
@@ -238,6 +239,25 @@ A state shows:
 
 If it says *"No route to show yet"*, the solve stopped before the policy settled — same fix as above,
 raise Search effort.
+
+### Craft along
+
+**Craft along** follows the plan with the game open, one move at a time. Open it under the true expected
+cost: it shows your item as the plan sees it and the **next move**. Use that orb in game, then pick
+**what happened** from the list — each outcome with its chance — and the next move comes up, with no new
+solve. It keeps count of what you have spent, each move at the plan's average price for it, beside what
+finishing still costs on average.
+
+- **A Desecration** offers three modifiers and you keep one, so there it lists what to keep, best first:
+  keep the first one on the list that is on offer. When the plan uses an **Omen of Abyssal Echoes**, a
+  line marks where to reroll — if all three offered are below it, throw them back once and keep the best
+  of the new three.
+- **Start over** means the plan bins the item: finishing it would cost more than a new base.
+- **Undo** takes back a mis-click, and **Start again** goes back to the start. Your place is kept in this
+  browser: solve the same craft again and Craft along picks up where you left off.
+
+It needs an exact answer: a result shown as "≥ x" or "≤ x" does not have the plan for every state yet —
+raise Search effort. The Item tab has it too, starting from the item you hold.
 
 ### Start from an item you buy instead
 

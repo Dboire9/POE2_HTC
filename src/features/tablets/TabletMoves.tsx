@@ -1,21 +1,12 @@
 import React from 'react';
 import { cn } from '../../lib/utils';
 import type { EngineMarkovResult, EnginePolicyNode } from '../../lib/engineTypes';
+import { START_OVER, describeItem } from '../../lib/stateWords';
 
-const WORDS = ['no', 'one', 'two'];
-const count = (n: number, one: string): string => `${WORDS[n] ?? n} ${one}${n > 1 ? 'es' : ''}`;
 const RANK = { normal: 0, magic: 1, rare: 2 } as const;
 
 /** "Rare · Rituals rerolled # times, and one prefix + one suffix you did not ask for". */
-function tabletOf(n: EnginePolicyNode): string {
-  if (n.isStart && n.rarity === 'normal') return 'A plain tablet';
-  const kind = n.rarity === 'magic' ? 'Magic' : n.rarity === 'rare' ? 'Rare' : 'Normal';
-  const junk = n.junkPrefixes + n.junkSuffixes === 0 ? ''
-    : [n.junkPrefixes ? count(n.junkPrefixes, 'prefix') : '', n.junkSuffixes ? count(n.junkSuffixes, 'suffix') : ''].filter(Boolean).join(' + ');
-  const held = n.present.map((m) => m.text).join(' + ');
-  const parts = [held, junk && (held ? `${junk} you did not ask for` : `${junk}, none of them wanted`)].filter(Boolean);
-  return `${kind} · ${parts.join(', and ') || 'nothing on it'}`;
-}
+const tabletOf = (n: EnginePolicyNode): string => describeItem(n, 'A plain tablet', false);
 
 /**
  * "What do I do with THIS one?" — every tablet the plan can leave in your hands, and its next move.
@@ -59,7 +50,7 @@ export const TabletMoves: React.FC<{
           </thead>
           <tbody>
             {rows.map(({ n, tablet }) => {
-              const stop = n.action === 'Start over with a new base';
+              const stop = n.action === START_OVER;
               return (
                 <tr key={n.key} className="border-t border-border/60">
                   <td className="py-1 pr-3">{tablet}</td>

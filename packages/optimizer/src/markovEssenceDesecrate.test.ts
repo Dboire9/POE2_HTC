@@ -169,6 +169,26 @@ describe('markovFromItem — Desecration as an MDP action (hand-computed)', () =
     expect(s0.actionCost).toBeCloseTo(1, 12);
   });
 
+  /**
+   * A player shown these odds has to follow the reroll rule they assume, so the plan says where the line
+   * is: throw the offer back when even its best costs more to finish from than a fresh three plus the
+   * omen — c + τ, with τ = ⅛·V(junk) and V(junk) = 1 + E. At c = 0.1 that is 0.1 + (1 + 47/45)/8: the
+   * junk sits above it and is thrown back, the target below it and is kept.
+   */
+  it('publishes the line it rerolls below: c + ⅛·(1 + E), junk above it and the target below', () => {
+    const r = markovFromItem(data, echoesAt(0.1), start, targets, EXACT);
+    const s0 = r.nodes.find((nd) => nd.isStart)!;
+    expect(s0.rerollAbove).toBeCloseTo(0.1 + (1 + 47 / 45) / 8, 9);
+    const ends = r.edges.filter((e) => e.from === s0.key).map((e) => r.nodes.find((nd) => nd.key === e.to)!.expectedCost);
+    expect(Math.max(...ends)).toBeGreaterThan(s0.rerollAbove!);
+    expect(Math.min(...ends)).toBeLessThanOrEqual(s0.rerollAbove!);
+  });
+
+  it('draws no reroll line where the plan never rerolls (c = 4)', () => {
+    const r = markovFromItem(data, echoesAt(4), start, targets, EXACT);
+    expect(r.nodes.find((nd) => nd.isStart)!.rerollAbove).toBeUndefined();
+  });
+
   /** The reroll, played out: the published edges and each step's average cost must land on 47/45, or the
    *  graph and the figure describe two different processes (see the 9/7 walk below). */
   it('100k runs of the published Echoes graph land on the hand-computed 47/45', () => {

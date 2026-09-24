@@ -31,7 +31,7 @@ import { stepProbability, type PlanStep } from '../../packages/engine/src/plan.t
 import { optimizePareto, type OptimizeParetoOptions } from '../../packages/optimizer/src/optimize.ts';
 import { optimizeFromItem } from '../../packages/optimizer/src/fromItem.ts';
 import { markovFromItem, type MarkovOptions } from '../../packages/optimizer/src/markovFromItem.ts';
-import { routeFrom } from '../../packages/optimizer/src/markovRoute.ts';
+import { routeFrom, stepFrom } from '../../packages/optimizer/src/markovRoute.ts';
 import {
   alternativesFromWhite, alternativesFromItem, type AlternativesOptions,
 } from '../../packages/optimizer/src/alternatives.ts';
@@ -316,6 +316,19 @@ export function routeFor(eng: Engine, markov: EngineMarkovResult, key: string): 
   if (!t) return null;
   const root = t.keys.indexOf(key as (typeof t.keys)[number]);
   return root < 0 ? null : mapRoute(eng.data, routeFrom(t, root), markov);
+}
+
+/**
+ * One move of the plan from state `key` — the state, the move, and every state it can leave the item in
+ * — for following the plan along with the game (`CraftAlong`). A lookup in the solved policy the result
+ * already carries, labelled the way the route graph labels it. Null without a table (any solve that is
+ * not exact) or for a key that is not a state of it.
+ */
+export function stepFor(eng: Engine, markov: EngineMarkovResult, key: string): EngineMarkovResult | null {
+  const t = markov.routes;
+  if (!t) return null;
+  const i = t.keys.indexOf(key as (typeof t.keys)[number]);
+  return i < 0 ? null : mapRoute(eng.data, stepFrom(t, i), markov);
 }
 
 // ── Existing-item currency actions (Option 1) ─────────────────────────────────

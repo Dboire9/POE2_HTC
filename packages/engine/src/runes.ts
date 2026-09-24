@@ -15,7 +15,7 @@ import { DEFAULT_LIMITS } from './item.ts';
  *   - Legacy of Runeseeker's Call — socketed runes are 75% stronger, which changes rune values rather
  *     than craft rules.
  *
- * Each rune is SOCKETED rather than spent, so it also costs a socket; Dorian confirmed (2026-09-15)
+ * Each rune is SOCKETED rather than spent, so it also costs a socket; it was confirmed (2026-09-15)
  * that an item keeps what the rune allowed after the rune is swapped out, which is why a plan may end
  * by replacing it.
  */

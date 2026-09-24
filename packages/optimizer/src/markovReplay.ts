@@ -72,7 +72,7 @@ const MIN_RUNS = 64;
  * …unless those crafts would take this many times the clock: then the replay declines rather than keep
  * the player waiting. A four-modifier tablet whose rarest pieces are 1 roll in 150 needs over a million
  * orbs and fresh tablets a craft — seconds EACH — and at that length the cost the model gives is all
- * there is to say (Dorian, 2026-09-23: "a craft ran past 1000000 moves", after a long wait).
+ * there is to say (reported 2026-09-23: "a craft ran past 1000000 moves", after a long wait).
  */
 const GIVE_UP_AFTER = 3;
 

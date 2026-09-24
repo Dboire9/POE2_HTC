@@ -234,7 +234,7 @@ auditPatch('0.5', {
 /**
  * A stat the game STORES finer than it prints ships in the unit it prints. Read raw from RePoE a T1
  * body armour read "1986–2160 Life Regeneration per second" — per minute, printed per second, so 33.1–36 —
- * and a trade search for it asked for at least 1,986 (Dorian, 2026-09-23). See
+ * and a trade search for it asked for at least 1,986 (reported 2026-09-23). See
  * tools/refresh/displayUnits.mjs; no printed Life Regeneration or Leech roll is anywhere near 100.
  */
 describe('stats stored in a finer unit than the game prints', () => {

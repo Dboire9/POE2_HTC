@@ -1904,7 +1904,7 @@ that way is reported as indistinguishable rather than as a result.
 ## Making a slot's alternatives cost what one mod costs (2026-08-27)
 
 Slot alternatives shipped working but expensive: measured on a 4-slot Wands craft from white, a
-three-way group ran 2.8x (cross-family) to 5x (same-family) the single-mod solve. Dorian's read —
+three-way group ran 2.8x (cross-family) to 5x (same-family) the single-mod solve. The maintainer's read —
 *"if x is on the item, we do not need to search for y"* — is right about the goal and wrong about the
 pool. Once X lands you never need to FIND Y (`isAccepting` already stops asking), but Y is still in the
 pool: deleting it does not stop the game rolling it, it only makes the model lie about the next Exalt.
@@ -2062,7 +2062,7 @@ state on any of the three crafts, closing a third candidate before it was writte
 
 ## Is there any point to the effort ladder? (2026-08-28)
 
-Dorian's question, and a fair one: *"people will rather wait and have a finished way instead of a
+The maintainer's question, and a fair one: *"people will rather wait and have a finished way instead of a
 semi done way."* A campaign over **18 realistic crafts and 108 solves** says the instinct is right but
 the culprit is the SOLVER, not the ladder.
 
@@ -2275,7 +2275,7 @@ the solver by any path — a worker message, a test, a link — lands on the suc
 
 ### Sentry: the gating verified, not assumed
 
-No DSN was added; Dorian sets it in Vercel, and the production build runs there, so a local `.env` would
+No DSN was added; the maintainer sets it in Vercel, and the production build runs there, so a local `.env` would
 not reach the site. What was checked is that the build-time gating behaves as documented — the check
 that would have caught the 2026-08-26 error, where a bundle was profiled with Sentry compiled out:
 
@@ -4309,7 +4309,7 @@ and **both files came back byte-identical** (`mods.json` md5 `e658418b…`, `bas
 `33fdcdaf…`).
 
 **The assumed weight, and what it costs.** RePoE reports 1 for all 128 — the same placeholder poe2db
-gives the desecrated pool — so `RUNE_POOL_ASSUMED_WEIGHT` is 1000 (Dorian's decision, 2026-09-15).
+gives the desecrated pool — so `RUNE_POOL_ASSUMED_WEIGHT` is 1000 (the maintainer's decision, 2026-09-15).
 Weight sits in the DENOMINATOR of every weighted draw, so a socketed pool rune qualifies the whole
 solve rather than the steps that land one of its modifiers: `usesAssumedPool` carries that to
 `assumedOdds`, and `assumedFrom` now names WHICH assumption applies. Before it, a craft with a pool rune
@@ -4559,7 +4559,7 @@ but an upper bound of 0 on a from-white craft cannot be right. Logged in TODO.
 
 **No weight data exists for tablets except Morce Faster's.** RePoE and poe2db publish 1 for every tablet
 modifier. Morce Faster rolled three tablets and counted every modifier he saw — Ritual 10,947 (5,460
-prefixes, 5,487 suffixes), Overseer 5,000, Temple 3,200 — and shared the sheets with Dorian; his Ritual
+prefixes, 5,487 suffixes), Overseer 5,000, Temple 3,200 — and shared the sheets; his Ritual
 sheet has a second tab of "suspected weights" on a ladder (1000 / 750 / 500 / 250 / 125 / 100 / 50 / 25).
 Every row of the three sheets matched exactly one RePoE mod of that tablet (by name; by text for the
 Temple suffixes, which have none), and no RePoE mod went unmatched: 13 shared prefixes; 11 shared
@@ -4607,7 +4607,7 @@ to run to a clock.
 
 ## A tablet's rarest four — each plan costed outright (2026-09-23)
 
-Dorian asked for the tablets he wants, whatever they are, to compute. The four rarest on each tablet did
+The ask was for the tablets a player wants, whatever they are, to compute. The four rarest on each tablet did
 not, at any Search effort: at Standard phase A spent its 100,000 sweeps in ~1.5 s; at Exhaustive the
 Ritual pair of extra modifiers and extra Favour reroll, with two common prefixes, took ~25 s. Tracing policy
 iteration on Ritual's four rarest (Rogue Exile, Summoning Circle, extra modifiers, Unique Monsters' extra

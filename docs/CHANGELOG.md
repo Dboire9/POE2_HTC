@@ -16,7 +16,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   browser, and each change recounts the craft with the list as it stands.
 
 - **What to do with each tablet.** The route only followed the crafts that go well, so it never said what to
-  do with a Magic tablet that rolled a prefix, or a Rare with a junk prefix and suffix (Dorian, mid-craft).
+  do with a Magic tablet that rolled a prefix, or a Rare with a junk prefix and suffix.
   A table on the result now lists every tablet the plan can leave you holding and its next move — or *Stop:
   run or sell it, start a new one* — with what finishing still costs, straight from the solved policy.
 
@@ -151,11 +151,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   craft*), once, under the cost, which still stands. And when the solver stops before a number, it no
   longer says it "ran out of time … a six-mod target": it had used its sweeps, not its time.
 - **Ritual's watch list has Omen chance on its own**: *Ritual Favours in Map have #% increased chance to be
-  Omens*, *good*, ~1 div at any roll (Dorian, from a tablet he rolled). It lands about one suffix roll in 15,
+  Omens*, *good*, ~1 div at any roll (priced from a real tablet). It lands about one suffix roll in 15,
   so at that price it reshapes Ritual crafting: aiming for it pays ~+11 chaos a tablet at 120 ex a plain
   one, and the reroll craft sells ~10 of them on the way.
 - **Temple's watch list has a new pair**: a Vaal Beacon Unique Monster chance with the extra-Crystal
-  chance, *very good*, as Dorian priced it (~3 div).
+  chance, *very good* (~3 div).
 - **Every tablet you pick now gets a number, at any Search effort.** A tablet's four rarest modifiers
   never settled before — Standard gave up in 1.5 s, and even Exhaustive's twenty million sweeps
   "settled" short of the answer, so the planner flipped between two plans forever. A tablet's lattice is

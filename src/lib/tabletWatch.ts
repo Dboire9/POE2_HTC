@@ -1,5 +1,5 @@
 // What a player changed about the Tablets tab's watch list — "while you roll for that, these can land" —
-// kept in their browser (Dorian, 2026-09-23: "the user can put its own, and he can hide the ones I've
+// kept in their browser (asked 2026-09-23: "the user can put its own, and he can hide the ones I've
 // done for him").
 //
 // Two things: sets of their OWN to watch for, per tablet, and curated sets they HID, each by the key its

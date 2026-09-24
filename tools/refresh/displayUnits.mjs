@@ -3,7 +3,7 @@
 // RePoE hands over a stat's raw range, and a few stats are kept finer than the game prints them: Life
 // Regeneration per MINUTE (printed per second), Leech and some chances in PERMYRIAD (hundredths of a
 // percent). Read raw, a T1 body armour printed "1986–2160 Life Regeneration per second" where the game says
-// 33.1–36 (Dorian, 2026-09-23), and a trade search for it asked for at least 1,986 and found nothing.
+// 33.1–36 (reported 2026-09-23), and a trade search for it asked for at least 1,986 and found nothing.
 //
 // Keyed on the stat id's own suffix, which is how the game names the unit — the translation files
 // apply "per_minute_to_per_second" and "divide_by_one_hundred" to exactly these. Every range the

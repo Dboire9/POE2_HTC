@@ -20,7 +20,7 @@ function tabletOf(n: EnginePolicyNode): string {
 /**
  * "What do I do with THIS one?" — every tablet the plan can leave in your hands, and its next move.
  *
- * The route above follows the crafts that go well, so it never said what to do with the rest (Dorian,
+ * The route above follows the crafts that go well, so it never said what to do with the rest (asked
  * 2026-09-23: "what do I do with the ones that have only 1 prefix and are magic, and the rare with 1 prefix
  * 1 suffix?"). The solved policy has an answer for every state it reaches; this is that, as a lookup: the
  * tablet, the next orb — or stop, when the plan would start a fresh one — and what finishing still costs.

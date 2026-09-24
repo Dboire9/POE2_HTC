@@ -1,8 +1,10 @@
 // Generate the Craft-of-Exile cross-check worksheet (HTML) from /tmp/coe.json.
-// Run: npx tsx scripts/coe-artifact.mts  →  writes the artifact HTML to the scratchpad path below.
+// Run: npx tsx scripts/coe-artifact.mts [out.html]  →  writes the worksheet (default: the OS temp folder).
 import { readFileSync, writeFileSync } from 'node:fs';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
 
-const OUT = '/tmp/claude-0/-home-dorian-Poe2Craft/fdc9d5e5-0604-43db-aa56-93b1c998a4e9/scratchpad/coe-crosscheck.html';
+const OUT = process.argv[2] ?? join(tmpdir(), 'coe-crosscheck.html');
 interface Row { text: string; id: string; weight: number; family: string; tiers: number }
 interface Base {
   prefixCount: number; suffixCount: number; preTotal: number; sufTotal: number; poolTotal: number;

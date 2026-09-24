@@ -153,16 +153,16 @@ const TabletsTab: React.FC = () => {
       spare: { prefixes: PER_SIDE - picked(tablet.prefixes), suffixes: PER_SIDE - picked(tablet.suffixes) },
       fillOnFinish: true,
       // A tablet's lattice is a few hundred states: solved the sure way, its rarest four modifiers
-      // included, which no Search effort settled otherwise (Dorian, 2026-09-23: "compute the ones we want").
+      // included, which no Search effort settled otherwise (asked 2026-09-23: "compute the ones we want").
       smallLattice: true,
       // Always, even empty: the replay behind it also gives the spread of what a craft costs.
       watch: watch.map((e) => e.mods),
       // What each of those sells for, as typed: the replay then sells one whenever that beats carrying on.
       sell: watch.map((e) => priceMap[setPriceKey(tablet.id, e.mods)]?.ex ?? 0),
       effort: limitsFor(effort),
-      // Never an Annulment Orb on a tablet (Dorian, 2026-09-23): at ~7 Chaos Orbs apiece it pays only
-      // on the rarest pairs with dear plain tablets — crafts that lose hundreds of div anyway — and costs
-      // under 1% more on half the crafts that ever reach for it.
+      // Never an Annulment Orb on a tablet (the maintainer's call, 2026-09-23): at ~7 Chaos Orbs apiece
+      // it pays only on the rarest pairs with dear plain tablets — crafts that lose hundreds of div
+      // anyway — and costs under 1% more on half the crafts that ever reach for it.
       excluded: [...new Set([...excludedKeys, 'annul'])],
     }, (p) => { if (current()) setProgress(p); });
     cancelRef.current = handle.cancel;
@@ -209,7 +209,7 @@ const TabletsTab: React.FC = () => {
         <TabletModPicker tablet={tablet} chosen={chosen} ruledOut={ruledOut} onToggle={toggle} />
 
         <div className="flex flex-wrap items-end gap-4">
-          {/* What the craft starts from, and buys again on every start over (Dorian, 2026-09-23). */}
+          {/* What the craft starts from, and buys again on every start over (2026-09-23). */}
           <div className="flex flex-col gap-1">
             <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Start from</span>
             <div role="group" aria-label="Start from" className="inline-flex rounded-md border border-border bg-muted/40 p-0.5 text-sm">

@@ -74,7 +74,7 @@ describe('mainLine', () => {
    * A craft that can start over (from a white base): the line follows the outcomes the FINISHING crafts
    * come through. The Ritual reroll in miniature — the Transmute lands it outright 0.3% of the time, but
    * most crafts that finish get there by a Chaos on the Rare the Regal makes; strictly-closer walking
-   * drew only the 0.3% (Dorian, 2026-09-23).
+   * drew only the 0.3% (reported 2026-09-23).
    */
   it('on a craft that can start over, follows the outcomes the finishing crafts come through', () => {
     const r = result(
@@ -203,7 +203,7 @@ describe('mainLine — what each step moves', () => {
   /**
    * Every finished state is drawn as one goal, the clean one, so its junk counts say nothing about the
    * item a step finishes on. A Chaos that swaps one of two junk suffixes for the target, finishing
-   * with the other on a spare slot, read "clears 2 junk mods" (Dorian, 2026-09-23). The edge carries
+   * with the other on a spare slot, read "clears 2 junk mods" (reported 2026-09-23). The edge carries
    * the item it really finishes on.
    */
   it('reads the junk a step into the goal leaves from the item it really finishes on', () => {

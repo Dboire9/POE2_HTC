@@ -76,7 +76,7 @@ const UNIT_KEY = 'poe2htc.tablets.unit';
 
 /**
  * The unit the Tablets tab shows its numbers in — Chaos Orbs unless the player picked another, since
- * tablets trade in chaos (Dorian, 2026-09-23: "chaos is the default currency"). Per browser, guarded.
+ * tablets trade in chaos (2026-09-23: "chaos is the default currency"). Per browser, guarded.
  */
 export function readShownUnit(): CostUnit['key'] {
   try {

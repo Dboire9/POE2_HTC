@@ -24,7 +24,7 @@
 // THE WEIGHT IS ASSUMED, AND THE APP SAYS SO. RePoE publishes 1 for every one of these — a placeholder,
 // exactly as poe2db does for the desecrated pool — so a literal reading would make a rune-pool mod
 // essentially unrollable beside normal weights in the thousands. `RUNE_POOL_ASSUMED_WEIGHT` puts one on
-// roughly the footing of an ordinary modifier. It is a judgement call (Dorian, 2026-09-15), not data:
+// roughly the footing of an ordinary modifier. A judgement call (the maintainer's, 2026-09-15), not data:
 // `assumedOdds` carries it to `PriceBasisNote`, the same route the desecrated weight takes.
 //
 // Usage: npx tsx tools/refresh/apply_runes.mjs   (tsx, because the rune table lives in runes.ts and is

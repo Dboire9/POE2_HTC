@@ -1,12 +1,11 @@
 {
-  "about": "What sells on a Precursor Tablet besides the craft you were aiming at — priced by Dorian on the trade site (instant buyout, 10 uses left) and sorted into four tiers. The Tablets tab shows each entry's odds of turning up while you roll, with a trade search and a box for the price you see. An entry is a SET that has to be on the tablet at once, on the tablets it names; a modifier can carry the value(s) that were priced, because \"rerolling Favours 3 additional times\" sells for more than 1. Left out: what he found at ~1 chaos (every Ritual pair of the non-jackpot modifiers, one extra random Modifier alone on Ritual) and what he did not price, which he said means ~1 chaos.",
-  "curatedBy": "Dorian",
+  "about": "What sells on a Precursor Tablet besides the craft you were aiming at — priced on the trade site (instant buyout, 10 uses left) and sorted into four tiers. The Tablets tab shows each entry's odds of turning up while you roll, with a trade search and a box for the price you see. An entry is a SET that has to be on the tablet at once, on the tablets it names; a modifier can carry the value(s) that were priced, because \"rerolling Favours 3 additional times\" sells for more than 1. Left out: what he found at ~1 chaos (every Ritual pair of the non-jackpot modifiers, one extra random Modifier alone on Ritual) and what he did not price, which he said means ~1 chaos.",
   "pricedOn": "2026-09-23",
   "league": "Forbidden Rites",
   "entry": {
     "tablets": "the tablet ids this entry is priced for — the same set sells differently on each",
     "mods": "each modifier: its id, what it `reads` in game (a test holds the two together — the ids can mislead, e.g. Tablets/RitualMagicMonsters reads \"chance to be Rare\"), and optionally the `min`/`max` of the value that was priced",
-    "price": "what Dorian saw it listed for on `pricedOn`, in his words",
+    "price": "what it was listed for on `pricedOn`, as noted then",
     "note": "optional — anything else worth saying"
   },
   "tiers": {

@@ -592,7 +592,7 @@ const BONE_BY_CATEGORY: Record<string, DesecrationBone> = {
 
 /**
  * Categories no bone desecrates at all. A Precursor Tablet takes the ordinary crafting orbs and nothing
- * from the Abyss (Dorian, 2026-09-21) — and the fallthrough below would otherwise hand it the armour bone,
+ * from the Abyss (confirmed 2026-09-21) — and the fallthrough below would otherwise hand it the armour bone,
  * which the solver then plays: measured, five of seven tablet crafts routed through a Desecration.
  */
 const NO_BONE: ReadonlySet<string> = new Set([TABLET_CATEGORY]);

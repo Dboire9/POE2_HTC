@@ -1,7 +1,7 @@
 {
   "credit": "Morce Faster",
   "read": "2026-09-21",
-  "about": "Rolling results for three Precursor Tablets, shared by Morce Faster with Dorian as one spreadsheet per tablet: how many times each modifier was seen. These counts are the only weight data there is for tablets — RePoE and poe2db both publish 1 for every tablet modifier.",
+  "about": "Rolling results for three Precursor Tablets, shared by Morce Faster as one spreadsheet per tablet: how many times each modifier was seen. These counts are the only weight data there is for tablets — RePoE and poe2db both publish 1 for every tablet modifier.",
   "basis": {
     "morce": "Morce Faster's own estimate, from the second tab of his Ritual sheet (a ladder of round weights).",
     "ladder": "A suffix only an Overseer or Temple tablet rolls: its count on that tablet, scaled against the shared mods at Morce's weights and rounded to his ladder.",

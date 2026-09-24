@@ -353,7 +353,7 @@ describe('the Tablets tab — what it costs and what it sells for', () => {
   });
 
   it('says what to do with every tablet a roll can leave you holding — the ones that went wrong too', async () => {
-    // Dorian, 2026-09-23: 10 plain tablets, half Magic with a prefix, half with a suffix; Regal'd, one came
+    // Real run, 2026-09-23: 10 plain tablets, half Magic with a prefix, half with a suffix; Regal'd, one came
     // out Rare with two junk suffixes, four with a prefix and a suffix. The plan has a move for each.
     const node = (key: string, rarity: 'normal' | 'magic' | 'rare', jp: number, js: number, action: string, expectedCost: number, isStart = false) =>
       ({ key, present: [], blocked: [], junkPrefixes: jp, junkSuffixes: js, rarity, isStart, isGoal: false, depth: 1, expectedCost, visitRate: 1, action });

@@ -490,7 +490,7 @@ describe('smallLattice — a tablet solved the sure way', () => {
   });
 
   it('draws the route the way the crafts that finish go — the Chaos included', () => {
-    // Dorian, 2026-09-23: "we say fresh tablets + chaos, but there we only have trans and regal". The
+    // Reported 2026-09-23: "we say fresh tablets + chaos, but there we only have trans and regal". The
     // line followed only outcomes that moved strictly closer, and from a plain tablet the one such
     // outcome is the 0.3% Transmute that lands the reroll outright — never the Chaos.
     const r = runSolve(eng, {
@@ -512,7 +512,7 @@ describe('smallLattice — a tablet solved the sure way', () => {
    * Magic tablets someone already rolled, priced off the solve. Fishing a Ritual reroll (a suffix), one
    * holding only a prefix is worth about a plain one — a Transmute lands a prefix half the time anyway —
    * and one holding only a suffix about half. For a Temple Rare Monsters + Crystal pair (one of each side)
-   * both are worth ~0.84 plain ones (Dorian, 2026-09-23).
+   * both are worth ~0.84 plain ones (2026-09-23).
    */
   it('prices a Magic tablet already rolled against a plain one, from the solve itself', () => {
     const worth = (base: string, mods: string[], spare: { prefixes: number; suffixes: number }, plain: number) => {

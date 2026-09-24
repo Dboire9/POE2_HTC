@@ -9,7 +9,7 @@ export const standInName = (s: StandIn): string =>
   `Magic · one ${s.side}, no ${s.side === 'prefix' ? 'suffix' : 'prefix'}`;
 
 /**
- * Buy a Magic tablet someone already rolled instead of a plain one (Dorian, 2026-09-23): one with a single
+ * Buy a Magic tablet someone already rolled instead of a plain one (2026-09-23): one with a single
  * prefix, one with a single suffix, each with the most it is worth and the search for it. Both are always
  * shown — "worth less than a plain one" is as useful as "worth more": it is the price to buy it under.
  */

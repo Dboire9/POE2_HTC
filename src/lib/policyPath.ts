@@ -94,7 +94,7 @@ export function changesBetween(node: EnginePolicyNode, next: EnginePolicyNode, e
   // Every finished state is drawn as ONE goal, the clean one (`routeFrom`'s fold), so its junk counts
   // say nothing about the item a step finishes on — which keeps whatever junk the spare slots allow.
   // Compared against them, a Chaos that swaps one junk suffix for the target read "clears 2 junk
-  // mods" (Dorian, 2026-09-23: "It only rerolls one mod"). The edge says what it really finishes on.
+  // mods" (reported 2026-09-23: "It only rerolls one mod"). The edge says what it really finishes on.
   const fin = next.isGoal ? edge?.finishes : undefined;
   const total = fin?.reduce((a, f) => a + f.prob, 0) ?? 0;
   return {
@@ -123,7 +123,7 @@ export interface MainLine {
  * (`toGoal`). It used to take only the likeliest outcome that moved strictly CLOSER, and on a craft
  * that fishes — a fresh tablet per try, a Chaos while the item is stuck — the one such outcome from the
  * start is the rare roll that lands the target at once, so the line read "Transmute (0.3%) → Regal →
- * ✓" beside a plan that plays Chaos 28 times a craft (Dorian, 2026-09-23: "we say fresh tablets +
+ * ✓" beside a plan that plays Chaos 28 times a craft (reported 2026-09-23: "we say fresh tablets +
  * chaos, but there we only have trans and regal"). Weighted by success, it reads Transmute → Regal →
  * Chaos, which is where the crafts that finish come from.
  *

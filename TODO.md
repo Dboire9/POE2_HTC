@@ -545,7 +545,7 @@ has.
 
 **How to do it.** Rewrite rather than patch. The USER_GUIDE in particular should be rebuilt from the
 current UI: Lab tab (from white), Item tab (from what you hold), what each panel means, what the bound
-markers mean, what Search effort trades. Screenshots are Dorian's to take (they need a browser); the
+markers mean, what Search effort trades. Screenshots are the maintainer's to take (they need a browser); the
 text can be written from the components. Keep `docs/ALGORITHM.md` as the technical companion — it IS
 current, and is the model for how the others should read. Delete `docs/DOWNLOAD.md` or leave it as the
 one-line "nothing to download" it already is.
@@ -564,7 +564,7 @@ is labelled **"Currency I don't have"** and ticking members NARROWS the exclusio
 it; **Copy link carries neither Search effort nor currency exclusions** (both are localStorage, and the
 guide now explains why that split is right — they describe your machine and your stash, not the craft);
 and **Report a problem builds a copyable block**, it does not file an issue. Screenshots are still
-absent and still Dorian's to take. `docs/DOWNLOAD.md` was already accurate and was left alone.
+absent and still the maintainer's to take. `docs/DOWNLOAD.md` was already accurate and was left alone.
 ---
 
 ## 8. ~~Prices should refresh themselves~~ — DONE 2026-09-01
@@ -862,7 +862,7 @@ baselined rather than anything new — `Desecrated_Thorns` / `_2` spanning sides
 with that reasoning recorded.
 
 **STILL OUTSTANDING: the CoE cross-check.** Craft of Exile is client-rendered and the harness
-(`scripts/coe-verify.mts`) takes hand-entered numbers, so this one needs a browser and is Dorian's,
+(`scripts/coe-verify.mts`) takes hand-entered numbers, so this one needs a browser and is the maintainer's,
 like the screenshots. The weight table is in `docs/validation.md` ready to compare. Internal
 consistency is a good sign meanwhile: Chaos Resistance sits at 250 against 1000 for each elemental
 resist, the same ~1:4 ratio Rings shows (1500 against 8000).
@@ -1437,7 +1437,7 @@ Ritual crafts at 100 ex solves correctly by policy iteration (Gold + XP 4.55 div
 ## 25. Tablets: what the tab does not do yet — OPEN, 2026-09-22
 
 Shipped: the three tablets, their odds from Morce Faster's counts, the craft's true cost, trade searches
-and typed prices, and the watch list with Dorian's valuable list (17 modifiers in two tiers, 2026-09-22).
+and typed prices, and the watch list with the curated valuable list (17 modifiers in two tiers, 2026-09-22).
 Left, roughly in the order a player would miss them:
 
 - *(Done 2026-09-23: selling mid-craft. The replay sells a priced set whenever the price beats
@@ -1472,7 +1472,7 @@ of Greater Exaltation) landed on top of them.
 
 Prepared, not released: `package.json` is at 1.0.0, the header no longer says BETA and reads its
 version from the manifest, and `docs/CHANGELOG.md` carries the 1.0.0 entry. **Nothing is pushed** —
-the release goes out when Dorian says so.
+the release goes out when the maintainer says so.
 
 Released 2026-09-02. The flow is now: work on `beta`, check its Vercel preview, fast-forward `main`,
 then `git tag vX.Y.Z && git push origin vX.Y.Z`.

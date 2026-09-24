@@ -11,7 +11,7 @@
 // has any: RePoE and poe2db both publish 1 for every tablet modifier. That file says where each weight
 // came from and how often the modifier was seen.
 //
-// LIMITS: a Rare tablet holds two prefixes and two suffixes (confirmed by Dorian, 2026-09-21 — four
+// LIMITS: a Rare tablet holds two prefixes and two suffixes (confirmed in game, 2026-09-21 — four
 // modifiers once the Arbiter of Ash is beaten), and no crafted modifier: no Essence touches a tablet.
 //
 // Usage: node tools/refresh/apply_tablets.mjs [repoeDir=tools/refresh/cache]

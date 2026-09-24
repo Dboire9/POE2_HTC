@@ -94,7 +94,7 @@ export function ruledOutBy(data: PatchData, chosen: readonly string[]): Map<stri
  * The valuable list's tiers, best first. The tier is the whole claim the tab makes about a set's value:
  * a price goes stale within days, so the tab shows the tier and leaves today's price to the player.
  */
-/** The tiers Dorian priced the curated list into (`valuable.json`). */
+/** The tiers the curated list is priced into (`valuable.json`). */
 export const CURATED_TIERS = ['superJackpot', 'jackpot', 'veryGood', 'good'] as const;
 export type CuratedTier = (typeof CURATED_TIERS)[number];
 /** Every tier a watch-list row can sit in: the player's own entries first, then the curated ones. */
@@ -217,7 +217,7 @@ export interface PlanSummary {
 
 /**
  * What a craft starts from, and buys again on every start over: a plain tablet, or a Magic one someone
- * already rolled holding one modifier the craft does not want (Dorian, 2026-09-23: "so you could plan with
+ * already rolled holding one modifier the craft does not want (asked 2026-09-23: "so you could plan with
  * these tablets and not only the plain one").
  */
 export type StartKind = 'plain' | 'prefix' | 'suffix';
@@ -335,7 +335,7 @@ export interface StandIn {
 
 /**
  * Magic tablets worth buying INSTEAD of a plain one: one holding a single unwanted prefix, and one holding
- * a single unwanted suffix — the two a market actually lists in number (Dorian, 2026-09-23: "I want magic
+ * a single unwanted suffix — the two a market actually lists in number (asked 2026-09-23: "I want magic
  * with 1 suffix only and 1 prefix only"; a Rare with nothing on one side is too rare to shop for). Priced
  * by the solve itself: finishing from one costs its state's value, finishing from a plain one costs a
  * plain tablet plus the craft, so it is worth up to the difference —
@@ -354,8 +354,8 @@ export function standIns(value: (key: string) => number | undefined, fromPlain: 
 }
 
 /**
- * The trade filter for a stand-in, as the trade site actually answers it on a Magic tablet (checked by
- * Dorian on the site, 2026-09-23): "# Empty Prefix Modifiers" at most 1 lists the ones holding only a
+ * The trade filter for a stand-in, as the trade site actually answers it on a Magic tablet (checked on
+ * the site, 2026-09-23): "# Empty Prefix Modifiers" at most 1 lists the ones holding only a
  * suffix, "# Empty Suffix Modifiers" at most 1 the ones holding only a prefix. One filter, on the OTHER side.
  */
 export function standInFilters(s: StandIn): { id: string; value: { max: number }; disabled: false }[] {

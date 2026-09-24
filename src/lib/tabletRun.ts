@@ -2,7 +2,7 @@
 //
 // One craft is a coin with a long tail: the average says +2 chaos, but half the crafts land cheap and one
 // in ten costs three times the average. What evens it out is doing it several times, and the question a
-// player asks (Dorian, 2026-09-23) is how many — "if you do it 100 times you should profit X, but you do
+// player asks (2026-09-23) is how many — "if you do it 100 times you should profit X, but you do
 // not need 100, do what is best" — and how much currency that takes before the sales come back.
 //
 // Answered by resampling. The replay kept what one craft cost at every percentile (`costPercentiles`,

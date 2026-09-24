@@ -987,6 +987,10 @@ stars, say what's good and what isn't if you like, and send. No email, no name, 
 stars, your words and the app version are sent. An invisible check keeps bots out; you never see a
 puzzle.
 
+**What next?** (the 💡 button beside it) asks the other question: what should the app do next? Write it
+in your own words — a feature, a tab, an item class it should plan — and send. It goes to the same place
+as ratings, kept apart from them, with the same privacy: only your words and the app version.
+
 ---
 
 *This is a third-party tool and is not affiliated with or endorsed by Grinding Gear Games.*

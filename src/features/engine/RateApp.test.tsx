@@ -6,7 +6,8 @@ import { existsSync } from 'node:fs';
 const mocks = vi.hoisted(() => ({ initBotId: vi.fn() }));
 vi.mock('botid/client/core', () => ({ initBotId: mocks.initBotId }));
 
-import RateApp, { FEEDBACK_PATH, MAX_MESSAGE } from './RateApp';
+import RateApp from './RateApp';
+import { FEEDBACK_PATH, MAX_MESSAGE } from './feedbackForm';
 import { MAX_MESSAGE as SERVER_KEEPS } from '../../../api/feedback';
 
 const show = () => render(<RateApp version="9.9.9" open onClose={() => {}} />);

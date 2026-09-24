@@ -2,7 +2,7 @@ import React, { useEffect, useId, useState } from 'react';
 import { Card } from '../../components/ui/card';
 import { Button } from '../../components/ui/button';
 import { cn } from '../../lib/utils';
-import { DISCORD_URL } from './ReportProblem';
+import { BotTrap, MAX_MESSAGE, SendFailed, sendFeedback, startBotCheck, type SendStatus } from './feedbackForm';
 
 /**
  * "Rate the app" — stars and a few words, straight to the maintainer, with nothing asked of the player.
@@ -18,44 +18,15 @@ import { DISCORD_URL } from './ReportProblem';
  */
 
 export const RATE_PANEL_ID = 'rate-app-panel';
-/** The server function (`api/feedback.ts`), and the one route BotID protects. */
-export const FEEDBACK_PATH = '/api/feedback';
-/** The most the server keeps. `api/feedback.ts` caps at the same, and a test pins the two together. */
-export const MAX_MESSAGE = 1000;
-
-let started: Promise<void> | null = null;
-/**
- * Start the invisible check, once per page. A blocked chunk (an ad blocker, say) is not fatal: the
- * rating is still sent, and the server's refusal comes back as a sentence the panel can show.
- */
-function startBotCheck(): Promise<void> {
-  started ??= import('botid/client/core')
-    .then(({ initBotId }) => { initBotId({ protect: [{ path: FEEDBACK_PATH, method: 'POST' }] }); })
-    .catch(() => { started = null; });
-  return started;
-}
 
 const STAR_WORDS = ['Bad', 'Not great', 'OK', 'Good', 'Great'] as const;
-
-/** The server's refusals, in words a player can act on. */
-const REFUSED: Readonly<Record<number, string>> = {
-  403: 'Your browser didn’t pass the automatic bot check. Please try again — or tell me on Discord.',
-  429: 'Lots of ratings from here just now. Please try again in a few minutes.',
-  503: 'Ratings aren’t switched on right now. Please tell me on Discord instead.',
-};
-const FAILED = 'Something went wrong on my side. Please try again later — or tell me on Discord.';
-// Also what an ad blocker that stops the bot check's script looks like from here: the request never
-// leaves the page. So the sentence names both rather than blaming the connection alone.
-const OFFLINE = 'Couldn’t send it — a connection problem, or an ad blocker in the way. Please try again, or tell me on Discord.';
-
-type Status = { readonly kind: 'idle' | 'sending' | 'sent' } | { readonly kind: 'failed'; readonly why: string };
 
 const RateApp: React.FC<{ version: string; open: boolean; onClose: () => void }> = ({ version, open, onClose }) => {
   const [stars, setStars] = useState<number | null>(null);
   const [message, setMessage] = useState('');
   // The hidden field. A person never sees it, so it stays empty; a form-filling bot fills it in.
   const [trap, setTrap] = useState('');
-  const [status, setStatus] = useState<Status>({ kind: 'idle' });
+  const [status, setStatus] = useState<SendStatus>({ kind: 'idle' });
   const group = useId();
 
   useEffect(() => { if (open) void startBotCheck(); }, [open]);
@@ -64,17 +35,7 @@ const RateApp: React.FC<{ version: string; open: boolean; onClose: () => void }>
   const canSend = (stars !== null || message.trim() !== '') && status.kind !== 'sending';
   const send = async (): Promise<void> => {
     setStatus({ kind: 'sending' });
-    try {
-      await startBotCheck();
-      const res = await fetch(FEEDBACK_PATH, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ rating: stars, message: message.trim(), version, website: trap }),
-      });
-      setStatus(res.ok ? { kind: 'sent' } : { kind: 'failed', why: REFUSED[res.status] ?? FAILED });
-    } catch {
-      setStatus({ kind: 'failed', why: OFFLINE });
-    }
+    setStatus(await sendFeedback({ rating: stars, message: message.trim(), version, website: trap }));
   };
 
   return (
@@ -143,13 +104,7 @@ const RateApp: React.FC<{ version: string; open: boolean; onClose: () => void }>
             />
           </label>
 
-          {/* Off-screen, out of the tab order and hidden from screen readers: nobody fills this in but a bot. */}
-          <div aria-hidden="true" className="absolute -left-[10000px] h-px w-px overflow-hidden">
-            <label>
-              Leave this empty
-              <input type="text" name="website" tabIndex={-1} autoComplete="off" value={trap} onChange={(e) => setTrap(e.target.value)} />
-            </label>
-          </div>
+          <BotTrap value={trap} onChange={setTrap} />
 
           <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
             <Button type="submit" size="sm" disabled={!canSend}>
@@ -160,14 +115,7 @@ const RateApp: React.FC<{ version: string; open: boolean; onClose: () => void }>
             </span>
           </div>
 
-          {status.kind === 'failed' && (
-            <p role="alert" className="text-xs text-red-700 dark:text-red-300">
-              <span>{status.why}</span>{' '}
-              <a href={DISCORD_URL} target="_blank" rel="noopener noreferrer" className="underline">
-                Open Discord
-              </a>
-            </p>
-          )}
+          {status.kind === 'failed' && <SendFailed why={status.why} />}
         </form>
       )}
     </Card>

@@ -1,5 +1,6 @@
 /**
- * POST /api/feedback — "Rate the app", and the only server code this otherwise static site runs.
+ * POST /api/feedback — "Rate the app" and "What do you want next?", and the only server code this
+ * otherwise static site runs.
  *
  * WHY A SERVER AT ALL. A form any stranger can post to is a spam target, and a static page cannot tell
  * a person from a script: whatever the page checks, a script simply skips. So the page never talks to
@@ -9,7 +10,8 @@
  *      do). The page's `initBotId` attaches a solved challenge to this one route; a request without a
  *      valid one — `curl`, or a script replaying a request — is refused before anything else is read.
  *   2. The inbox is configured (`FEEDBACK_SENTRY_DSN`); otherwise 503, and the page points at Discord.
- *   3. A small, strict body: 1–5 stars and/or at most `MAX_MESSAGE` characters. Nothing else is kept.
+ *   3. A small, strict body: 1–5 stars and/or at most `MAX_MESSAGE` characters — or, for "what next",
+ *      the words alone (`topic: 'next'`). Nothing else is kept.
  *   4. A hidden field no person sees. A form-filling bot fills it in and is answered "ok", told nothing.
  *   5. A per-address limit, per running instance — best effort; the layers above do the real work.
  *
@@ -34,6 +36,8 @@ export interface Feedback {
   readonly rating: number | null;
   readonly message: string;
   readonly version: string;
+  /** Present for "What do you want next?" — words only, read apart from ratings. Absent: a rating. */
+  readonly topic?: 'next';
 }
 
 /** Control characters (a tab and a newline may stay) and the ones that silently reverse text direction. */
@@ -46,10 +50,19 @@ function clean(s: string, max: number): string {
   return [...kept].slice(0, max).join('');
 }
 
-/** The body as the page sends it, or null when it is not a rating: no stars and no words, or anything malformed. */
+/**
+ * The body as the page sends it, or null when it is neither: a rating needs stars or words; "what next"
+ * (`topic: 'next'`) needs words and takes no stars; anything malformed is refused.
+ */
 export function parseFeedback(raw: unknown): Feedback | null {
   if (typeof raw !== 'object' || raw === null || Array.isArray(raw)) return null;
-  const { rating, message, version } = raw as Record<string, unknown>;
+  const { rating, message, version, topic } = raw as Record<string, unknown>;
+  if (topic !== undefined && topic !== 'next') return null;
+  if (topic === 'next') {
+    if (rating !== undefined && rating !== null) return null;
+    const words = typeof message === 'string' ? clean(message, MAX_MESSAGE) : '';
+    return words === '' ? null : { rating: null, message: words, version: typeof version === 'string' ? clean(version, 32) : '', topic };
+  }
   const stars = rating === null || rating === undefined ? null
     : typeof rating === 'number' && Number.isInteger(rating) && rating >= 1 && rating <= 5 ? rating : undefined;
   if (stars === undefined) return null;
@@ -59,8 +72,9 @@ export function parseFeedback(raw: unknown): Feedback | null {
   return { rating: stars, message: words, version: typeof version === 'string' ? clean(version, 32) : '' };
 }
 
-/** What the maintainer reads in Sentry's User Feedback list: the stars first, then the words. */
+/** What the maintainer reads in Sentry's User Feedback list: the stars (or "What next?") first, then the words. */
 export function feedbackText(fb: Feedback): string {
+  if (fb.topic === 'next') return `What next?\n\n${fb.message}`;
   const head = fb.rating === null ? 'No stars given' : `${'★'.repeat(fb.rating)}${'☆'.repeat(5 - fb.rating)} ${fb.rating}/5`;
   return fb.message === '' ? head : `${head}\n\n${fb.message}`;
 }
@@ -86,8 +100,8 @@ export function sentryEnvelope(dsn: string, fb: Feedback, now: Date, eventId: st
     type: 'feedback',
     environment: 'production',
     ...(fb.version === '' ? {} : { release: `poe2htc@${fb.version}` }),
-    tags: { rating: fb.rating === null ? 'none' : String(fb.rating) },
-    contexts: { feedback: { message: feedbackText(fb), source: 'rate-the-app' } },
+    tags: { topic: fb.topic ?? 'rating', rating: fb.rating === null ? 'none' : String(fb.rating) },
+    contexts: { feedback: { message: feedbackText(fb), source: fb.topic === 'next' ? 'what-next' : 'rate-the-app' } },
   };
   const body = [
     JSON.stringify({ event_id: eventId, sent_at: now.toISOString() }),

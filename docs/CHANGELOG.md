@@ -9,6 +9,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- **What do you want next?** A 💡 button in the header opens a box to say, in your own words, what the
+  app should do next. It goes to the same inbox as ratings, marked apart, with the same privacy — only
+  your words and the app version are sent.
+
 - **Big crafts with bones settle, and faster.** With a bone priced, a big craft from a white base could
   run past its Search effort with no number at all — at Standard, Amulets and Rings with five modifiers
   did. The Plan tab now solves such a craft without Desecration first and starts the solve with bones

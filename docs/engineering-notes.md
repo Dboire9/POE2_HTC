@@ -1317,7 +1317,9 @@ is under Data pipeline and what ships.
   `captureException`'s SECOND ARGUMENT** — hanging them off the Error type-checks, runs, reports, and
   silently drops them; `sentry.test.ts` mutation-pins that, the queue's copy of it, and the queue cap.
 
-- **`api/feedback.ts` is the site's ONE server function ("Rate the app"), and its order is the
+- **`api/feedback.ts` is the site's ONE server function ("Rate the app" and, since 2026-09-24, "What do
+  you want next?" — `topic: 'next'`, words only, tagged apart; the two panels share `feedbackForm.tsx`
+  for the route, bot check, honeypot and refusals), and its order is the
   security.** A static page cannot tell a person from a script, so the page never talks to the inbox:
   it posts to `/api/feedback`, which runs **Vercel BotID (Basic, free, invisible) FIRST**, before the
   body is read, then checks the inbox is configured, a strict body (1–5 stars and/or ≤ 1,000

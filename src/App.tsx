@@ -3,6 +3,7 @@ import { Toaster } from './components/ui/toaster';
 import EngineLab from './features/engine/EngineLab';
 import ReportProblem, { DISCORD_URL, PANEL_ID } from './features/engine/ReportProblem';
 import RateApp, { RATE_PANEL_ID } from './features/engine/RateApp';
+import WhatNext, { WHAT_NEXT_PANEL_ID } from './features/engine/WhatNext';
 // Read from the manifest rather than restated here, because the two HAVE drifted: for three commits
 // around `d866713` the header told users 0.5.9 while the package — which is what the release workflow
 // tags and names its artifact from — said 0.9.0. A hardcoded string makes the version a player sees
@@ -28,6 +29,7 @@ const openExternalLink = (url: string) => {
 export default function App() {
   const [reporting, setReporting] = useState(false);
   const [rateOpen, setRateOpen] = useState(false);
+  const [nextOpen, setNextOpen] = useState(false);
   const showGuide = useIsGuide();
   return (
     <div className="min-h-screen text-foreground bg-background">
@@ -70,6 +72,18 @@ export default function App() {
             >
               <span aria-hidden="true">💛</span>
               <span className="hidden sm:inline">Rate the app</span>
+            </button>
+            {/* The other half of the ask: not how the app is, but what it should do next — the player's
+                own words, to the same inbox (WhatNext, api/feedback.ts). */}
+            <button
+              onClick={() => setNextOpen((o) => !o)}
+              className={`${CHIP} bg-emerald-500/10 hover:bg-emerald-500/20 border-emerald-500/30 hover:border-emerald-500/50`}
+              aria-label="What do you want next?"
+              aria-expanded={nextOpen}
+              aria-controls={WHAT_NEXT_PANEL_ID}
+            >
+              <span aria-hidden="true">💡</span>
+              <span className="hidden sm:inline">What next?</span>
             </button>
             <button
               onClick={() => setReporting((r) => !r)}
@@ -127,6 +141,7 @@ export default function App() {
         <div hidden={showGuide} className={showGuide ? 'hidden' : undefined}>
           <div className="space-y-3">
             <RateApp version={version} open={rateOpen} onClose={() => setRateOpen(false)} />
+            <WhatNext version={version} open={nextOpen} onClose={() => setNextOpen(false)} />
             <ReportProblem version={version} open={reporting} onClose={() => setReporting(false)} />
             <EngineLab />
           </div>

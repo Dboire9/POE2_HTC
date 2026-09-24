@@ -178,7 +178,7 @@ describe('header actions are reachable by name', () => {
   it('every action has a real name, not an emoji', async () => {
     const App = (await import('../../App')).default;
     render(<App />);
-    for (const name of [/Rate the app/i, /Report a problem/i, /Join the Discord community/i, /Support the project/i]) {
+    for (const name of [/Rate the app/i, /What do you want next/i, /Report a problem/i, /Join the Discord community/i, /Support the project/i]) {
       expect(screen.getByRole('button', { name })).toBeInTheDocument();
     }
     // Nothing is named by an emoji alone.
@@ -204,6 +204,11 @@ describe('header actions are reachable by name', () => {
     await user.click(trigger);
     expect(trigger).toHaveAttribute('aria-expanded', 'true');
     expect(document.getElementById(trigger.getAttribute('aria-controls')!)).toHaveTextContent(/Your rating helps me a lot/);
+
+    const next = screen.getByRole('button', { name: /What do you want next/i });
+    await user.click(next);
+    expect(next).toHaveAttribute('aria-expanded', 'true');
+    expect(document.getElementById(next.getAttribute('aria-controls')!)).toHaveTextContent(/in your own words/);
   });
 });
 

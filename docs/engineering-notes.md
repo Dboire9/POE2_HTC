@@ -1148,6 +1148,18 @@ Enforced in `packages/engine` (mostly `probability.ts`).
   (`loadGearTrade`), downloaded the first time a link is drawn. A single-roll minimum is the tier's own;
   an "Adds # to #" line searches its average, floored.
 
+- **Each gear tab is a hook plus a few cards** (2026-09-24). `EngineLab` and `ItemActions` had grown to
+  1,129 and 1,242 lines, one component each. Their state and handlers moved, as written, into
+  `useLabCraft` / `useItemCraft`, and the markup into `LabSetup` / `LabTargets` / `LabResults` and
+  `YourItemCard` / `ItemFullPlan` / `ItemResults`. **Where the Lab's hook is CALLED is load-bearing**:
+  `EngineLab` never unmounts, so `useLabCraft` runs there and the Plan tab keeps its result while another
+  tab is open — state moved into a component drawn only on the Plan tab would be dropped on every switch
+  (the Item tab has always lost its result that way). `useSolveRunner` replaced three copies of the
+  run-id guard (Lab, Item, Tablets): without a stamp per run, a superseded solve's `finally` clears
+  `computing` while its replacement is still running. `useEngine` replaced three copies of the load.
+  Two tests read component SOURCE by file name (`UserGuide.test.tsx`, `responsive.test.tsx`), so moving
+  markup between files means updating them.
+
 ## Tablets
 
 `src/features/tablets/`, `src/lib/tablet*.ts`. The tablet DATA — bases, weights, the curated watch list —

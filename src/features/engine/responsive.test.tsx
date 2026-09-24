@@ -13,7 +13,8 @@ import { readFileSync } from 'node:fs';
 const read = (f: string): string => readFileSync(`src/features/engine/${f}`, 'utf8');
 
 describe('the mod columns stack on a phone', () => {
-  for (const file of ['EngineLab.tsx', 'ItemActions.tsx']) {
+  // The Plan tab's picker and the Item tab's builder, each in the card that holds it.
+  for (const file of ['LabSetup.tsx', 'YourItemCard.tsx']) {
     it(`${file} lays its two mod columns out column-first`, () => {
       const src = read(file);
       expect(src).toContain('flex flex-col sm:flex-row gap-4');
@@ -25,8 +26,8 @@ describe('the mod columns stack on a phone', () => {
   it('each column can actually shrink — flex-1 alone still overflows on long mod text', () => {
     // `min-w-0` is what lets a flex child narrower than its content; without it the column keeps its
     // intrinsic width and pushes the row wider than the screen instead of truncating.
-    expect(read('EngineLab.tsx')).toContain('flex-1 min-w-0');
-    expect(read('ItemActions.tsx')).toContain('flex-1 min-w-0');
+    expect(read('ModColumn.tsx')).toContain('flex-1 min-w-0');
+    expect(read('BuilderColumn.tsx')).toContain('flex-1 min-w-0');
   });
 });
 

@@ -15,7 +15,10 @@ code is one function, `api/feedback.ts`.
 
 - `src/` — React 19 + Vite + Tailwind. One view, `EngineLab` (`src/features/engine/`), with four tabs:
   **Plan from scratch** (from a white base), **I have an item**, **Tablets** (`src/features/tablets/`) and
-  **Streamer gear** (beta). `src/lib/engine.ts` is the browser facade over the engine.
+  **Streamer gear** (beta). `src/lib/engine.ts` is the browser facade over the engine. `EngineLab` is the
+  shell and holds the Plan tab's state through `useLabCraft` (it never unmounts, so the Lab keeps its
+  result across tab switches); the Item tab is `ItemActions` + `useItemCraft`. Every tab loads the engine
+  with `useEngine` and runs solves with `useSolveRunner`; both gear tabs draw a true cost in `TrueCostCard`.
 - `packages/engine` — the game rules: pools, weights, probabilities, item state. Pure TS, no I/O, no DOM.
 - `packages/optimizer` — the planners. Step routes: `optimize.ts` (from white), `fromItem.ts`,
   `alternatives.ts`. True expected cost: `markovFromItem.ts` and the other `markov*.ts`. Pricing: `cost.ts`.
@@ -128,8 +131,9 @@ npm run lint && npm run type-check && npm run type-check:engine && npm run type-
   search the player opens; nothing fetches pathofexile.com (GGG ToS §7(c)/(f)).
 - **Secrets**: the app's Sentry DSN (`VITE_SENTRY_DSN`) is public by design. The feedback inbox's
   (`FEEDBACK_SENTRY_DSN`) is server-only — never `VITE_`, never in the repo or `.env`.
-- **Keep files under ~1,000 lines.** `markovFromItem.ts` (~1,700), `ItemActions.tsx` and `EngineLab.tsx`
-  are already past it: new code goes in a module of its own and only its wiring goes there.
+- **Keep files under ~1,000 lines.** `markovFromItem.ts` (~1,700) is already past it: new solver code goes
+  in a module of its own and only its wiring goes there. A new panel on the gear tabs goes in
+  `TrueCostCard` or its own component, never back into the tab shells.
 
 ## Tests
 

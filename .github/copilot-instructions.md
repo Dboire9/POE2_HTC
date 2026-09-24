@@ -40,4 +40,5 @@ There is no lint script.
   [0,1] internally; format as percentages only at the UI edge. Prices in exalt-equivalents.
 - Log validation findings and divergences in `docs/validation.md`.
 
-See `CLAUDE.md` and `docs/DEVELOPMENT.md` for the fuller picture.
+See `CLAUDE.md` (the rules), `docs/engineering-notes.md` (the reasons behind them) and
+`docs/DEVELOPMENT.md` for the fuller picture.

@@ -13,7 +13,7 @@ import {
  *
  * WHY A TREE AND NOT AN HTML STRING. There is no `dangerouslySetInnerHTML`, no `innerHTML` and no
  * `eval` anywhere in this repo, and that is not incidental — it is the stated reason the CSP can
- * keep `'unsafe-inline'` in `script-src` (see CLAUDE.md on vercel.json). Rendering the guide from an
+ * keep `'unsafe-inline'` in `script-src` (see docs/engineering-notes.md on the CSP). Rendering the guide from an
  * HTML string would spend that property on a page of static prose. So the markdown is projected onto
  * the node union and rendered as elements, exactly as `shipMods.ts` projects `mods.json` onto the
  * fields `Mod` declares: the TYPE is what makes it safe, not the plugin that calls it.

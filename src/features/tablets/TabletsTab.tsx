@@ -1,11 +1,9 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import { Card } from '../../components/ui/card';
 import { Button } from '../../components/ui/button';
 import { Spinner } from '../../components/ui/spinner';
 import { cn } from '../../lib/utils';
-import { loadEngine, priceBasis, type Engine } from '../../lib/engine';
-import { isAppUpdated, isCancelled, prewarm, solve } from '../../lib/engineClient';
-import type { SolveProgress } from '../../lib/solve';
+import { priceBasis } from '../../lib/engine';
 import { parsePrice } from '../../lib/startingItem';
 import {
   ODDS_CREDIT, PER_SIDE, START_NAMES, listTablets, ruledOutBy, setPriceKey, standInFilters, standInJunk, watchList,
@@ -18,6 +16,8 @@ import { FULL_USES, tradeUrl } from '../../lib/tradeLink';
 import { toExcludedKeys, useExclusions } from '../../lib/currencyPrefs';
 import { limitsFor, useEffort } from '../../lib/searchEffort';
 import SolveProgressBar from '../engine/SolveProgress';
+import { useEngine } from '../engine/useEngine';
+import { useSolveRunner } from '../engine/useSolveRunner';
 import { TabletModPicker } from './TabletModPicker';
 import { TabletResult, type SolvedTablet } from './TabletResult';
 import { PriceInput } from './PriceInput';
@@ -37,8 +37,7 @@ const tabCls = (on: boolean): string => cn(
  * way round: nothing lists tablets, so the player brings the prices and the app does the arithmetic.
  */
 const TabletsTab: React.FC = () => {
-  const [engine, setEngine] = useState<Engine | null>(null);
-  const [loadErr, setLoadErr] = useState<string | null>(null);
+  const { engine, loadErr } = useEngine();
   const [tabletId, setTabletId] = useState('Tablets_ritual');
   const [chosen, setChosen] = useState<readonly string[]>([]);
   // The unit every number on the tab is shown in, and the one a new price box starts in: chaos unless
@@ -58,20 +57,13 @@ const TabletsTab: React.FC = () => {
   const [prices, setPrices] = useState<Record<string, TypedPrice>>(readPrices);
   // The player's own sets to watch for, and the curated ones they hid — per browser, read once.
   const [watchStore, setWatchStore] = useState<WatchStore>(readWatch);
-  const [computing, setComputing] = useState(false);
-  const [progress, setProgress] = useState<SolveProgress | null>(null);
+  const runner = useSolveRunner();
+  const { computing, progress } = runner;
   const [runErr, setRunErr] = useState<string | null>(null);
-  const cancelRef = React.useRef<(() => void) | null>(null);
-  const runIdRef = React.useRef(0);
   const excludedKeys = toExcludedKeys(useExclusions());
   // The Search effort the rest of the app uses. At the default a tablet's rarest pairs solve exactly in
   // a fraction of a second; without it they stopped at a bound.
   const effort = useEffort();
-
-  useEffect(() => {
-    prewarm();
-    loadEngine().then(setEngine).catch((e: unknown) => setLoadErr(e instanceof Error ? e.message : String(e)));
-  }, []);
 
   const tablets = useMemo(() => (engine ? listTablets(engine.data) : []), [engine]);
   const tablet = tablets.find((t) => t.id === tabletId) ?? tablets[0];
@@ -128,15 +120,11 @@ const TabletsTab: React.FC = () => {
     // Asked for at solve time and kept with the answer, so the odds shown belong to the craft that was
     // solved — not to whatever is ticked now.
     const watch = watchList(tablet, chosen, prefsFor(store, tablet.id));
-    // A price typed while a recount runs starts another: the one running is for prices now out of date.
-    cancelRef.current?.();
-    const runId = ++runIdRef.current;
-    const current = (): boolean => runIdRef.current === runId;
-    setComputing(true);
+    // A price typed while a recount runs starts another, superseding the one running: it is for prices
+    // now out of date.
     setRunErr(null);
-    setProgress(null);
     const picked = (side: readonly { id: string }[]): number => chosen.filter((id) => side.some((m) => m.id === id)).length;
-    const handle = solve({
+    runner.run({
       kind: 'lab',
       from: junk === undefined ? { baseId: tablet.id, level: 100 } : {
         item: {
@@ -164,25 +152,17 @@ const TabletsTab: React.FC = () => {
       // it pays only on the rarest pairs with dear plain tablets — crafts that lose hundreds of div
       // anyway — and costs under 1% more on half the crafts that ever reach for it.
       excluded: [...new Set([...excludedKeys, 'annul'])],
-    }, (p) => { if (current()) setProgress(p); });
-    cancelRef.current = handle.cancel;
-    handle.promise
-      .then((res) => {
-        if (!current() || res.kind !== 'lab') return;
+    }, {
+      onResult: (res) => {
+        if (res.kind !== 'lab') return;
         setSolved({ tablet, chosen, watch, markov: res.markov, plainCost: cost ?? 0, start });
-      })
-      .catch((e: unknown) => {
-        if (!current() || isCancelled(e)) return;
+      },
+      onError: (e, appUpdated) => {
         setSolved(null);
-        setRunErr(isAppUpdated(e) ? 'The site was updated while this ran — reload the page and try again.'
+        setRunErr(appUpdated ? 'The site was updated while this ran — reload the page and try again.'
           : e instanceof Error ? e.message : String(e));
-      })
-      .finally(() => {
-        if (!current()) return;
-        cancelRef.current = null;
-        setComputing(false);
-        setProgress(null);
-      });
+      },
+    });
   };
 
   if (loadErr) return <p className="text-sm text-amber-400">The tablet data could not be loaded: {loadErr}</p>;
@@ -199,7 +179,7 @@ const TabletsTab: React.FC = () => {
               className={cn(tabCls(t.id === tablet.id), FOCUS)}
               aria-pressed={t.id === tablet.id}
               // A solve still running is for the tablet being left: stop it, as its Cancel button would.
-              onClick={() => { cancelRef.current?.(); setTabletId(t.id); setChosen([]); setSolved(null); }}
+              onClick={() => { runner.cancel(); setTabletId(t.id); setChosen([]); setSolved(null); }}
             >
               {t.name}
             </button>
@@ -264,7 +244,7 @@ const TabletsTab: React.FC = () => {
           {chosen.length === 0 && <span className="text-xs text-muted-foreground">Pick at least one modifier.</span>}
         </div>
 
-        {computing && <SolveProgressBar progress={progress} onCancel={() => cancelRef.current?.()} />}
+        {computing && <SolveProgressBar progress={progress} onCancel={runner.cancel} />}
         {runErr && <p className="text-sm text-amber-400">{runErr}</p>}
       </Card>
 

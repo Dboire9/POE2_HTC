@@ -16,7 +16,7 @@ describe('vercel.json', () => {
 
   // JSON HAS NO COMMENTS. A `"//"` key was added to explain each rule, and Vercel's schema rejects
   // unknown properties outright: "headers[0] should NOT have additional property //" — the build
-  // failed, so the cache headers never shipped at all. The rationale lives in CLAUDE.md instead.
+  // failed, so the cache headers never shipped at all. The rationale lives in docs/engineering-notes.md.
   it('carries no invented comment keys', () => {
     expect(raw).not.toMatch(/"\/\/"\s*:/);
   });

@@ -134,7 +134,7 @@ export type SolveResult =
  * Every phase that can report. `item` runs the MDP's three; `lab` runs planning, the MDP, a replay of
  * its policy when the request has a watch list, and, when a budget is set, the budget search.
  */
-export type SolvePhase = MarkovProgress['phase'] | 'plan' | 'replay' | 'playout' | 'alternatives';
+export type SolvePhase = MarkovProgress['phase'] | 'plan' | 'replay' | 'playout' | 'withoutBones' | 'alternatives';
 
 /**
  * How far along a solve is, as a single 0–1 fraction the UI can render directly.
@@ -421,6 +421,15 @@ export function runSolve(eng: Engine, req: SolveRequest, onProgress?: (p: SolveP
   const modelShare = req.watch ? MODEL_BEFORE_REPLAY : MODEL_BEFORE_PLAYOUT;
   const mdpSpan: Span = watch ? [modelFrom, modelFrom + (modelTo - modelFrom) * modelShare] : [modelFrom, modelTo];
   const replayProgress = emit(replayPhase, [mdpSpan[1], modelTo]);
+  // Where the model has got the bar to, and under which label: a solve without bones that runs after it
+  // (below) carries on from there rather than starting the bar over, and the end keeps the last label.
+  let reached = mdpSpan[0];
+  let lastPhase: SolvePhase = 'solve';
+  const report = (phase: SolvePhase, fraction: number): void => {
+    reached = fraction;
+    lastPhase = phase;
+    onProgress?.({ phase, fraction });
+  };
   const mdpClock = clockLeft();
   const markov = markovOrReason(() => optimizeItemMarkov(eng, mdpItem, req.targets, spared(withSweepLimit(withPolicy({
     ...(watch ? { replay: {
@@ -437,15 +446,26 @@ export function runSolve(eng: Engine, req: SolveRequest, onProgress?: (p: SolveP
     ...(req.smallLattice ? { heuristicSeed: true, exactEvaluation: true } : {}),
     ...(mdpClock === undefined ? {} : { maxMillis: mdpClock }),
     ...(onProgress
-      ? { onProgress: (pr: MarkovProgress): void => onProgress({ phase: pr.phase, fraction: within(mdpSpan, toFraction(pr) * 1000, 1000) }) }
+      ? { onProgress: (pr: MarkovProgress): void => report(pr.phase, within(mdpSpan, toFraction(pr) * 1000, 1000)) }
       : {}),
-  })))));
+  }))), {
+    // A white base whose solve with bones runs out gets the best plan without them, on a clock of its
+    // own AFTER the effort's — the whole preset again (markovBoneFree.ts; a share of the first clock cost
+    // a craft its exact answer). A ceiling instead of nothing; the page says it took the extra time.
+    ...(eff ? { maxMillis: eff.maxMillis } : {}),
+    ...(onProgress
+      ? { onProgress: (pr: MarkovProgress): void => {
+        lastPhase = 'withoutBones';
+        onProgress({ phase: lastPhase, fraction: within([reached, mdpSpan[1]], toFraction(pr) * 1000, 1000) });
+      } }
+      : {}),
+  }));
 
   if (!hasBudget) {
     // The MODEL finishes the bar now, not planning — planning is the first ~30% of it. Reporting
     // `plan: 1` here would jump the label backwards after the model had already reported done, and
     // `solve` after a replay would do the same.
-    onProgress?.({ phase: watch ? replayPhase : 'solve', fraction: 1 });
+    onProgress?.({ phase: watch ? replayPhase : lastPhase, fraction: 1 });
     return { kind: 'lab', result, alts: null, markov };
   }
 

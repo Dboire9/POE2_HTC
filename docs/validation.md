@@ -4665,6 +4665,31 @@ rather than part of every solve, and "a rough read" under 500 crafts. The negati
 TODO 23's bias (the solver prices a roll with junk on the item slightly worse than the game), inside the
 noise at these counts.
 
+## Big crafts with bones: a ceiling instead of nothing (2026-09-24)
+
+`scripts/bone-fallback.mts`, live sheet, from white, the first prefixes and suffixes at their second tier,
+single runs. Before the fallback, at Standard (15 s):
+
+| craft | with bones | without bones |
+|---|---|---|
+| Wands ×3 / ×4 / ×5 | 3,700 (0.8 s) / 10,177 (3.8 s) / 53,292 (14.7 s) | 4,534 (0.3 s) / 16,935 (0.8 s) / 128,926 (6.2 s) |
+| Body Armour (str) ×3 / ×4 / ×5 | 1,245 (0.3 s) / 4,278 (1.6 s) / 12,534 (9.2 s) | 1,968 / 10,021 / 33,112 (2.1 s) |
+| Amulets ×3 / ×4 / ×5 | 8,003 / 26,788 (6.2 s) / **none (15.8 s)** | 8,975 / 55,595 (1.2 s) / 198,667 (5.0 s) |
+| Staves ×3 | 3,741 (0.9 s) | 4,534 (0.3 s) |
+| Rings ×4 / ×5 | 8,764 (2.7 s) / **none (15.9 s)** | 14,424 (0.6 s) / 49,234 (1.7 s) |
+
+Wands ×5 and Rings ×5 sit on Standard's edge: interleaved, Wands ×5 settled at 13.8 s once and gave
+nothing once; Rings ×5 gave nothing once and 27,451 at 14.2 s once. **The guessed seed does not help**:
+`heuristicSeed`, interleaved on seven of these (2 reps), was never faster, and gave no number for Body
+Armour ×5 (two-phase: 7.5 s, 9.8 s) and Wands ×5 where the two-phase solve settled.
+
+A reserved share of the clock fails the gate (no craft exact before may lose it): Wands ×5 needs up to
+15 s of 15, the Amulets ×5 fallback 5–6 s. So the solve without bones runs AFTER the budget. With it:
+every craft that settled gives the same number; **Amulets ×5 → "≤ 198,667 ex" in 21.5 s** and **Rings ×5
+→ "≤ 49,234 ex" in 17.6 s**, where both gave nothing. At Exhaustive they settle: Rings ×5 27,451 (19.7 s),
+Amulets ×5 57,105 (45.4 s) — so the ceilings are 1.8x and 3.5x the answer, and bones save 39–71% on the
+4- and 5-modifier crafts here. A real ceiling, not an estimate, which is how the page words it.
+
 ## Still deferred
 - **Confirm the Omen of Whittling TIE rule in game** (2026-09-02): when two or more modifiers share
   the lowest item level, which does the Chaos Orb remove? Modelled as uniform — 50/50 on two — by the

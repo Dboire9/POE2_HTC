@@ -357,6 +357,37 @@ describe('progress reporting', () => {
  * So this test is behavioural. One sweep cannot converge anything; a full budget converges this
  * craft. If the wiring goes, the two runs stop differing and the test fails.
  */
+/**
+ * TODO 20: with a bone priced, a from-white craft that runs out before it settles gets the best plan
+ * WITHOUT bones, as a ceiling, on a clock and sweep cap of its own. The frozen sheet prices a Wand's bone;
+ * three Wand targets a tier below the top. A sweep cap rather than a clock makes it run out on every
+ * machine: at 3,500 sweeps the solve with bones has not settled its first phase (it needs about 4,000)
+ * and the one without them has.
+ */
+describe('a from-white craft whose solve with bones runs out', () => {
+  const frozen = { data: eng.data, prices: loadFrozenPrices() };
+  const three = [...eng.data.bases.get('Wands')!.pools.normal.prefixes.slice(0, 2), eng.data.bases.get('Wands')!.pools.normal.suffixes[0]!]
+    .map((modId) => ({ modId, tierDisplay: 2 }));
+  const capped = { maxMillis: 60_000, maxNodes: 100, maxSweeps: 3_500, solver: 'policy' as const };
+
+  it('answers with the plan without bones, as a ceiling, and says so on the bar', () => {
+    const seen: SolveProgress[] = [];
+    const got = runSolve(frozen, { kind: 'lab', from: { baseId: 'Wands', level: 82 }, targets: three, effort: capped }, (p) => seen.push(p));
+    expect(got.markov).toMatchObject({ applicable: true, feasible: true, bound: 'upper', withoutBones: true });
+    expect(seen.filter((p) => p.phase === 'withoutBones').length).toBeGreaterThan(1);
+    for (let i = 1; i < seen.length; i++) expect(seen[i]!.fraction).toBeGreaterThanOrEqual(seen[i - 1]!.fraction);
+    expect(seen[seen.length - 1]).toEqual({ phase: 'withoutBones', fraction: 1 });
+  });
+
+  it('keeps an item held to its own answer, and a craft that settles to its own number', () => {
+    const carved = runSolve(frozen, { kind: 'lab', from: { item: { ...item, prefixes: [] } }, targets: three, effort: capped });
+    expect(carved.markov.withoutBones).toBeUndefined();
+    const settled = runSolve(frozen, { kind: 'lab', from: { baseId: 'Wands', level: 82 }, targets: three, effort: { ...capped, maxSweeps: 100_000 } });
+    expect(settled.markov).toMatchObject({ bound: 'exact' });
+    expect(settled.markov.withoutBones).toBeUndefined();
+  });
+});
+
 describe('Search effort reaches value iteration, not just the preset table', () => {
   const generous = { maxMillis: 60_000, maxNodes: 200 };
   const run = (maxSweeps: number) =>

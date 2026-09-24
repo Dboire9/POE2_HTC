@@ -29,6 +29,11 @@ const LabResults: React.FC<{ lab: LabCraft }> = ({ lab }) => {
   const tightenAdvice = topped
     ? <>at <strong>{topLabel}</strong> this is as tight as the solver gets</>
     : <>raise <strong>Search effort</strong> to tighten the price</>;
+  const boneAdvice = topped
+    ? <>at <strong>{topLabel}</strong> the solver cannot say how much cheaper</>
+    : <>raise <strong>Search effort</strong> to find out how much cheaper</>;
+  // The preset the result on screen ran at, by name: the solve without bones took time past it.
+  const ranAtLabel = EFFORT_PRESETS.find((p) => p.id === markovEffort)?.label ?? 'the Search effort';
   const finishAdvice = topped
     ? <>This is <strong>{topLabel}</strong> already — the craft is beyond what the solver can settle.</>
     : <>Raise <strong>Search effort</strong> to let it finish.</>;
@@ -77,7 +82,16 @@ const LabResults: React.FC<{ lab: LabCraft }> = ({ lab }) => {
               `bound` rather than guessing. From a white base the solver seeds from a policy that never
               restarts — a real, if expensive, way to finish — and works DOWN from it, so stopping early
               leaves a ceiling. From an item it starts at zero and works up, leaving a floor. */}
-          {markov.bound === 'upper' && (
+          {markov.withoutBones ? (
+            // The solve with bones ran out, and this is the one without them (markovBoneFree.ts): a plan
+            // the player can follow, so a real ceiling — but a different plan, which the note has to say.
+            <p className="rounded-md border border-amber-500/50 bg-amber-500/10 px-2 py-1.5 text-[11px] text-amber-700 dark:text-amber-300">
+              ⚠ With Desecration in play the solver ran out of time on this craft, so it solved it once more{' '}
+              <strong>without Desecration</strong>, past the time {ranAtLabel} allows. This is the exact cost of
+              that plan, and a <strong>ceiling</strong>: bones can only make the craft cheaper. The route below
+              uses none — {boneAdvice}.
+            </p>
+          ) : markov.bound === 'upper' && (
             <p className="rounded-md border border-amber-500/50 bg-amber-500/10 px-2 py-1.5 text-[11px] text-amber-700 dark:text-amber-300">
               ⚠ The solver stopped before this number settled, so it is a <strong>ceiling</strong> — the
               real cost is at most this, and usually well under it. The route below is already the right

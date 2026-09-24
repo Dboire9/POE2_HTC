@@ -31,6 +31,7 @@ import { stepProbability, type PlanStep } from '../../packages/engine/src/plan.t
 import { optimizePareto, type OptimizeParetoOptions } from '../../packages/optimizer/src/optimize.ts';
 import { optimizeFromItem } from '../../packages/optimizer/src/fromItem.ts';
 import { markovFromItem, type MarkovOptions } from '../../packages/optimizer/src/markovFromItem.ts';
+import { markovWithBoneFreeCeiling, type BoneFreeOptions } from '../../packages/optimizer/src/markovBoneFree.ts';
 import { routeFrom, stepFrom } from '../../packages/optimizer/src/markovRoute.ts';
 import {
   alternativesFromWhite, alternativesFromItem, type AlternativesOptions,
@@ -296,9 +297,16 @@ export function optimizeItem(
  */
 export function optimizeItemMarkov(
   eng: Engine, item: ExistingItem, targets: readonly TargetInput[], opts: MarkovOptions = {},
+  /** A from-white craft whose solve with bones runs out answers with the best plan without them, on this
+   *  clock of its own (`markovBoneFree.ts`). Absent ⇒ it answers with what it reached. */
+  withoutBones?: BoneFreeOptions,
 ): EngineMarkovResult {
   const { data, prices } = eng;
-  const res = markovFromItem(data, prices, buildItemState(data, item), toTierTargets(data, targets), opts);
+  const state = buildItemState(data, item);
+  const tiers = toTierTargets(data, targets);
+  const res = withoutBones
+    ? markovWithBoneFreeCeiling(data, prices, state, tiers, opts, withoutBones)
+    : markovFromItem(data, prices, state, tiers, opts);
   // `targets` is handed on so every position can carry the tier it was ASKED at. It is the UI-shaped
   // list, which is the only place `tierDisplay` survives — `toTierTargets` converts it to the engine's
   // worst-first index on the way in, and the graph needs it back the way the player wrote it.
@@ -308,8 +316,8 @@ export function optimizeItemMarkov(
 /**
  * The route from one of a Lab result's starting items (`holdings[].key`) — a walk over the solved
  * policy the result already carries, so it costs a fraction of a second where another solve would
- * cost the whole craft again. Null when the result carries no table (anything but an exact from-white
- * Lab solve) or the key is not a state of it.
+ * cost the whole craft again. Null when the result carries no table (see `EngineMarkovResult.routes`) or
+ * the key is not a state of it.
  */
 export function routeFor(eng: Engine, markov: EngineMarkovResult, key: string): EngineMarkovResult | null {
   const t = markov.routes;
@@ -321,8 +329,8 @@ export function routeFor(eng: Engine, markov: EngineMarkovResult, key: string): 
 /**
  * One move of the plan from state `key` — the state, the move, and every state it can leave the item in
  * — for following the plan along with the game (`CraftAlong`). A lookup in the solved policy the result
- * already carries, labelled the way the route graph labels it. Null without a table (any solve that is
- * not exact) or for a key that is not a state of it.
+ * already carries, labelled the way the route graph labels it. Null without a table (see
+ * `EngineMarkovResult.routes`) or for a key that is not a state of it.
  */
 export function stepFor(eng: Engine, markov: EngineMarkovResult, key: string): EngineMarkovResult | null {
   const t = markov.routes;

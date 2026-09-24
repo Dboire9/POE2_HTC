@@ -942,6 +942,21 @@ Enforced in `packages/engine` (mostly `probability.ts`).
   not bounded by anything (the `ItemWorth` rule). Every row assumes NO junk in the other slots, so a
   real listing costs at least that to finish — both panels say so.
 
+- **A from-white craft whose solve with bones runs out answers with the plan WITHOUT bones, as a
+  ceiling — solved after the budget, not out of it** (2026-09-24, `markovBoneFree.ts`, TODO 20). A plan
+  without Desecration is playable in the model with it, so its exact cost bounds the craft from above.
+  The result says whether bones were `optional` (only a priced bone put the flag axis there) or
+  `required` (a desecrated target, a carved mod held), and only an optional one gets the second solve —
+  a required one could not reach its target without bones. The second solve gets the Search effort's
+  whole clock AGAIN rather than a reserved share of the first: a reserve fails the gate the plan set,
+  because Wands 5×T2 settles at Standard in 13.8–14.7 s and would lose its exact answer to any share
+  big enough to fit the Amulets 5×T2 fallback (5.0 s). It answers with the lower of the two ceilings
+  when the first solve ran out holding one (`lowerCeiling`). The bar carries on from where the first
+  solve left it, under "Solving it again without Desecration…", and the Lab says the time went past the
+  preset. **The existing guessed seed (`heuristicSeed`) does not rescue these crafts**: measured
+  interleaved on seven bone crafts, it was never faster and left Body Armour 5×T2 and Wands 5×T2 with
+  no number where the two-phase solve settled them (validation.md).
+
 ## The step planners
 
 `optimize.ts`, `fromItem.ts`, `alternatives.ts`, `leverDp.ts`.

@@ -215,6 +215,15 @@ stops with a value that hasn't settled — and the app knows *which side of the 
 Raise **Search effort** and run it again to turn a bound into an exact figure. The app will never print
 a confident number it hasn't earned.
 
+**"≤ x" without Desecration.** With a bone priced, every craft from a white base may also Desecrate, and
+that makes the solve several times longer — long enough that a big craft can run out of time with no
+number at all. When that happens and the craft doesn't need a bone, the Plan tab solves it once more
+**without Desecration**, taking up to the Search effort's time again, and shows that plan's exact cost as
+a ceiling: bones can only make the craft cheaper — by 40 to 70% on the big crafts measured. The route
+shown is that plan,
+with no bones in it, and it is one you can follow. Raise Search effort to find out how much the bones
+save.
+
 ### The policy graph
 
 **Step-by-step routes** expands the policy into something you can read. Each node is an item state; each
@@ -737,7 +746,9 @@ In rough order of likelihood:
 
 The solve didn't converge. Raise **Search effort**. See
 [The bound markers](#the-bound-markers--x-and--x) — the marker tells you which side of the truth you're
-on, so a "≤" figure is still a usable ceiling.
+on, so a "≤" figure is still a usable ceiling. If it says the ceiling is the plan **without Desecration**,
+the solve took longer than the Search effort's time: it ran out with bones in play, then solved the craft
+again without them.
 
 ### It says "stopped early"
 

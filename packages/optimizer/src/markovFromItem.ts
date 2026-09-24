@@ -80,6 +80,18 @@ export interface MarkovResult {
    */
   readonly stoppedEarly?: true;
   /**
+   * Whether a Desecration was in the model, and why. `required`: the craft needs a bone — a desecrated
+   * target, or a carved mod already on the item. `optional`: only a priced bone put it there, so the same
+   * craft can also be planned without one (`markovBoneFree.ts`). Absent: no Desecration in play.
+   */
+  readonly bones?: 'optional' | 'required';
+  /**
+   * The answer is the exact cost of the best plan WITHOUT Desecration, given because the solve with it
+   * ran out — a ceiling on the craft with bones, which can only make it cheaper (`markovBoneFree.ts`).
+   * `bound` is then `upper`.
+   */
+  readonly withoutBones?: true;
+  /**
    * Whether value iteration actually reached `tolerance`, or gave up at `maxIters`.
    *
    * This is NOT a detail: an unconverged `expectedCost` is a bound, not an estimate. Which bound is
@@ -310,9 +322,12 @@ const MAX_CANDIDATES = 9;
 export function markovFromItem(
   data: PatchData, rawPrices: Prices, start: ItemState, targets: readonly TierTarget[], opts: MarkovOptions = {},
 ): MarkovResult {
+  // Known once the targets are resolved; a failure after that says it too, so a caller can tell a craft
+  // that could be planned without bones from one that needs them.
+  let bones: MarkovResult['bones'];
   const fail = (reason: string, why: { stoppedEarly?: true } = {}): MarkovResult => ({
     expectedCost: Infinity, feasible: false, converged: true, bound: 'exact',
-    reason, nodes: [], edges: [], policy: new Map(), ...why,
+    reason, nodes: [], edges: [], policy: new Map(), ...why, ...(bones ? { bones } : {}),
   });
   const prices = pricesForBase(rawPrices, start.base);
 
@@ -415,8 +430,9 @@ export function markovFromItem(
   // the item itself, because the family siblings below depend on this and `s0` depends on them.
   const holdsCarved = [...start.prefixes, ...start.suffixes]
     .some((p) => p.desecrated === true || data.mods.get(p.modId)?.source === 'desecrated');
-  const desecratable = bonesAllowed
-    && (merged.targets.some((t) => representative(t).source === 'desecrated') || holdsCarved || bonePriced);
+  const needsBone = merged.targets.some((t) => representative(t).source === 'desecrated') || holdsCarved;
+  const desecratable = bonesAllowed && (needsBone || bonePriced);
+  if (desecratable) bones = needsBone ? 'required' : 'optional';
   /*
    * Then every OTHER mod the base can roll into a target's family (markovSiblings.ts). A same-side one
    * lands its target as blocked, as an off-tier roll does; anything else becomes an OBSTACLE position,
@@ -1701,6 +1717,7 @@ export function markovFromItem(
   const bare = bareV !== undefined && Number.isFinite(bareV) ? bareV : undefined;
   return {
     expectedCost: startCost, feasible: true, converged, bound, nodes, edges, policy,
+    ...(bones ? { bones } : {}),
     ...(bare !== undefined ? { bareCost: bare } : {}),
     ...(holdings.length > 0 ? { holdings } : {}),
     ...(opts.keepRoutes && bound === 'exact' ? { routes: table } : {}),

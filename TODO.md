@@ -1342,14 +1342,18 @@ finished in ~5 s now need ~20 s — past Standard, so the Lab asks for Exhaustiv
 or less when they finish (Wands 52,758 → 27,006 ex; Amulets 141,127 → 37,717 ex), and fubgun's Aldur
 staff takes roughly 450 s of Exhaustive's 900 s. The price of a right answer, not a regression to revert.
 
-Two ways to buy the time back, neither tried:
+Two ways to buy the time back:
 
-- **Seed the bone solve with the bone-free policy.** Any bone-free policy is proper in the bigger lattice
-  (the flag gates only bones), so its closed-form value is a valid phase-B seed — the door
+- **Seed the bone solve with the bone-free policy** — still open. Any bone-free policy is proper in the
+  bigger lattice (the flag gates only bones), so its closed-form value is a valid phase-B seed — the door
   `heuristicSeed` already opens to skip phase A, which is 92-98% of a solve. The bone-free solve is the
-  fast one.
-- **Answer from the bone-free solve when the bone solve runs out.** Its policy is playable, so its cost
-  is an honest ceiling ("≤ x") where today a Standard solve that runs out prints nothing.
+  fast one. Not `heuristicSeed` itself: measured interleaved on seven bone crafts (2026-09-24,
+  docs/validation.md) the guessed seed was never faster and lost Body Armour and Wands 5×T2 outright.
+- ~~**Answer from the bone-free solve when the bone solve runs out.**~~ DONE 2026-09-24
+  (`markovBoneFree.ts`): a from-white craft whose bones are optional and whose solve runs out gets the
+  plan without bones as a ceiling, solved after the budget on a clock of its own. At Standard, Amulets and
+  Rings 5×T2 now show "≤ 198,667 ex" and "≤ 49,234 ex" where they showed nothing. A ceiling from a held
+  item (whose solve stops on a floor, a bracket with it) is not built.
 
 **Verify.** The ten-craft table in docs/validation.md re-measured alone, and the Aldur staff at
 Exhaustive.

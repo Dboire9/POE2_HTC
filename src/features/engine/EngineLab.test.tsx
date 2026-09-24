@@ -379,6 +379,26 @@ describe('EngineLab — the true cost of a craft from scratch', () => {
     expect(screen.queryByText(/floor/i)).toBeNull();
   });
 
+  /**
+   * With bones in play the solve ran out, and the answer is the plan WITHOUT them (markovBoneFree.ts): a
+   * ceiling too, but a different plan, found on time past the preset — the note has to say all three.
+   */
+  it('says when the ceiling is the plan without Desecration, found past the Search effort’s time', async () => {
+    mocks.optimizeItemMarkov.mockReturnValue({ ...labMarkov, converged: false, bound: 'upper', withoutBones: true });
+    const user = userEvent.setup();
+    await loaded();
+    await user.click(addButton('Normal Prefix'));
+    await user.click(screen.getByRole('button', { name: /Find plans/i }));
+    expect(await screen.findByText(/^≤\s/)).toBeInTheDocument();
+    expect(screen.getByText(/ran out of time on this craft/)).toHaveTextContent(
+      '⚠ With Desecration in play the solver ran out of time on this craft, so it solved it once more without '
+      + 'Desecration, past the time Standard allows. This is the exact cost of that plan, and a ceiling: bones can '
+      + 'only make the craft cheaper. The route below uses none — raise Search effort to find out how much cheaper.');
+    expect(screen.queryByText(/stopped before this number settled/)).toBeNull();
+    // The solve was asked for a ceiling without bones, on the preset's own clock.
+    expect(mocks.optimizeItemMarkov.mock.calls.at(-1)![4]).toMatchObject({ maxMillis: limitsFor(DEFAULT_EFFORT).maxMillis });
+  });
+
   it('renders an unfinished push-forward solve as a floor', async () => {
     mocks.optimizeItemMarkov.mockReturnValue({ ...labMarkov, converged: false, bound: 'lower' });
     const user = userEvent.setup();

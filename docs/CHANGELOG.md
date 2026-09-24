@@ -9,6 +9,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- **A number for big crafts that used to come back empty.** With a bone priced, a big craft from a white
+  base could run past its Search effort with no number at all — at Standard, Amulets and Rings with five
+  modifiers did, and Wands with five settled on one run and not the next. Now, when the craft does not
+  need a bone, the Plan tab solves it once more without Desecration (up to the Search effort's time
+  again) and shows that plan's exact cost as a ceiling — "≤ x", with its route — saying that bones can
+  only make it cheaper.
+
 - **What a craft can cost — not only on average.** Under the true expected cost on both gear tabs, *Play
   it out* plays the plan on real items for a few seconds: half the crafts cost less than X, the luckiest
   and unluckiest 1 in 10, and the curve of how often a craft finishes within a budget — with the Plan

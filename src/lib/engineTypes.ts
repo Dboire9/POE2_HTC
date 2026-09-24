@@ -440,6 +440,9 @@ export interface EngineMarkovResult {
   /** Set when there is no number because the solve ran out of clock or sweeps — the one failure a
    *  higher Search effort can fix. See MarkovResult.stoppedEarly. */
   readonly stoppedEarly?: true;
+  /** The cost is the best plan WITHOUT Desecration's, given because the solve with it ran out: a ceiling
+   *  (`bound: 'upper'`), since bones can only make the craft cheaper. See MarkovResult.withoutBones. */
+  readonly withoutBones?: true;
   /** True expected cost under the optimal policy. */
   readonly expectedCost: number;
   /** False when value iteration hit its sweep cap instead of converging — then `expectedCost` is a
@@ -486,7 +489,8 @@ export interface EngineMarkovResult {
   /**
    * The solved policy over the whole lattice, opaque to the UI: `routeFor` walks it to draw the route
    * from any starting item, and `stepFor` reads it one move at a time (Craft along), without solving
-   * again. Every exact solve carries it.
+   * again. Every exact solve carries it, and so does a ceiling without bones (`withoutBones`): the table of
+   * the plan it names, which is exact in its own model and playable in the craft's.
    */
   readonly routes?: RouteTable;
   /**

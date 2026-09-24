@@ -549,6 +549,7 @@ export function mapMarkov(
     ...(res.replay && !res.replay.ok ? { replayReason: res.replay.reason } : {}),
     ...(res.reason ? { reason: res.reason } : {}),
     ...(res.stoppedEarly ? { stoppedEarly: true as const } : {}),
+    ...(res.withoutBones ? { withoutBones: true as const } : {}),
   };
 }
 

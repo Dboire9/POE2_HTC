@@ -11,6 +11,7 @@ const TabletsTab = lazy(() => import('../tablets/TabletsTab'));
 import UserGuide from './UserGuide';
 import LabSetup from './LabSetup';
 import LabTargets from './LabTargets';
+import ExampleCrafts from './ExampleCrafts';
 import LabResults from './LabResults';
 import { FOCUS_RING } from './ui';
 import { useDefaultBase, useEngine } from './useEngine';
@@ -137,6 +138,7 @@ const EngineLab: React.FC = () => {
         : (<>
           <LabSetup lab={lab} />
           <LabTargets lab={lab} />
+          <ExampleCrafts lab={lab} />
           <LabResults lab={lab} />
         </>)}
     </div>

@@ -9,6 +9,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- **Crafts to try on an empty Plan tab.** *Or try one*: a caster Wand, a life and resistances Ring, an
+  armour Body Armour and a Spirit Amulet, each loaded and solved in one click — chosen to settle exactly
+  at Standard in a second or two, so a first visit sees an answer before learning the picker.
+
+### Fixed
+
+- **A craft loaded from scratch no longer keeps the last craft's free slots** — a streamer's item sent to
+  the Plan tab carried over "any prefix / any suffix" slots it never asked for.
+
 - **What do you want next?** A 💡 button in the header opens a box to say, in your own words, what the
   app should do next. It goes to the same inbox as ratings, marked apart, with the same privacy — only
   your words and the app version are sent.

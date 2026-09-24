@@ -44,8 +44,13 @@ that one are meant to agree; if they ever don't, ALGORITHM.md is the one that's 
 
 ## Getting started
 
-Open **[poe2htc.com](https://poe2htc.com)**. That's it — there is nothing to download, no account, and
-no server. The whole engine is JavaScript running in your browser; nothing you type leaves your machine.
+Open **[poe2htc.com](https://poe2htc.com)**. That's it — there is nothing to download and no account.
+The whole engine is JavaScript running in your browser; nothing you type leaves your machine, except a
+rating or a "What next?" message you choose to send (see [Getting help](#getting-help)).
+
+Not sure where to start? On an empty **Plan from scratch** tab, **Or try one** offers a few ready crafts
+— a caster Wand, a life and resistances Ring, an armour Body Armour, a Spirit Amulet. One click loads it
+and solves it, so you see what the app answers before you pick your own modifiers.
 
 The first load pulls the modifier data for patch 0.5.0 — about 1 MB, and 85 kB over the wire once
 compressed. After that the page works offline.

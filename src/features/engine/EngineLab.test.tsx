@@ -845,3 +845,19 @@ describe('EngineLab — what a craft can cost, and whether it pays', () => {
     expect(price()).toHaveValue('12');
   });
 });
+
+describe('EngineLab — crafts to try on an empty Plan tab', () => {
+  it('loads an example and solves it in one click, then gives way to the targets card', async () => {
+    const { EXAMPLE_CRAFTS } = await import('../../lib/exampleCrafts');
+    const wand = EXAMPLE_CRAFTS.find((e) => e.goal.baseId === 'Wands')!;
+    const user = userEvent.setup();
+    await loaded();
+    expect(screen.getByText('Or try one')).toBeInTheDocument();
+    await user.click(screen.getByRole('button', { name: new RegExp(wand.name) }));
+    await waitFor(() => expect(mocks.optimize).toHaveBeenCalledTimes(1));
+    // From a white Wand at the example's level, with exactly its targets.
+    expect(mocks.optimize.mock.calls[0]!.slice(1, 4)).toEqual(['Wands', wand.goal.level, wand.goal.targets]);
+    expect(await screen.findByText(/True expected cost/)).toBeInTheDocument();
+    expect(screen.queryByText('Or try one')).toBeNull();
+  });
+});

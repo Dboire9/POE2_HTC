@@ -96,6 +96,21 @@ test('2b — craft along: the plan is followed one move at a time from the resul
   expect(errors.filter(cspish), 'CSP refusals').toEqual([]);
 });
 
+test('2c — an example craft on the empty Plan tab loads and solves in one click', async ({ page }) => {
+  const errors = watchForErrors(page);
+  await page.goto('/');
+  await waitForReady(page);
+
+  await page.getByRole('button', { name: /A caster Wand/ }).click();
+  // Its targets fill the card, and the true cost answers — exactly, with no bound marker.
+  await expect(page.getByText(/Target item \(3 mods\)/)).toBeVisible();
+  const cost = page.getByText('True expected cost').locator('xpath=following-sibling::span');
+  await expect(cost).toBeVisible({ timeout: 60_000 });
+  await expect(cost).not.toHaveText(/[≤≥]/);
+
+  expect(errors.filter(cspish), 'CSP refusals').toEqual([]);
+});
+
 test('3 — item compute: the from-item planner answers on a held item', async ({ page }) => {
   const errors = watchForErrors(page);
   await page.goto('/');

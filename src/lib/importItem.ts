@@ -1,5 +1,6 @@
 import type { CraftGoal, ImportedItem } from './engineTypes.ts';
 import { getWorkspace, setWorkspace } from './workspace';
+import { NO_SPARE } from '../../packages/optimizer/src/slots.ts';
 
 /**
  * ONE rule, applied by all three routes below: a modifier list belongs to the BASE it was chosen on.
@@ -69,6 +70,8 @@ export function craftFromScratch(goal: CraftGoal): void {
       // craft that produced it can be literally impossible to plan.
       fractured: new Set(),
       pinned: new Set(),
+      // …and so are free slots: they belong to the target, like the base's own clearCraft says.
+      spare: NO_SPARE,
       runes: [...(goal.runes ?? [])],
     },
   });

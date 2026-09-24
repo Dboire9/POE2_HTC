@@ -4,6 +4,8 @@ import {
   type Engine, type EngineBase, type EngineMod, type EngineResult, type TargetInput, type ExistingItem,
   type EngineAlternatives, type AltTargetInput, type EngineMarkovResult,
 } from '../../lib/engine';
+import type { CraftGoal } from '../../lib/engineTypes';
+import { craftFromScratch } from '../../lib/importItem';
 import { toExcludedKeys, useExclusions } from '../../lib/currencyPrefs';
 import { limitsFor, useEffort } from '../../lib/searchEffort';
 import { withSpare } from './FreeSlots';
@@ -19,6 +21,17 @@ import type { SolveRequest } from '../../lib/solve';
 import { craftSig } from '../../lib/craftAlong';
 import { gearPriceKey, gearPrices, type PriceEntry, type TypedPrice } from '../../lib/typedPrices';
 import { slotsOfTargets } from '../../lib/gearTrade';
+
+/** What a craft is, as the fields hold it: what `jobFor` builds a solve from. */
+interface CraftFields {
+  readonly baseId: string;
+  readonly level: number;
+  readonly targets: readonly TargetInput[];
+  readonly fractured: ReadonlySet<string>;
+  readonly pinned: ReadonlySet<string>;
+  readonly runes: readonly string[];
+  readonly spare: Spare;
+}
 
 /**
  * A solve the Plan tab ran, and what its answer describes: the request, and the fields it was built
@@ -333,11 +346,11 @@ export function useLabCraft(engine: Engine | null) {
   };
 
   // A carved base IS a Rare holding those mods, so a fractured craft is the from-item planner with them locked.
-  const carvedItem = (): ExistingItem => {
+  const carvedItem = (c: CraftFields): ExistingItem => {
     const carved = (type: 'prefix' | 'suffix') =>
-      targets.filter((t) => fractured.has(t.modId) && modById.get(t.modId)?.type === type)
+      c.targets.filter((t) => c.fractured.has(t.modId) && modById.get(t.modId)?.type === type)
         .map((t) => ({ modId: t.modId, tierDisplay: t.tierDisplay, fractured: true }));
-    return { baseId, level, rarity: 'rare', prefixes: carved('prefix'), suffixes: carved('suffix') };
+    return { baseId: c.baseId, level: c.level, rarity: 'rare', prefixes: carved('prefix'), suffixes: carved('suffix') };
   };
 
   // Runs in the same Web Worker as the from-item planner. These calls are fast (a few ms), so this is
@@ -364,31 +377,38 @@ export function useLabCraft(engine: Engine | null) {
     });
   };
 
-  const compute = (effortId: string = effort) => {
-    if (!engine || targets.length === 0) return;
-
-    const fromItem = fractured.size > 0;
+  /**
+   * The solve for a craft: the one in the fields (`compute`), or an example loaded into them at the same
+   * moment (`tryExample`) — whose fields this render does not hold yet. Budget, base cost and exclusions
+   * are the player's standing choices and come from the fields either way.
+   */
+  const jobFor = (c: CraftFields, effortId: string): LabRun => {
+    const fromItem = c.fractured.size > 0;
     const b = Number(budget);
     const hasBudget = budget.trim() !== '' && Number.isFinite(b) && b > 0;
-    const want: AltTargetInput[] = targets.map((t) => (pinned.has(t.modId) ? { ...t, pinned: true } : t));
+    const want: AltTargetInput[] = c.targets.map((t) => (c.pinned.has(t.modId) ? { ...t, pinned: true } : t));
     // A blank field means "no opinion", which is NOT the same as zero — it defers to the app's default.
     // 0 typed explicitly is a real answer (bases are free) and must reach the solver as one, so the
     // test is on the string being non-empty, not on the number being truthy.
     const bc = Number(baseCost);
     const hasBaseCost = baseCost.trim() !== '' && Number.isFinite(bc) && bc >= 0;
-
     const req: SolveRequest = {
       kind: 'lab',
-      from: fromItem ? { item: carvedItem() } : { baseId, level },
-      targets,
+      from: fromItem ? { item: carvedItem(c) } : { baseId: c.baseId, level: c.level },
+      targets: c.targets,
       ...(hasBudget ? { budget: b, want } : {}),
       ...(hasBaseCost ? { baseCost: bc } : {}),
       effort: limitsFor(effortId),
       ...(excludedKeys.length > 0 ? { excluded: excludedKeys } : {}),
-      ...(runes.length > 0 ? { runes } : {}),
-      ...(freeSlots > 0 ? { spare } : {}),
+      ...(c.runes.length > 0 ? { runes: c.runes } : {}),
+      ...(c.spare.prefixes + c.spare.suffixes > 0 ? { spare: c.spare } : {}),
     };
-    run({ req, effortId, spare, solvedFor: { baseId, targets }, budget: b });
+    return { req, effortId, spare: c.spare, solvedFor: { baseId: c.baseId, targets: c.targets }, budget: b };
+  };
+
+  const compute = (effortId: string = effort) => {
+    if (!engine || targets.length === 0) return;
+    run(jobFor({ baseId, level, targets, fractured, pinned, runes, spare }, effortId));
   };
 
   /**
@@ -397,6 +417,21 @@ export function useLabCraft(engine: Engine | null) {
    * so the spread describes the numbers it sits beside.
    */
   const playOut = () => { if (solved) run(solved, true); };
+
+  /** Load an example craft (exampleCrafts.ts) into the fields, and solve it — from the example itself. */
+  const tryExample = (goal: CraftGoal) => {
+    craftFromScratch(goal);
+    setResult(null);
+    setMarkov(null);
+    setAlts(null);
+    setSearch('');
+    if (engine) {
+      run(jobFor({
+        baseId: goal.baseId, level: goal.level, targets: goal.targets, fractured: new Set(), pinned: new Set(),
+        runes: goal.runes ?? [], spare: NO_SPARE,
+      }, effort));
+    }
+  };
 
   const canCompute = targets.length > 0 && !runner.computing && !essenceFractureConflict;
   const onPickTier = (modId: string, t: number) => setPickTier((p) => ({ ...p, [modId]: t }));
@@ -412,7 +447,7 @@ export function useLabCraft(engine: Engine | null) {
     result, alts, altBudget, markov, markovRun, markovEffort, markovSpare, solvedFor, alongSig, runErr, stale,
     sale, setSale, saleKey,
     computing: runner.computing, progress: runner.progress, cancel: runner.cancel, compute, playOut, canCompute,
-    share, reset, outcome,
+    share, reset, outcome, tryExample,
   };
 }
 

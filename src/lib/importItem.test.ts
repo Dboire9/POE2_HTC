@@ -86,6 +86,13 @@ describe('craftFromScratch', () => {
     expect(getWorkspace().lab.pinned.size).toBe(0);
   });
 
+  it('does not carry the previous craft’s free slots onto a craft that never asked for them', () => {
+    const d = defaultWorkspace();
+    setWorkspace({ ...d, lab: { ...d.lab, spare: { prefixes: 1, suffixes: 0 } } });
+    craftFromScratch(GOAL);
+    expect(getWorkspace().lab.spare).toEqual({ prefixes: 0, suffixes: 0 });
+  });
+
   /** A slot of alternatives survives the trip: the Lab solves "Cold or Lightning" as one position. */
   it('carries a slot of alternatives across as one slot', () => {
     const slotted: CraftGoal = { ...GOAL, targets: [

@@ -4715,6 +4715,22 @@ Through the app (`scripts/bone-fallback.mts`, Standard, the seeded path on): all
 ×4/×5 0.8/3.8 s (27,451) — same costs as above. The ceiling without bones now shows only when even the
 seeded solve runs out.
 
+## Example crafts on the empty Plan tab (2026-09-24)
+
+Chosen by measurement, live sheet, Standard, from white at item level 82 (`runSolve`, as the Lab):
+
+| example | targets (tier) | answer | time |
+|---|---|---|---|
+| A caster Wand | Spell Damage (T3), +Level of all Spell Skills (T2), Cast Speed (T3) | exact 16,245 ex | 1.2 s |
+| A life and resistances Ring | Life, Fire, Cold, Lightning Resistance (all T3) | exact 5,233 ex | 0.7 s |
+| An armour Body Armour | Life, Armour %, Fire, Lightning Resistance (all T3) | exact 1,660 ex | 1.3 s |
+| A Spirit Amulet | Spirit (T2), Life (T3), all Elemental Resistances (T3) | exact 7,712 ex | 0.3 s |
+
+Also measured and not taken: the Wand at T2 (58,420 ex, 1.2 s — steep for a first look), a Ring with
+three modifiers at T2 (3,619, 0.5 s), a Body Armour with three at T2 (1,277, 0.3 s). The costs move with
+the sheet; what the choice rests on is the settling, which `exampleCrafts.test.ts` checks on the frozen
+sheet and e2e 2c in the browser.
+
 ## Still deferred
 - **Confirm the Omen of Whittling TIE rule in game** (2026-09-02): when two or more modifiers share
   the lowest item level, which does the Chaos Orb remove? Modelled as uniform — 50/50 on two — by the

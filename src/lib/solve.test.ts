@@ -628,7 +628,12 @@ describe('smallLattice — a tablet solved the sure way', () => {
       }));
       expect(magic.bound).toBe('exact');
       expect(magic.restartCost).toBe(w.worth); // a start over buys another Magic one
-      expect(w.worth + magic.expectedCost).toBeCloseTo(130 + plain.expectedCost, 2); // to the solver's own tolerance
+      // Equal up to the solver's own accuracy, which is RELATIVE (~1e-3 by contract, `MarkovOptions.tolerance`)
+      // and set by the sheet's cheapest orb — so an absolute 0.005 ex on a ~10,000 ex craft (5e-7) passed
+      // only while the sheet happened to allow it, and failed the price bot on 2026-09-26 at 1.7e-6 when
+      // the Transmute halved. 1e-4 is still ten times inside the contract; a wrong start-over price misses
+      // by whole exalts.
+      expect(Math.abs((w.worth + magic.expectedCost) / (130 + plain.expectedCost) - 1)).toBeLessThan(1e-4);
     }
   });
 

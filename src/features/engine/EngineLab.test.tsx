@@ -838,7 +838,9 @@ describe('EngineLab — what a craft can cost, and whether it pays', () => {
     await user.click(addButton('Normal Prefix'));
     await user.click(screen.getByRole('button', { name: /Find plans/i }));
     const price = () => screen.getByRole('textbox', { name: /Trade price for Rare · Normal Prefix,/ });
-    await user.type(price(), '12');
+    // `find`, not `get`: the solve answers across the Worker boundary, and on a slow runner the panel is
+    // not there yet the instant the button is clicked (CI, 2026-09-26).
+    await user.type(await screen.findByRole('textbox', { name: /Trade price for Rare · Normal Prefix,/ }), '12');
     mocks.optimizeItemMarkov.mockReturnValue({ ...withStarts, replay: played.replay });
     await user.click(screen.getByRole('button', { name: 'Play it out' }));
     expect(await screen.findByText(/Half the crafts cost less than/)).toBeInTheDocument();

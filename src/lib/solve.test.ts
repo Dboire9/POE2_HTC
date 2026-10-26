@@ -560,16 +560,20 @@ describe('smallLattice — a tablet solved the sure way', () => {
     // Reported 2026-09-23: "we say fresh tablets + chaos, but there we only have trans and regal". The
     // line followed only outcomes that moved strictly closer, and from a plain tablet the one such
     // outcome is the 0.3% Transmute that lands the reroll outright — never the Chaos.
-    const r = runSolve(eng, {
+    //
+    // FROZEN prices: which orb finishes the line is a price call — Chaos sits near 70 Exalts, so the
+    // last step flipped between Chaos and Exalt as the live sheet moved, and the 2026-10-26 refresh
+    // held its PR on exactly that. The claim is about how the line is drawn, not about the market.
+    const r = runSolve({ data: eng.data, prices: loadFrozenPrices() }, {
       kind: 'lab', from: { baseId: 'Tablets_ritual', level: 100 },
       targets: [{ modId: 'Tablets/RitualAdditionalReroll', tierDisplay: 1 }], baseCost: 130,
       spare: { prefixes: 2, suffixes: 1 }, fillOnFinish: true, excluded: ['annul'], smallLattice: true,
     });
     const steps = mainLine(cost(r)).steps;
     // Since the junk-family correction (TODO 23, 2026-09-24) the Chaos trades the junk suffix for a
-    // junk PREFIX — clearing the suffix side, its family out of the pool — and an Exalt then lands the
-    // reroll. The line still shows the Chaos the report asked about.
-    expect(steps.map((s) => s.action.split(' ')[0])).toEqual(['Transmute', 'Regal', 'Chaos', 'Exalt']);
+    // junk PREFIX — clearing the suffix side, its family out of the pool — and a second Chaos then lands
+    // the reroll. The line still shows the Chaos the report asked about.
+    expect(steps.map((s) => s.action.split(' ')[0])).toEqual(['Transmute', 'Regal', 'Chaos', 'Chaos']);
     const chaos = steps[2]!;
     expect(chaos.changes.junk).toEqual({ prefixes: 1, suffixes: -1 });
     expect(chaos.repeats).toBeGreaterThan(0.4); // a junk suffix for a junk suffix: play it again

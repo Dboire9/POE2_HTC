@@ -23,9 +23,9 @@
 // pool, since the lattice never knows which junk landed. That overstates the cost: measured at up to
 // 7% on Wand crafts, more on a small pool (docs/validation.md, 2026-09-21). A fractured JUNK mod is
 // treated as ordinary removable junk (only target mods can be fractured-locked here). Omen of
-// Whittling — a CHAOS omen that changes the item's lowest-TIER mod (per-mod T-number, not ilvl)
-// rather than a random one — needs the mod-tier ORDERING the abstraction discards, so it's out of
-// scope. Perfect-essence / desecrate / essence targets stay on the linear planner (the caller falls
+// Whittling — a CHAOS omen that removes the item's lowest-LEVEL mod (ilvl, not per-mod T-number)
+// rather than a random one — needs the mod-level ORDERING the abstraction discards, so it's out of
+// scope (TODO §12b, §27). Perfect-essence / desecrate / essence targets stay on the linear planner (the caller falls
 // back).
 
 import type { ItemState, PatchData } from '../../engine/src/types.ts';

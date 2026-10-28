@@ -1025,7 +1025,8 @@ lands the two models will diverge further on exactly the crafts players use Whit
 UI should say so on a plan that uses it. That copy is NOT written, because writing it now would
 describe a dormant feature.
 
-**Planned in §27** (ladder crafting), phase 3.
+**Not planned as an MDP axis** — §27 handles Whittling in a ladder planner instead, where the plan
+fixes which mod is lowest-level so the state never has to carry it.
 
 ### 12c. A chaos step's `constrainTo` is inert, and now traceably so — NEW, TIER 3
 
@@ -1042,7 +1043,7 @@ the field, or model the Erasure omens properly as a removal constraint (the chao
 Sinistral/Dextral Annulment, which `annulProbability` already does). `stepOmenIds` now carries that
 warning at the call site.
 
-**Planned in §27** (ladder crafting), phases 0–2.
+**Planned in §27** (ladder planner), phases 0–1.
 
 ---
 
@@ -1492,55 +1493,92 @@ a Desecration's keep order and the Echoes reroll line, the place kept per browse
 - **Spend is the plan's average per move**, not what was paid: a reroll taken or not with the Echoes
   omen is counted at its expected cost either way.
 
-## 27. Ladder crafting — teach the MDP the omens it runs on — OPEN, planned 2026-10-26
+## 27. A ladder planner — design the craft so most states never matter — OPEN, planned 2026-10-28
 
 **Source.** Belton, "The Ladder Crafting Method" (https://www.youtube.com/watch?v=wLCthzpIrfE, patch
-0.2, April 2025), a perfect Spike Spear. The method: plan backward from the six mods, then order the
-steps so a failed one never loses earlier progress — at worst it drops ONE rung, never to the base.
-Its rules: (1) lock in the rarest, highest-item-level mod first (179% phys, ilvl 82, weight 25 — no
-other spear mod is level 82, so Whittling can never take it); (2) add the rest in falling item-level
-order, so the newest mod is always the lowest-level one and Whittling only ever rerolls it; (3) finish
-one side, then the other, because the expensive omens act only by level (Whittling) or by side
-(Sinistral/Dextral Annulment and Erasure); (4) ties on level are a coin flip, and Dextral Erasure +
-Whittling narrows the flip to suffixes.
+0.2, April 2025), a perfect Spike Spear; the design below is the maintainer's reading of it
+(2026-10-28).
 
-**What NOT to build: the ladder as a rule.** The step planner already enumerates every ordering, and
-the MDP picks the best move in every state, so a forced "rarest first, one side at a time" order could
-only equal its answer or lose to it. The gain is in the omens: once the MDP can play them it finds
-ladder routes itself wherever they are cheapest, and the route graph shows the "one rung down" edges
-the method is about. Today it cannot, so on exactly these crafts it overstates the cost.
+**The principle.** The MDP answers "what is optimal in every state that could exist". The ladder
+answers a smaller question — *what is the next mod I want, and which move gets it without touching
+what I already hold?* — and then ORDERS the craft so that question is all there is. A bad outcome does
+not branch into a new state: it loops back into the same rung, or, in a few enumerated tie cases,
+drops ONE rung. Belton's spear is eight rungs and two fallback edges, not thousands of states. The
+point is not to solve every state; it is to design the craft so most of them never happen.
 
-**The order to do it in — each phase measured, and reverted if it changes nothing (§5d, §14a).**
+**Why this, and not a level axis on the MDP.** Whittling is what makes ladders work and what breaks the
+MDP (§12b): "remove the lowest-LEVEL mod" needs every mod's level in the state, and that explodes the
+lattice. Under ladder order the level question is answered BY THE PLAN — the lowest-level mod is the
+one this rung just added — so it never has to be stored. **The MDP level axis is therefore NOT planned.**
+§12b stays open as a known limit of the MDP, not as work.
+
+### The model
+
+**The invariant.** A rung holds a LOCKED set L (fractured mods, plus every target already landed) and
+wants one target X. Its moves may only touch mods outside L. For a Whittled Chaos that means: every
+locked mod sits at a STRICTLY higher level than anything the rung can put on the item, so the
+lowest-level mod is always the newcomer. Erasure narrows the same test to one side (lowest-level
+SUFFIX), which is how a rung can be legal on one side while the other side holds lower mods.
+
+**Where the invariant bends: ties and high rolls.** A Chaos re-adds from the whole pool, so it can roll
+a mod at or above a locked mod's level (the spear's ilvl-81 flat Fire/Cold/Lightning against the
+ilvl-81 hybrid). Those are not new states, they are the rung's ENUMERATED contingencies: their
+probability comes straight from pool weights at levels ≥ the lowest locked level, and each maps to a
+named recovery (a Whittle coin flip, an Erasure, a side Annulment) that ends back on this rung or ONE
+rung down. If a rung's contingencies cannot all be routed back to this rung or the one below, the rung
+is illegal and the search drops that order.
+
+**Each rung's cost — a renewal, no lattice.** One attempt costs `c` and ends in success (p), a retry
+of this rung (r), or a one-rung fall (f), with p + r + f = 1. A fall re-climbs the rung below, whose
+cost is already known, so
+
+    E(rung k) = (c + f · E(rung k−1 re-entry)) / p
+
+closed form, the same renewal shape the MDP's `evaluateClosedForm` uses. The first rung has an empty
+L and needs no invariant — chaos-spam the rarest mod onto a one-mod item, as the spear does.
+
+**The ladder search — a DP over (locked set, last mod locked).** A fall loses the mod locked MOST
+RECENTLY, so a rung's re-entry cost depends on which mod that was: E(rung k−1 re-entry) is the cost of
+re-landing Y from L \ {Y}. The DP state is therefore (L, Y) — with n ≤ 6 targets, at most 6 · 32 = 192:
+
+    cost(L, Y) = min over legal (X, move) of [ E(rung: L → L ∪ {X} | fall re-lands Y) + cost(L ∪ {X}, X) ]
+    cost(all, ·) = 0
+
+Exact for what it models, small enough to run every order, and it finds "highest level first" and
+"one side first" by itself where they pay — neither is hard-coded. A target set with NO legal ladder
+is reported as such ("this craft cannot be laddered; here is the MDP route") rather than forced.
+
+**The MDP stays — as the comparison.** Same craft, both numbers: the ladder (no progress ever lost
+beyond one rung) and the MDP optimum (anything goes, restarts included). The gap is the price of
+safety. On a mirror-tier craft it should be near zero; on a cheap white base or a tablet the MDP may
+win by starting over, and the player should see that rather than be told a rule.
+
+### Phases — each measured; a phase that changes no answer is reverted (§5d, §14a)
 
 0. **Price and trace the Erasure omens.** Neither Sinistral nor Dextral Erasure is in `prices.json`'s
-   omens (Whittling is, under poe.ninja `type=Ritual`). Trace the exact text and internal ids on
-   poe2db first, as §12 did — that section had Whittling's mechanic wrong until it was traced.
-1. **Erasure in the step planners** (closes §12c). A removal constraint on a chaos step — the chaos
-   analogue of `annulProbability`'s side omens, priced through `stepOmenIds`, price-gated in
-   `levers.ts`. Delete `constrainTo` or keep it, but do not price it as Erasure (§12c says why).
-2. **Erasure in the MDP.** Needs no new state: a side-constrained chaos removal reads only the
-   per-side counts `McState` already has. Measure as §14a did — times offered, times played, solve
-   time, every expected cost — on Wands and Spears. Revert if the policy never plays it.
-3. **Whittling in the MDP** (closes §12b). Needs a level axis, which is the expensive part — the
-   `flagged` axis cost ~5x solve time (§3). The ladder suggests a cheaper axis than a level bucket per
-   junk mod: under level-descending play only the identity of the LOWEST-level mod matters (a junk mod
-   on a side, or target i). Whether that stays exact once junk lands ABOVE a target is the open
-   question — work it out on paper, and if it needs an approximation, record it as one rather than
-   ship a guess (the "do not" in §12 applies here too). Measure the lattice size and solve time
-   before building the actions.
-4. **Seed policy iteration from a ladder plan** (`MarkovOptions` already takes a seed policy). Only
-   if 3 lands; worth it only if it measurably cuts the rounds.
+   omens (Whittling is, via poe.ninja `type=Ritual`). Trace exact text and internal ids on poe2db
+   first — §12 had Whittling's mechanic wrong until it was traced.
+1. **Erasure in the step planners** (closes §12c): a removal constraint on a chaos step, the chaos
+   analogue of `annulProbability`'s side omens, priced through `stepOmenIds`, gated in `levers.ts`.
+   Do not price `constrainTo` as Erasure (§12c says why).
+2. **The ladder core, with today's moves only** (exalt, chaos, annul and its side omens, fractures):
+   the invariant check, the per-rung renewal cost, the DP over locked sets. Hand-computed tests on the
+   synthetic fixture first — a two-rung craft whose E is worked on paper.
+3. **Whittling and Erasure inside rungs**: the tie and high-roll contingencies, their recoveries, the
+   one-rung fall. Tie rule as modelled today (uniform among tied, §12); the video also says 50/50 —
+   cite it in docs/validation.md as supporting, not as proof.
+4. **Validate on the spear**, re-checked against `data/patches/0.5.0` (the video is patch 0.2; weights
+   and levels may have moved): Spike Spear ilvl 82+; prefixes 179% phys (ilvl 82), 79% phys + 200
+   accuracy (ilvl 81), T9 flat phys (ilvl 77); suffixes +5% crit fractured plus two of 28% attack speed
+   / 39% crit bonus / +5 projectile skills. The planner should find Belton's order or a cheaper legal
+   one, and play the ladder on real items in `simulate.ts` (Monte Carlo) to confirm E and that no
+   locked mod is ever lost.
+5. **Show it as a ladder**: rungs up, "step down one" edges, "from here X is never at risk", next to
+   the MDP figure and the gap. Players already think in rungs.
 
-**Test case.** The video's spear, re-checked against `data/patches/0.5.0` (the video is patch 0.2;
-weights and ilvls may have moved): Spike Spear ilvl 82+; prefixes 179% phys (ilvl 82), 79% phys + 200
-accuracy (ilvl 81), T9 flat phys (ilvl 77); suffixes +5% crit fractured, plus two of 28% attack speed
-/ 39% crit bonus / +5 projectile skills. The MDP with Whittling should cost it below today's figure,
-and its policy should never risk the ilvl-82 mod once it holds it. Replay it in `markovReplay` and
-against `simulate.ts`.
-
-**Evidence for an open assumption.** The video states level ties are a 50/50 between the tied mods —
-the rule §12 lists as untraced and models as uniform. A streamer's word, not a datamine: cite it in
-docs/validation.md as supporting, not as proof.
+**Open questions.** Does a Whittled Chaos's ADD draw from the full pool or exclude anything? (Assumed
+full pool, as a plain Chaos.) Is the one-rung fall always enough, or does some legal-looking order
+need two? (If so the rung is illegal by the definition above — check the spear's step 7 against it.)
 
 ## What 1.0 means — ALL FIVE SHIPPED, prepared 2026-09-02
 

@@ -553,7 +553,11 @@ describe('smallLattice — a tablet solved the sure way', () => {
     const sure = cost(tablet(mods, true));
     expect(usual.bound).toBe('exact');
     expect(sure.bound).toBe('exact');
-    expect(Math.abs(sure.expectedCost - usual.expectedCost) / usual.expectedCost).toBeLessThan(1e-6);
+    // 1e-4, not 1e-6. The usual solve stops when a sweep moves less than its tolerance (a thousandth of
+    // the cheapest action), which leaves an error that moves with the prices: 2.9e-6 on the frozen sheet,
+    // 1.6e-5 on the 2026-11-05 refresh (0.31 ex on 19,062), which held that refresh. An UNsettled solve
+    // is 0.2-0.3% off (docs/validation.md, "A tablet's rarest four"), so 1e-4 still tells the two apart.
+    expect(Math.abs(sure.expectedCost - usual.expectedCost) / usual.expectedCost).toBeLessThan(1e-4);
   });
 
   it('draws the route the way the crafts that finish go — the Chaos included', () => {

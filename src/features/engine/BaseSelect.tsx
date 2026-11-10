@@ -112,10 +112,12 @@ export const BaseSelect: React.FC<BaseSelectProps> = ({ bases, value, onChange }
         </select>
       </label>
       {variants.length > 1 && (
-        <label className="flex flex-col gap-1">
+        // Capped at the row's width: unconstrained, a select is as wide as its longest option, and
+        // "Any element · Acrid Wand, Attuned Wand +7" stuck 11px past its card on a phone (2026-11-10).
+        <label className="flex flex-col gap-1 min-w-0 max-w-full">
           <span className={labelCls}>Variant</span>
           <select
-            className={`${selectCls} min-w-44`} value={value}
+            className={`${selectCls} min-w-44 max-w-full`} value={value}
             onChange={(e) => onChange(e.target.value)}
             title={current && current.name !== current.id ? current.name : undefined}
           >

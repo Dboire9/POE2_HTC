@@ -227,6 +227,19 @@ test('5 — mobile: the mod columns stack and nothing overflows sideways', async
     () => document.documentElement.scrollWidth - document.documentElement.clientWidth,
   );
   expect(overflow, 'horizontal overflow in px').toBeLessThanOrEqual(0);
+
+  // …and nothing pokes out of its card. The page above can stay within the viewport while a control
+  // sticks past its card's edge: the Variant menu did, sized by its longest option (found 2026-11-10).
+  const poking = await page.evaluate(() => [...document.querySelectorAll('select, input, button')]
+    .filter((el) => (el as HTMLElement).offsetParent !== null)
+    .flatMap((el) => {
+      const card = el.closest('.bg-card');
+      if (!card) return [];
+      const r = el.getBoundingClientRect();
+      const c = card.getBoundingClientRect();
+      return r.right > c.right + 0.5 ? [`${el.tagName} ${el.getAttribute('aria-label') ?? el.textContent?.slice(0, 30) ?? ''} by ${Math.round(r.right - c.right)}px`] : [];
+    }));
+  expect(poking, 'controls past their card\'s right edge').toEqual([]);
 });
 
 test('6 — the user guide opens, renders, and fits a phone', async ({ page }) => {

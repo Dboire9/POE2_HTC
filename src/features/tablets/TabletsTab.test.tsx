@@ -6,6 +6,7 @@ import { loadShippedPatch } from '../../../packages/engine/src/loadPatch.ts';
 import { indexPrices } from '../../../packages/optimizer/src/cost.ts';
 import type { EngineMarkovResult } from '../../lib/engineTypes';
 import TabletsTab from './TabletsTab';
+import { formatIn } from '../../lib/currency';
 
 const data = loadShippedPatch('data/patches/0.5.0');
 const prices = indexPrices(JSON.parse(readFileSync('data/patches/0.5.0/prices.json', 'utf8')));
@@ -192,10 +193,12 @@ describe('the Tablets tab — what it costs and what it sells for', () => {
     localStorage.removeItem('poe2htc.tablets.unit');
     const user = await open();
     await pick(user);
-    // 1 chaos for the plain tablet plus 1,587.3 ex of rolling, in chaos.
+    // 1 chaos for the plain tablet plus 1,587.3 ex of rolling, in chaos — written by the app's own
+    // formatter, which drops a trailing zero: `toFixed(1)` here expected "25.0 chaos" on the 2026-11-10
+    // sheet, where the app rightly shows "25 chaos".
     const chaos = prices.currency['chaos']!;
-    const inChaos = (1 * chaos + 1587.3) / chaos;
-    expect((await screen.findByText(/Crafting it costs/)).textContent).toContain(`${inChaos.toFixed(1)} chaos`);
+    const inChaos = formatIn({ key: 'chaos', label: 'chaos', perExalt: chaos }, 1 * chaos + 1587.3);
+    expect((await screen.findByText(/Crafting it costs/)).textContent).toContain(inChaos);
     expect(vi.mocked(solve).mock.calls[0]![0]).toMatchObject({ baseCost: chaos }); // the box starts in chaos too
     await user.click(screen.getByRole('button', { name: 'div' }));
     expect(screen.getByText(/Crafting it costs/).textContent).toMatch(/costs [\d.]+ div/);

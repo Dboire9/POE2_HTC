@@ -14,7 +14,7 @@ describe('priceProvenance', () => {
     // The case the old sheet got wrong: nothing inferred, so it would have claimed to be all live.
     expect(p.estimated).toBe(true);
     expect(p.caveat).toBe('All prices are live market data, except the Omen of the Blackblooded and Omen of '
-      + 'the Liege (too thinly traded to price live, so priced from a quote copied by hand on 2026-08-22).');
+      + 'the Liege (too thinly traded to price live, so priced from a quote saved on 2026-08-22).');
   });
 
   it('names both kinds when both are present', () => {
@@ -22,7 +22,7 @@ describe('priceProvenance', () => {
     expect(p.estimated).toBe(true);
     expect(p.caveat).toBe('All prices are live market data, except 50 essence variants nobody is currently trading '
       + '(inferred from the same essence\'s other levels), and the Omen of the Sovereign (too thinly traded to price '
-      + 'live, so priced from a quote copied by hand on 2026-08-22).');
+      + 'live, so priced from a quote saved on 2026-08-22).');
   });
 
   it('keeps the essence wording when only essences are inferred', () => {

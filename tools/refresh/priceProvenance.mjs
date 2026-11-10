@@ -42,7 +42,7 @@ export function priceProvenance({ inferredEssences, fallbackOmens, omenQuotesAsO
   if (fallbackOmens.length > 0) {
     const names = list(fallbackOmens.map(omenName));
     const when = omenQuotesAsOf ? ` on ${omenQuotesAsOf}` : '';
-    parts.push(`the ${names} (too thinly traded to price live, so priced from a quote copied by hand${when})`);
+    parts.push(`the ${names} (too thinly traded to price live, so priced from a quote saved${when})`);
   }
   if (parts.length === 0) return { estimated: false };
   return { estimated: true, caveat: `All prices are live market data, except ${parts.join(', and ')}.` };

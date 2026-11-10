@@ -1587,7 +1587,17 @@ win by starting over, and the player should see that rather than be told a rule.
 full pool, as a plain Chaos.) Is the one-rung fall always enough, or does some legal-looking order
 need two? (If so the rung is illegal by the definition above — check the spear's step 7 against it.)
 
-## 28. A fractured mod that is not a target can be removed in the MDP — OPEN, found 2026-11-10
+## 28. ~~A fractured mod that is not a target can be removed in the MDP~~ — DONE 2026-11-10
+
+**Fixed** in `markovFromItem.ts`: a held fractured mod no target names is folded into the craft — its side's
+cap drops by one, it uses one of that side's free slots (none ⇒ refused by name: "leave a prefix free"), and
+its family comes out of every pool, exactly. `classifyStart` leaves it out of the state, so the replay
+agrees. Refused by name too: one sharing a family with a target (blocks it for good), a fractured target
+held below its tier, and a bone-placed one when the craft needs a bone (the item can never be desecrated
+again; without such a target the craft runs with no bones). Pinned by `fracturedJunk.test.ts`: the cost
+equals the same craft on a base with that slot and family gone, to 9 decimals. Three fixtures in
+`markovEssenceDesecrate.test.ts` had relied on annulling a fractured mod; they now give it its free prefix.
+The original entry:
 
 `classifyStart` (`markovState.ts`) counts every non-target mod on a held item as junk, fractured or
 not, so the MDP's Annulments and Chaos Orbs can remove a fractured junk mod. The game never removes a

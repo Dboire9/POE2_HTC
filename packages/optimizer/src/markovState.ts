@@ -417,6 +417,9 @@ export function classifyStart(
           if (fromDesecration && flagged === FLAG_NONE) flagged = flagTarget(sibOf);
           continue;
         }
+        // A fractured mod nobody asked for is part of the base, not junk: the game never removes it, so
+        // `markovFromItem` takes its slot and family out of the craft instead (TODO 28).
+        if (p.fractured === true) continue;
         if (side === 'prefix') jp++;
         else js++;
         if (fromDesecration && flagged === FLAG_NONE) flagged = flagJunkSide(side);

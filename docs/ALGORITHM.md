@@ -54,7 +54,9 @@ What counts as "can roll" is where the rules live:
 - **Omens.** Sinistral / Dextral Exaltation confine an Exalt to one side; Sinistral / Dextral Annulment
   an Annulment's removal; the Omen of Light removes the desecrated mod; Crystallisation omens fix which
   side a Perfect Essence replaces; the Omen of Whittling makes a Chaos Orb remove the lowest-level mod.
-- **Fractured mods** are never removed.
+- **Fractured mods** are never removed. One you did not ask for is part of the base for the true expected
+  cost: its side holds one mod fewer, the finished item keeps it (so it needs a free slot on that side),
+  and its family can never roll.
 
 The currencies, as modelled:
 
@@ -173,7 +175,6 @@ move at a time.
 - The state counts junk, not which junk, so a junk mod's family comes out of the next roll's pool **on
   average** (mean-field). Measured within 2% of playing the plan on real items, on all 18 crafts checked
   (TODO 23).
-- A fractured mod that is not a target is treated as removable junk (TODO 28).
 
 **Not modelled in the true expected cost** (the step routes have some of them): the Omen of Whittling and
 the Erasure omens, which need each mod's level (TODO 12b, 12c, 27); Greater Exaltation and stronger

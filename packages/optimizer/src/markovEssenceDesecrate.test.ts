@@ -324,8 +324,10 @@ describe('markovFromItem — Desecration as an MDP action (hand-computed)', () =
     };
     const b2 = twoDes.bases.get('S')!;
     const prices: Prices = { currency: { exalt: 1, annul: 1, desecrate: 1 }, omens: {} };
+    // The fractured NP1 is not a target, so it stays on the finished item and takes a free prefix
+    // (TODO 28) — given here so the rejection this pins is the one that fires.
     const r = markovFromItem(twoDes, prices, { ...rare([placed('NP1', true)], []), base: b2 },
-      [{ modId: 'DP1' }, { modId: 'DS2' }]);
+      [{ modId: 'DP1' }, { modId: 'DS2' }], { spare: { prefixes: 1, suffixes: 0 } });
     expect(r.feasible).toBe(false);
     expect(r.reason).toMatch(/at most one desecrated mod, and this target needs two/i);
   });
@@ -515,10 +517,11 @@ describe('markovFromItem — desecrated alternatives', () => {
   it('accepts two slots that each OFFER a carved mod, when one has a normal alternative', () => {
     const d = twoCarved();
     const b2 = d.bases.get('S')!;
+    // The fractured NP1 is not a target: it stays, in a free prefix (TODO 28).
     const r = markovFromItem(d, prices, { ...rare([placed('NP1', true)], []), base: b2 }, [
       { modId: 'DP1', slot: 0 },
       { modId: 'DS2', slot: 1 }, { modId: 'NS1', slot: 1 },
-    ]);
+    ], { spare: { prefixes: 1, suffixes: 0 } });
     expect(r.feasible).toBe(true);
     expect(r.expectedCost).toBeLessThan(Infinity);
   });
@@ -531,10 +534,11 @@ describe('markovFromItem — desecrated alternatives', () => {
   it('never finishes on an item holding two carved mods', () => {
     const d = twoCarved();
     const b2 = d.bases.get('S')!;
+    // The fractured NP1 is not a target: it stays, in a free prefix (TODO 28).
     const r = markovFromItem(d, prices, { ...rare([placed('NP1', true)], []), base: b2 }, [
       { modId: 'DP1', slot: 0 },
       { modId: 'DS2', slot: 1 }, { modId: 'NS1', slot: 1 },
-    ]);
+    ], { spare: { prefixes: 1, suffixes: 0 } });
     expect(r.feasible).toBe(true);
     for (const nd of r.nodes) {
       expect(nd.present.filter((ids) => ids.includes('DP1') || ids.includes('DS2')).length).toBeLessThanOrEqual(1);

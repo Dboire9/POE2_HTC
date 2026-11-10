@@ -21,13 +21,11 @@
 //   • The lattice counts junk, never WHICH junk, so a junk mod's family is taken out of the next roll's
 //     pool on average (`junkFamilies`, mean-field) rather than exactly: within 2% of the replay on the 18
 //     crafts measured (TODO 23, 2026-09-24).
-//   • A fractured mod that is not a target counts as ordinary junk, so the model may remove it, which the
-//     game never does (TODO 28).
 //   • The Omen of Whittling removes the lowest-LEVEL mod, and the state keeps no levels, so the MDP does
 //     not play it (TODO 12b, 27); nor the Erasure omens (12c), nor Greater Exaltation (14a, measured).
 
-import type { ItemState, PatchData } from '../../engine/src/types.ts';
-import { modTierWeight, resolveMod } from '../../engine/src/pool.ts';
+import type { ItemBase, ItemState, PatchData } from '../../engine/src/types.ts';
+import { excluded, familiesOf, modTierWeight, resolveMod } from '../../engine/src/pool.ts';
 import { bossOmenAllowed, isEssenceMod } from '../../engine/src/probability.ts';
 import { limitsOf } from '../../engine/src/item.ts';
 import type { CurrencyPolicy, Prices } from './cost.ts';
@@ -389,15 +387,85 @@ export function markovFromItem(
   const prices = pricesForBase(rawPrices, start.base);
 
   const level = start.level;
-  const pools = start.base.pools;
-  // What this item can hold. A socketed rune may have raised one of these, so every cap below reads
-  // them rather than a constant.
-  const limits = limitsOf(start.base);
+  // What the item itself can hold. A socketed rune may have raised one of these, so every cap reads them
+  // rather than a constant. The CRAFT's caps (`limits`, below) are these less any locked mod.
+  const baseLimits = limitsOf(start.base);
   // Positions the player said they don't care about. A free slot the side has no room for is inert
   // rather than an error: `enumerateStates` never emits a state past the cap, so the widened accepting
   // set simply has nothing extra to accept. That is why nothing validates `spare` against `limits`.
-  const spare = opts.spare ?? NO_SPARE;
+  const askedSpare = opts.spare ?? NO_SPARE;
   const fracturedIds = new Set([...start.prefixes, ...start.suffixes].filter((p) => p.fractured).map((p) => p.modId));
+
+  /*
+   * A FRACTURED MOD NOBODY ASKED FOR is part of the base now, not junk (TODO 28).
+   *
+   * The game never removes a fractured mod. `classifyStart` used to count it as ordinary junk, so the
+   * model's Annulments and Chaos Orbs could take it off — wrong odds whenever one was on the item, and a
+   * price for crafts the game cannot finish. It is instead folded into the craft itself, exactly:
+   *   • it fills its slot for good, so that side holds one fewer mod for the whole craft (`limits`);
+   *   • the finished item keeps it, so it uses one of the side's free slots (`spare`) — and with none,
+   *     the target is impossible, which is said by name rather than left to "no legal item";
+   *   • its family can never roll again, so it comes out of every pool (`pools`) — known exactly, where
+   *     the junk the lattice counts is only known on average;
+   *   • sharing a family with a target, it blocks that target forever.
+   * `classifyStart` then leaves it out of the state, so the replay, which classifies every real item
+   * through the same function, agrees with the lattice by construction.
+   */
+  const targetIds = new Set(targets.map((t) => t.modId));
+  const locked = [
+    ...start.prefixes.map((p) => ({ p, side: 'prefix' as const })),
+    ...start.suffixes.map((p) => ({ p, side: 'suffix' as const })),
+  ].filter(({ p }) => p.fractured === true && !targetIds.has(p.modId)).map(({ p, side }) => {
+    const mod = resolveMod(data, p.modId);
+    return { mod, side, carved: p.desecrated === true || mod.source === 'desecrated' };
+  });
+  // A locked mod a bone placed can never come off, and an item takes a bone only while it carries no
+  // bone-placed mod — so this item can never be desecrated again.
+  const lockedCarved = locked.find((l) => l.carved);
+  if (lockedCarved) {
+    const needsBone = targets.find((t) => resolveMod(data, t.modId).source === 'desecrated');
+    if (needsBone) {
+      return fail(`${lockedCarved.mod.id} is fractured and was placed by a Desecration, so this item can never be `
+        + `desecrated again — and ${needsBone.modId} can only arrive by bone`);
+    }
+  }
+  const lockedFamilies = new Set(locked.flatMap(({ mod }) => familiesOf(mod)));
+  for (const t of targets) {
+    const want = resolveMod(data, t.modId);
+    const by = locked.find(({ mod }) => familiesOf(mod).some((f) => familiesOf(want).includes(f)));
+    if (by) {
+      return fail(`${by.mod.id} is fractured, so it can never be removed — and it shares a family with ${want.id}, `
+        + 'which can therefore never be added to this item');
+    }
+  }
+  // A held fractured TARGET below its wanted tier is the same dead end: the roll that blocks it is locked.
+  for (const t of targets) {
+    const held = [...start.prefixes, ...start.suffixes].find((p) => p.modId === t.modId && p.fractured === true);
+    if (!held) continue;
+    const mod = resolveMod(data, t.modId);
+    const tierIdx = mod.tiers.findIndex((tt) => tt.name === held.tierName);
+    if (tierIdx >= 0 && tierIdx < (t.minTierIndex ?? 0)) {
+      return fail(`${t.modId} is fractured below the tier asked for, and a fractured mod can never be removed or rerolled`);
+    }
+  }
+  const lockedOn = (side: 'prefix' | 'suffix'): number => locked.filter((l) => l.side === side).length;
+  for (const side of ['prefix', 'suffix'] as const) {
+    const free = side === 'prefix' ? askedSpare.prefixes : askedSpare.suffixes;
+    if (lockedOn(side) > free) {
+      const ids = locked.filter((l) => l.side === side).map((l) => l.mod.id).join(', ');
+      return fail(`${ids} is fractured, so the finished item keeps it — leave a ${side} free for it ("Any ${side}")`
+        + ' or include it in the target');
+    }
+  }
+  const limits = { ...baseLimits, prefixes: baseLimits.prefixes - lockedOn('prefix'), suffixes: baseLimits.suffixes - lockedOn('suffix') };
+  const spare = locked.length === 0 ? askedSpare
+    : { prefixes: askedSpare.prefixes - lockedOn('prefix'), suffixes: askedSpare.suffixes - lockedOn('suffix') };
+  const unlocked = (ids: readonly string[]): string[] => ids.filter((id) => !excluded(resolveMod(data, id), lockedFamilies));
+  const pools: ItemBase['pools'] = locked.length === 0 ? start.base.pools : {
+    normal: { prefixes: unlocked(start.base.pools.normal.prefixes), suffixes: unlocked(start.base.pools.normal.suffixes) },
+    desecrated: { prefixes: unlocked(start.base.pools.desecrated.prefixes), suffixes: unlocked(start.base.pools.desecrated.suffixes) },
+    essence: { prefixes: unlocked(start.base.pools.essence.prefixes), suffixes: unlocked(start.base.pools.essence.suffixes) },
+  };
 
   // Resolve targets into the ordered list the bitmasks index: rollable normal mods, desecrated mods
   // (added by a Desecration with the boss omen that selects them), perfect-essence mods (forced on by a
@@ -454,7 +522,8 @@ export function markovFromItem(
   const merged = mergeSlots(cands, slotIndexGroups(targets));
   const slots = merged.slots;
   // Is Desecration in play at all — see `boneRole`.
-  const desecratable = bones !== undefined;
+  // …and never with a locked bone-placed mod on board (above): the craft then runs without bones.
+  const desecratable = bones !== undefined && lockedCarved === undefined;
   /*
    * Then every OTHER mod the base can roll into a target's family (markovSiblings.ts). A same-side one
    * lands its target as blocked, as an off-tier roll does; anything else becomes an OBSTACLE position,
@@ -1747,7 +1816,7 @@ export function markovFromItem(
       valueOf: (key) => { const i = idxOfState.get(key); return i === undefined ? undefined : V[i]; },
       ...(opts.restartCost === undefined ? {} : { restartCost: opts.restartCost }),
       ...(opts.fillOnFinish ? { finishCost: (item: ItemState) =>
-        ((limits.prefixes - item.prefixes.length) + (limits.suffixes - item.suffixes.length)) * exaltPrice! } : {}),
+        ((baseLimits.prefixes - item.prefixes.length) + (baseLimits.suffixes - item.suffixes.length)) * exaltPrice! } : {}),
       costOf: (a) => actionCostOf(prices, a),
       // An omened Desecration rerolls where the plan does, at the line the table records.
       ...(prices.omens[ECHOES_OMEN] !== undefined ? { reroll: {

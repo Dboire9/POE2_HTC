@@ -666,6 +666,16 @@ Enforced in `packages/engine` (mostly `probability.ts`).
   average: it gets two junk mods of a two-family pool exactly and one of them slightly short
   (junkFamilies.test.ts), which is the residue left on the gear crafts.
 
+- **A FRACTURED MOD NO TARGET NAMES IS PART OF THE BASE, NOT JUNK** (2026-11-10, TODO 28). `classifyStart`
+  counted it in `jp`/`js`, so `removeOutcomes` could take it off — which the game never does — and with
+  no free slot the model priced a craft it could only finish by removing it. `markovFromItem` now folds it
+  into the craft before the lattice exists: its side's cap drops by one (`limits`, while `baseLimits` stays
+  for the replay's finish cost on real items, which still carry it), it uses a free slot of that side
+  (`spare`; none ⇒ refused by name), and its family comes out of every pool — exact, unlike the junk the
+  lattice counts, whose families are only known on average. `classifyStart` skips it, which keeps the
+  replay consistent. Proved by equivalence, not argued: `fracturedJunk.test.ts` solves the same craft on a
+  twin base with one prefix fewer and that family gone, and gets the same cost to 9 decimals.
+
 - **A FREE SLOT IS A COUNT PER SIDE, NEVER A TARGET** (2026-09-17). "Any prefix / any suffix" is
   `Spare { prefixes, suffixes }` in `slots.ts`, and the ONE place it does anything is `isAccepting`
   (markovState.ts), which is also the one place "finished" is defined: zero `blocked`, Rare, and no more

@@ -967,10 +967,10 @@ invalid type and the Omens page really is client-rendered, so the note in CLAUDE
 nobody had tried the other name. Whittling prices at **~4,700ex** (11.7 divine, 839 traded a day), and
 all 13 previously hand-transcribed omens now refresh daily too. See docs/validation.md.
 
-The exclusion row landed with it, and Whittling is the app's **one default-excluded currency** — a
-product decision, not a modelling one, since the optimizer ranks BY cost and declines an omen that
-does not pay. `WhittlingToggle` pins an on/off beside Search effort on both tabs, writing the same
-`omens.only` member the panel writes.
+Whittling has its own row in "Currency I don't have", and **nothing is excluded by default**, Whittling
+included. It was briefly default-excluded, with a pinned on/off toggle beside Search effort; both went,
+since the optimizer ranks plans BY cost and already declines an omen that does not pay. Why, in
+`src/lib/currencyPrefs.ts` beside the exclusion defaults.
 
 **Still outstanding: the TIE rule.** Where several mods share the lowest level the game's choice is
 untraced; uniform among the tied is modelled, matching every other pick-among-equals here, and
@@ -1586,6 +1586,22 @@ win by starting over, and the player should see that rather than be told a rule.
 **Open questions.** Does a Whittled Chaos's ADD draw from the full pool or exclude anything? (Assumed
 full pool, as a plain Chaos.) Is the one-rung fall always enough, or does some legal-looking order
 need two? (If so the rung is illegal by the definition above — check the spear's step 7 against it.)
+
+## 28. A fractured mod that is not a target can be removed in the MDP — OPEN, found 2026-11-10
+
+`classifyStart` (`markovState.ts`) counts every non-target mod on a held item as junk, fractured or
+not, so the MDP's Annulments and Chaos Orbs can remove a fractured junk mod. The game never removes a
+fractured mod (`CLAUDE.md`, PoE2 semantics). Two effects: the odds of an Annulment hitting the right mod
+are wrong whenever a fractured junk mod is on the item, and with no spare slot on that side the model
+"finishes" a craft only by removing a mod the game will not touch — a target it should call impossible.
+Seen while debugging TODO 12d: the two-carved fixture holds a fractured `NP1`, and the route to the goal
+annuls it with probability 1/3.
+
+**Direction.** A fractured junk mod is permanent: it fills its slot for good, so it belongs in the slot
+accounting (one fewer prefix or suffix for the whole craft, like a fractured target) and outside `jp`/`js`
+and every removal distribution. The step planners already get this right: `annulProbability` and the
+Chaos removal in `probability.ts` never pick a fractured mod. Test: a held Rare with a fractured junk prefix, a full prefix side asked for, and no spare —
+infeasible; with one spare prefix — feasible, and no route removes the fractured mod.
 
 ## What 1.0 means — ALL FIVE SHIPPED, prepared 2026-09-02
 

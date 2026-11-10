@@ -1,32 +1,30 @@
-// From-item cost as a Markov Decision Process (the honest model). The linear from-item planner
-// (fromItem.ts) assumes "restart to your item, free" on any miss — a fiction: a real annul removes a
-// UNIFORMLY-RANDOM mod, so a miss leaves you in a WORSE state you recover from in place, and reproducing
-// an expensive item is never free. Here we model the actual stochastic process: a policy over item
-// states, transitions from the real pool weights, solved by value iteration for the minimum expected
-// cost + the optimal policy. "Push forward" — never restart; the policy digs out of a bricked state.
+// The true expected cost, as a Markov Decision Process. The step planners (optimize.ts, fromItem.ts)
+// price a FIXED sequence and restart on the first miss; a real miss leaves a worse item you can keep
+// working on — an Annulment removes a uniformly random mod — and buying the item again is never free.
+// Here the actual stochastic process is modelled: states of the item, actions with their real pool
+// weights, and the minimum expected cost with the policy that achieves it. Starting over is one of the
+// actions when the caller prices a base (`restartCost`), so the policy restarts only where that is cheaper.
 //
-// This file is the ORCHESTRATION: resolve the targets, enumerate the lattice, run value iteration, and
-// walk the optimal policy into a graph. The two halves it stands on live next door —
-//   • markovState.ts   — what a state IS (the present/blocked/junk abstraction) and how to key it
-//   • markovActions.ts — what you can DO from a state, what it costs, and where it lands you
+// This file is the ORCHESTRATION: resolve the targets, enumerate the lattice, solve it, and walk the
+// optimal policy into a graph. It stands on —
+//   • markovState.ts    — what a state IS (present / blocked / junk per side / desecration flag / rarity)
+//   • markovActions.ts  — what you can DO from a state, what it costs, and where it lands you
+//   • markovSymmetry.ts — merging and canonicalising interchangeable targets
+//   • markovRoute.ts    — reading the policy as a route and a graph
 //
-// v2 SCOPE (was v1: rollable normal targets, base orbs, exalt/annul/side-annul/chaos):
-//   • v2a — family-aware tiered states: a below-tier roll BLOCKS the family; an item that already
-//     carries a target at too low a tier starts BLOCKED, not satisfied. (Untiered targets have no
-//     below-tier band, so this reduces exactly to the v1 present/absent model.)
-//   • v2b — richer action set: Exalted Orb at base/Greater/Perfect strength and side-constrained
-//     exalts. See markovActions.ts for the price-gating rule.
+// THE SOLVE: phase A is value iteration without restart, from 0; phase B adds restart and starts from
+// phase A's values, by value iteration or (the app's default) policy iteration with each policy costed in
+// closed form. Dead states are found first (`prob1`) and pinned at Infinity. `bound` says whether the
+// number is exact, a floor or a ceiling. docs/ALGORITHM.md has the whole account.
 //
-// DOCUMENTED APPROXIMATIONS: two target mods sharing a family are validated out upstream (so free
-// targets always have distinct families). A DIFFERENT mod of a target's family is modelled — it blocks
-// the target (markovSiblings.ts) — but a junk mod's own family is NOT removed from the next roll's
-// pool, since the lattice never knows which junk landed. That overstates the cost: measured at up to
-// 7% on Wand crafts, more on a small pool (docs/validation.md, 2026-09-21). A fractured JUNK mod is
-// treated as ordinary removable junk (only target mods can be fractured-locked here). Omen of
-// Whittling — a CHAOS omen that removes the item's lowest-LEVEL mod (ilvl, not per-mod T-number)
-// rather than a random one — needs the mod-level ORDERING the abstraction discards, so it's out of
-// scope (TODO §12b, §27). Perfect-essence / desecrate / essence targets stay on the linear planner (the caller falls
-// back).
+// WHAT IT APPROXIMATES OR LEAVES OUT:
+//   • The lattice counts junk, never WHICH junk, so a junk mod's family is taken out of the next roll's
+//     pool on average (`junkFamilies`, mean-field) rather than exactly: within 2% of the replay on the 18
+//     crafts measured (TODO 23, 2026-09-24).
+//   • A fractured mod that is not a target counts as ordinary junk, so the model may remove it, which the
+//     game never does (TODO 28).
+//   • The Omen of Whittling removes the lowest-LEVEL mod, and the state keeps no levels, so the MDP does
+//     not play it (TODO 12b, 27); nor the Erasure omens (12c), nor Greater Exaltation (14a, measured).
 
 import type { ItemState, PatchData } from '../../engine/src/types.ts';
 import { modTierWeight, resolveMod } from '../../engine/src/pool.ts';

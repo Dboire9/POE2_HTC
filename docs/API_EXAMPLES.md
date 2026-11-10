@@ -37,16 +37,16 @@ Pick target mods and the tier you want (`tierDisplay` is 1-based, `1` = best; th
 import { optimize, type TargetInput } from '@/lib/engine';
 
 const targets: TargetInput[] = [
-  { modId: 'Bows/IncreasedPhysicalDamage', tierDisplay: 1 },  // T1 prefix
-  { modId: 'Bows/IncreasedAttackSpeed',    tierDisplay: 2 },  // T2 suffix
+  { modId: 'Bows/LocalPhysicalDamagePercent', tierDisplay: 1 },  // T1 prefix
+  { modId: 'Bows/LocalIncreasedAttackSpeed',    tierDisplay: 2 },  // T2 suffix
 ];
 
 const result = optimize(eng, 'Bows', /* item level */ 82, targets);
 
 for (const plan of result.frontier) {
   console.log(
-    `${(plan.probability * 100).toFixed(3)}% success`,
-    `· ${plan.expected.toFixed(1)} ex expected`,
+    `${(plan.probability * 100).toFixed(3)}% success per attempt`,
+    `· ${plan.perAttempt.toFixed(1)} ex per attempt`,
   );
   for (const step of plan.steps) {
     console.log(`  ${step.n}. ${step.label} → ${step.target}  (${(step.prob * 100).toFixed(2)}%)`);
@@ -60,17 +60,42 @@ for (const plan of result.frontier) {
 interface EngineResult {
   frontier: EnginePlan[];   // plans where none is both cheaper AND likelier
   plansEvaluated: number;
-  currencyDepth: CurrencyDepth;
+  truncated?: boolean;      // a search cap stopped it early: more Search effort may find more
 }
 
 interface EnginePlan {
-  probability: number;      // overall success, f64 in [0,1]
-  expected: number;         // expected cost in exalt-equivalents
+  probability: number;      // success of one attempt, f64 in [0,1]
+  expected: number;         // restart-on-first-miss total — the app no longer shows it (TODO 16)
   perAttempt: number;       // cost of one attempt
   expectedAttempts: number;
   steps: EngineStep[];      // { n, currency, orb?, label, target, prob }
 }
 ```
+
+### The true expected cost (the MDP)
+
+The number the app leads with. It plays the craft optimally — recovering in place after a bad roll,
+choosing orb strengths and omens per state — so it is never above the step routes' totals.
+
+```ts
+import { optimizeItemMarkov, type ExistingItem } from '@/lib/engine';
+
+// From a white base: a Normal item with nothing on it, and what another base costs, so starting over is
+// one of the policy's moves.
+const white: ExistingItem = { baseId: 'Bows', level: 82, rarity: 'normal', prefixes: [], suffixes: [] };
+const m = optimizeItemMarkov(eng, white, targets, { restartCost: 0.5 });
+
+if (m.applicable && m.feasible) {
+  // `bound` is 'exact', or 'upper' / 'lower' when the solve stopped early — read it, never `converged`,
+  // and render with `formatBoundedCost`.
+  console.log(m.expectedCost, m.bound);
+} else {
+  console.log(m.reason);
+}
+```
+
+From an item you hold, pass it instead of `white` and leave `restartCost` out (the policy then keeps the
+item). `m.nodes` / `m.edges` are the policy graph the app draws.
 
 ### "I already have this item"
 
@@ -83,20 +108,20 @@ const item: ExistingItem = {
   baseId: 'Bows',
   level: 82,
   rarity: 'rare',                     // 'magic' | 'rare'
-  prefixes: [{ modId: 'Bows/IncreasedPhysicalDamage', tierDisplay: 2 }],
-  suffixes: [{ modId: 'Bows/IncreasedAttackSpeed',    tierDisplay: 3 }],
+  prefixes: [{ modId: 'Bows/LocalPhysicalDamagePercent', tierDisplay: 2 }],
+  suffixes: [{ modId: 'Bows/LocalIncreasedAttackSpeed',    tierDisplay: 3 }],
 };
 
 // Option 1 — per-USE odds: "what does each currency do to this item, right now?"
 // (Honest single-orb probabilities; NOT a total budget, since chaos/annul change the item on a miss.)
 // Returns a CurrencyAction[] — each with { currency, label, detail, prob, cost, feasible, reason? }.
 const actions = currencyActions(eng, item, {
-  addModId: 'Bows/GainPhysicalDamageAsExtraCold',   // a mod you'd hope to add
-  removeModId: 'Bows/IncreasedAttackSpeed',          // a mod chaos/annul would target
+  addModId: 'Bows/LocalIncreasedPhysicalDamagePercentAndAccuracyRating', // a mod you'd hope to add
+  removeModId: 'Bows/LocalIncreasedAttackSpeed',          // a mod chaos/annul would target
 });
 
 // Option 2 — the from-item planner: multi-step plans to reach a target, starting from THIS item
-// (reset-to-your-item cost model — see docs/validation.md).
+// (reset-to-your-item cost model — see docs/validation.md). For the true cost, see optimizeItemMarkov below.
 const plan = optimizeItem(eng, item, targets);   // returns the same EngineResult shape as optimize()
 ```
 
@@ -113,12 +138,12 @@ import { loadPatch, whiteItem, evaluatePlan, transmuteProbability } from 'packag
 const data = loadPatch('data/patches/0.5.0');
 
 // A single currency outcome — exact probability, f64 in [0,1]:
-const p = transmuteProbability(data, data.bases.get('Bows')!, 'Bows/IncreasedPhysicalDamage', { level: 82 });
+const p = transmuteProbability(data, data.bases.get('Bows')!, 'Bows/LocalPhysicalDamagePercent', { level: 82 });
 
 // Evaluate a hand-written plan (a sequence of steps) from a white item:
 const plan = evaluatePlan(data, data.bases.get('Bows')!, 82, [
-  { currency: 'transmute', add: 'Bows/IncreasedPhysicalDamage' },
-  { currency: 'augment',   add: 'Bows/IncreasedAttackSpeed' },
+  { currency: 'transmute', add: 'Bows/LocalPhysicalDamagePercent' },
+  { currency: 'augment',   add: 'Bows/LocalIncreasedAttackSpeed' },
 ]);
 console.log(plan.probability, plan.steps.map((s) => s.prob));
 ```
@@ -152,7 +177,7 @@ const data = loadPatch('data/patches/0.5.0');
 const prices = indexPrices(pricesJson);
 
 const res = optimizePareto(data, prices, data.bases.get('Bows')!, [
-  { modId: 'Bows/IncreasedPhysicalDamage', minTierIndex: /* engine index, 0 = worst */ 8 },
+  { modId: 'Bows/LocalPhysicalDamagePercent', minTierIndex: /* engine index, 0 = worst; 7 is T1 of its 8 tiers */ 7 },
 ], { level: 82 });
 
 // res.frontier — ParetoPlan[] (cost + probability + the resolved plan/steps)
@@ -160,6 +185,8 @@ const res = optimizePareto(data, prices, data.bases.get('Bows')!, [
 
 - `optimizePareto(data, prices, base, targets, opts)` — the from-white Pareto frontier.
 - `optimizeFromItem(...)` — the from-item variant (wrapped by the facade's `optimizeItem`).
+- `markovFromItem(data, prices, item, targets, opts)` — the true expected cost (wrapped by the facade's
+  `optimizeItemMarkov`). How it works: [ALGORITHM.md](ALGORITHM.md).
 - `simulatePerStepRates(...)` — seeded Monte-Carlo validator for a plan (validation only).
 - `planExpectedCost` / `stepCost` — the expected-cost model in exalt-equivalents.
 
@@ -171,7 +198,7 @@ const res = optimizePareto(data, prices, data.bases.get('Bows')!, [
 
 ## Finding modifier ids
 
-Mod ids are `"<BaseId>/<ModKey>"`, e.g. `Bows/IncreasedPhysicalDamage`. They live in the shipped data:
+Mod ids are `"<BaseId>/<ModKey>"`, e.g. `Bows/LocalPhysicalDamagePercent`. They live in the shipped data:
 
 - `data/patches/0.5.0/mods.json` — every mod, its `text`, `family`, `type`, `source`, and tiers.
 - `data/patches/0.5.0/base_items.json` — each base's prefix/suffix pools (lists of mod ids).

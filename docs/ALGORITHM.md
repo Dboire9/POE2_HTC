@@ -1,213 +1,193 @@
-# POE2 HTC Crafting Algorithm — In-Depth Explanation
+# How POE2 HTC works out a craft
 
-> **What changed:** earlier versions of POE2 HTC used a **Beam Search** that *simulated* millions of
-> crafting sequences on a multithreaded Java backend. That approach is retired. The engine is now
-> **analytic**: it computes each plan's probability *exactly* from the modifier weight pools, and the
-> optimizer returns a **cost ↔ success Pareto frontier**. It's pure TypeScript, runs client-side, and
-> uses Monte-Carlo simulation only to *validate* the exact math. This document describes the current
-> design.
+This is the maths behind the numbers. The [user guide](USER_GUIDE.md) explains the screens; this explains
+what they compute. Where a figure rests on an assumption rather than published data, it says so, and so
+does the app. Rewritten 2026-11-10 to match the code; the reasons behind each design are in
+[engineering-notes.md](engineering-notes.md), the measurements in [validation.md](validation.md).
 
----
+## Contents
 
-## Table of Contents
-
-1. [Problem Statement](#problem-statement)
-2. [Why Analytic Instead of Search](#why-analytic-instead-of-search)
-3. [Core Concepts](#core-concepts)
-4. [Per-Currency Probability](#per-currency-probability)
-5. [Evaluating a Plan](#evaluating-a-plan)
-6. [Expected-Cost Model](#expected-cost-model)
-7. [The Pareto Optimizer](#the-pareto-optimizer)
-8. [From an Existing Item](#from-an-existing-item)
-9. [Monte-Carlo Validation](#monte-carlo-validation)
-10. [Worked Example](#worked-example)
+1. [The question](#the-question)
+2. [One orb: an exact weighted draw](#one-orb-an-exact-weighted-draw)
+3. [Step routes: a fixed sequence, priced](#step-routes-a-fixed-sequence-priced)
+4. [The true expected cost: playing the craft optimally](#the-true-expected-cost-playing-the-craft-optimally)
+5. [What is assumed, and what is not modelled](#what-is-assumed-and-what-is-not-modelled)
+6. [How it is checked](#how-it-is-checked)
 
 ---
 
-## Problem Statement
+## The question
 
-Given a **base item** and a set of **desired modifiers** (with target tiers), find crafting sequences
-that reach the goal, and report each one's **success probability** and **expected cost**.
+A player names a base, an item level and the modifiers they want, each at a tier or better. The app
+answers two things:
 
-Path of Exile 2 crafting is a constrained combinatorial system:
+- **Step routes.** Fixed sequences of orbs ("Transmute, then Augment, then Regal"), each with the chance
+  one attempt succeeds and what one attempt costs. These are recipes a player can follow and talk about.
+- **The true expected cost.** The average spend to reach the target when every decision is made well
+  after seeing what each orb did: keep a good roll, repair a bad one in place, change orb strength, or
+  start over when that is cheaper. This is the number the app leads with.
 
-- Up to **3 prefixes + 3 suffixes** (magic items hold 1 + 1).
-- Currencies with distinct behaviors — Transmutation, Augmentation, Regal, Exalted, Chaos, Annulment,
-  Alchemy, Essences, Desecration — each in base/greater/perfect tiers where applicable.
-- **Modifier weights** determine roll odds; **families** are exclusion groups (at most one mod per
-  family per item); **item-level gates** restrict which tiers can appear; **omens** constrain currency
-  outcomes.
+Everything runs in the browser, in a Web Worker, on a pure-TypeScript engine (`packages/engine`) and
+optimizer (`packages/optimizer`). Nothing is sampled to produce an answer; simulation only checks them.
 
-The goal is exactness and speed: precise probabilities, computed locally in milliseconds.
+## One orb: an exact weighted draw
 
----
-
-## Why Analytic Instead of Search
-
-Simulation answers "how often did we succeed in N trials?" — with sampling noise, a runtime cost that
-grows with the precision you want, and no exact number for rare outcomes. But PoE2 currency outcomes
-are **weighted draws from a known pool**, so each step's probability is a closed-form ratio, and a
-plan's probability is the product of its steps'. There's nothing to sample.
-
-Consequences:
-
-- **Exact** probabilities, including for very rare crafts, with no variance.
-- **Fast** — evaluating a plan is a handful of pool sums, not thousands of trials.
-- **Composable** — expected cost and the Pareto frontier fall out of the same per-step numbers.
-
-Simulation is retained, but only as an independent check on the analytic engine (see
-[Monte-Carlo Validation](#monte-carlo-validation)).
-
----
-
-## Core Concepts
-
-**Weight pool.** For a given item state, side (prefix/suffix), and item level, the *addable* mods are
-those that can still roll: correct side, family not already present, item level ≥ the tier's ilvl, and
-tier ≥ the currency's tier floor. Each has an integer weight `w`. The chance a single random add lands
-a specific target tier is
+Every random outcome in PoE2 crafting is a weighted draw from a known pool, so its chance is a ratio of
+weights (`packages/engine/src/probability.ts`, `pool.ts`):
 
 ```
-P(target) = w(target) / Σ w(addable)
+P(the orb lands mod X at tier T or better) = weight(X's eligible tiers) / weight(everything that can roll)
 ```
 
-**Family exclusion.** Each mod belongs to a `family`; an item may hold at most one mod per family.
-A family already on the item removes *all* of that family's tiers from the addable pool — this is what
-makes ordering matter and is the source of many subtle probability differences.
+What counts as "can roll" is where the rules live:
 
-**Item-level gates.** A tier with `ilvl = k` can only appear on an item of level ≥ k. Higher item
-level → more (and higher) tiers in the pool → different odds.
+- **Side and slots.** An item holds 3 prefixes and 3 suffixes when Rare, 1 and 1 when Magic, with the
+  base's own limits read from the data (`limitsOf`; a socketed Serle's Triumph allows a fourth suffix).
+  With both sides open the draw is over both pools; with one full, over the other alone.
+- **Families.** An item holds at most one modifier of a family, so every family already on it is taken
+  out of the pool (`familiesOf`, `excluded`). This is why order matters: what lands first shrinks every
+  later denominator.
+- **Item level.** A tier rolls only if its level is at most the item's.
+- **Orb strength.** A Greater or Perfect orb rolls only tiers of at least a minimum modifier level:
+  Transmutation and Augmentation 55 / 70, Regal and Exalted 35 / 50 (`CURRENCY_FLOOR`). A stronger orb
+  can make a top tier far likelier — or impossible, when the tier you want is below its floor.
+- **Omens.** Sinistral / Dextral Exaltation confine an Exalt to one side; Sinistral / Dextral Annulment
+  an Annulment's removal; the Omen of Light removes the desecrated mod; Crystallisation omens fix which
+  side a Perfect Essence replaces; the Omen of Whittling makes a Chaos Orb remove the lowest-level mod.
+- **Fractured mods** are never removed.
 
-**Currency tier floors.** base / greater / perfect currencies floor the accessible tiers at
-`0 / 35 / 50` respectively, biasing rolls toward better tiers.
+The currencies, as modelled:
 
-**Omens.** Omens constrain currency behavior — e.g. an **Exaltation** omen forces the added mod's side
-(**Sinistral** = prefix, **Dextral** = suffix); annul omens constrain which mod is removed. The engine
-models them as options on the relevant step.
+| Currency | What it does |
+|---|---|
+| Transmutation | Normal → Magic, adds one mod |
+| Augmentation | adds one mod to a Magic item |
+| Regal | Magic → Rare, adds one mod |
+| Exalted | adds one mod to a Rare |
+| Chaos | removes one random mod, then adds one |
+| Annulment | removes one random mod |
+| Alchemy | Normal → Rare with four mods (step routes only) |
+| Essence | Magic → Rare, forcing its mod |
+| Perfect Essence | on a Rare, replaces a mod with its own |
+| Desecration (a bone) | adds a desecrated or ordinary mod — see below |
 
----
+**Desecration** is two different draws. With a boss omen it picks uniformly among that boss's carved
+mods. Without one it draws, by weight, over the base's ordinary and desecrated pools together. Either
+way it shows three and the player keeps one, so its value is the best of three draws, not one draw. An
+item carries at most one bone-placed mod at a time.
 
-## Per-Currency Probability
+## Step routes: a fixed sequence, priced
 
-Each currency has an exact probability function in `packages/engine/src/probability.ts`, returning an
-`f64` in `[0,1]`:
+`optimize.ts` (from a white base), `fromItem.ts` (from an item you hold), `alternatives.ts`.
 
-| Currency | What it does | Probability of the target outcome |
-|----------|--------------|-----------------------------------|
-| **Transmutation** | white → magic, +1 mod | `w(target) / Σ w(addable on the whole item)` |
-| **Augmentation** | magic, +1 mod | over the pool minus the existing mod's family/side |
-| **Regal** | magic → rare, +1 mod | like augmentation, on the rare pool |
-| **Exalted** | rare, +1 mod into an open slot | `w(target) / Σ w(addable)`; a Sinistral/Dextral omen restricts the pool to one side |
-| **Chaos** | remove one random mod, add one (PoE2) | `P(remove hits a non-target) × P(add lands target)` |
-| **Annulment** | remove one random mod | `1 / (#mods)` that it removes the named one (omen-constrained variants supported) |
-| **Alchemy** | white → rare with 4 random mods | probability the 4 draws include the chosen targets (an *opener*) |
-| **Essence** | forces a specific mod | deterministic for the forced mod; the rest roll normally |
-| **Desecration** | boss/desecrated pool add | over the desecrated pool |
-
-Every function honors family exclusion, item-level gates, and tier floors described above.
-
----
-
-## Evaluating a Plan
-
-A **plan** is an ordered list of `PlanStep`s (`packages/engine/src/plan.ts`). To evaluate it:
-
-1. Start from an `ItemState` (a white base via `whiteItem`, or an item you already own).
-2. For each step, compute its exact probability *in the current state* (`stepProbability`), then apply
-   the step to advance the state (`applyStep`) as if it succeeded.
-3. The plan's overall success is the **product** of the per-step probabilities; each step also reports
-   its own probability.
+**A route's chance** is the product of its steps' chances, each computed on the item as it stands after
+the steps before it succeeded (`evaluatePlan`):
 
 ```
-P(plan) = Π_k  P(step_k | state after steps 1..k-1)
+P(route) = p₁ · p₂ · … · pₙ
 ```
 
-`evaluatePlan(data, base, level, steps)` runs from white; `evaluatePlanFrom(data, startState, steps)`
-runs from any state (this powers the from-item flow). Because state is threaded through, the engine
-naturally accounts for how earlier mods shrink later pools via family exclusion.
-
----
-
-## Expected-Cost Model
-
-Beyond probability, plans are ranked by **expected cost** in exalt-equivalents (prices from
-`prices.json`). Many PoE2 currencies destroy progress on a miss (a bad Regal, an Exalt that rolls the
-wrong mod), so you retry from an earlier state. The model used is **restart-on-first-failure**:
+**Its cost** assumes you start over on the first miss, so each step is paid as often as you reach it:
 
 ```
-E = ( Σ_k  c_k · S_{k-1} ) / S_n
+E = (c₁ + c₂·S₁ + c₃·S₂ + … + cₙ·Sₙ₋₁) / Sₙ          where Sₖ = p₁·…·pₖ
 ```
 
-where `c_k` is step *k*'s orb price, `S_k` is the cumulative success probability through step *k*
-(`S_0 = 1` from white), and `S_n` is the plan's overall success. This charges each step for how often
-you reach it and divides by how often the whole plan lands — the standard closed form for "keep
-retrying until it works." Implemented in `packages/optimizer/src/cost.ts`.
+The app shows a route's chance per attempt and what one attempt costs, and no longer shows this total.
+"Start over on the first miss" is a policy forbidden to repair, which nobody follows and which the true
+expected cost always beats or equals (TODO 16).
 
----
+**Searching.** The planner lists sensible orders of the targets and which currency places each — an
+Essence for an essence-only mod, Alchemy as a four-mod opener, a Perfect Essence swap, a Desecration —
+and drops illegal shapes up front (`validate.ts`). For each order it then chooses every step's orb
+strength and omen. That choice cannot be enumerated (three strengths and an omen per step, across
+millions of orders), and it does not need to be: strength and omens change a step's chance and price but
+never what the item looks like afterwards, so the cost separates. Rewritten over the suffix products
+`Tₖ = pₖ·…·pₙ`, it is `E = Σ cₖ / Tₖ`, which a backward pass over the steps optimises exactly, dropping
+any partial plan another beats on both chance and cost (`leverDp.ts`). The result is a **frontier**:
+every plan that no other plan beats on both success chance and cost.
 
-## The Pareto Optimizer
+## The true expected cost: playing the craft optimally
 
-`optimizePareto(data, prices, base, targets, opts)` (`packages/optimizer/src/optimize.ts`) turns a set
-of target mods/tiers into ranked plans:
+`markovFromItem.ts` and the `markov*.ts` files beside it. This is a Markov decision process: states of the
+item, actions with their real outcome distributions, and the cheapest average way from the start to a
+finished item.
 
-1. **Generate candidate sequences.** Enumerate sensible ways to reach the targets — the order to add
-   mods, which currency fills each slot (transmute/augment/regal/exalt, essences for essence-only
-   mods, alchemy as a 4-mod opener), and whether to spend an omen to constrain a side. Illegal shapes
-   (too many mods, wrong side count, off-pool mods, family clashes) are pruned up front by
-   `validate.ts`.
-2. **Evaluate each analytically.** Every candidate is scored with `evaluatePlan` (exact probability)
-   and `planExpectedCost` (expected cost).
-3. **Keep the Pareto frontier.** A plan is kept only if **no other plan is both cheaper *and* at least
-   as likely**. The result is the trade-off curve from *cheapest* to *surest*, not a single "best"
-   answer — the user chooses where on the curve they want to sit.
+**The state.** Not the item's every mod, which would be far too many, but what matters for the rest of
+the craft (`markovState.ts`):
 
-The frontier, plus how many plans were evaluated and the currency depth explored, is returned as a
-`ParetoResult`. The facade (`src/lib/engine.ts`) maps it to the UI shape and renders it in
-`FrontierView.tsx`.
+- for each target: missing, **present** at the tier asked or better, or **blocked** — its family is taken
+  by a roll below the tier, or by a different mod of the same family, so it must come off first;
+- how many unwanted ("junk") mods sit on each side;
+- which mod, if any, a bone placed — it decides whether another bone can be used;
+- the rarity: Normal, Magic or Rare.
 
----
+Targets the player said were interchangeable ("Fire or Cold or Lightning") are merged when they share a
+family, which is exact, and stored once when the data proves them indistinguishable
+(`markovSymmetry.ts`). Free slots ("any prefix") are an allowance of junk at the end, not a target. A
+six-target craft is a few thousand states.
 
-## From an Existing Item
+**The actions** are every orb that can act on the state, at every strength the sheet prices, with every
+omen it can take, plus "start over" when a base has a price. Each gives a distribution over next states
+computed from the pools as in the previous section (`markovActions.ts`). A currency the sheet does not
+price is not offered at all — an unpriced orb is unavailable, never free (`stepIsPriced`).
 
-The engine also plans from an item you already hold (`optimizeFromItem` / the facade's
-`optimizeItem`). Two modes:
+**Solving.** The value V of a state is the least expected spend from there to a finished item:
 
-- **Per-use odds** (`currencyActions`) — for an item in hand, the *exact single-orb* probability of
-  each applicable currency's outcome. It deliberately reports per-use odds, **not** a total budget:
-  currencies that change the item on a miss (chaos rerolls, annul removes a random mod) make the true
-  cost depend on your retry strategy.
-- **From-item planner** — multi-step plans to a target, starting from the item's current mods, using a
-  **reset-to-your-item** cost model: on a failure you restart from *your item* (keeping its good mods),
-  the CoE-style approximation `E = (Σ c_k·S_{k-1}) / S_n` with `S_0` = the starting item. It is not a
-  full chaos-spam Markov model; see [validation.md](validation.md).
+```
+V(finished) = 0
+V(s) = min over actions a of [ cost(a) + Σ P(s → s′ | a) · V(s′) ]
+```
 
----
+- An action that can leave the item unchanged is solved for its own loop exactly, by dividing by the
+  chance it does something.
+- States from which the goal cannot be reached **for sure** are found first and set to infinity, so they
+  cannot drag the rest along (`prob1`).
+- **Phase A** solves without "start over", climbing from zero by value iteration. **Phase B** adds it and
+  starts from phase A's values, which are too high, so they fall to the answer and the policy is
+  sensible even if stopped early. Phase B is **policy iteration** in every Search effort: it alternates
+  "pick the best action in every state" with "cost that whole plan exactly" — in closed form, since each
+  attempt either finishes or starts over — and stops when no state changes its action, which proves the
+  plan optimal.
+- When a solve runs out of time it says what its number is: **exact**, or a **ceiling** (≤) or a
+  **floor** (≥). The app shows the marker, and draws tables only for exact answers.
 
-## Monte-Carlo Validation
+The optimal action in every state is the **policy**. The app draws it as a route (the way most crafts
+that finish go) and a graph (every state and what each orb can do to it), and Craft along reads it one
+move at a time.
 
-The analytic engine is checked against a seeded Monte-Carlo simulator (`simulate.ts`,
-`mulberry32` PRNG): run a plan tens of thousands of times, count successes and per-step rates, and
-confirm they match the exact numbers within tolerance. Used in tests only, never in the hot path.
-Mechanics with no Java-era counterpart (chaos, alchemy, existing-item) are validated this way and
-cross-checked against [craftofexile.com/?game=poe2](https://craftofexile.com/?game=poe2); divergences
-are logged in [validation.md](validation.md). The ported mechanics are additionally anchored to frozen
-golden fixtures via the differential tests.
+## What is assumed, and what is not modelled
 
----
+**Assumed, and shown on screen when it matters:**
 
-## Worked Example
+- **The desecrated spawn weight.** The data source publishes none, so every desecrated mod is given
+  2,500, measured from 40 bones' offers in game (`tools/refresh/apply_pools.mjs`). It affects a
+  Desecration without a boss omen only.
+- **Rune modifier pools.** A rune that adds its own pool has no published weight either.
+- **Prices** are poe.ninja's, refreshed daily. A few are inferred or hand-copied when nothing trades; the
+  price note names them.
+- **Ties under Whittling.** When several mods share the lowest level, one is taken uniformly (untraced).
 
-Target: **Bow** with **T1 `#% increased Physical Damage`** (prefix) and **T2 `#% increased Attack
-Speed`** (suffix), item level 82.
+**Approximated in the true expected cost:**
 
-1. **Transmutation** on the white bow — chance it rolls the T1 phys prefix is `w(T1 phys) / Σ w(all
-   addable mods at ilvl 82)`.
-2. **Regal** to go rare and add a second mod, or **Augment**-then-**Regal**, etc. — each ordering is a
-   distinct candidate; the phys prefix already on the item removes its family from later pools.
-3. **Exalted** to add the attack-speed suffix (optionally with a **Dextral** omen to force the suffix
-   side, raising that step's odds at the cost of the omen).
+- The state counts junk, not which junk, so a junk mod's family comes out of the next roll's pool **on
+  average** (mean-field). Measured within 2% of playing the plan on real items, on all 18 crafts checked
+  (TODO 23).
+- A fractured mod that is not a target is treated as removable junk (TODO 28).
 
-Each candidate's overall probability is the product of its steps; its expected cost uses the
-restart-on-failure formula. The optimizer returns the frontier — perhaps a cheap low-odds plan
-(raw exalt slam) and a pricier high-odds plan (omen-constrained) — and the UI shows both so you can
-pick your risk/cost point.
+**Not modelled in the true expected cost** (the step routes have some of them): the Omen of Whittling and
+the Erasure omens, which need each mod's level (TODO 12b, 12c, 27); Greater Exaltation and stronger
+Chaos Orbs, built and measured to change no answer (TODO 14a, 5d); Alchemy. Recombinators are not
+modelled anywhere.
+
+## How it is checked
+
+- **Monte Carlo.** A seeded simulator plays routes thousands of times, and `markovReplay.ts` plays the
+  optimal policy on real items — concrete mods, not the abstract state — and compares the average spend
+  with V. That is how the junk-family error above was found and measured.
+- **Craft of Exile.** The single-orb odds were cross-checked against craftofexile.com; divergences are
+  logged in [validation.md](validation.md).
+- **The Java original.** The mechanics ported from the old engine are pinned to frozen golden outputs.
+- **Frozen prices.** Tests that assert an exact cost read a price sheet frozen on 2026-08-22, so the
+  daily refresh cannot move them; everything else reads the live sheet, and the price bot runs the
+  whole suite before it merges.

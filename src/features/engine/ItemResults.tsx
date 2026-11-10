@@ -5,6 +5,7 @@ import { EFFORT_PRESETS, isTopEffort, useEffort } from '../../lib/searchEffort';
 import { slotsOfTargets } from '../../lib/gearTrade';
 import AppUpdatedNotice from './AppUpdatedNotice';
 import FrontierView from './FrontierView';
+import RoutesToggle from './RoutesToggle';
 import PriceBasisNote from './PriceBasisNote';
 import { GearTradeLink } from './GearTradeLink';
 import WhatToBuy from './WhatToBuy';
@@ -113,38 +114,8 @@ const ItemResults: React.FC<{ it: ItemCraft }> = ({ it }) => {
           {engine && <PriceBasisNote basis={priceBasis(engine)} exactOdds={!markov.assumedOdds} assumedFrom={markov.assumedFrom} />}
         </TrueCostCard>
       )}
-      {plan && !planErr && trueCostAnswered && !showRoutes && (
-        <button
-          type="button"
-          onClick={() => setShowRoutes(true)}
-          aria-expanded={false}
-          className="w-full rounded-md border border-border bg-muted/20 px-3 py-2 text-left text-[11px] text-muted-foreground hover:bg-muted/40"
-        >
-          <span className="font-medium text-foreground">Step-by-step routes</span>
-          {/* NOT the cheapest expected cost. That figure is the free-restart total — billions of
-              divine on a long-shot craft — and putting it on the button meant you met the number
-              without ever opening the section. The route count is the honest summary. */}
-          {plan.frontier.length > 0 && (
-            <span className="tabular-nums"> ({plan.frontier.length})</span>
-          )}
-          {/* Deliberately NOT a restatement of the two-cost-models paragraph above — that one
-              explains the models; this one says why the number behind this button is safe to
-              ignore. Saying it twice reads as the panel arguing with itself. */}
-          <span className="block mt-0.5">
-            Every slam here must hit one <em>named</em> mod, where the policy above takes whatever
-            lands — which is why this figure is so much larger. Kept for completeness.
-          </span>
-        </button>
-      )}
-      {plan && !planErr && trueCostAnswered && showRoutes && (
-        <button
-          type="button"
-          onClick={() => setShowRoutes(false)}
-          aria-expanded
-          className="text-xs text-muted-foreground underline underline-offset-2 hover:text-foreground"
-        >
-          Hide step-by-step routes
-        </button>
+      {plan && !planErr && trueCostAnswered && (
+        <RoutesToggle open={showRoutes} count={plan.frontier.length} onToggle={setShowRoutes} />
       )}
       {plan && !planErr && (!trueCostAnswered || showRoutes) && (
         <FrontierView

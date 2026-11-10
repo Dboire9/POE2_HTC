@@ -154,7 +154,11 @@ bar and a **Cancel** button. Long solves are normal — see [Search effort](#sea
 
 ### Your options — the plan cards
 
-The heading reads **"Your options — likeliest first"**. Each card is one plan: a fixed sequence of
+When the true expected cost has answered, these cards are folded under it behind a **Step-by-step
+routes** button with their count — open it to see them, and **Hide step-by-step routes** to fold them
+again. They stay open when there is no true cost to read instead, or when there is no route at all (the
+note there says why). Open, the heading reads **"Step-by-step routes (per-plan view)"**; with no true
+cost it reads **"Your options — likeliest first"**. Each card is one plan: a fixed sequence of
 currencies, with per-step odds. The set of cards is a **Pareto frontier** — every plan on it is either
 cheaper per run or likelier than every other, so none of them is strictly worse than another. There is
 no single "best"; there's a trade: cheap runs that rarely land, or dear runs that often do.
@@ -229,7 +233,7 @@ no bones in it, and it is one you can follow. Raise Search effort to find out ho
 
 ### The policy graph
 
-**Step-by-step routes** expands the policy into something you can read. Each node is an item state; each
+**Full graph** draws the whole policy. Each node is an item state; each
 edge is a move. Click any state to highlight the route through it and dim the rest.
 
 **The route** lists one line through it: the way most crafts that finish go. Each step says what it

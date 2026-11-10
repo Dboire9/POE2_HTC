@@ -43,6 +43,17 @@ async function addFirstMod(page: Page, within?: Locator) {
   await add.click();
 }
 
+/**
+ * Wait for a Plan-tab solve and show its step routes. Once the true cost answers they are folded behind
+ * "Step-by-step routes" (RoutesToggle); they are open when it did not. Either way the plan count shows.
+ */
+async function openRoutes(page: Page): Promise<void> {
+  await expect(page.getByText(/True expected cost|checked [\d,]+ plans?/).first()).toBeVisible({ timeout: 60_000 });
+  const fold = page.getByRole('button', { name: /^Step-by-step routes/ });
+  if (await fold.isVisible()) await fold.click();
+  await expect(page.getByText(/checked [\d,]+ plans?/)).toBeVisible({ timeout: 60_000 });
+}
+
 test('1 — cold load: the page comes up with no console errors and no CSP refusals', async ({ page }) => {
   const errors = watchForErrors(page);
   const res = await page.goto('/');
@@ -65,7 +76,7 @@ test('2 — lab compute: a craft solves in the Worker and renders a cost', async
 
   // The frontier renders a cost, and the plan count is a real number. Both are assertions that the
   // Worker ran at all: under a CSP that forbids it, this is where the app dies silently.
-  await expect(page.getByText(/checked [\d,]+ plans?/)).toBeVisible({ timeout: 60_000 });
+  await openRoutes(page);
   await expect(page.getByText('expected cost').first()).toBeVisible();
 
   const checked = await page.getByText(/checked [\d,]+ plans?/).first().innerText();
@@ -207,7 +218,8 @@ test('5 — mobile: the mod columns stack and nothing overflows sideways', async
   await waitForReady(page);
   await addFirstMod(page);
   await page.getByRole('button', { name: 'Find plans' }).click();
-  await expect(page.getByText(/checked [\d,]+ plans?/)).toBeVisible({ timeout: 60_000 });
+  // Opened, so the overflow check below covers the route cards too.
+  await openRoutes(page);
 
   // The `flex-col sm:flex-row` fix from 2026-08-22 has never been verified by anything: jsdom has no
   // layout engine, so it cannot tell a stacked column from a side-by-side one.

@@ -205,6 +205,42 @@ describe('EngineLab — essence ↔ fracture are mutually exclusive', () => {
 // The hint must ALSO not claim the craft is impossible in game: rolling throwaway mods, annulling them
 // off (rarity survives an annul) and then Desecrating is a legal route the planner simply doesn't
 // search. Saying otherwise would send a player away from a craft that works.
+/**
+ * The step routes fold under the true cost, as on the Item tab (`RoutesToggle`).
+ *
+ * Open, a "1 in 54,612 · 295 ex" card sat beneath "151 chaos" with nothing saying they answer different
+ * questions (found 2026-11-10). They stay open where they are the only answer, and where the list is
+ * empty — its hint says why no route exists.
+ */
+describe('EngineLab — step routes fold under the true cost', () => {
+  async function solve() {
+    const user = userEvent.setup();
+    await loaded();
+    await user.click(addButton('Normal Prefix'));
+    await user.click(screen.getByRole('button', { name: /Find plans/i }));
+    return user;
+  }
+
+  it('folds them once the true cost answered, and opens and closes them on demand', async () => {
+    const user = await solve();
+    const fold = await screen.findByRole('button', { name: /Step-by-step routes/i });
+    expect(fold).toHaveAttribute('aria-expanded', 'false');
+    expect(screen.queryByText(/success \/ attempt|chance per attempt/i)).toBeNull();
+    await user.click(fold);
+    expect(screen.getByText(/success \/ attempt|chance per attempt/i)).toBeInTheDocument();
+    expect(screen.getByText(/Step-by-step routes \(per-plan view\)/)).toBeInTheDocument();
+    await user.click(screen.getByRole('button', { name: /Hide step-by-step routes/i }));
+    expect(screen.queryByText(/success \/ attempt|chance per attempt/i)).toBeNull();
+  });
+
+  it('leaves them open when the true cost did not answer — they are the only view then', async () => {
+    mocks.optimizeItemMarkov.mockReturnValue({ ...labMarkov, feasible: false, expectedCost: Infinity, reason: 'no route' });
+    await solve();
+    expect(await screen.findByText(/success \/ attempt|chance per attempt/i)).toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: /Step-by-step routes/i })).toBeNull();
+  });
+});
+
 describe('EngineLab — the empty state gives the real reason', () => {
   it('explains the Rare prerequisite for a lone desecrated target', async () => {
     const user = userEvent.setup();

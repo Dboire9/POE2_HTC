@@ -96,6 +96,8 @@ export function useLabCraft(engine: Engine | null) {
   const [result, setResult] = useState<EngineResult | null>(null);
   const [alts, setAlts] = useState<EngineAlternatives | null>(null);
   const [markov, setMarkov] = useState<EngineMarkovResult | null>(null);
+  // The step routes fold once the true cost has answered, as on the Item tab (`RoutesToggle`).
+  const [showRoutes, setShowRoutes] = useState(false);
   // Bumped per solve result, so a panel keyed on it starts fresh — typed prices belong to ONE craft's rows.
   // Not by a play-out, which is the same craft again.
   const [markovRun, setMarkovRun] = useState(0);
@@ -434,6 +436,8 @@ export function useLabCraft(engine: Engine | null) {
   };
 
   const canCompute = targets.length > 0 && !runner.computing && !essenceFractureConflict;
+  // The same test as the Item tab's: a true cost on screen to read instead of the routes.
+  const trueCostAnswered = markov !== null && markov.applicable && markov.feasible;
   const onPickTier = (modId: string, t: number) => setPickTier((p) => ({ ...p, [modId]: t }));
 
   return {
@@ -445,6 +449,7 @@ export function useLabCraft(engine: Engine | null) {
     regularEssenceUsed, desecratedUsed, normalTargets, bossTargetable, desecrationNeedsRare,
     essenceFractureConflict, excludedKeys,
     result, alts, altBudget, markov, markovRun, markovEffort, markovSpare, solvedFor, alongSig, runErr, stale,
+    trueCostAnswered, showRoutes, setShowRoutes,
     sale, setSale, saleKey,
     computing: runner.computing, progress: runner.progress, cancel: runner.cancel, compute, playOut, canCompute,
     share, reset, outcome, tryExample,

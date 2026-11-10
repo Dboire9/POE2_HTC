@@ -4,6 +4,7 @@ import { priceBasis } from '../../lib/engine';
 import { EFFORT_PRESETS, isTopEffort, useEffort } from '../../lib/searchEffort';
 import AppUpdatedNotice from './AppUpdatedNotice';
 import FrontierView from './FrontierView';
+import RoutesToggle from './RoutesToggle';
 import AlternativesView from './AlternativesView';
 import StartFromItem from './StartFromItem';
 import TrueCostCard from './TrueCostCard';
@@ -15,8 +16,11 @@ const LabResults: React.FC<{ lab: LabCraft }> = ({ lab }) => {
   const {
     stale, runErr, markov, result, engine, solvedFor, alongSig, markovSpare, markovRun, fractured, markovEffort,
     computing, compute, playOut, desecrationNeedsRare, normalTargets, excludedKeys, freeSlots, alts, altBudget,
-    budget, sale, setSale, saleKey,
+    budget, sale, setSale, saleKey, trueCostAnswered, showRoutes, setShowRoutes,
   } = lab;
+  // Folded only when there is something to fold: an empty list carries the hint saying WHY no route
+  // exists, which is worth seeing beside the true cost rather than behind a button.
+  const foldRoutes = trueCostAnswered && result !== null && result.frontier.length > 0;
   const effort = useEffort();
   // "Raise Search effort" is the app's standing answer to a solve that stopped early, and it is good
   // advice at every preset but the top one — where it points at a control with nothing above it. The
@@ -124,10 +128,15 @@ const LabResults: React.FC<{ lab: LabCraft }> = ({ lab }) => {
         />
       )}
 
-      {result && !runErr && (
+      {result && !runErr && foldRoutes && (
+        <RoutesToggle open={showRoutes} count={result.frontier.length} onToggle={setShowRoutes} />
+      )}
+      {result && !runErr && (!foldRoutes || showRoutes) && (
         <FrontierView
           result={result}
           priceBasis={engine ? priceBasis(engine) : undefined}
+          // Behind the fold it is named as the button names it, as on the Item tab.
+          {...(foldRoutes ? { title: 'Step-by-step routes (per-plan view)' } : {})}
           // Ordered most specific first: a wrong-but-plausible reason is worse than none, and the
           // generic tier-gate message was being shown for a craft that simply never reaches Rare.
           emptyHint={desecrationNeedsRare ? (

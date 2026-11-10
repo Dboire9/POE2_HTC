@@ -19,6 +19,7 @@
 import { readFileSync, writeFileSync } from 'node:fs';
 import { join, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { omenPageUrl, priceProvenance } from './priceProvenance.mjs';
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '../..');
 const API = 'https://poe.ninja/poe2/api/economy';
@@ -617,7 +618,8 @@ async function main() {
   const staleness = fallback.length === 0
     ? `  every omen priced live; the ${ageDays}-day-old omenQuotes were not consulted.`
     : ageDays > 30
-      ? `  WARNING omenQuotes are ${ageDays} days old and ${fallback.length} omen(s) still fall back to them (${fallback.join(', ')}) — re-transcribe from ${prev.omenQuotesSource?.split(' ')[0]}`
+      // The page of the league being priced: the stored source names the league it was copied from.
+      ? `  WARNING omenQuotes are ${ageDays} days old and ${fallback.length} omen(s) still fall back to them (${fallback.join(', ')}) — re-transcribe from ${omenPageUrl(league)}`
       : `  ${fallback.length} omen(s) fell back to the ${ageDays}-day-old quotes: ${fallback.join(', ')}.`;
   console.log(staleness);
 
@@ -642,10 +644,11 @@ async function main() {
       + `bones from the API, essences priced individually, Alloys from the Verisium feed, omens from `
       + `the Ritual feed (falling back to hand-transcribed quotes where one is too thinly traded) `
       + `— see tools/refresh/prices.mjs.`,
-    estimated: inferred.length > 0,
-    ...(inferred.length > 0
-      ? { caveat: `All prices are live market data, except ${inferred.length} essence variant${inferred.length === 1 ? '' : 's'} nobody is currently trading — those are inferred from the same essence's other levels.` }
-      : {}),
+    // Every price not observed today is named — the essences inferred AND the omens priced from the stored
+    // quotes (priceProvenance.mjs). Set outright, never inherited through `...prev`: a sheet that no
+    // longer needs a caveat must not keep yesterday's.
+    ...priceProvenance({ inferredEssences: inferred.length, fallbackOmens: fallback, omenQuotesAsOf: prev.omenQuotesAsOf }),
+    ...(inferred.length === 0 && fallback.length === 0 ? { caveat: undefined } : {}),
     unit: 'exalt-equivalent',
   };
 

@@ -1559,7 +1559,7 @@
     "essence_greater": 2.058
   },
   "omenQuotesAsOf": "2026-08-22",
-  "omenQuotesSource": "https://poe.ninja/poe2/economy/runesofaldur/omens — transcribed by hand; poe.ninja's economy API has no `type` value that serves omens (Currency/Essences/Fragments/Runes do), and the web page is client-rendered, so this is the only route.",
+  "omenQuotesSource": "A fallback only, for an omen whose live Ritual-feed line is too thin to trust: copied by hand from the poe.ninja omens page of the league being priced (tools/refresh/priceProvenance.mjs, omenPageUrl).",
   "omenQuotes": {
     "OmenofSinistralAnnulment": {
       "price": 12,

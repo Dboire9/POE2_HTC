@@ -57,12 +57,12 @@ describe('the rendered sentence reads as English', () => {
 describe('priceBasis — reads the shipped sheet honestly', () => {
   it('flags the shipped 0.5.0 prices as estimated, from their own stated provenance', () => {
     const basis = priceBasis({ prices: loadPrices('data/patches/0.5.0') });
-    // Everything is live poe.ninja data now — currency, desecration bones, per-essence prices and the
-    // hand-transcribed omen quotes. What remains inferred is the handful of essence variants nobody is
-    // currently trading, so the sheet stays `estimated` but names exactly that.
+    // Live poe.ninja data, except what the sheet names: essence variants nobody is trading, and omens too
+    // thin to price live, which fall back to a hand-copied quote (tools/refresh/priceProvenance.mjs).
+    // WHICH of those applies is the market's business on the day, so this asserts only the promise the
+    // code makes: an estimated sheet always says what is estimated.
     expect(basis.estimated).toBe(true);
-    expect(basis.caveat).toMatch(/live market data/i);
-    expect(basis.caveat).toMatch(/essence/i);
+    expect(basis.caveat).toMatch(/^All prices are live market data, except .+\.$/);
     expect(basis.patch).toBe('0.5.0');
     expect(basis.asOf).toBeTruthy();
   });

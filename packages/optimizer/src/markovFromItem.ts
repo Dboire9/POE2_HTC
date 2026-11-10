@@ -768,8 +768,19 @@ export function markovFromItem(
    * the same standard of "finished" as before — with every slot a singleton and no free slots it
    * reproduces the old set exactly, which the test suite asserts against a from-white craft.
    */
+  // A state holding TWO carved targets is never a goal, though it is in the lattice. No action reaches it
+  // (a bone needs an item with no bone-placed mod, and a carved mod only arrives by bone — see above),
+  // but the goal box is DRAWN from the first finished state below, and on a two-slot carved craft that
+  // was this impossible item: `never finishes on an item holding two carved mods` caught it once the
+  // free orbs it had been routing through stopped being free (TODO 12d). Excluding it from the goal set
+  // moves no reachable value, and makes the game rule hold in the state space rather than on one path.
+  const carvedMask = list.reduce((m, _, i) => (desecratedBit(i) ? m | bit(i) : m), 0);
   const goalKeys = new Set<StateKey>();
-  for (const k of allStates) if (isAccepting(decodeState(k), slotMasks, spare, siblings.obstacles)) goalKeys.add(k);
+  for (const k of allStates) {
+    const st = decodeState(k);
+    if (popcount(st.present & carvedMask) > 1) continue;
+    if (isAccepting(st, slotMasks, spare, siblings.obstacles)) goalKeys.add(k);
+  }
   if (goalKeys.size === 0) return fail('no legal item satisfies every slot of this target');
   // The canonical goal for DISPLAY: the *barest* finished item — the one that fills each slot once and
   // carries nothing more. `allStates` is enumerated present-ascending with FLAG_NONE first, which used

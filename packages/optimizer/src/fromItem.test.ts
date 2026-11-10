@@ -20,7 +20,12 @@ const data: PatchData = {
   ]),
   bases: new Map([['S', base]]),
 };
-const prices: Prices = { currency: { exalt: 1, annul: 1.5, chaos: 0.2 }, omens: {} };
+// Priced at 0 ON PURPOSE: written when an unpriced key cost nothing, and a missing key is now UNAVAILABLE
+// (`stepIsPriced`), so the currencies these hand-computed cases reach are listed — at the price they had.
+const prices: Prices = {
+  currency: { exalt: 1, annul: 1.5, chaos: 0.2, augment: 0, regal: 0 },
+  omens: { OmenofSinistralExaltation: 0, OmenofDextralExaltation: 0, OmenofLight: 0, OmenofWhittling: 0 },
+};
 const placed = (id: string): { modId: string; tierName: string } => ({ modId: id, tierName: 't1' });
 const rareItem = (pre: string[], suf: string[]): ItemState =>
   ({ base, level: 100, rarity: 'rare', prefixes: pre.map(placed), suffixes: suf.map(placed) });
@@ -103,7 +108,10 @@ describe('optimizeFromItem — desecrated mods (kept and crafted, hand-computed)
     ]),
     bases: new Map([['S', dbase]]),
   };
-  const dprices: Prices = { currency: { exalt: 1, annul: 1.5, chaos: 0.2, desecrate: 0.5 }, omens: {} };
+  const dprices: Prices = {
+    currency: { exalt: 1, annul: 1.5, chaos: 0.2, desecrate: 0.5 },
+    omens: { OmenofLight: 0, OmenoftheBlackblooded: 0, OmenofDextralNecromancy: 0 }, // 0 ON PURPOSE — see `prices`
+  };
 
   it('keeps a desecrated mod that is already on the item (no step touches it)', () => {
     // Item [NP1 | DS1]; target {NP1, DS1}: already exactly the target → a single empty plan.
@@ -289,7 +297,13 @@ describe('optimizeFromItem — perfect essences (hand-computed)', () => {
     ]),
     bases: new Map([['S', pbase]]),
   };
-  const pprices: Prices = { currency: { exalt: 1, annul: 1.5, chaos: 0.2, perfect_essence: 15 }, omens: {} };
+  const pprices: Prices = {
+    currency: { exalt: 1, annul: 1.5, chaos: 0.2, perfect_essence: 15 },
+    omens: { // 0 ON PURPOSE — see `prices`
+      OmenofSinistralCrystallisation: 0, OmenofDextralCrystallisation: 0,
+      OmenofSinistralExaltation: 0, OmenofDextralExaltation: 0, OmenofLight: 0,
+    },
+  };
   const rare = (pre: string[], suf: string[]): ItemState =>
     ({ base: pbase, level: 100, rarity: 'rare', prefixes: pre.map(placed), suffixes: suf.map(placed) });
 
@@ -320,7 +334,10 @@ describe('optimizeFromItem — perfect essences (hand-computed)', () => {
 describe('optimizeFromItem — real data (Wands)', () => {
   const real = loadPatch('data/patches/0.5');
   const wands = real.bases.get('Wands')!;
-  const rprices: Prices = { currency: { exalt: 1, annul: 1.5, chaos: 0.2 }, omens: {} };
+  const rprices: Prices = { // 0 ON PURPOSE — see `prices`
+    currency: { exalt: 1, annul: 1.5, chaos: 0.2, augment: 0, regal: 0 },
+    omens: { OmenofSinistralExaltation: 0, OmenofDextralExaltation: 0, OmenofLight: 0, OmenofWhittling: 0 },
+  };
 
   it('finishes a partly-rolled rare by exalting the missing mod into an open slot', () => {
     // Rare wand with Mana (prefix) + Intelligence (suffix); add Increased Spell Damage (prefix) — a slot is open.

@@ -50,13 +50,15 @@ const data: PatchData = {
   ]),
   bases: new Map([['S', base]]),
 };
-// NOTE the omens are absent from the sheet, and `stepCost` prices a missing key at 0 — so the
-// Crystallisation levers are FREE here, not unavailable. `withOmenVariants` enumerates them whatever
-// they cost; only an explicit exclusion policy removes one. The tests below therefore say which case
-// they are in rather than assuming the plain removal.
+// NOTE the omens are priced at 0 — FREE here. A missing key would make them unavailable instead
+// (`stepIsPriced`), so they are listed; only an explicit exclusion policy removes one. The tests below
+// therefore say which case they are in rather than assuming the plain removal.
 const prices: Prices = {
-  currency: { transmute: 1, augment: 1, regal: 1, exalt: 1, annul: 1, chaos: 99, perfect_essence: 5 },
-  omens: {},
+  currency: { transmute: 1, augment: 1, regal: 1, exalt: 1, annul: 1, chaos: 99, perfect_essence: 5, alchemy: 0 },
+  omens: {
+    OmenofSinistralCrystallisation: 0, OmenofDextralCrystallisation: 0,
+    OmenofSinistralExaltation: 0, OmenofDextralExaltation: 0,
+  },
 };
 const CRYSTALLISATION = ['OmenofSinistralCrystallisation', 'OmenofDextralCrystallisation'];
 const noOmens = { excluded: new Set(CRYSTALLISATION) };

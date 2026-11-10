@@ -111,8 +111,9 @@ npm run lint && npm run type-check && npm run type-check:engine && npm run type-
   Costs are exalt-equivalents, formatted only by `src/lib/currency.ts` (`pickUnit`: one unit per view).
 - **A step has one price.** Every planner prices through `stepCost` / `currencyKey` /
   `cheapestEssenceLevel` (`cost.ts`). Pricing a step two ways is how the D8 desecration bug survived.
-- **A missing price is 0 — a free orb that wins every plan.** Gate any new currency, omen or rune on
-  having a price, and show an unpriced one with no price, never "0 ex".
+- **A missing price means UNAVAILABLE.** `stepCost` still reads it as 0, so every planner offers a step
+  only through `stepIsPriced` / `stepAvailable` (`cost.ts`); a new step kind goes through them too. Show an
+  unpriced currency with no price, never "0 ex". A fixture that wants a free orb prices it at `0`.
 - **Read `bound`, never infer it from `converged`.** A from-item solve truncates upward (≥), a from-white
   one downward (≤); `formatBoundedCost` is the only renderer. Tables are drawn only when
   `bound === 'exact'`.

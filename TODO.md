@@ -978,7 +978,14 @@ recorded in `docs/validation.md` as an assumption rather than a rule.
 
 **The MDP half is untouched and needs its own item** — see 12b below.
 
-### 12d. "A missing price means UNAVAILABLE, not free" — BUILT, REVERTED, and it found something
+### 12d. ~~"A missing price means UNAVAILABLE, not free"~~ — DONE 2026-11-10
+
+**Re-landed** as `stepIsPriced` / `stepAvailable` in `cost.ts`, asked by `leverOptions` and by the MDP's
+`push`; the boss omens are gated with everything else. The two-carved goal below turned out to be a
+DISPLAY problem — the goal box is drawn from the first finished state in the lattice, and that was an
+unreachable item holding both carved mods — so `goalKeys` now excludes states with two carved targets.
+Fixtures that wanted a free orb price it at 0. No answer moved on the live sheet (engineering-notes,
+Prices). The history:
 
 **The idea, and it is right.** `stepCost` reads `prices.currency[key] ?? 0`, so a key the sheet does
 not carry reads as FREE and dominates every frontier it can reach. An orb nobody has quoted is

@@ -391,7 +391,12 @@ describe('replayPolicy — Desecrations, the Omen of Light and a Perfect Essence
   };
   const placed = (modId: string, fractured = false) => (fractured ? { modId, tierName: 't1', fractured: true } : { modId, tierName: 't1' });
   const rare = (pre: ItemState['prefixes'], suf: ItemState['suffixes']): ItemState => ({ base, level: 100, rarity: 'rare', prefixes: pre, suffixes: suf });
-  const bones = (omens: Record<string, number>): Prices => ({ currency: { exalt: 1, annul: 1, chaos: 99, desecrate: 1 }, omens });
+  // The side-Annulment and boss omens at 0, as these values were derived: a missing key is now
+  // unavailable rather than free (`stepIsPriced`).
+  const bones = (omens: Record<string, number>): Prices => ({
+    currency: { exalt: 1, annul: 1, chaos: 99, desecrate: 1 },
+    omens: { OmenofSinistralAnnulment: 0, OmenofDextralAnnulment: 0, OmenoftheBlackblooded: 0, ...omens },
+  });
 
   it.each([
     ['a plain offer', {}, 9 / 7],

@@ -299,6 +299,28 @@ export function allowsStep(policy: CurrencyPolicy | undefined, step: PricedStep)
   return !stepOmenIds(step).some((id) => policy.excluded.has(id));
 }
 
+/**
+ * Whether the sheet prices EVERYTHING this step charges: its orb (an essence may fall back to its level's
+ * price, exactly as `stepCost` does) and every omen it spends.
+ *
+ * A step that is not priced is UNAVAILABLE, never free. `stepCost` reads a missing key as 0, so an
+ * unpriced orb or omen would win every plan it could reach — on a currency the sheet cannot even quote.
+ * The gates against that used to be scattered (orb strengths in `levers.ts` and `markovActions.ts`,
+ * Whittling, the Greater Exaltation route) and the boss omens had none (TODO 12d). Both planners now ask
+ * this at the one place a step or action enters their search, through `stepAvailable`.
+ */
+export function stepIsPriced(prices: Prices, step: PricedStep): boolean {
+  const key = currencyKey(step);
+  const orb = prices.currency[key] !== undefined
+    || (key.startsWith('essence:') && prices.currency[legacyEssenceKey(step)] !== undefined);
+  return orb && stepOmenIds(step).every((id) => prices.omens[id] !== undefined);
+}
+
+/** A step a planner may offer: priced on this sheet, and not excluded by the player's policy. */
+export function stepAvailable(prices: Prices, policy: CurrencyPolicy | undefined, step: PricedStep): boolean {
+  return stepIsPriced(prices, step) && allowsStep(policy, step);
+}
+
 /** An essence mod's level (its tiers ARE Lesser/Normal/Greater), read from the tier name for pricing. */
 export function essenceLevelOf(tierName: string | undefined): string {
   const n = (tierName ?? '').toLowerCase();

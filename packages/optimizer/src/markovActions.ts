@@ -13,7 +13,7 @@ import type { DesecrationBossOmen } from '../../engine/src/probability.ts';
 import { ANCIENT_BONE_FLOOR, DESECRATION_OFFER_COUNT, desecrationOmenForMod } from '../../engine/src/probability.ts';
 import type { CurrencyPolicy, Prices, PricedStep } from './cost.ts';
 import type { Siblings } from './markovSiblings.ts';
-import { ECHOES_OMEN, allowsStep, cheapestEssenceLevel, essenceLevelOf, stepCost } from './cost.ts';
+import { ECHOES_OMEN, allowsStep, cheapestEssenceLevel, essenceLevelOf, stepCost, stepIsPriced } from './cost.ts';
 import type { Dist, FlagCode, McRarity, McState, McTarget, SideIndex, StateEncoder } from './markovState.ts';
 import {
   FLAG_JUNK_PREFIX, FLAG_JUNK_SUFFIX, FLAG_NONE, addTo, anyWeightOf, bit, decodeState,
@@ -791,6 +791,9 @@ export function createActionSpace(params: ActionSpaceParams): {
     return (action: McAction, dist: Dist, offer?: number, reroll?: { readonly cost: number }): void => {
       if (dist.size === 0) return;
       if (!allowsAction(policy, action)) return;
+      // Unpriced is UNAVAILABLE, never free (`stepIsPriced`) — the same test the step planners apply.
+      // This is what gates the boss omens, which had no price gate of their own (TODO 12d).
+      if (action.currency !== 'restart' && !stepIsPriced(prices, pricedStepOf(action))) return;
       const cost = actionCostOf(prices, action);
       const def: ActionDef = {
         action, cost, dist, ...(offer === undefined ? {} : { offer }), ...(reroll ? { reroll } : {}),

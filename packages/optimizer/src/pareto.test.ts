@@ -12,9 +12,11 @@ const prices: Prices = {
     augment: 0.01, augment_greater: 0.1, augment_perfect: 1,
     regal: 0.15, regal_greater: 1, regal_perfect: 5,
     alchemy: 0.1,
-    exalt: 1, exalt_greater: 5, exalt_perfect: 20, essence: 1,
+    exalt: 1, exalt_greater: 5, exalt_perfect: 20, essence: 1, essence_greater: 1,
   },
-  omens: {},
+  // FREE omens, deliberately (see "side-constrains exalts" below). Listed at 0 because a missing key is
+  // UNAVAILABLE, not free (`stepIsPriced`).
+  omens: { OmenofSinistralExaltation: 0, OmenofDextralExaltation: 0 },
 };
 const P1 = 'Wands/MAXIMUM_MANA';        // 11 tiers, T1 = idx 10 (ilvl 70)
 const S1 = 'Wands/INTELLIGENCE';
@@ -264,7 +266,11 @@ describe('optimizePareto — desecrated targets (from white)', () => {
     ]),
     bases: new Map([['S', sbase]]),
   };
-  const sprices: Prices = { currency: { transmute: 0.002, augment: 0.01, regal: 0.15, exalt: 1, desecrate: 0.5 }, omens: {} };
+  // Omens at 0, as this case was written: a missing key is now unavailable rather than free.
+  const sprices: Prices = {
+    currency: { transmute: 0.002, augment: 0.01, regal: 0.15, exalt: 1, desecrate: 0.5 },
+    omens: { OmenofSinistralExaltation: 0, OmenofDextralExaltation: 0, OmenoftheBlackblooded: 0, OmenofDextralNecromancy: 0 },
+  };
 
   it('builds the Rare with the normal add-chain, then Desecrates the desecrated mod (boss omen)', () => {
     const r = optimizePareto(sdata, sprices, sbase, [

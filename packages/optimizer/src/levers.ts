@@ -24,7 +24,7 @@ import type { PlanStep } from '../../engine/src/plan.ts';
 import { resolveMod } from '../../engine/src/pool.ts';
 import { stepProbability } from '../../engine/src/plan.ts';
 import type { CurrencyPolicy, Prices } from './cost.ts';
-import { allowsStep, currencyKey, stepCost } from './cost.ts';
+import { currencyKey, stepAvailable, stepCost } from './cost.ts';
 
 /** One way to buy a step: the fully-specified step, what it lands, and what it costs. */
 export interface StepLever {
@@ -72,15 +72,9 @@ export function atStrength(step: PlanStep, tier: CurrencyTier): PlanStep | undef
  */
 function withOmen(data: PatchData, prices: Prices, state: ItemState, step: PlanStep): PlanStep | undefined {
   switch (step.currency) {
-    // Omen of Whittling: the Chaos Orb removes the LOWEST-LEVEL modifier instead of a uniform one.
-    // Gated on the omen having a PRICE, for the same reason the strengths above are: `stepCost`
-    // charges 0 for a missing key, and this omen is not in the shipped `omenQuotes` yet (poe.ninja
-    // serves no omen endpoint, so those are hand-transcribed). Ungated, an unpriced Whittling would
-    // come back FREE and dominate every chaos step it touched — the exact trap this module's other
-    // gate exists for. It lights up on its own the day the quote is added; until then a chaos step
-    // simply has no omen variant, which is today's behaviour exactly.
-    case 'chaos':
-      return prices.omens['OmenofWhittling'] === undefined ? undefined : { ...step, omen: 'whittling' };
+    // Omen of Whittling: the Chaos Orb removes the LOWEST-LEVEL modifier instead of a uniform one. An
+    // unpriced Whittling is dropped below by `stepAvailable`, like every other unpriced omen.
+    case 'chaos': return { ...step, omen: 'whittling' };
     case 'exalt': return { ...step, constrainTo: resolveMod(data, step.add).type };
     // Forcing the throwaway's side with the Exaltation omen makes it land wherever that side has room.
     case 'throwaway': return step.orb === 'exalt' ? { ...step, constrainTo: step.throwaway.side } : undefined;
@@ -150,7 +144,8 @@ export function leverOptions(
 
   const kept: StepLever[] = [];
   for (const v of variants) {
-    if (policy && !allowsStep(policy, v)) continue;
+    // Priced and allowed — the same test `markovActions` applies, so an unpriced omen is out of both.
+    if (!stepAvailable(prices, policy, v)) continue;
     const prob = stepProbability(data, state, v);
     if (!(prob > 0)) continue;
     kept.push({ step: v, prob, cost: stepCost(prices, v) });

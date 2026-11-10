@@ -219,10 +219,12 @@ describe('PolicyGraph — the full graph groups boxes that look identical', () =
 // The route named the currency and the mod count and left out which mod. It must name the mod — and
 // must NOT phrase it as an instruction, because the policy picks the orb, never the outcome.
 describe('PolicyGraph — the route names the mods', () => {
-  it('names the mod a step is most likely to land', () => {
+  it('names the mod a step aims for, and never claims it is the likeliest outcome', () => {
     render(<PolicyGraph result={result} />);
     const route = screen.getAllByRole('list')[0]!;
-    expect(within(route).getAllByText(/most likely lands/).length).toBeGreaterThan(0);
+    expect(within(route).getAllByText(/aims for/).length).toBeGreaterThan(0);
+    // The route follows the crafts that finish, often a step's LESS likely outcome (2026-11-10).
+    expect(within(route).queryByText(/most likely/)).toBeNull();
   });
 
   it('never phrases a slam as a choice the player does not have', () => {
@@ -527,7 +529,7 @@ describe('PolicyGraph — the full description of a clicked state', () => {
     expect(screen.getByText(/What .*does from here/i)).toBeInTheDocument();
     // Also present in the sr-only route list, so scope to the panel rather than the document.
     const panel = screen.getByText(/What .*does from here/i).closest('div')!;
-    expect(within(panel).getByText(/most likely lands Mana Regeneration Rate/i)).toBeInTheDocument();
+    expect(within(panel).getByText(/aims for Mana Regeneration Rate/i)).toBeInTheDocument();
     expect(screen.getAllByText(/a step backwards/i).length).toBeGreaterThan(0);
   });
 

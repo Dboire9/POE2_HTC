@@ -89,7 +89,8 @@ npm run lint && npm run type-check && npm run type-check:engine && npm run type-
   something a planner limit without tracing that either.** If you can't settle it, say it neutrally.
   Both have shipped: a legal filler → annul → desecrate route called impossible, and a real game rule
   presented as a planner limit. Every such claim has a row in `docs/copy-audit.md`; add one with yours.
-- **A route says "most likely lands X", never "add X"** — the player chooses the orb, never the outcome.
+- **A route says "aims for X", never "add X"** — the player chooses the orb, never the outcome (and
+  "most likely lands X" is false whenever the route follows a step's less likely outcome).
 - **A number the app can't know exactly says so on screen**: an assumed weight, an inferred price, a
   bound instead of an exact cost. Silence reads as a claim of exactness.
 - **No personal names in anything committed** — docs, comments, data files, UI copy, commit messages. A

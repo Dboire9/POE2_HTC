@@ -40,11 +40,10 @@ export interface MainLineStep {
 /**
  * What a step actually does to the item, recovered by diffing the two states it joins.
  *
- * IMPORTANT for anything that renders this: these are the mods on the step's **likeliest outcome**,
- * not mods the player selects. An Exalt is a slam — the policy chooses the orb, never the result. The
- * mod named here is simply whatever sits on the highest-probability edge, which is the edge the main
- * line follows by construction. Copy must therefore read "most likely lands X", never "add X"; the
- * step's own `advance` percentage is what makes that phrasing honest.
+ * IMPORTANT for anything that renders this: these are the mods on the outcome the main line follows —
+ * the way most crafts that finish go, often not the step's likeliest outcome — never mods the player
+ * selects. An Exalt is a slam: the policy chooses the orb, never the result. Copy must therefore read
+ * "aims for X", never "add X" (nor "most likely lands X", which the step's own odds can contradict).
  */
 export interface StepChanges {
   /** Target mods present after this step that weren't before. */

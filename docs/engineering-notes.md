@@ -1108,11 +1108,12 @@ Enforced in `packages/engine` (mostly `probability.ts`).
   — 1,733 div of true expected cost above, and below it "every path scored 0%" plus "a tier gated above
   the item level", neither true. A declined planner gets its own heading and points at the model.
 
-- **The policy route says "most likely lands X", never "add X".** The MDP chooses the ORB, never the
-  outcome — an Exalt is a slam. `StepChanges` (`src/lib/policyPath.ts`) names the mod on the step's
-  highest-probability edge, which is the edge the route follows by construction; phrasing it as an
-  instruction would tell the player to do something the game gives them no way to do. The odds render
-  beside it, which is what makes the wording self-consistent.
+- **The policy route says "aims for X", never "add X".** The MDP chooses the ORB, never the outcome — an
+  Exalt is a slam, and phrasing it as an instruction would tell the player to do something the game gives
+  them no way to do. `StepChanges` (`src/lib/policyPath.ts`) names the mod on the edge the route follows,
+  which since 2026-09-23 is the way most crafts that FINISH go — often not the step's likeliest outcome.
+  So it read "most likely lands X" until 2026-11-10, beside odds like "0.6% onward · 91% back" that
+  contradicted it; "aims for" stays true at any odds.
 
 ## Prices
 

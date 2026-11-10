@@ -96,11 +96,12 @@ function junkWords(j: JunkChange): string {
 /**
  * What a step does, in words.
  *
- * "MOST LIKELY lands X", never "add X". The policy picks the orb, not the outcome — an Exalt is a
- * slam, and the mod named here is simply the one on the step's highest-probability edge, which is the
- * edge the route follows by construction. An imperative would tell the player to do something the
- * game gives them no way to do, which is the exact failure `CLAUDE.md`'s critical rule is about. The
- * odds render right beside this, which is what keeps the phrasing honest.
+ * "AIMS FOR X", never "add X". The policy picks the orb, not the outcome — an Exalt is a slam, and the
+ * mod named here is the one on the edge the route follows: the way most crafts that FINISH go, which is
+ * often not the step's likeliest outcome. It read "most likely lands X" until 2026-11-10, beside a "0.6%
+ * onward · 91% back" that contradicted it. An imperative would tell the player to do something the game
+ * gives them no way to do, which is the exact failure `CLAUDE.md`'s critical rule is about. The odds
+ * render right beside this, which is what keeps the phrasing honest.
  */
 function describeStep(c: StepChanges): string {
   const parts: string[] = [];
@@ -115,7 +116,7 @@ function describeStep(c: StepChanges): string {
     if (words) parts.push(words);
   }
   if (c.lost.length > 0) parts.push(`loses ${c.lost.join(', ')}`);
-  if (c.gained.length > 0) parts.push(`most likely lands ${c.gained.join(', ')}`);
+  if (c.gained.length > 0) parts.push(`aims for ${c.gained.join(', ')}`);
   if (c.blocked.length > 0) parts.push(`blocks ${c.blocked.join(', ')}`);
   return parts.join(' · ');
 }

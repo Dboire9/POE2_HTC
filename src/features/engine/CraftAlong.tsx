@@ -1,12 +1,14 @@
 import React, { useMemo, useState } from 'react';
 import { Button } from '../../components/ui/button';
 import { cn } from '../../lib/utils';
-import { stepFor, type Engine, type EngineMarkovResult } from '../../lib/engine';
+import { locateItem, stepFor, type Engine, type EngineMarkovResult } from '../../lib/engine';
+import type { ImportedItem } from '../../lib/engineTypes';
 import type { EnginePolicyEdge, EnginePolicyNode } from '../../lib/engineTypes';
 import { formatChance, formatIn, pickUnit, type Rates } from '../../lib/currency';
-import { advance, readSession, startSession, undo, writeSession, type CraftSession, type CraftTab } from '../../lib/craftAlong';
+import { advance, jump, readSession, startSession, undo, writeSession, type CraftSession, type CraftTab } from '../../lib/craftAlong';
 import { START_OVER, describeItem, outcomeWords } from '../../lib/stateWords';
 import { FOCUS_RING } from './ui';
+import PasteItem from './PasteItem';
 
 /** One outcome as a button: what it did, and how often it happens. */
 const Outcome: React.FC<{
@@ -57,6 +59,8 @@ const CraftAlong: React.FC<{
   const t = markov.routes;
   const [session, setSession] = useState<CraftSession | null>(null);
   const [resumed, setResumed] = useState(false);
+  // What the last paste did: moved the session, or why it could not. Cleared by the next move.
+  const [pasted, setPasted] = useState<{ readonly ok: boolean; readonly text: string } | null>(null);
   const step = useMemo(() => (session ? stepFor(engine, markov, session.key) : null), [engine, markov, session]);
   if (!t) return null;
   // The craft's start — read only once the panel is open, which is when the table is first needed.
@@ -93,7 +97,19 @@ const CraftAlong: React.FC<{
   const byKey = new Map(step.nodes.map((n) => [n.key, n]));
   const nextOf = (e: EnginePolicyEdge): EnginePolicyNode | undefined => byKey.get(e.to);
   const cost = node.actionCost ?? 0;
-  const pick = (e: EnginePolicyEdge) => (): void => { setResumed(false); save(advance(session, e.to, cost)); };
+  const pick = (e: EnginePolicyEdge) => (): void => { setResumed(false); setPasted(null); save(advance(session, e.to, cost)); };
+  /** Pick up from the item the player pasted, wherever it is in the plan. */
+  const fromPaste = (item: ImportedItem): void => {
+    const at = locateItem(engine, markov, item);
+    if (!at.ok) { setPasted({ ok: false, text: at.reason }); return; }
+    setResumed(false);
+    save(jump(session, at.key));
+    setPasted({
+      ok: true,
+      text: 'Moved to the item you pasted. What happened since your last click is not in what you have spent.'
+        + (at.level !== undefined ? ` It is item level ${at.level}; this plan was worked out for another, so its odds may differ.` : ''),
+    });
+  };
   const moves = session.history.length;
   const startOver = node.action === START_OVER;
 
@@ -169,10 +185,10 @@ const CraftAlong: React.FC<{
       <div className="flex flex-wrap items-center justify-between gap-2">
         <h4 className="text-xs font-semibold uppercase tracking-wider text-primary">Craft along</h4>
         <div className="flex flex-wrap gap-2">
-          <Button variant="outline" size="sm" onClick={() => { setResumed(false); save(undo(session)); }} disabled={moves === 0}>
+          <Button variant="outline" size="sm" onClick={() => { setResumed(false); setPasted(null); save(undo(session)); }} disabled={moves === 0}>
             Undo
           </Button>
-          <Button variant="outline" size="sm" onClick={() => { setResumed(false); save(startSession(sig, startOf())); }} disabled={moves === 0}>
+          <Button variant="outline" size="sm" onClick={() => { setResumed(false); setPasted(null); save(startSession(sig, startOf())); }} disabled={moves === 0}>
             Start again
           </Button>
           <Button variant="ghost" size="sm" onClick={() => setSession(null)}>Hide</Button>
@@ -186,7 +202,21 @@ const CraftAlong: React.FC<{
         {' '}— each move counted at the plan’s average price for it.
       </p>
       <p>Your item: <strong>{describeItem(node, plain)}</strong></p>
+      {pasted && (
+        <p className={cn('text-xs', pasted.ok ? 'text-muted-foreground' : 'text-amber-600 dark:text-amber-300')} role="status">
+          {pasted.text}
+        </p>
+      )}
       {body}
+      {/* Lost your place — a mis-click, a break, a few orbs used without clicking: paste the item. */}
+      <PasteItem
+        data={engine.data} onApply={fromPaste} inputId="paste-craft-along" applyLabel="This is my item now"
+        applyNote="Craft along picks up from this item." requireSettled
+      />
+      <p className="text-[11px] text-muted-foreground">
+        Lost your place? Paste the item from the game and Craft along picks up from it. To go back to where
+        the plan began, use <strong>Start again</strong>.
+      </p>
     </section>
   );
 };

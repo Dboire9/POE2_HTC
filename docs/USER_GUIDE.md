@@ -273,6 +273,13 @@ finishing still costs on average.
 - **Start over** means the plan bins the item: finishing it would cost more than a new base.
 - **Undo** takes back a mis-click, and **Start again** goes back to the start. Your place is kept in this
   browser: solve the same craft again and Craft along picks up where you left off.
+- **Lost your place?** After a mis-click, a break, or a few orbs used without clicking, copy the item in
+  game (Ctrl+C) and paste it under **Paste your item** in the panel, then **This is my item now**: Craft
+  along moves to that item and shows its next move. Every line has to be read first — answer any question
+  the panel asks — because a modifier left off would put the item in the wrong place. What happened since
+  your last click is not added to what you have spent. It refuses, and says why, an item of another kind
+  of base, one with a fractured modifier the plan was not worked out with, or one the plan never holds (a
+  Magic item in a plan that only works on Rares, or more modifiers than it has room for).
 
 It needs an exact answer: a result shown as "≥ x" or "≤ x" does not have the plan for every state yet —
 raise Search effort. The Item tab has it too, starting from the item you hold.

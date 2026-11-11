@@ -1201,6 +1201,17 @@ Enforced in `packages/engine` (mostly `probability.ts`).
   be from-white Lab solves only), and the panel appears wherever the solve is exact. Named "Craft along" because the Item tab
   already calls its fixed sequences "Step-by-step routes".
 
+- **A pasted item is placed by the solve's own classifier, on the main thread** (2026-11-11,
+  `markovLocate.ts`). The route table carries `locate` — each position's tier floors and fractured flag,
+  the sibling map, the symmetry classes, the locked fractured mods, base and level — so `keyOfItem` can
+  rebuild the target list and run `classifyStart` + `encoderFor` exactly as the solve placed its start.
+  That is the whole correctness argument, and `markovLocate.test.ts` checks it against the solve itself:
+  every `holdings[].key` and the start key, on a plain craft and on interchangeable alternatives. It
+  refuses rather than guesses: another base, different locked fractured mods (another craft — TODO 28),
+  a key the table does not hold. Craft along's paste needs every line SETTLED (`requireSettled`): the
+  Item tab can take an item with a line left off, but here a dropped line is an unseen mod, so the wrong
+  state. A jump adds nothing to "spent" — what happened in between was not reported.
+
 - **Each gear tab is a hook plus a few cards** (2026-09-24). `EngineLab` and `ItemActions` had grown to
   1,129 and 1,242 lines, one component each. Their state and handlers moved, as written, into
   `useLabCraft` / `useItemCraft`, and the markup into `LabSetup` / `LabTargets` / `LabResults` and

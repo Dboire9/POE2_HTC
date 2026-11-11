@@ -171,6 +171,31 @@ export interface RouteTable {
   readonly slotMasks: readonly number[];
   /** Which positions are obstacles, not targets (markovSiblings.ts). */
   readonly obstacles: ObstacleMasks;
+  /** What it takes to place a real item in this table — see `LocateInfo` (markovLocate.ts). */
+  readonly locate: LocateInfo;
+}
+
+/**
+ * What placing a real item in the table needs, beyond `positions` and `obstacles`: the rest of the
+ * solve's own `classifyStart` / `encoderFor` inputs, as plain data so it survives a structured clone.
+ *
+ * Craft along re-syncs from a pasted item on the MAIN thread, where the solve's closures do not exist;
+ * shipping these few arrays lets it classify the item exactly as the solve classified its start, so the
+ * key it finds is the key the solve wrote (`keyOfItem`).
+ */
+export interface LocateInfo {
+  readonly baseId: string;
+  readonly level: number;
+  /** Each position's members' tier floors, parallel to `positions` (`McCandidate.minIndex`). */
+  readonly floors: readonly (readonly number[])[];
+  /** Whether each position is a fractured target. */
+  readonly fractured: readonly boolean[];
+  /** Same-side family siblings, and the position each blocks (`Siblings.blocks`). */
+  readonly blocks: readonly (readonly [string, number])[];
+  /** Interchangeable positions (`permutationClasses`), so the key is the canonical spelling. */
+  readonly classes: readonly (readonly number[])[];
+  /** Held fractured mods no target names — part of the base for this craft (TODO 28). Sorted. */
+  readonly locked: readonly string[];
 }
 
 /**

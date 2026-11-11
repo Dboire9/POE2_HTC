@@ -33,6 +33,14 @@ export const startSession = (sig: string, key: string): CraftSession => ({ sig, 
 export const advance = (s: CraftSession, next: string, cost: number): CraftSession =>
   ({ ...s, key: next, spent: s.spent + cost, history: [...s.history, { key: s.key, spent: s.spent }] });
 
+/**
+ * The item is at `key` now — read from a pasted item, not from a reported roll. Nothing is added to the
+ * spend: what happened in between was not reported, so it cannot be priced. Undo returns to where the
+ * session was before, as after any move.
+ */
+export const jump = (s: CraftSession, key: string): CraftSession =>
+  (key === s.key ? s : { ...s, key, history: [...s.history, { key: s.key, spent: s.spent }] });
+
 /** Take back the last move — a mis-click is the commonest reason. At the start it changes nothing. */
 export const undo = (s: CraftSession): CraftSession => {
   const last = s.history.at(-1);

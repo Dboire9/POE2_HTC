@@ -33,6 +33,7 @@ import { optimizeFromItem } from '../../packages/optimizer/src/fromItem.ts';
 import { markovFromItem, type MarkovOptions } from '../../packages/optimizer/src/markovFromItem.ts';
 import { markovBoneFreeFirst, type BoneFreeOptions } from '../../packages/optimizer/src/markovBoneFree.ts';
 import { routeFrom, stepFrom } from '../../packages/optimizer/src/markovRoute.ts';
+import { keyOfItem, type Located } from '../../packages/optimizer/src/markovLocate.ts';
 import {
   alternativesFromWhite, alternativesFromItem, type AlternativesOptions,
 } from '../../packages/optimizer/src/alternatives.ts';
@@ -338,6 +339,18 @@ export function stepFor(eng: Engine, markov: EngineMarkovResult, key: string): E
   if (!t) return null;
   const i = t.keys.indexOf(key as (typeof t.keys)[number]);
   return i < 0 ? null : mapRoute(eng.data, stepFrom(t, i), markov);
+}
+
+/**
+ * Where an item the player holds sits in the solved plan — so Craft along can pick up from a pasted item
+ * after a mis-click or a break (`keyOfItem`). Read the way every planner reads an item (`buildItemState`:
+ * runes, tier names, the desecrated flag), then placed exactly as the solve placed its own start.
+ */
+export function locateItem(eng: Engine, markov: EngineMarkovResult, item: ExistingItem): Located {
+  const t = markov.routes;
+  if (!t) return { ok: false, reason: 'This result carries no plan to follow.' };
+  if (!eng.data.bases.has(item.baseId)) return { ok: false, reason: 'That item’s base is not one this app knows.' };
+  return keyOfItem(t, eng.data, buildItemState(eng.data, item));
 }
 
 // ── Existing-item currency actions (Option 1) ─────────────────────────────────

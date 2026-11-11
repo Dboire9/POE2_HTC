@@ -1789,6 +1789,14 @@ export function markovFromItem(
     goal: isGoalIdx, goalIdx: idxOfState.get(goalKey)!,
     restartIdx: startIdx, canRestart, rerollAbove,
     positions: list.map(idsOf), slotMasks, obstacles: siblings.obstacles,
+    locate: {
+      baseId: start.base.id, level,
+      floors: list.map((t) => t.mods.map((m) => m.minIndex)),
+      fractured: list.map((t) => t.fractured),
+      blocks: [...siblings.blocks],
+      classes,
+      locked: locked.map((l) => l.mod.id).sort(),
+    },
   };
 
   // The craft's own route: the walk any other root gets too, from the start (markovRoute.ts).

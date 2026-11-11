@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach } from 'vitest';
-import { advance, craftSig, readSession, startSession, undo, writeSession } from './craftAlong';
+import { advance, craftSig, jump, readSession, startSession, undo, writeSession } from './craftAlong';
 
 beforeEach(() => localStorage.clear());
 
@@ -15,6 +15,14 @@ describe('a Craft along session', () => {
     s = undo(undo(s));
     // Undo at the start changes nothing.
     expect(s).toEqual(startSession('sig', 'start'));
+  });
+
+  it('jumps to a pasted item without pricing what was not reported, and Undo comes back', () => {
+    let s = advance(startSession('sig', 'start'), 'a', 2);
+    s = jump(s, 'pasted');
+    expect(s).toMatchObject({ key: 'pasted', spent: 2 });
+    expect(jump(s, 'pasted')).toBe(s); // already there: nothing to undo
+    expect(undo(s)).toMatchObject({ key: 'a', spent: 2 });
   });
 
   it('identifies a craft by what it asks, not by the effort or the budget it ran with', () => {

@@ -1,5 +1,6 @@
 import { describe, it, expect, afterEach, beforeEach } from 'vitest';
 import { cleanup, fireEvent, render, screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import { loadShippedPatch } from '../../../packages/engine/src/loadPatch.ts';
 import type { ItemBase, Mod, PatchData } from '../../../packages/engine/src/index.ts';
 import { loadFrozenPrices } from '../../../packages/optimizer/src/frozenPrices.ts';
@@ -89,6 +90,62 @@ describe('Craft along on a real craft', () => {
     fireEvent.click(screen.getByRole('button', { name: /Craft along/ }));
     expect(screen.queryByText(/Picked up where you left off/)).toBeNull();
     expect(screen.getByText('A white base')).toBeInTheDocument();
+  });
+});
+
+/**
+ * Lost your place: paste the item from the game and Craft along picks up from it (markovLocate.ts).
+ * The move it shows is the plan's move for that item, exactly as a click would have reached it.
+ */
+describe('Craft along picks up from a pasted item', () => {
+  const MAGIC_WAND = `Item Class: Wands
+Rarity: Magic
+Runic Acrid Wand
+--------
+Item Level: 82
+--------
+110% increased Spell Damage`;
+
+  async function pasteInto(text: string) {
+    const user = userEvent.setup();
+    render(<CraftAlong engine={engine} markov={markov} tab="lab" sig="craft" rates={undefined} plain="A white base" />);
+    await user.click(screen.getByRole('button', { name: /Craft along/ }));
+    await user.click(screen.getByRole('button', { name: /Paste your item/i }));
+    await user.click(screen.getByLabelText(/Paste your item’s text/i));
+    await user.paste(text);
+    return user;
+  }
+
+  it('moves to the pasted item and shows the plan\'s move for it, spend untouched', async () => {
+    const user = await pasteInto(MAGIC_WAND);
+    await user.click(screen.getByRole('button', { name: 'This is my item now' }));
+    const saved = readSession('lab', 'craft')!;
+    const t = markov.routes!;
+    expect(saved.key).not.toBe(t.keys[t.restartIdx]);
+    expect(saved).toMatchObject({ spent: 0 });
+    const here = stepFor(engine, markov, saved.key)!.nodes[0]!;
+    // Spell Damage is position 0 and present; the item is Magic (rarity code 1); nothing else on it.
+    const [present, blocked, jp, js, , rarity] = saved.key.split(':').map(Number);
+    expect([present! & 1, blocked, jp, js, rarity]).toEqual([1, 0, 0, 0, 1]);
+    expect(screen.getByText(/Moved to the item you pasted/)).toBeInTheDocument();
+    if (here.action) expect(screen.getAllByText(here.action).length).toBeGreaterThan(0);
+    // Undo goes back to where it was.
+    await user.click(screen.getByRole('button', { name: 'Undo' }));
+    expect(readSession('lab', 'craft')!.key).toBe(t.keys[t.restartIdx]);
+  });
+
+  it('says why it cannot place another kind of item, and stays where it was', async () => {
+    const user = await pasteInto(`Item Class: Rings
+Rarity: Magic
+Healthy Ruby Ring
+--------
+Item Level: 82
+--------
++110 to maximum Life`);
+    await user.click(screen.getByRole('button', { name: 'This is my item now' }));
+    expect(screen.getByText(/different kind of base/)).toBeInTheDocument();
+    const t = markov.routes!;
+    expect(readSession('lab', 'craft')!.key).toBe(t.keys[t.restartIdx]);
   });
 });
 

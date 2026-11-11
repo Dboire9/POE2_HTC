@@ -67,6 +67,22 @@ describe('the paste panel', () => {
   });
 
   /**
+   * Craft along cannot take an item with a line left off: a mod the item holds that the plan does not
+   * see is the wrong place in the plan. So there the button waits until every line is settled.
+   */
+  it('with requireSettled, refuses an item that still has a question open', async () => {
+    const user = userEvent.setup();
+    const onApply = vi.fn();
+    render(<PasteItem data={data} onApply={onApply} inputId="paste-along" applyLabel="This is my item now" requireSettled />);
+    await user.click(screen.getByRole('button', { name: /Paste your item/i }));
+    await user.click(screen.getByLabelText(/Paste your item’s text/i));
+    await user.paste(HELMET);
+    expect(screen.getByRole('button', { name: 'This is my item now' })).toBeDisabled();
+    expect(shown(/Answer the questions above first/)).toBeInTheDocument();
+    expect(onApply).not.toHaveBeenCalled();
+  });
+
+  /**
    * The mod with three candidates is left OFF rather than guessed, and the panel says how many still
    * need an answer. A guess would put a mod on the item the player does not hold.
    */

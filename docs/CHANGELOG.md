@@ -17,6 +17,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   armour Body Armour and a Spirit Amulet, each loaded and solved in one click — chosen to settle exactly
   at Standard in a second or two, so a first visit sees an answer before learning the picker.
 
+- **Craft along picks up from a pasted item.** Lost your place after a mis-click or a break? Copy the
+  item in game (Ctrl+C) and paste it in the Craft along panel: it moves to that item and shows its next
+  move. It says why when it cannot — another kind of base, a fractured modifier the plan was not worked
+  out with, or an item the plan never holds.
+
 ### Changed
 
 - **On the Plan tab, the step-by-step routes fold under the true expected cost**, as on the Item tab:

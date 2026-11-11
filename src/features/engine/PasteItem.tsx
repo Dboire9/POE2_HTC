@@ -117,7 +117,19 @@ const Row: React.FC<{
 const PasteItem: React.FC<{
   data: PatchData;
   onApply: (item: ImportedItem) => void;
-}> = ({ data, onApply }) => {
+  /** The textarea's id. Two of these can be on screen at once (the Item tab and Craft along). */
+  inputId?: string;
+  /** The apply button's words. */
+  applyLabel?: string;
+  /** What applying does, once the item is ready to use. */
+  applyNote?: string;
+  /**
+   * Every read line must be settled before the item can be used. The Item tab can take an item with a
+   * line left off and let the player add it by hand; Craft along cannot — a line left off is a mod the
+   * item holds that the plan would not see, and so the wrong place in the plan.
+   */
+  requireSettled?: boolean;
+}> = ({ data, onApply, inputId = 'paste-item', applyLabel = 'Use this item', applyNote, requireSettled = false }) => {
   const [open, setOpen] = useState(false);
   const [text, setText] = useState('');
   const [choices, setChoices] = useState<PasteChoices>(NO_CHOICES);
@@ -132,7 +144,8 @@ const PasteItem: React.FC<{
   const mods = reading && itemModsFrom(reading);
   const unsettled = reading?.rows.filter((r) => !isSettled(r)).length ?? 0;
   const canApply = reading !== null && reading.problems.length === 0
-    && reading.baseId !== undefined && reading.rarity !== undefined;
+    && reading.baseId !== undefined && reading.rarity !== undefined
+    && (!requireSettled || (unsettled === 0 && (mods?.dropped ?? 0) === 0));
 
   const apply = () => {
     if (!reading || !mods || !canApply) return;
@@ -169,9 +182,9 @@ const PasteItem: React.FC<{
             <strong>Ctrl+Alt+C</strong> is better if you can: it includes each modifier’s tier and
             whether it’s a prefix or a suffix, which saves you answering that here.
           </p>
-          <label htmlFor="paste-item" className="sr-only">Paste your item’s text from the game</label>
+          <label htmlFor={inputId} className="sr-only">Paste your item’s text from the game</label>
           <textarea
-            id="paste-item"
+            id={inputId}
             value={text}
             onChange={(e) => { setText(e.target.value); setChoices(NO_CHOICES); }}
             rows={5}
@@ -228,10 +241,13 @@ const PasteItem: React.FC<{
 
               <div className="flex flex-wrap items-center gap-2 pt-1">
                 <Button size="sm" onClick={apply} disabled={!canApply}>
-                  Use this item
+                  {applyLabel}
                 </Button>
                 <span className="text-[11px] text-muted-foreground">
-                  {!canApply ? 'Can’t use this one — see above.'
+                  {!canApply ? (requireSettled && reading.problems.length === 0 && unsettled > 0
+                    ? 'Answer the questions above first — a line left off would put the item in the wrong place.'
+                    : 'Can’t use this one — see above.')
+                    : applyNote !== undefined ? applyNote
                     : unsettled > 0
                       ? `${mods!.prefixes.length + mods!.suffixes.length} mods ready · ${unsettled} still need an answer and will be left off`
                       : `${mods!.prefixes.length} prefixes, ${mods!.suffixes.length} suffixes — this replaces what’s on the tab.`}

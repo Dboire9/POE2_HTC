@@ -199,6 +199,45 @@ export interface LocateInfo {
 }
 
 /**
+ * Whether following the table's policy from `root` finishes the craft almost surely: every state the
+ * policy can lead to, through any outcome (a start over included), still has a way to a goal.
+ *
+ * Exact for a finite chain, and the property a plan must have before anyone is told to follow it. An
+ * exact solve's policy has it by construction; a solve that stopped early is checked with this before its
+ * plan is attached (`markovFromItem`), rather than trusted on an argument about where it stopped.
+ */
+export function finishesFrom(t: RouteTable, root: number): boolean {
+  const n = t.keys.length;
+  const seen = new Uint8Array(n);
+  const order: number[] = [];
+  const stack = [root];
+  seen[root] = 1;
+  while (stack.length > 0) {
+    const i = stack.pop()!;
+    order.push(i);
+    if (t.goal[i] === 1) continue;
+    if (t.act[i]! < 0) return false; // a state the policy has no move for, and not a goal
+    for (let o = t.outStart[i]!; o < t.outStart[i + 1]!; o++) {
+      const j = t.outTo[o]!;
+      if (seen[j] === 0) { seen[j] = 1; stack.push(j); }
+    }
+  }
+  // Backwards from the goals over the reached states: whatever cannot get there is a dead loop.
+  const finishes = new Uint8Array(n);
+  for (const i of order) if (t.goal[i] === 1) finishes[i] = 1;
+  for (let changed = true; changed;) {
+    changed = false;
+    for (const i of order) {
+      if (finishes[i] === 1) continue;
+      for (let o = t.outStart[i]!; o < t.outStart[i + 1]!; o++) {
+        if (finishes[t.outTo[o]!] === 1) { finishes[i] = 1; changed = true; break; }
+      }
+    }
+  }
+  return order.every((i) => finishes[i] === 1);
+}
+
+/**
  * Distance-to-goal for layout/regress: missing targets + blocked (each needs a remove then an add) +
  * junk, counting an unwanted desecrated mod as junk too (it likewise costs a removal to clear), and an
  * obstacle the same way (`obstacleMask`: it is junk that happens to block a target).

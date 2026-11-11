@@ -4,7 +4,7 @@ import { cn } from '../../lib/utils';
 import { locateItem, stepFor, type Engine, type EngineMarkovResult } from '../../lib/engine';
 import type { ImportedItem } from '../../lib/engineTypes';
 import type { EnginePolicyEdge, EnginePolicyNode } from '../../lib/engineTypes';
-import { formatChance, formatIn, pickUnit, type Rates } from '../../lib/currency';
+import { formatBoundedCost, formatChance, formatIn, pickUnit, type Rates } from '../../lib/currency';
 import { advance, jump, readSession, startSession, undo, writeSession, type CraftSession, type CraftTab } from '../../lib/craftAlong';
 import { START_OVER, describeItem, outcomeWords } from '../../lib/stateWords';
 import { FOCUS_RING } from './ui';
@@ -68,6 +68,10 @@ const CraftAlong: React.FC<{
 
   const unit = pickUnit(markov.expectedCost, rates);
   const fmt = (ex: number): string => formatIn(unit, ex);
+  // What finishing costs, read from the plan's values. On a solve that stopped early those values are a
+  // CEILING's (markovFromItem attaches such a plan only once it is checked to finish), so they say "≤".
+  const bounded = markov.bound !== 'exact';
+  const toFinish = (ex: number): string => (bounded ? formatBoundedCost(markov.bound, ex, rates) : fmt(ex));
   const save = (s: CraftSession): void => { setSession(s); writeSession(tab, s); };
   const open = (): void => {
     const saved = readSession(tab, sig);
@@ -118,7 +122,7 @@ const CraftAlong: React.FC<{
     body = (
       <p className="rounded-md border border-emerald-500/50 bg-emerald-500/10 px-3 py-2 text-sm text-emerald-700 dark:text-emerald-300">
         ✓ <strong>Finished.</strong> You spent about {fmt(session.spent)}; the plan put this craft at{' '}
-        {fmt(markov.expectedCost)} on average.
+        {toFinish(markov.expectedCost)} on average.
       </p>
     );
   } else if (startOver) {
@@ -194,11 +198,20 @@ const CraftAlong: React.FC<{
           <Button variant="ghost" size="sm" onClick={() => setSession(null)}>Hide</Button>
         </div>
       </div>
+      {bounded && (
+        <p className="text-[11px] text-amber-700 dark:text-amber-300">
+          {markov.withoutBones
+            ? <>This is the plan <strong>without Desecration</strong>: the solver ran out of time before the craft settled
+              with bones, which could only make it cheaper. Every cost to finish here is a ceiling.</>
+            : <>The solver stopped before proving this plan the cheapest. It is a plan that finishes, and every cost to
+              finish here is a ceiling.</>}
+        </p>
+      )}
       <p className="text-xs text-muted-foreground" role="status">
         {resumed && <>Picked up where you left off. </>}
         Spent so far <strong className="tabular-nums text-foreground">{fmt(session.spent)}</strong> over {moves}{' '}
         move{moves === 1 ? '' : 's'}
-        {!node.isGoal && <> · still to spend <strong className="tabular-nums text-foreground">{fmt(node.expectedCost)}</strong> on average</>}
+        {!node.isGoal && <> · still to spend <strong className="tabular-nums text-foreground">{toFinish(node.expectedCost)}</strong> on average</>}
         {' '}— each move counted at the plan’s average price for it.
       </p>
       <p>Your item: <strong>{describeItem(node, plain)}</strong></p>

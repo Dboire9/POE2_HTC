@@ -22,6 +22,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   move. It says why when it cannot — another kind of base, a fractured modifier the plan was not worked
   out with, or an item the plan never holds.
 
+- **Craft along on a craft that did not settle.** A result shown as "≤ x" had no Craft along. Its plan is
+  now checked to finish and can be followed, marked as not proven cheapest, with its costs as ceilings.
+
 ### Changed
 
 - **On the Plan tab, the step-by-step routes fold under the true expected cost**, as on the Item tab:

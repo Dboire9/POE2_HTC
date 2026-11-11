@@ -1212,6 +1212,17 @@ Enforced in `packages/engine` (mostly `probability.ts`).
   Item tab can take an item with a line left off, but here a dropped line is an unseen mod, so the wrong
   state. A jump adds nothing to "spent" — what happened in between was not reported.
 
+- **A ceiling's plan is followable; a floor's is not** (2026-11-11). `markovFromItem` attaches `routes`
+  on `bound: 'upper'` too, once `finishesFrom` (markovRoute.ts) has checked on the table itself that
+  every state the plan can reach still has a way to a goal. The argument for why it would: phase B
+  descends from a proper policy's value, `evaluateClosedForm` writes V only whole, and the plan is
+  greedy on that V. It is CHECKED rather than trusted because a closed-form evaluation that hits its
+  sweep cap still writes its values, so V can sit a little low. `ceilingRoutes.test.ts` solves the
+  attached plan's chain outright and finds it no dearer than the ceiling. A FLOOR (`bound: 'lower'`, a
+  held item whose phase A did not settle) gets no table. Every other reader of `routes` already refused a
+  bound (`StartFromItem`, `WhatToBuy`, `TabletResult`, `markovBoneFree`'s seed); only Craft along follows
+  one, saying so and rendering its costs through `formatBoundedCost`.
+
 - **Each gear tab is a hook plus a few cards** (2026-09-24). `EngineLab` and `ItemActions` had grown to
   1,129 and 1,242 lines, one component each. Their state and handlers moved, as written, into
   `useLabCraft` / `useItemCraft`, and the markup into `LabSetup` / `LabTargets` / `LabResults` and

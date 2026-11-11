@@ -24,7 +24,7 @@ const TrueCostCard: React.FC<{
   spare: Spare;
   /**
    * Follow this plan move by move (`CraftAlong`). Drawn only when the solve carries the plan for every
-   * state, which an exact solve does.
+   * state: an exact solve does, and so does a ceiling whose plan is checked to finish (`finishesFrom`).
    */
   along?: { readonly engine: Engine; readonly tab: CraftTab; readonly sig: string; readonly plain: string } | undefined;
   /** "Play it out" — the spread of what one craft costs, on request (`CostSpread`). */

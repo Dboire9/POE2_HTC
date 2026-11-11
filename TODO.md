@@ -1494,8 +1494,8 @@ a Desecration's keep order and the Echoes reroll line, the place kept per browse
 - ~~**Paste the item to jump to its state.**~~ DONE 2026-11-11: `markovLocate.ts` (`keyOfItem`) places a
   pasted item with the solve's own classifier, from `RouteTable.locate`; tested against every
   `holdings[].key`.
-- **Only exact solves.** A ceiling ("≤ x") comes from a playable policy and could be followed too,
-  flagged as not proven cheapest; the table is attached only to exact solves today.
+- ~~**Only exact solves.**~~ DONE 2026-11-11: a ceiling's plan is attached once `finishesFrom` checks it
+  finishes, and Craft along follows it as not proven cheapest, its costs marked "≤".
 - **Spend is the plan's average per move**, not what was paid: a reroll taken or not with the Echoes
   omen is counted at its expected cost either way.
 

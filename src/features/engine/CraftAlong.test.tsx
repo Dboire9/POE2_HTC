@@ -94,6 +94,40 @@ describe('Craft along on a real craft', () => {
 });
 
 /**
+ * A solve that stopped early answers as a ceiling, and its plan — checked to finish (markovFromItem) —
+ * can be followed too, as long as the panel says it is not proven cheapest and its figures carry "≤".
+ */
+describe('Craft along on a ceiling', () => {
+  const wands = data.bases.get('Wands')!;
+  const targets = [
+    { modId: 'Wands/WeaponSpellDamage', minTierIndex: 0 }, { modId: 'Wands/IncreasedCastSpeed', minTierIndex: 0 },
+  ];
+  const ceiling = markovFromItem(data, engine.prices, { base: wands, level: 82, rarity: 'normal', prefixes: [], suffixes: [] },
+    targets, { restartCost: 0, solver: 'policy', keepRoutes: true, maxRounds: 1 });
+
+  it('follows the plan, saying it is not proven cheapest and that its costs are ceilings', () => {
+    expect(ceiling.bound).toBe('upper');
+    render(<CraftAlong engine={engine} markov={mapMarkov(data, ceiling)} tab="lab" sig="ceiling" rates={undefined} plain="A white base" />);
+    fireEvent.click(screen.getByRole('button', { name: /Craft along/ }));
+    expect(screen.getByText(/stopped before proving this plan the cheapest/)).toBeInTheDocument();
+    expect(screen.getByRole('status').textContent).toMatch(/still to spend ≤ /);
+  });
+
+  it('names the plan without Desecration when that is what answered', () => {
+    render(<CraftAlong engine={engine} markov={{ ...mapMarkov(data, ceiling), withoutBones: true }} tab="lab" sig="ceiling" rates={undefined} plain="A white base" />);
+    fireEvent.click(screen.getByRole('button', { name: /Craft along/ }));
+    expect(screen.getByText(/without Desecration/)).toBeInTheDocument();
+  });
+
+  it('says nothing of the kind on an exact plan', () => {
+    render(<CraftAlong engine={engine} markov={markov} tab="lab" sig="craft" rates={undefined} plain="A white base" />);
+    fireEvent.click(screen.getByRole('button', { name: /Craft along/ }));
+    expect(screen.queryByText(/proving this plan|without Desecration/)).toBeNull();
+    expect(screen.getByRole('status').textContent).not.toMatch(/≤/);
+  });
+});
+
+/**
  * Lost your place: paste the item from the game and Craft along picks up from it (markovLocate.ts).
  * The move it shows is the plan's move for that item, exactly as a click would have reached it.
  */

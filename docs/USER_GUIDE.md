@@ -281,8 +281,11 @@ finishing still costs on average.
   of base, one with a fractured modifier the plan was not worked out with, or one the plan never holds (a
   Magic item in a plan that only works on Rares, or more modifiers than it has room for).
 
-It needs an exact answer: a result shown as "≥ x" or "≤ x" does not have the plan for every state yet —
-raise Search effort. The Item tab has it too, starting from the item you hold.
+On a result shown as **"≤ x"** — the solver stopped before it settled — Craft along still follows the plan
+it reached, once that plan is checked to finish: it says the plan is not proven cheapest, and every cost to
+finish reads "≤". Raise Search effort for the cheapest plan. A result shown as **"≥ x"** (a held item whose
+solve stopped early) has no plan known to finish, so there is no Craft along there. The Item tab has it
+too, starting from the item you hold.
 
 ### What a craft can cost
 

@@ -46,7 +46,7 @@ import {
   enumerateStates, has, isAccepting, popcount, representative, sideIndexOf,
 } from './markovState.ts';
 import type { PolicyEdge, PolicyNode, RouteTable } from './markovRoute.ts';
-import { flagFieldsOf, routeFrom } from './markovRoute.ts';
+import { finishesFrom, flagFieldsOf, routeFrom } from './markovRoute.ts';
 import type { Holding } from './markovStarts.ts';
 import { startCandidates } from './markovStarts.ts';
 import type { ReplayOptions, ReplayReport } from './markovReplay.ts';
@@ -151,8 +151,9 @@ export interface MarkovResult {
   readonly holdings?: readonly Holding[];
   /**
    * The solved policy over the whole lattice, so a route can be drawn from any state without solving
-   * again — see `RouteTable`. Only when asked for (`keepRoutes`) and only on an EXACT solve: a bound's
-   * policy is not the optimal one, and a route drawn from it would be a guess dressed as a plan.
+   * again — see `RouteTable`. Only when asked for (`keepRoutes`), and only on an EXACT solve or a CEILING
+   * whose plan is checked to finish (`finishesFrom`): that plan is not proven cheapest, but it is a plan,
+   * and every figure from it is a ceiling like the result's. Never on a floor, whose policy may not finish.
    */
   readonly routes?: RouteTable;
   /** The `restartCost` this solve ran with, echoed — present exactly when starting over was a move. */
@@ -296,7 +297,7 @@ export interface MarkovOptions {
    */
   readonly fillOnFinish?: boolean;
   /**
-   * Carry the solved policy (`MarkovResult.routes`) on an exact result.
+   * Carry the solved policy (`MarkovResult.routes`) on an exact result, or a ceiling whose plan finishes.
    *
    * Opt-in because it is the whole lattice: the Lab asks for it, to draw the route from any item the
    * player might buy instead, and no other caller pays to ship it.
@@ -1846,7 +1847,11 @@ export function markovFromItem(
     ...(bones ? { bones } : {}),
     ...(bare !== undefined ? { bareCost: bare } : {}),
     ...(holdings.length > 0 ? { holdings } : {}),
-    ...(opts.keepRoutes && bound === 'exact' ? { routes: table } : {}),
+    // A CEILING's plan too (`bound: 'upper'`, a from-white craft that stopped early): phase B descends from
+    // a proper policy's value, so its greedy plan is one that finishes and costs no more than V — but that
+    // is checked on the table itself (`finishesFrom`) before anyone is told to follow it. Never a FLOOR's:
+    // a held item whose first phase did not settle has no plan known to finish.
+    ...(opts.keepRoutes && (bound === 'exact' || (bound === 'upper' && finishesFrom(table, startIdx))) ? { routes: table } : {}),
     ...(opts.restartCost !== undefined ? { restartCost: opts.restartCost } : {}),
     ...(replay ? { replay } : {}),
   };

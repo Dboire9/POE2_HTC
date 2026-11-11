@@ -11,6 +11,8 @@ import { PREFS_PREFIX } from './currencyPrefs';
 export interface CraftStep {
   readonly key: string;
   readonly spent: number;
+  /** Left by a pasted item (`jump`), not a move: Undo takes it back, the move count does not include it. */
+  readonly pasted?: true;
 }
 
 export interface CraftSession {
@@ -39,7 +41,10 @@ export const advance = (s: CraftSession, next: string, cost: number): CraftSessi
  * session was before, as after any move.
  */
 export const jump = (s: CraftSession, key: string): CraftSession =>
-  (key === s.key ? s : { ...s, key, history: [...s.history, { key: s.key, spent: s.spent }] });
+  (key === s.key ? s : { ...s, key, history: [...s.history, { key: s.key, spent: s.spent, pasted: true }] });
+
+/** How many moves were made — reported rolls, not pasted items. */
+export const movesMade = (s: CraftSession): number => s.history.filter((h) => h.pasted !== true).length;
 
 /** Take back the last move — a mis-click is the commonest reason. At the start it changes nothing. */
 export const undo = (s: CraftSession): CraftSession => {

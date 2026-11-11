@@ -162,6 +162,8 @@ Item Level: 82
     const [present, blocked, jp, js, , rarity] = saved.key.split(':').map(Number);
     expect([present! & 1, blocked, jp, js, rarity]).toEqual([1, 0, 0, 0, 1]);
     expect(screen.getByText(/Moved to the item you pasted/)).toBeInTheDocument();
+    // A paste is not a move: the count stays at what was clicked.
+    expect(screen.getAllByRole('status').map((n) => n.textContent).join(' ')).toMatch(/over 0 moves/);
     if (here.action) expect(screen.getAllByText(here.action).length).toBeGreaterThan(0);
     // Undo goes back to where it was.
     await user.click(screen.getByRole('button', { name: 'Undo' }));

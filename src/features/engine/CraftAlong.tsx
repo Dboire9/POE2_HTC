@@ -5,7 +5,7 @@ import { locateItem, stepFor, type Engine, type EngineMarkovResult } from '../..
 import type { ImportedItem } from '../../lib/engineTypes';
 import type { EnginePolicyEdge, EnginePolicyNode } from '../../lib/engineTypes';
 import { formatBoundedCost, formatChance, formatIn, pickUnit, type Rates } from '../../lib/currency';
-import { advance, jump, readSession, startSession, undo, writeSession, type CraftSession, type CraftTab } from '../../lib/craftAlong';
+import { advance, jump, movesMade, readSession, startSession, undo, writeSession, type CraftSession, type CraftTab } from '../../lib/craftAlong';
 import { START_OVER, describeItem, outcomeWords } from '../../lib/stateWords';
 import { FOCUS_RING } from './ui';
 import PasteItem from './PasteItem';
@@ -114,7 +114,9 @@ const CraftAlong: React.FC<{
         + (at.level !== undefined ? ` It is item level ${at.level}; this plan was worked out for another, so its odds may differ.` : ''),
     });
   };
-  const moves = session.history.length;
+  const moves = movesMade(session);
+  // Undo and Start again act on anything taken back — a pasted jump included.
+  const anything = session.history.length > 0;
   const startOver = node.action === START_OVER;
 
   let body: React.ReactNode;
@@ -189,10 +191,10 @@ const CraftAlong: React.FC<{
       <div className="flex flex-wrap items-center justify-between gap-2">
         <h4 className="text-xs font-semibold uppercase tracking-wider text-primary">Craft along</h4>
         <div className="flex flex-wrap gap-2">
-          <Button variant="outline" size="sm" onClick={() => { setResumed(false); setPasted(null); save(undo(session)); }} disabled={moves === 0}>
+          <Button variant="outline" size="sm" onClick={() => { setResumed(false); setPasted(null); save(undo(session)); }} disabled={!anything}>
             Undo
           </Button>
-          <Button variant="outline" size="sm" onClick={() => { setResumed(false); setPasted(null); save(startSession(sig, startOf())); }} disabled={moves === 0}>
+          <Button variant="outline" size="sm" onClick={() => { setResumed(false); setPasted(null); save(startSession(sig, startOf())); }} disabled={!anything}>
             Start again
           </Button>
           <Button variant="ghost" size="sm" onClick={() => setSession(null)}>Hide</Button>

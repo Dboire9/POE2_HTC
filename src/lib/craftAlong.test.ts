@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach } from 'vitest';
-import { advance, craftSig, jump, readSession, startSession, undo, writeSession } from './craftAlong';
+import { advance, craftSig, jump, movesMade, readSession, startSession, undo, writeSession } from './craftAlong';
 
 beforeEach(() => localStorage.clear());
 
@@ -22,6 +22,7 @@ describe('a Craft along session', () => {
     s = jump(s, 'pasted');
     expect(s).toMatchObject({ key: 'pasted', spent: 2 });
     expect(jump(s, 'pasted')).toBe(s); // already there: nothing to undo
+    expect(movesMade(s)).toBe(1); // the paste is not a move
     expect(undo(s)).toMatchObject({ key: 'a', spent: 2 });
   });
 

@@ -17,7 +17,33 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   armour Body Armour and a Spirit Amulet, each loaded and solved in one click — chosen to settle exactly
   at Standard in a second or two, so a first visit sees an answer before learning the picker.
 
+### Changed
+
+- **On the Plan tab, the step-by-step routes fold under the true expected cost**, as on the Item tab:
+  *Step-by-step routes (N)* opens them. They stay open when there is no true cost to read instead, or no
+  route at all.
+
+- **A route step "aims for" a modifier** instead of "most likely lands" it. The route follows the way most
+  finished crafts go, which is often a step's less likely outcome — the old wording sat beside odds like
+  "0.6% onward · 91% back".
+
 ### Fixed
+
+- **The price note names every price that is not live.** It said "All prices are live market data, except
+  50 essence variants" while three boss omens were priced from a quote copied in August, because they
+  trade too thinly to price live. It now names those omens and the date of their quote; the saved quotes
+  were refreshed on 2026-11-10 (the Omen of the Blackblooded had been 92 ex, against about 29 today).
+
+- **A currency missing from the price sheet is no longer free.** One the sheet could not quote was priced
+  at 0, so it won every plan it could reach; the boss omens had no guard against it at all. Such a step is
+  now not offered. Every price on today's sheet is quoted, so no answer changed.
+
+- **A fractured modifier is never removed in the true expected cost.** On an item you hold, a fractured
+  modifier you did not ask for was treated as removable, so the odds were wrong and a craft that could only
+  be finished by removing it still got a price. It now keeps its slot (leave a free slot for it), its
+  family cannot roll again, and a craft it makes impossible says why.
+
+- **The Variant menu stays inside its card on a phone** — it stuck out by the width of its longest option.
 
 - **True expected costs are no longer overstated when junk sits on the item.** The model left a junk
   modifier's family in the next roll's pool, where the game takes it out, so every roll with junk on the

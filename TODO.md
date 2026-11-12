@@ -1315,7 +1315,11 @@ second price lookup. The panel's own copy must keep naming what it checks (docs/
 
 ---
 
-## 19. Bases the data has and no row reads — OPEN, found 2026-09-10
+## 19. Bases the data has and no row reads — PARKED 2026-11-12, found 2026-09-10
+
+**Parked by the maintainer (2026-11-12): these bases are in the game files as placeholders, not fully in
+the game yet.** Do not add rows for them until the game ships them for real; then this entry is the
+checklist. Until then the "31 unread" line in the refresh log is expected, not a gap to close.
 
 Reading base-type twins (CLAUDE.md; `tools/refresh/twins.mjs`) named 1,019 bases and deliberately left
 **31 released names** unread, because none can honestly share an existing row's pool:

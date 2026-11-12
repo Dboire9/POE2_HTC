@@ -9,7 +9,7 @@
 //     | xargs -P 6 -L 1 sh -c 'npx tsx scripts/start-items-sweep.mts "$0" "$1" > "sweep-$0-$1.json"'
 //
 // Each item is solved from a white base as the Lab solves it (restart at a free base, policy iteration,
-// Exhaustive's clock, the solved policy kept). What is CHECKED, on every settled item:
+// Exhaustive's clock, the solved policy kept, a craft with bones seeded from one without — markovBoneFree.ts). What is CHECKED, on every settled item:
 //   - no starting item costs more to finish than crafting from scratch (restart is always a move);
 //   - Magic rows carry at most two modifiers, rows are distinct states, the largest row fills every
 //     slot and costs nothing;
@@ -54,7 +54,9 @@ Object.assign(out, { baseId: goal.baseId, level: goal.level, targets: goal.targe
 
 const t0 = performance.now();
 const m = optimizeItemMarkov(eng, { baseId: goal.baseId, level: goal.level, rarity: 'normal', prefixes: [], suffixes: [] },
-  goal.targets, { restartCost: 0, maxIters: 20_000_000, solver: 'policy', maxMillis: Number(ms ?? 900_000), keepRoutes: true });
+  goal.targets, { restartCost: 0, maxIters: 20_000_000, solver: 'policy', maxMillis: Number(ms ?? 900_000), keepRoutes: true },
+  // As the Lab: a craft with bones is solved without them first, on a clock of its own (markovBoneFree.ts).
+  { maxMillis: Number(ms ?? 900_000) });
 out.solveS = (performance.now() - t0) / 1000;
 out.div = eng.prices.currency.divine;
 if (!m.applicable || !m.feasible) done('unsolved', { reason: m.reason });

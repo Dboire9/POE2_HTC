@@ -1,0 +1,218 @@
+{
+ "identity: wands, white, free base, two targets": {
+  "feasible": true,
+  "reason": null,
+  "bound": "exact",
+  "expectedCost": 8.65692964656355,
+  "routes": true,
+  "sha256": "fd6a873007ba31a7941feb86f1ec299e8c6d9d0b0512bc3aa789cd077aa40045"
+ },
+ "identity: wands, white, paid base, tier target": {
+  "feasible": true,
+  "reason": null,
+  "bound": "exact",
+  "expectedCost": 1221.8107041681087,
+  "routes": true,
+  "sha256": "9e1eadccddd7048a2f4cebc0a722e59601f522c9cd47e5187d124f1c0587f9d6"
+ },
+ "identity: wands, held rare with junk": {
+  "feasible": true,
+  "reason": null,
+  "bound": "exact",
+  "expectedCost": 2742.7474799412803,
+  "routes": true,
+  "sha256": "179462a2bc4ff3b4c6e623098f7ae393f5eb2514b633fe6ff4ebacc04b66a170"
+ },
+ "identity: wands, magic start": {
+  "feasible": true,
+  "reason": null,
+  "bound": "exact",
+  "expectedCost": 3309.3254715535722,
+  "routes": true,
+  "sha256": "8311d87a7e6c4c347f0393575e28f08a17dc9504877ef6527af991514f601103"
+ },
+ "identity: rings, white, currencies excluded": {
+  "feasible": true,
+  "reason": null,
+  "bound": "exact",
+  "expectedCost": 9055.67261151974,
+  "routes": true,
+  "sha256": "5dd7093820e6aa21c594fa23f7f29d9126f907c4723388b1a9c1ae82a0f2884c"
+ },
+ "identity: wands, held rare, desecrated target": {
+  "feasible": true,
+  "reason": null,
+  "bound": "exact",
+  "expectedCost": 142.6914106010142,
+  "routes": true,
+  "sha256": "45da66eb6f9be8fd8006fc57099af527bc809f12dad5b65bafd278c602db8c1b"
+ },
+ "identity: wands, white, regular essence": {
+  "feasible": true,
+  "reason": null,
+  "bound": "exact",
+  "expectedCost": 14.93681045197009,
+  "routes": true,
+  "sha256": "600275945333e985dd2b6f3cf4341a86ba1a0a1b1a744288939cbf4394cb77bc"
+ },
+ "identity: wands, held rare, perfect essence": {
+  "feasible": true,
+  "reason": null,
+  "bound": "exact",
+  "expectedCost": 90.73,
+  "routes": true,
+  "sha256": "b549cb4a7159ba3c9e40b71403ae99bf7313623f19f7547200ece670d2ec2595"
+ },
+ "identity: boots, white, free suffix": {
+  "feasible": true,
+  "reason": null,
+  "bound": "exact",
+  "expectedCost": 30.431234819384354,
+  "routes": true,
+  "sha256": "2f8a45c8c9bfcc91f5686f0e2ca7163cf8d52e83f126865c5202f8fa1e8dc439"
+ },
+ "identity: wands, held rare, fractured target": {
+  "feasible": true,
+  "reason": null,
+  "bound": "exact",
+  "expectedCost": 431.56565698555795,
+  "routes": true,
+  "sha256": "cc1d925d6191080745b786b50bfb8aa62d7e501610ee23f5d9e9d2b0ffa134df"
+ },
+ "identity: wands, white, cross-family alternatives": {
+  "feasible": true,
+  "reason": null,
+  "bound": "exact",
+  "expectedCost": 14.033920298971092,
+  "routes": true,
+  "sha256": "967246cc29f3ea42db17bd6ea273e7b5c817abeea90e33c8497588eb50f0928e"
+ },
+ "sibling: wands, white, paid base, +fire spell levels": {
+  "feasible": true,
+  "reason": null,
+  "bound": "exact",
+  "expectedCost": 1461.6964183772327,
+  "routes": true,
+  "sha256": "a723ed828b11e760e85cc513b1560be06a801fe8f6673acab7a4c2fb98da03f5"
+ },
+ "sibling: wands, white, paid base, fire damage + a lonely suffix": {
+  "feasible": true,
+  "reason": null,
+  "bound": "exact",
+  "expectedCost": 3061.453573870676,
+  "routes": true,
+  "sha256": "0e734f1a43c4b207bce819ea03885fe9179899a4fef72723c3a6848f38f8b89b"
+ },
+ "caster, policy, routes": {
+  "feasible": true,
+  "reason": null,
+  "bound": "exact",
+  "expectedCost": 3474.20171623462,
+  "routes": true,
+  "sha256": "39ddcab04580b05ced32fc07efcd5e7b151bc9bb6ac5fa06db0b0e0049a20df1"
+ },
+ "two mods, value iteration, paid base": {
+  "feasible": true,
+  "reason": null,
+  "bound": "exact",
+  "expectedCost": 570.2906860437549,
+  "routes": true,
+  "sha256": "81c9cd18f8af0d486230884c52f71853b9c18e0b9bb0fd524b24d01ffa788cc3"
+ },
+ "caster, ceiling (one round)": {
+  "feasible": true,
+  "reason": null,
+  "bound": "upper",
+  "expectedCost": 121263.58753639196,
+  "routes": true,
+  "sha256": "c7f4407ca058e2e3ce9e69d658dac0ffe29e67693f3bb5d128ae73dcbec8a5e7"
+ },
+ "held rare, floor (two sweeps)": {
+  "feasible": true,
+  "reason": null,
+  "bound": "lower",
+  "expectedCost": 1.2021,
+  "routes": false,
+  "sha256": "f274b7c490d5b5924fe36cabb30ca5f990a8283066bcc586c81a0a735346e00a"
+ },
+ "held rare, exact": {
+  "feasible": true,
+  "reason": null,
+  "bound": "exact",
+  "expectedCost": 179502.4976145972,
+  "routes": true,
+  "sha256": "38503d41a35d0a0031aa4310a9393a03fd0a9dd0a326603353ae3c8b4b380a5a"
+ },
+ "caster, seeded from its own plan": {
+  "feasible": true,
+  "reason": null,
+  "bound": "exact",
+  "expectedCost": 3474.20171623462,
+  "routes": true,
+  "sha256": "7f014b6e2e3aaa8f9871ebbf89af0f628145936fde2651fd2ea4e55d5d4bda86"
+ },
+ "caster, heuristic seed": {
+  "feasible": true,
+  "reason": null,
+  "bound": "exact",
+  "expectedCost": 3474.20171623462,
+  "routes": false,
+  "sha256": "b942563a39d40e357b46af0aa7970d89560c6a476638e3fe016e793cfa3b53d4"
+ },
+ "two mods, iterative evaluation": {
+  "feasible": true,
+  "reason": null,
+  "bound": "exact",
+  "expectedCost": 44.402478932747016,
+  "routes": false,
+  "sha256": "1603b19442e58dc34fdf9bb82d58a530bcaf44c670f4d9e6ace539be3f350a59"
+ },
+ "caster, exact evaluation": {
+  "feasible": true,
+  "reason": null,
+  "bound": "exact",
+  "expectedCost": 3474.3528677847044,
+  "routes": false,
+  "sha256": "bca47d1578a0c6517d51209295e40c7eb9cc36b2a0be1650317d40fd83300a81"
+ },
+ "two mods, fill on finish": {
+  "feasible": true,
+  "reason": null,
+  "bound": "exact",
+  "expectedCost": 48.4026566414744,
+  "routes": true,
+  "sha256": "de4617ab0733aafaadf72a9a06330e36cb1822857dc0d26ce0afa851c7e83eb1"
+ },
+ "two mods, replayed": {
+  "feasible": true,
+  "reason": null,
+  "bound": "exact",
+  "expectedCost": 44.40265664148466,
+  "routes": true,
+  "sha256": "d32442801820e92932a48dc4b94e5772a47eb45f87ed3770767ffb614e4c8fb9"
+ },
+ "already finished": {
+  "feasible": true,
+  "reason": null,
+  "bound": "exact",
+  "expectedCost": 0,
+  "routes": false,
+  "sha256": "699dd511c3ebabdc6ab4dcb0ff34a3c668f3ec870e3f09e64291620fa876da41"
+ },
+ "refused: no targets": {
+  "feasible": false,
+  "reason": "no target mods",
+  "bound": "exact",
+  "expectedCost": "Infinity",
+  "routes": false,
+  "sha256": "697383bcfa3185ba6d33bce3b3f66d14f948b2f854afcdc43e8fcf042f8ab3f3"
+ },
+ "refused: cannot roll at this level": {
+  "feasible": false,
+  "reason": "Wands/WeaponSpellDamage can't roll at item level 1",
+  "bound": "exact",
+  "expectedCost": "Infinity",
+  "routes": false,
+  "sha256": "5c522ebca586c4238ca5f83fedf942c25c7fc0f8b1e2833760f4ecbb02f04d0a"
+ }
+}

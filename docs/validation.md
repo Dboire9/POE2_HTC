@@ -723,7 +723,7 @@ lands high-tier." The state key grew `present:jp:js` → **`present:blocked:jp:j
   buy a Perfect Exalt. A component test renders the off-tier states from real MDP output.
 - **626 tests + 1 todo, type-check + build green; differential fixtures untouched.**
 
-DEFERRED (MDP v3): Omen of Whittling (a Chaos omen that changes the lowest-TIER mod) — needs the
+DEFERRED (MDP v3): Omen of Whittling (a Chaos omen that removes the lowest-LEVEL mod — "TIER" here was wrong, corrected 2026-11-12) — needs the
 mod-tier ordering the state abstraction discards; extend beyond rollable targets (essence/desecrate as MDP actions); a from-white
 MDP (its restart-to-white is already a defensible near-optimal strategy, so lower priority). (Omen of
 Homogenising Exaltation was a candidate but has been REMOVED from the game — see docs/CHANGELOG.md — so it is

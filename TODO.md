@@ -877,75 +877,28 @@ untraced, so adding them would be asserting a mechanic rather than reading one.
 
 ## 12. ~~Omen of Whittling~~ — DONE AND LIVE 2026-09-02
 
-**What is wrong.** The Omen of Whittling makes an Orb of Annulment remove the **lowest-tier** modifier
-on the item instead of a random one. It is arguably the most-used crafting omen in PoE2 for the
-exalt-slam loop (slam, whittle the junk off, slam again), and the app does not model it at all — it is
-not even in `prices.json`'s `omenQuotes`, so it would need hand-transcribing from
-`https://poe.ninja/poe2/economy/runesofaldur/omens` like the other thirteen.
+**The mechanic** (poe2db, `https://poe2db.tw/us/Omen_of_Whittling`, traced 2026-09-02): *"While this item
+is active in your inventory your next **Chaos Orb** will remove the **lowest level** modifier"*, internal
+id **`OmenOnChaosLowestLevelMod`**. It changes only the REMOVAL half of a Chaos Orb (the add half is
+untouched), and it is the slam loop's tool: Chaos away the junk you rolled, keep what you have.
 
-**The easy half — the step planner.** For a fixed sequence the item's mods and their tiers are known at
-every step, so "remove the lowest-tier mod" is a DETERMINISTIC removal: P = 1 if the mod the plan names
-is the unique lowest, 0 otherwise (ties would need the game's tiebreak rule — find it before modelling
-it; if it is random among ties, P = 1/k). That is a new `AnnulOmen` value (`'whittling'`) in
-`packages/engine/src/probability.ts`, a branch in `annulProbability`, a price key in `stepOmenIds`
-(`cost.ts`), and a lever in `withOmen` (`levers.ts`) — the DP handles the rest for free, since a
-Whittling annul changes odds and price but not what happens next (it removes the mod the skeleton
-names, as every annul does), so the invariant `levers.test.ts` pins holds.
+- **A Chaos omen, not an Annulment one.** The first draft of this item specified it on the Orb of
+  Annulment, from memory; building that would have modelled a mechanic the game does not have.
+- **Lowest LEVEL, not lowest tier.** Tier numbers are per mod and not comparable across mods — a T5 of a
+  five-tier mod is its worst roll, a T5 of a ten-tier mod is mid-range — so "lowest tier" has no meaning
+  on an item carrying both. Item level is the one scale the whole item shares, and every tier carries
+  its `ilvl`.
+- **It does not know what you call junk.** If a target is the lowest-level mod on the item, Whittling
+  removes it. A model that "removes the lowest junk" would flatter every plan that uses it.
 
-**One prerequisite, and it is a real one.** `PlacedMod.tierName` is honest for the item a player
-HOLDS — `buildItemState` (engineMap) writes the tier the player picked, and the MDP's `classifyStart`
-(`markovState.ts:373`) reads it. But for every mod a plan ADDS mid-sequence, `addMod` (`plan.ts:166`)
-places it at `tierIndex 0` regardless of the step's `minTierIndex`, so after the first add the walked
-item's tiers are fiction. Whittling is the first mechanic whose probability depends on those tiers, so
-`applyStep` has to start placing an added mod at the tier the step asks for (`minTierIndex`), and the
-2026-09-01 design review's note that the tier "is cosmetic for probability purposes" stops being true
-the moment this ships. Pin that with a test BEFORE adding the omen: walk a two-add plan, assert the
-placed tiers match the steps' `minTierIndex`.
-
-**The hard half — the MDP.** `McState` is `(present, blocked, jp, js, flagged, rarity)`. It knows WHICH
-targets are present and HOW MANY junk mods sit on each side. **It does not know any mod's tier.** So
-"remove the lowest-tier mod" has no meaning in the state space — the model cannot tell whether the
-lowest-tier mod is a target or junk, which is the entire question Whittling answers. Making it work
-needs either a tier axis on the state (blows up the lattice; every junk mod would need a tier bucket)
-or an approximation ("Whittling removes junk with probability p_junk, estimated from the pool"), which
-is exactly the kind of guess this project has refused to make elsewhere.
-
-**Recommendation.** Ship the step-planner half, and say in the UI that the true-cost model does not
-play Whittling. That is honest, it gives the player the recipe-level answer they most often want
-("slam, whittle, slam — what are the odds?"), and it leaves the MDP's numbers as a documented
-lower-bound-ish comparison rather than silently wrong. Record the MDP gap in this file as its own item,
-with the state-axis cost measured before anyone builds it (a tier bucket per junk mod is the same shape
-as the `flagged` axis, which cost ~5x solve time — see §3).
-
-**Verify.** Hand-computed test on the synthetic fixture: a 3-mod Rare with tiers T1/T3/T5, target the
-T1 and T3, plan `annul(T5) with whittling` — P must be 1, and P for `annul(T3) with whittling` must be
-0. Then on live data: a craft where Whittling beats a plain Annulment appears on the frontier at the
-omen's price.
-
-**Do not** model it as "Whittling removes the lowest tier among JUNK". The game does not know what the
-player considers junk; if the player's target T5 mod is the lowest tier on the item, Whittling removes
-it. That is the trap, and the honest model has to fall into it.
-
-**THIS SECTION HAD THE MECHANIC WRONG, in both halves.** Traced to poe2db on 2026-09-02
-(`https://poe2db.tw/us/Omen_of_Whittling`, and the full list at `/us/Omens`):
-
-> Omen of Whittling — *"While this item is active in your inventory your next **Chaos Orb** will
-> remove the **lowest level** modifier"*, internal id **`OmenOnChaosLowestLevelMod`**.
-
-So it is a **CHAOS** omen, not an Orb of Annulment one, and it removes the lowest **LEVEL** modifier,
-not the lowest **tier**. Building it as specified above would have modelled a mechanic the game does
-not have. The level/tier distinction is not pedantry either: tier numbers are per-mod and not
-comparable across mods — a T5 of a five-tier mod is its worst roll, a T5 of a ten-tier mod is
-mid-range — so "lowest tier" has no well-defined meaning on an item carrying both. Item level is one
-scale for the whole item, and every tier already carries its `ilvl`, so the ambiguity this section
-worried about simply does not arise.
+**Lesson kept:** an omen's wording is traced before it is specified, never recalled.
 
 **The prerequisite was real and is DONE.** `addMod` placed every mid-plan add at `tierIndex 0` — the
 LOWEST ilvl a mod has — whatever the step's `minTierIndex` said, so every mod a plan added would have
 tied for "lowest level" and Whittling would have modelled removing whatever was added last. It now
 places at `minTierIndex`, which is the worst tier that still satisfies the target and therefore the
 conservative reading: a lower placed level makes a mod MORE likely to be whittled, so the walk can
-never flatter a plan. Pinned by a test written to fail first, exactly as this section asked. A
+never flatter a plan. Pinned by a test written to fail first, before the omen went in. A
 Desecration keeps tier 0 — a bone offers what it offers and the step carries no tier target.
 
 **What shipped**: `ChaosOmen` + `lowestLevelMods` + `chaosRemovalProbability` in the engine, the omen
@@ -955,11 +908,10 @@ no-omen uniform case, ties, a fractured mod (never whittled, and its exclusion m
 and the flow through `chaosProbability` (exactly 3x on a 3-mod item, since only the removal factor
 moves).
 
-**IT IS DORMANT, and that is deliberate.** `OmenofWhittling` is not in `omenQuotes`, and `stepCost`
-charges 0 for a missing key — an ungated Whittling would come back FREE and dominate every chaos step
-it touched. `withOmen` therefore gates on the omen having a price, mirroring how the strengths are
-gated. Today no chaos step gets an omen variant, which is exactly current behaviour; it lights up on
-its own the day the quote lands.
+**It was dormant at first, deliberately.** `OmenofWhittling` was not in `omenQuotes`, and `stepCost`
+charged 0 for a missing key — an ungated Whittling would have come back FREE and dominated every chaos
+step it touched. `withOmen` therefore gates on the omen having a price, mirroring how the strengths are
+gated, so it lit up on its own the day the quote landed.
 
 **IT IS LIVE.** The blocker was believed to be the price, and that belief was wrong too: **poe.ninja
 does serve omens, under `type=Ritual`** — omens are Ritual content in PoE2. `type=Omens` really is an

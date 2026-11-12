@@ -155,7 +155,7 @@ Enforced in `packages/engine` (mostly `probability.ts`).
 
 - **An offer cannot be folded into a probability distribution ahead of time.** Which of the three a
   player keeps is whichever leads to the cheapest state, so a Desecration's value is
-  `E[min over the offer]`, which depends on V. `markovFromItem`'s `valueOf` evaluates it inside value
+  `E[min over the offer]`, which depends on V. `valueOf` (`markovOffer.ts`) evaluates it inside value
   iteration with the tail-sum identity `P(keep k) = T_k^m − T_(k+1)^m` over outcomes sorted by V
   ascending (`T_k` = tail sum, `m` = offers). At `m = 1` that collapses to `p_k`, so it is one formula,
   not a special case. `realizedDist` applies the same weights to the GRAPH's edges: publishing the
@@ -175,7 +175,7 @@ Enforced in `packages/engine` (mostly `probability.ts`).
   the mechanic is actually played. Measured worth on a held Rare: Wands 4,073.8ex → 2,493.7ex (−39%),
   Body Armour 2,967.6ex → 1,396.4ex (−53%), Amulets 52,738.7ex → 26,561.2ex (−50%).
 
-- **A bone competes at ANY price.** `desecratable` in `markovFromItem.ts` opens whenever a bone is
+- **A bone competes at ANY price.** `desecratable` in `markovProblem.ts` opens whenever a bone is
   priced and the player has not excluded Desecration. A price gate (`bonePrice < 3 × exaltPrice`) used
   to stand there, sold as a necessary condition. It was not: it weighed one bone against three Exalts,
   and three Exalts put three mods on the item where a bone puts one — each miss an Annulment or the
@@ -187,7 +187,7 @@ Enforced in `packages/engine` (mostly `probability.ts`).
   `ANCIENT_BONE_FLOOR`) is the same draw with every normal tier below 40 taken out, priced `<bone>_ancient`
   in the sheet's `bones` block and resolved to `desecrate_ancient` by `pricesForBase` — an absent price
   means no Ancient bone, never a free one. The Omen of Abyssal Echoes throws the whole offer back once.
-  `keepWeights` in `markovFromItem.ts` is the ONE formula for what an offer is worth: the value, the
+  `keepWeights` in `markovOffer.ts` is the ONE formula for what an offer is worth: the value, the
   closed-form evaluation and the published edges all read it. The reroll is part of the action
   signature. The omen is spent only when the reroll is TAKEN (confirmed 2026-09-10), so it is not in
   `stepCost`'s up-front price (`ECHOES_OMEN`, cost.ts): `keepWeights` adds its expected spend and rerolls
@@ -602,6 +602,20 @@ Enforced in `packages/engine` (mostly `probability.ts`).
 
 `packages/optimizer/src/markov*.ts`. The model first, then what makes it fast, then how its answers are read.
 
+- **One phase per file, and a refactor is held to byte-identical** (2026-11-12). `markovFromItem` was one
+  ~1,480-line function; it is now four calls, each phase a module that takes the last one's output as one
+  object: `markovProblem.ts` (targets → positions; every refusal by name; an already-finished item
+  answered there), `markovLattice.ts` (states, goals, compiled actions, `prob1`), `markovSolve.ts`
+  (phases A and B, `bound`) and `markovReadout.ts` (`RouteTable`, route, holdings, replay). The offer
+  rule (`keepWeights`, `valueOf`) is `markovOffer.ts`, because the solve and the published plan must read
+  the SAME one — its `last.throw`/`last.bar` are what the call just made threw back, read straight after.
+  Any phase may answer outright (`{ answer }`); the orchestrator returns it. The split MOVED code and
+  rewrote none, and `markovSplit.test.ts` is what says so: 26 crafts recorded before it (every solver
+  path — value and policy iteration, closed-form, iterative and exact evaluation, seeded, ceiling, floor,
+  fill-on-finish, replay, refusals), each hashed whole with its progress events, must come back
+  identical. Medians timed the same or faster. A change MEANT to move an answer re-records it
+  (`RECORD_SPLIT=1`) and says why; a refactor never does.
+
 - **The MDP now models rarity, so a craft can start from a white base or a Magic item.** State is
   `(present, blocked, jp, js, flagged, rarity)` — the rarity really is in the KEY (`0:0:0:0:0:1` for
   Magic against `:2` for Rare), so the two never collapse onto one another; a Magic start solves
@@ -629,7 +643,7 @@ Enforced in `packages/engine` (mostly `probability.ts`).
   from the first sweep. If phase A does not converge there is no valid seed and the solve returns
   `feasible: false` with a reason; it must never quote a number it cannot bound.
 
-- **Reachability means ALMOST SURELY, not "with some chance"** (`prob1` in `markovFromItem.ts`), and is
+- **Reachability means ALMOST SURELY, not "with some chance"** (`prob1` in `markovLattice.ts`), and is
   computed BEFORE value iteration, per phase, with dead states pinned at Infinity. The weak reading let
   states with no route to the goal be backed up forever — E grew 11.4M → 113.6M ex as the sweep cap rose
   10x, and `converged` was being poisoned by states the answer never depended on.
@@ -1169,7 +1183,7 @@ Enforced in `packages/engine` (mostly `probability.ts`).
   reported once per sweep, so a non-converging craft fired ~100,001 messages to describe at most 1001
   distinct permille values; in the browser that turned a 24-second solve into a ten-minute wait while
   node measured 24 seconds. Solvers must emit only when the number the UI would *display* changes
-  (`markovFromItem`'s `lastPermille`), or stride like `optimizePareto`'s `PROGRESS_REPORTS`. The
+  (`markovSolve.ts`'s `lastPermille`), or stride like `optimizePareto`'s `PROGRESS_REPORTS`. The
   worker adapter deliberately adds no buffering, so this stays the solver's property.
 
 - **An `aria-label` REPLACES a visible label, it does not add to it.** `SearchEffort`'s select read

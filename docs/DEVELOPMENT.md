@@ -92,7 +92,11 @@ POE2_HTC/
 │       ├── fromItem.ts               # optimizeFromItem — transform an item you already hold
 │       ├── alternatives.ts           # budget-constrained near-miss targets
 │       ├── combinatorics.ts          # permutations / combinations helpers
-│       ├── markovFromItem.ts         # the from-item MDP: orchestration + value iteration
+│       ├── markovFromItem.ts         # the from-item MDP: public types + the four phases wired
+│       ├── markovProblem.ts          #   1 …targets → positions, refusals
+│       ├── markovLattice.ts          #   2 …states, goals, compiled actions, dead ends
+│       ├── markovSolve.ts            #   3 …phase A / phase B, the bound (offers: markovOffer.ts)
+│       ├── markovReadout.ts          #   4 …the plan, the route, the starting-item table
 │       ├── markovState.ts            #   …what a crafting state IS (present/blocked/junk)
 │       ├── markovActions.ts          #   …what you can DO from one, and where it lands
 │       ├── cost.ts                   # expected-cost model (restart-on-failure)
@@ -224,8 +228,9 @@ The three modules split by concern: `markovState.ts` owns what a state *is* (whi
 present, which are blocked — by an off-tier roll or by another mod of the same family on the same side
 (`markovSiblings.ts`) — how much junk sits on each side) and how it's keyed;
 `markovActions.ts` owns what you can *do* from a state, what it costs, and the resulting distribution
-over next states; `markovFromItem.ts` is orchestration — resolve targets, enumerate the lattice, run
-value iteration, walk the policy into a graph. The facade reaches it via `optimizeItemMarkov`, which
+over next states; `markovFromItem.ts` is orchestration — four phases, one module each: resolve targets
+(`markovProblem.ts`), enumerate the lattice (`markovLattice.ts`), solve it (`markovSolve.ts`), walk the
+policy into a graph (`markovReadout.ts`). The facade reaches it via `optimizeItemMarkov`, which
 falls back to the linear frontier for targets the MDP doesn't model.
 
 See [validation.md](validation.md) for the scope, the documented approximations, and the validation

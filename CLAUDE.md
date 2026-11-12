@@ -137,8 +137,9 @@ npm run lint && npm run type-check && npm run type-check:engine && npm run type-
   search the player opens; nothing fetches pathofexile.com (GGG ToS §7(c)/(f)).
 - **Secrets**: the app's Sentry DSN (`VITE_SENTRY_DSN`) is public by design. The feedback inbox's
   (`FEEDBACK_SENTRY_DSN`) is server-only — never `VITE_`, never in the repo or `.env`.
-- **Keep files under ~1,000 lines.** `markovFromItem.ts` (~1,700) is already past it: new solver code goes
-  in a module of its own and only its wiring goes there. A new panel on the gear tabs goes in
+- **Keep files under ~1,000 lines.** The true-cost solver is split by phase (`markovProblem.ts`,
+  `markovLattice.ts`, `markovSolve.ts`, `markovReadout.ts`; `markovFromItem.ts` only wires them): new
+  solver code goes in the phase it belongs to, or a module of its own. A new panel on the gear tabs goes in
   `TrueCostCard` or its own component, never back into the tab shells.
 
 ## Tests

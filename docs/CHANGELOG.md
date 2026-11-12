@@ -35,6 +35,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   finished crafts go, which is often a step's less likely outcome — the old wording sat beside odds like
   "0.6% onward · 91% back".
 
+- **Crafts with a desecrated modifier as a target solve several times faster**, and some that ran out
+  of time with no number now get one. The craft without that modifier is solved first and its plan is
+  the starting point; the answers are the same to the last digit wherever both ways finished.
+
 ### Fixed
 
 - **The price note names every price that is not live.** It said "All prices are live market data, except

@@ -1349,11 +1349,22 @@ line in `profileItems.test.ts` pin it.
 
 **Verify.** New rows get the CoE check every other category had.
 
-## 20. A bone in play costs 2-8x the solve time — OPEN for crafts that NEED a bone, found 2026-09-10
+## 20. A bone in play costs 2-8x the solve time — DONE from white, 2026-11-12; held items OPEN
 
-Optional bones are handled since 2026-09-24 (seeded from the plan without them, below). What stays open
-is a craft whose bone is required — a desecrated target — which has no plan without bones to seed from:
-Zizaran's ring, at the end of this item.
+Optional bones are handled since 2026-09-24 (seeded from the plan without them, below). **Required bones —
+a desecrated target — since 2026-11-12**: the craft with the carved target dropped is solved without bones
+and seeds the full solve (`boneFreeCraft`, `markovBoneFree.ts`). Identical exact costs on all 13 crafts
+both settle, up to 20x faster, three ×5 crafts get a number where they had none, and Zizaran's ring
+(below) settles at Exhaustive in 10 s (docs/validation.md, 2026-11-12). What stays open:
+
+- **A held item with a carved target.** It cannot start over, so its solve climbs and stops on a floor;
+  nothing to seed, and no ceiling. Same as for optional bones.
+- **The ring still needs Exhaustive.** Its smaller craft (five targets, no bones) spends Standard's
+  100,000 sweeps in 2 s without settling, so there is nothing to seed from. Seeding THAT craft the same
+  way — from a smaller craft still — is the next lever, and would help any big craft, bones or not.
+- **A seeded solve that runs out throws away a proper plan's value** (`markovSolve.ts`: it resets and runs
+  phase A on no clock). Keeping it as a ceiling needs the closed form to tell "settled" from "hit its
+  sweep cap" (engineering notes, "A ceiling's plan is followable"). Not built: no measured craft needed it.
 
 The price gate that kept Desecration off crafts it "could never help" was unsound and is gone
 (docs/validation.md, 2026-09-10), so every craft with bones priced and allowed carries the flag axis.
@@ -1381,7 +1392,8 @@ Exhaustive.
 docs/validation.md). Zizaran's Maelström Twirl, a 6-mod Ring asking T1 Cast Speed, T1 Cold Damage and a
 desecrated T1 suffix, does not settle from white alone in 900 s, nor in 2,400 s: phase A does not converge in either.
 At Exhaustive the Lab gets no number, and prints the solver's advice to raise Search effort, which at
-the top preset is a dead end.
+the top preset is a dead end. **Closed 2026-11-12**: seeded from the craft without its carved suffix,
+exact 304,623 ex in 10 s at Exhaustive; a play-out of 64 crafts agrees to 0.83 standard errors.
 ## 21. Ancient bones and the Omen of Abyssal Echoes — what is assumed, and where they are not — OPEN, 2026-09-10
 
 Both are in the true-cost route and the Quick check (docs/validation.md, 2026-09-10). What rests on a

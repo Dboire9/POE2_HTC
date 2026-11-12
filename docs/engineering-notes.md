@@ -986,9 +986,18 @@ Enforced in `packages/engine` (mostly `probability.ts`).
   lattice's states: positions matched on the mod ids they hold (carved-pool siblings exist only with
   bones, and order may differ), a flagged state or one with an extra position filled left to the
   guessed policy. Measured interleaved (validation.md): identical exact costs, 2.5–9x faster on the bone
-  table, ~4x on the Aldur staff, and Amulets / Rings / Wands 5×T2 settle at Standard. Only where bones
-  are `optional` (`boneRole`, known before solving — a `required` bone has nothing to seed from) and the
-  craft can start over. **The guessed seed alone does NOT do this**: `heuristicSeed` on the same crafts
+  table, ~4x on the Aldur staff, and Amulets / Rings / Wands 5×T2 settle at Standard. Only where the
+  craft can start over (a held item's solve climbs and stops on a floor; nothing to seed).
+  **A carved TARGET (`required` bones) is seeded too, from the craft with it dropped** (2026-11-12,
+  `boneFreeCraft`). That craft's plan stops where the rest is done, so the full lattice's states with
+  the carved position filled — or not filled while everything else is — have no counterpart, and the
+  guessed policy plays them (the Desecration). The seed only ever has to be PROPER; the closed form
+  checks it is, and an improper or slow seed falls back to the two-phase solve as before. Measured:
+  identical exact costs on every craft both settle, 3–20x faster, and a six-mod Ring with a carved
+  suffix that gave nothing in 2,400 s settles in ~8 s (validation.md). Not for a lone carved target
+  (nothing left to seed from) nor an item already carrying a carved mod. Its plan is a CEILING only
+  where it finishes this craft: when every slot keeps a member that is not carved (a carved mod named as
+  an alternative). Otherwise it never places the carved mod, and the answer is the solve's own. **The guessed seed alone does NOT do this**: `heuristicSeed` on the same crafts
   was never faster and lost Body Armour and Wands 5×T2 outright. If the seeded solve still runs out, the
   plan without bones answers as a CEILING (`lowerCeiling`, `withoutBones`): playable, so bones can only
   lower it. Its clock is its own, the same as the solve with bones, and the bar gives it the first 75%

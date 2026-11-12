@@ -95,18 +95,83 @@ describe('a craft with bones, solved from the plan without them', () => {
     expect(lowerCeiling(answer('upper', 1_399), answer('upper', 950)).expectedCost).toBe(1_399);
   });
 
-  it('solves once, as before, a craft that needs a bone or starts from an item held', () => {
-    const first = vi.fn();
-    const needs = markovBoneFreeFirst(
-      data, prices, white, [...targets.slice(0, 2), carvedTarget], { ...fromWhite, maxMillis: 1 }, { onProgress: first });
-    expect(needs).toMatchObject({ feasible: false, stoppedEarly: true, bones: 'required' });
-    expect(needs.withoutBones).toBeUndefined();
-
+  it('solves once, as before, a craft that starts from an item held', () => {
     // From an item held the solve climbs and stops on a floor; nothing to seed, and no ceiling.
+    const first = vi.fn();
     const held: ItemState = { ...white, rarity: 'rare' };
     const floor = markovBoneFreeFirst(data, prices, held, targets, { solver: 'policy', maxMillis: 1 }, { onProgress: first });
     expect(floor.withoutBones).toBeUndefined();
     expect(floor.bound).toBe('lower');
+    expect(first).not.toHaveBeenCalled();
+  });
+});
+
+// A craft that NEEDS a bone — a carved target — has no plan without bones of its own. The craft with the
+// carved target dropped does, and that plan seeds the full solve: the guessed policy under every seed
+// plays the Desecration where the smaller plan has no move.
+describe('a craft with a carved target, solved from the craft without it', () => {
+  const needs = [...targets.slice(0, 2), carvedTarget];
+  const plain = markovFromItem(data, prices, white, needs, fromWhite);
+  /** The full solve's own `solve` progress, which shows whether phase A ran. */
+  const solveEvents = (t: typeof needs, opts = {}, first: Parameters<typeof markovBoneFreeFirst>[5] = {}) => {
+    const events: number[] = [];
+    const r = markovBoneFreeFirst(data, prices, white, t, {
+      ...fromWhite, ...opts, onProgress: (p) => { if (p.phase === 'solve') events.push(p.done); },
+    }, first);
+    return { r, events };
+  };
+
+  it('reaches the same exact answer as the two-phase solve, and skips phase A to get there', () => {
+    expect(plain).toMatchObject({ feasible: true, bound: 'exact', bones: 'required' });
+    const first = vi.fn();
+    const { r, events } = solveEvents(needs, {}, { onProgress: first });
+    expect(first).toHaveBeenCalled();
+    expect(r).toMatchObject({ feasible: true, bound: 'exact', bones: 'required' });
+    expect(r.withoutBones).toBeUndefined();
+    expect(Math.abs(r.expectedCost - plain.expectedCost) / plain.expectedCost).toBeLessThan(1e-9);
+    // Seeded: the plan settles straight from the seed, so the bar only ever reads "done".
+    expect(events).toEqual([1000]);
+    // …where the two-phase solve climbs through phase A first.
+    const twoPhase: number[] = [];
+    markovFromItem(data, prices, white, needs, { ...fromWhite, onProgress: (p) => { if (p.phase === 'solve') twoPhase.push(p.done); } });
+    expect(twoPhase.length).toBeGreaterThan(1);
+  });
+
+  it('falls back to the two-phase solve when the craft without the carved target does not settle', () => {
+    // A clock already past: the first solve stops at once, and leaves nothing to seed from.
+    const first = vi.fn();
+    const { r, events } = solveEvents(needs, {}, { maxMillis: -1, onProgress: first });
+    expect(r).toMatchObject({ feasible: true, bound: 'exact' });
+    expect(Math.abs(r.expectedCost - plain.expectedCost) / plain.expectedCost).toBeLessThan(1e-9);
+    expect(events.length).toBeGreaterThan(1);
+  });
+
+  it('never answers with the smaller plan when it cannot place the carved target', () => {
+    const got = markovBoneFreeFirst(data, prices, white, needs, { ...fromWhite, maxMillis: 1 }, {});
+    expect(got).toMatchObject({ feasible: false, stoppedEarly: true, bones: 'required' });
+    expect(got.withoutBones).toBeUndefined();
+  });
+
+  it('answers with it, as a ceiling, when the carved mod is only an alternative in its slot', () => {
+    // "This carved suffix, or that ordinary one": the plan without bones fills the slot with the ordinary one.
+    const slotted = [...targets.slice(0, 2), { ...targets[2]!, slot: 9 }, { ...carvedTarget, slot: 9 }];
+    expect(boneRole(data, prices, white, slotted)).toBe('required');
+    const got = markovBoneFreeFirst(data, prices, white, slotted, { ...fromWhite, maxMillis: 1 }, {});
+    expect(got).toMatchObject({ feasible: true, bound: 'upper', withoutBones: true });
+    expect(got.expectedCost).toBeCloseTo(withoutAny.expectedCost, 9);
+    // A ceiling, never under the real cost.
+    const real = markovFromItem(data, prices, white, slotted, fromWhite);
+    expect(got.expectedCost).toBeGreaterThanOrEqual(real.expectedCost);
+  });
+
+  it('solves once, as before, a lone carved target and an item already carrying a carved mod', () => {
+    const first = vi.fn();
+    markovBoneFreeFirst(data, prices, white, [carvedTarget], fromWhite, { onProgress: first });
+    const carvedMod = data.mods.get(carvedTarget.modId)!;
+    const holding: ItemState = {
+      ...white, rarity: 'rare', suffixes: [{ modId: carvedMod.id, tierName: carvedMod.tiers.at(-1)!.name }],
+    };
+    markovBoneFreeFirst(data, prices, holding, targets.slice(0, 2), fromWhite, { onProgress: first });
     expect(first).not.toHaveBeenCalled();
   });
 });

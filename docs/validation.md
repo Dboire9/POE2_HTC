@@ -4773,6 +4773,55 @@ the target certain — and were rebuilt on several families; a Serle's Triumph t
 DIRECTION the replay does not support (22,326 ± 134 without the rune, 22,362 ± 132 with it) and now
 pins "within 1%, not identical"; the Ritual reroll's route gained an Exalt after its Chaos.
 
+## Crafts with a carved target: seeded from the craft without it (2026-11-12, TODO 20)
+
+A craft that NEEDS a bone — a desecrated target — had no plan without bones to seed from, so it paid the
+two-phase solve in full: 2–8x the time of the same craft without bones, and the largest gave no number at
+all. The craft with the carved target DROPPED has a plan without bones, and that plan is a valid seed for
+the full one: the seed only has to be a proper plan, and where the smaller plan has no move (the rest is
+done, the carved mod is not) the guessed policy plays the Desecration. `markovBoneFree.ts`
+(`boneFreeCraft`) now does that for every from-white craft with a carved target.
+
+`scripts/required-bone.mts standard 120`: price sheet of 2026-11-10, from white, item level 82, the first
+prefixes and suffixes of each base at their second tier plus the base's first carved suffix; single runs.
+"app" is `runSolve` at Standard (the new path); "plain" is `markovFromItem` alone on a 120 s clock.
+
+| craft | app | plain | |
+|---|---|---|---|
+| Wands ×2 / ×3 / ×4 | 256.66 (0.2 s) / 1,834.14 (0.5 s) / 6,310.92 (1.8 s) | same (0.3 / 4.5 / 16.9 s) | identical |
+| Wands ×5 | **72,878.23 (7.5 s)** | none (122 s) | new |
+| Rings ×2 / ×3 / ×4 / ×5 | 575.22 (0.1 s) / 1,720.40 (0.6 s) / 9,533.38 (5.6 s) / 37,339.05 (6.1 s) | same (0.5 / 6.3 / 92.9 / 79.5 s) | identical |
+| Amulets ×2 / ×3 / ×4 | 671.61 (0.1 s) / 3,939.73 (0.7 s) / 24,543.80 (3.1 s) | same (0.6 / 6.2 / 45.1 s) | identical |
+| Amulets ×5 | **113,373.67 (13.2 s)** | none (122 s) | new |
+| Body Armour (str) ×2 / ×3 / ×4 | 1,711.80 (0.1 s) / 5,640.19 (0.6 s) / 29,100.95 (3.9 s) | same (0.5 / 4.6 / 79.9 s) | identical |
+| Body Armour (str) ×5 | **52,698.89 (6.6 s)** | none (122 s) | new |
+| a streamer's Morbid Bane (Wand, carved target) | 13,800.76 (2.9 s) | same (49.1 s) | identical |
+| a streamer's Maelström Twirl (6-mod Ring, carved suffix) | none at Standard (18.8 s) | none (122 s) | — |
+
+**Identical** means relative difference 0 — the same double — on all 13 crafts both settle; none the
+plain solve settles is lost. Up to 20x faster on the larger ones (Rings ×4: 92.9 s → 5.6 s), and three
+crafts get a number where they had none.
+
+**The Maelström Twirl**, the craft that opened this (2026-09-11: no number in 900 s nor 2,400 s), through
+`runSolve` at **Exhaustive: exact 304,623.18 ex in 10.1 s.** At Standard it still runs out: its smaller
+craft (1,345 states) does not settle in Standard's 100,000 sweeps, so there is nothing to seed from — and
+the Lab's advice to raise Search effort is now advice that works. Held to:
+- **a play-out**: 64 crafts (each runs to millions of orbs and restarts on a free base, so `maxActions` was
+  raised for it) averaged 337,685 ± 39,627 ex, 0.83 standard errors from the solver;
+- **the seeded evaluation cap** (20,000 sweeps) raised 1,000x in a local edit: the same double.
+
+**The streamer sweep again** (`scripts/start-items-sweep.mts`, now passing the Lab's first-solve clock;
+Exhaustive, six at a time): of the 37 items the list holds today, **35 settle exactly and every check
+passes on all 35**; the other two are corrupted and offered nothing, as they should be. The Maelström
+Twirl is among the 35 (11 s under the six-way load). The seven items with a carved target took 6–25 s,
+except two measured alone below; the slowest items overall (350–750 s under load) carry no carved
+target, so this change does not reach them — they take the optional-bone path of 2026-09-24.
+
+The two slow carved ones, alone, Exhaustive's limits (900 s), the new path against `markovFromItem`
+alone: a streamer's Pain Collar **exact 657,451.97 ex in 114 s** (old: none in 902 s) and Brood Braid
+**exact 35,038.07 ex in 53 s** (old: none in 903 s). Both settled on 2026-09-11 at that day's prices;
+on today's sheet the old path no longer does, and the new one does.
+
 ## Still deferred
 - **Confirm the Omen of Whittling TIE rule in game** (2026-09-02): when two or more modifiers share
   the lowest item level, which does the Chaos Orb remove? Modelled as uniform — 50/50 on two — by the

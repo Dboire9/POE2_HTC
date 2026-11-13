@@ -972,20 +972,60 @@ that re-routes the policy can expose it, and this one did.
 exclude two-carved states outright, or whether the action space should. Then the gate is a small,
 mechanical re-apply — the diff is described above and the fixture work is understood.
 
-### 12b. The MDP cannot play Whittling — NEW, TIER 3
+### 12b. The MDP cannot play Whittling — OPEN; its best case BUILT, MEASURED, REVERTED 2026-11-13
 
 `McState` is `(present, blocked, jp, js, flagged, rarity)`: it knows WHICH targets are present and HOW
 MANY junk mods sit per side, and **no mod's level**. "Remove the lowest-level modifier" therefore has
 no meaning in that state space — the model cannot tell whether the lowest-level mod is a target or
-junk, which is the entire question the omen answers. A level axis would need a bucket per junk mod,
-the same shape as the `flagged` axis, which cost ~5x solve time (see 3). Measure that before building
-it. Meanwhile the step planner offers the omen and the true-cost model does not, so once the quote
-lands the two models will diverge further on exactly the crafts players use Whittling for — and the
-UI should say so on a plan that uses it. That copy is NOT written, because writing it now would
-describe a dormant feature.
+junk, which is the entire question the omen answers. The step planners play it; the true expected
+cost does not. The guide says so (FAQ, 2026-11-13); the app itself still does not, on a step route that
+uses the omen beside a true cost that cannot.
 
-**Not planned as an MDP axis** — §27 handles Whittling in a ladder planner instead, where the plan
-fixes which mod is lowest-level so the state never has to carry it.
+**How much could it save? Bounded from above, 2026-11-13.** A stand-in was built in `markovActions.ts`
+and reverted: a Chaos Orb at the Chaos + Whittling price (66.07 + 9,558 ex) whose removal the PLAYER
+names — one junk prefix, one junk suffix (the bone's flagged junk and any other as two choices), one
+blocked position, or one present obstacle, never a present target — then exactly the add
+`chaosOutcomes` composes (`addOutcomes(mid, 0)`). One action per choice, pushed beside the plain Chaos
+on a Rare; `pricedStepOf` maps it to `{ currency: 'chaos', omen: 'whittling' }`, so the price gate and
+exclusion are the existing ones. The real omen removes by level with no choice and can take a target,
+so no real Whittling plan beats the best plan with this action: the saving is a **ceiling, not an
+estimate**.
+
+The build-up set (`scripts/build-up.mts`), live sheet, from white, `markovBoneFreeFirst` at tolerance
+1e-9, every number `exact`:
+
+| craft | without | with | saving | uses a craft |
+|---|---|---|---|---|
+| bones: Amulets ×6 T1 | 574,244 | 487,874 | 15.0% | 23.1 |
+| bones: Wands ×6 T1 | 1,286,154 | 683,745 | 46.8% | 29.1 |
+| bones: a streamer's Maelström Twirl | 304,623 | 171,114 | 43.8% | 5.5 |
+| no bones: Amulets ×5 T1 | 952,065 | 872,601 | 8.3% | 81.9 |
+| no bones: Amulets ×6 T1 | 8,343,232 | 912,924 | 89.1% | 83.3 |
+| no bones: Amulets ×6 T2 | 674,706 | 328,056 | 51.4% | 28.5 |
+| no bones: Body Armour (str) ×6 T1 | 1,413,900 | 402,017 | 71.6% | 30.5 |
+| no bones: Rings ×6 T1 | 1,583,398 | 560,864 | 64.6% | 47.4 |
+| no bones: Wands ×5 T1 | 983,603 | 704,288 | 28.4% | 59.2 |
+| no bones: Wands ×6 T1 | 19,890,389 | 1,056,587 | 94.7% | 80.3 |
+| no bones: Wands ×6 T2 | 590,261 | 284,011 | 51.9% | 22.1 |
+
+The other 39 of the 50 craft-passes with a number are identical to the last digit and never play it —
+among them every four-target craft and every T2 craft with bones as priced. At twice the omen's price
+9 of the 11 still save (1.3–90.9%); at half, six more join (up to 22.7%). Where it pays it removes a
+**blocked** position (a wrong tier, or a sibling, sitting in a target's family) on 88 route states and
+a **junk** mod on 55 — the bone's flagged junk and obstacles never. Those are the removals a
+level-ordered omen is most likely to make, which is the reason to think the real omen keeps a real
+share of this ceiling; how much is not measured. Numbers in docs/validation.md.
+
+**So it is no longer a low-priority limit: the real action gets a plan of its own, sized by these
+numbers.** Not built yet. The shape: the action as an AVERAGE over levels — each modifier's level an
+independent draw from its tier weights, "which is lowest" by order statistics — so the state needs no
+level axis; the replay plays the omen on real items (`lowestLevelMods` in `probability.ts` already
+models it); shipped only inside the junk-family gate (TODO 23) — within 2% and 3 standard errors of
+the replay.
+
+**What the ceiling does not cover.** Base-strength Chaos only (the MDP plays no Greater/Perfect Chaos,
+§5d); it never removes a present target, which the real omen can; the price is held fixed at 5–83 omens a
+finished craft, whatever the market can supply; and a zero row cannot rule out a tiny saving hidden by TODO 29.
 
 ### 12c. A chaos step's `constrainTo` is inert, and now traceably so — NEW, TIER 3
 
@@ -1510,7 +1550,9 @@ point is not to solve every state; it is to design the craft so most of them nev
 MDP (§12b): "remove the lowest-LEVEL mod" needs every mod's level in the state, and that explodes the
 lattice. Under ladder order the level question is answered BY THE PLAN — the lowest-level mod is the
 one this rung just added — so it never has to be stored. **The MDP level axis is therefore NOT planned.**
-§12b stays open as a known limit of the MDP, not as work.
+§12b stays open as a known limit of the MDP, not as work. *(2026-11-13: no longer "not as work". A
+best-case measurement put what Whittling could save at 8-95% on the biggest crafts, so §12b now plans a
+Whittling action for the MDP — as an average over levels, still with no level axis.)*
 
 ### The model
 

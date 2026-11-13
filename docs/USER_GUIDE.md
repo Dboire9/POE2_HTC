@@ -946,6 +946,14 @@ own affix model, so neither is the 3-prefix/3-suffix rare this tool plans for.
 *Whittling* makes a Chaos Orb remove your **lowest-level** modifier rather than a random one, so it
 appears as its own row on the frontier beside the plain Chaos route — compare the two and pick.
 
+The step-by-step routes play Whittling; the **true cost** panel does not, because it does not track each
+modifier's level and so cannot tell which one the omen would take. On most crafts that changes nothing —
+measured, no four-modifier craft gains from it. On the biggest crafts (five or six modifiers, mostly at
+the top tier or without Desecration) a player who uses Whittling can pay well below the true cost shown:
+a best-case estimate puts it at up to about half on several of them, and more on the very dearest. That
+is the most Whittling could save, not what it will — the estimate lets you pick which modifier goes,
+where the real omen always takes the lowest-level one.
+
 *Greater Exaltation* makes one Exalted Orb add **two** modifiers. The step routes reach for it when a
 craft needs two more mods: a single orb gets both in either order, where two separate Exalts have to
 land them in the order the plan wrote down. It shows up most on expensive orbs, because the omen is a

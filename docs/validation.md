@@ -940,6 +940,9 @@ a different algorithm (policy iteration), which is not attempted here.
 NOT DOING (MDP v3b): **Omen of Whittling** — evaluated 2026-08-21 and **dropped by the user**, not
 merely deferred. Recorded here so it isn't re-proposed.
 
+*(The mechanic below is as it was understood on 2026-08-21, and it is wrong: the omen takes the lowest
+LEVEL, not the lowest tier — corrected 2026-09-02, "the spec had the mechanic wrong".)*
+
 It is a **Chaos** omen: the orb changes the item's **lowest-tier** modifier instead of a
 uniformly-random one, where "tier" is the per-mod T-number (T5 is lower than T1), **not** the mod's
 ilvl, and ties resolve uniformly with fractured mods excluded (all confirmed by the user). Junk
@@ -4941,6 +4944,119 @@ play-out declines them, "too long a craft to play out"), and these runs needed t
 caught). One app test restated because the answer improved, not loosened: a ring craft both solvers
 refused at 2,000 sweeps now answers exactly under policy iteration — 781.2514842362901, the same at 2,000,
 5,000 and 20,000,000 sweeps; still none at 50, and value iteration still refuses at 2,000.
+
+## What Whittling could save in the true expected cost — a ceiling, built, measured, reverted (2026-11-13, TODO 12b)
+
+The true expected cost does not play the Omen of Whittling (a Chaos omen: the Chaos Orb removes the
+lowest-LEVEL modifier, then adds as a Chaos does), because the state keeps no levels. Before anyone
+widens it: **how much could the omen possibly save?** Bounded from above with a best-case stand-in.
+
+**The stand-in.** In `markovActions.ts`: a Chaos Orb at the Chaos + Whittling price whose removal the
+PLAYER names, one action per choice — one junk prefix, one junk suffix (where the bone's flagged junk
+sits on that side, removing it and removing another are two choices), one blocked position, or one
+present obstacle; never a present target. Each choice is a fixed mid-state, flag cleared as
+`removeOutcomes` clears it, followed by exactly the add `chaosOutcomes` composes (`addOutcomes(mid,
+0)`). Offered beside the plain Chaos on a Rare; `pricedStepOf` maps it to `{ currency: 'chaos', omen:
+'whittling' }`, so the omen's price gate and the player's exclusions are the existing ones. The real
+omen removes by level with no choice and may take a target, so **no real Whittling plan can beat the
+best plan with this action: the saving below is a ceiling, not an estimate.** Base-strength Chaos only,
+as the model plays no other.
+
+**How it was solved.** The build-up set (`scripts/build-up.mts`: Wands, Rings, Amulets and Body Armour
+(str) × 4, 5, 6 targets × T2 and T1, plus a streamer's Maelström Twirl and Morbid Bane), from white, item
+level 82, today's sheet — the omen at 9,558 ex, the Chaos Orb at 66.07 ex —
+`markovBoneFreeFirst(…, { restartCost: 0, solver: 'policy', maxIters: 20_000_000, tolerance: 1e-9,
+maxMillis: 300_000 }, { maxMillis: 300_000 })`, bones as priced and bones excluded. "Without" is the
+omen's price removed from the sheet; "uses" is the expected number of omens a finished craft spends,
+from the kept route table (recomputing the expected cost from the same table agrees within 4.2e-7).
+
+**Sanity checks.**
+1. With the omen's price removed, all 50 craft-passes with a number give the identical cost, to the last
+   digit, as the unmodified code. (The two streamer items have no number without bones, either way: each
+   has a carved target.)
+2. With the omen priced at 0, no craft costs more than without it: savings 0.36% (Body Armour ×4 T2 with
+   bones) to 99.87%. Four of those are ceilings (Wands ×6 T1 and T2, both passes).
+3. On Rings ×3 T2 with bones, three states: every stand-in distribution sums to 1 within 2.2e-16 and keeps
+   every present target; the plain Chaos is exactly the uniform mixture of the removal choices (with one
+   target, one blocked and one junk a side, 0.25 × 0.5589865 = 0.1397466 for the same outcome); removing
+   the flagged junk or a flagged blocked position clears the flag, removing other junk keeps it.
+
+**Bones as priced** — the crafts that change, all `exact`:
+
+| craft | without | with | saving ex | saving | route states playing it (whole plan) | uses a craft |
+|---|---|---|---|---|---|---|
+| Amulets ×6 T1 | 574243.8882136843 | 487874.34104650567 | 86,369.55 | 15.04% | 3 | 23.14 |
+| Wands ×6 T1 | 1286153.7324011724 | 683744.7963798516 | 602,408.94 | 46.84% | 55 (57) | 29.09 |
+| a streamer's Maelström Twirl | 304623.1826942326 | 171113.9798538254 | 133,509.20 | 43.83% | 4 (20) | 5.52 |
+
+Unchanged to the last digit, never played (23): Wands ×4 T2 3,585.15, ×5 T2 39,331.99, ×6 T2 148,198.85,
+×4 T1 27,254.55, ×5 T1 219,521.17; Rings ×4 T2 5,253.34, ×5 T2 19,194.74, ×6 T2 63,889.30, ×4 T1
+17,835.08, ×5 T1 95,252.24, ×6 T1 218,533.62; Amulets ×4 T2 11,714.55, ×5 T2 60,667.94, ×6 T2
+125,726.18, ×4 T1 56,464.04, ×5 T1 178,422.29; Body Armour (str) ×4 T2 2,454.80, ×5 T2 8,015.12, ×6 T2
+33,462.59, ×4 T1 11,131.47, ×5 T1 43,209.96, ×6 T1 169,949.67; a streamer's Morbid Bane 13,800.77.
+
+**Bones excluded** — the crafts that change, all `exact`:
+
+| craft | without | with | saving ex | saving | route states playing it | uses a craft |
+|---|---|---|---|---|---|---|
+| Amulets ×5 T1 | 952064.8371155645 | 872601.384207711 | 79,463.45 | 8.35% | 6 | 81.86 |
+| Amulets ×6 T1 | 8343231.51134604 | 912923.519368999 | 7,430,307.99 | 89.06% | 16 | 83.30 |
+| Amulets ×6 T2 | 674705.5443453724 | 328055.80835219874 | 346,649.74 | 51.38% | 4 | 28.50 |
+| Body Armour (str) ×6 T1 | 1413900.304079917 | 402016.50430733117 | 1,011,883.80 | 71.57% | 6 | 30.53 |
+| Rings ×6 T1 | 1583397.650597439 | 560864.1373266694 | 1,022,533.51 | 64.58% | 6 | 47.45 |
+| Wands ×5 T1 | 983603.4058757019 | 704287.5701554752 | 279,315.84 | 28.40% | 6 | 59.17 |
+| Wands ×6 T1 | 19890389.444500413 | 1056587.4201857736 | 18,833,802.02 | 94.69% | 31 | 80.31 |
+| Wands ×6 T2 | 590260.9526860036 | 284010.7909884077 | 306,250.16 | 51.88% | 6 | 22.14 |
+
+Unchanged to the last digit, never played (16): Wands ×4 T2 5,952.36, ×5 T2 74,281.35, ×4 T1 54,957.44;
+Rings ×4 T2 7,958.79, ×5 T2 35,581.23, ×6 T2 163,487.96, ×4 T1 35,277.01, ×5 T1 200,265.11; Amulets ×4
+T2 21,732.55, ×5 T2 110,564.34, ×4 T1 134,277.28; Body Armour (str) ×4 T2 6,354.63, ×5 T2 21,581.52,
+×6 T2 104,255.73, ×4 T1 30,989.53, ×5 T1 159,667.58.
+
+So 11 of the 50 craft-passes save, 8.35% to 94.69%; the other 39 — every four-target craft among them —
+are identical. **Not under 1% everywhere.** What it plays where it pays: on the 143 route states that use
+it, 88 remove a BLOCKED position (a wrong tier, or a same-family sibling, in a target's slot) and 55 a
+junk mod; never the bone's flagged junk, never an obstacle.
+
+**The omen's price, halved and doubled** — saving (uses a craft):
+
+| craft | half (4,779 ex) | today | double (19,116 ex) |
+|---|---|---|---|
+| bones: Amulets ×6 T1 | 37.14% (33.4) | 15.04% (23.1) | 0 |
+| bones: Body Armour (str) ×6 T1 | 19.07% (14.9) | 0 | 0 |
+| bones: Rings ×6 T1 | 0.00083% (0.24) | 0 | 0 |
+| bones: Wands ×5 T1 | 0.38% (4.2) | 0 | 0 |
+| bones: Wands ×6 T2 | 14.74% (10.4) | 0 | 0 |
+| bones: Wands ×6 T1 | 52.51% (101.0) — a ceiling, see below | 46.84% (29.1) | 27.31% (24.3) |
+| bones: a streamer's Maelström Twirl | 54.48% (21.3) | 43.83% (5.5) | 26.59% (5.5) |
+| no bones: Amulets ×5 T1 | 50.00% (84.2) | 8.35% (81.9) | 0 |
+| no bones: Amulets ×6 T1 | 93.87% (84.3) | 89.06% (83.3) | 80.82% (69.5) |
+| no bones: Amulets ×6 T2 | 71.67% (29.2) | 51.38% (28.5) | 12.74% (25.0) |
+| no bones: Body Armour (str) ×6 T2 | 20.39% (13.4) | 0 | 0 |
+| no bones: Body Armour (str) ×6 T1 | 82.68% (42.9) | 71.57% (30.5) | 51.02% (30.2) |
+| no bones: Rings ×6 T2 | 22.75% (22.1) | 0 | 0 |
+| no bones: Rings ×6 T1 | 79.03% (48.2) | 64.58% (47.4) | 36.12% (46.3) |
+| no bones: Wands ×5 T1 | 58.68% (67.8) | 28.40% (59.2) | 1.33% (3.3) |
+| no bones: Wands ×6 T2 | 70.32% (23.3) | 51.88% (22.1) | 26.92% (11.9) |
+| no bones: Wands ×6 T1 | 96.93% (101.0) | 94.69% (80.3) | 90.87% (78.8) |
+
+Every other craft saves nothing at either price. Every number is `exact` except Wands ×6 T1 with bones
+at half price: the solve with bones ran out and answered with the plan without bones, 610,839.10, `upper`.
+
+**No negative saving** at any price — so nothing here shows the policy-iteration fault (TODO 29) — and
+**no value-iteration referee was needed**: no four-target craft saved between 0.05% and 2% (all saved
+exactly 0). Bones as priced, Rings ×6 T1 at half price saves 0.00083% on 0.24 omens a craft; that size is
+within reach of TODO 29, and is not read as a finding.
+
+**What the ceiling does not tell.** How much of it the real omen keeps: the removals it plays are the ones
+a level-ordered omen is most likely to make, but which mod is lowest depends on levels the model does not
+hold. It covers base-strength Chaos only (Whittling with a Greater or Perfect Chaos is outside it, and
+the Erasure omens); it never removes a present target, which the real omen can; it holds the omen's price
+fixed at 5–83 omens a finished craft, whatever the market can supply; and a zero row cannot rule out a
+tiny saving hidden by TODO 29.
+
+**Reverted.** The repo carries no trace of the stand-in; the definition above is how to rebuild it. The
+real action is planned separately in TODO 12b.
 
 ## Still deferred
 - **Confirm the Omen of Whittling TIE rule in game** (2026-09-02): when two or more modifiers share

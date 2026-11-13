@@ -767,8 +767,12 @@ Enforced in `packages/engine` (mostly `probability.ts`).
 - **The VI stopping rule is scale-aware, so a test that asserts many decimals must ask for precision.**
   `tolerance` defaults to a thousandth of the craft's cheapest action, not a flat 1e-9 — these values
   span ten orders of magnitude between crafts. Worth a measured 1.77x, at a relative error of ~1e-3 that
-  is ONE-DIRECTIONAL: the sequence stops above its limit, so a number overstates a craft's cost and
-  never flatters it. The hand-computed tests pass `EXACT = { tolerance: 1e-12 }`; they pin the model's
+  was taken to be ONE-DIRECTIONAL: the sequence stops above its limit, so a number overstates a craft's
+  cost and never flatters it. **Measured 2026-11-13, the app's numbers go the other way**: under policy
+  iteration every cost measured at `tolerance: 1e-9` came out a little HIGHER than at the default (Rings
+  ×6 T2 163,469.79 → 163,487.96; Amulets ×6 T2 674,492.78 → 674,705.54; Wands ×4 T2 5,952.14 →
+  5,952.36), so the default reads slightly low there. Why is not established (TODO 29).
+  The hand-computed tests pass `EXACT = { tolerance: 1e-12 }`; they pin the model's
   arithmetic, not the stopping rule. Note the residual is NOT the error — a descending sequence stopping
   at Δ < tol still sits `tol/(1−r)` above its limit, and r is near 1 here.
 
@@ -808,6 +812,8 @@ Enforced in `packages/engine` (mostly `probability.ts`).
   better on average: "no number" comes from PHASE A failing, and phase A is plain VI on both paths —
   `markovFromItem` returns `fail(...)` before it reads the solver choice. A phase B that runs out
   under PI still yields `bound: 'upper'`. The measured no-number counts are identical at every rung.
+  (Since 2026-11-13 a built-up craft skips phase A when its seed holds, so PI can now answer where phase A
+  would refuse — still never the other way round.)
   The old reason for holding it back — `standard` reproducing pre-setting behaviour — now holds only
   for the ORB SEARCH (which is all `searchEffort.test.ts` ever pinned); the MDP half deliberately
   changed, and every move is toward the exact answer.
@@ -1002,6 +1008,29 @@ Enforced in `packages/engine` (mostly `probability.ts`).
   plan without bones answers as a CEILING (`lowerCeiling`, `withoutBones`): playable, so bones can only
   lower it. Its clock is its own, the same as the solve with bones, and the bar gives it the first 75%
   of the model's span ("Solving it without Desecration first…").
+
+- **A big from-white craft is BUILT UP from its smaller crafts, never solved unseeded** (2026-11-13,
+  `markovBuildUp.ts`, TODO 20). A plan for the craft with one slot group fewer is a proper plan here
+  (`projectPlan`, the guessed policy playing where it has no move), so it seeds the same way. Each slot
+  group is solved alone, the groups ordered cheapest first (one that did not settle last, ties by index),
+  then 2 … n−1 groups, each seeded from the last level that settled; the full craft is seeded from the
+  last. **Cheapest first, because a big craft unseeded is the slow thing**: a five-target Ring seeded from
+  ANY of its four-target crafts solved in 0.1–0.3 s at the same cost, but that four-target craft took
+  0.3 s with the rarest target dropped and 102 s with the essence target dropped. **The smaller crafts
+  are a bet on speed, never on the answer**: they share a clock of their own, a quarter of the solve's,
+  and a level that does not settle is skipped (the last seed carries); the full craft keeps its WHOLE
+  clock and falls back to the two-phase solve as before, so no craft that settled can be lost to them.
+  Eligible: can start over (`restartCost`), policy iteration with closed-form evaluation, no seed from the
+  caller (the Tablets tab passes its own), an empty start, four or more slot groups
+  (`BUILD_UP_MIN_GROUPS` — two or three already solve well under a second). `markovBoneFreeFirst` builds
+  up both of its solves without bones — a craft with no bone path, and the one that seeds the solve with
+  bones; that solve is still seeded from the full plan without them. The bar gives the smaller crafts the
+  first tenth of the model's span ("Solving smaller crafts first…"), and the 75% above is of the rest.
+  Measured (validation.md): identical costs wherever both settle, six-target crafts with no number now
+  settle (Wands ×6 T2 with bones: 148,199 in 4.9 s at Standard). **When two solves disagree, value
+  iteration at a tight tolerance is the referee, not either solve's `exact`**: on one craft the built-up
+  and plain numbers parted by 0.3%, both `exact`, and value iteration at 1e-12 sided with the build-up —
+  the OLD two-phase solve had stopped on a dearer policy (TODO 29).
 
 ## The step planners
 

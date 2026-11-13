@@ -39,6 +39,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   of time with no number now get one. The craft without that modifier is solved first and its plan is
   the starting point; the answers are the same to the last digit wherever both ways finished.
 
+- **Big crafts from a white base solve several times faster, and six-modifier crafts get a number.** A
+  craft of four or more modifiers is now worked up to one modifier at a time, each step starting from the
+  last one's plan — the progress bar shows it as *Solving smaller crafts first…*. At Standard a
+  five-modifier Wand takes about 1 second instead of 5 and a six-modifier Ring 5 instead of 17, and a
+  six-modifier Wand that ran out with no number now gets an exact one in 5 seconds. Wherever the old way
+  finished, the cost is the same number.
+
 ### Fixed
 
 - **The price note names every price that is not live.** It said "All prices are live market data, except

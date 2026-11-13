@@ -4822,6 +4822,126 @@ alone: a streamer's Pain Collar **exact 657,451.97 ex in 114 s** (old: none in 9
 **exact 35,038.07 ex in 53 s** (old: none in 903 s). Both settled on 2026-09-11 at that day's prices;
 on today's sheet the old path no longer does, and the new one does.
 
+## Big crafts, built up from their smaller crafts (2026-11-13, TODO 20)
+
+Seeding from a smaller craft works only when the smaller craft settles, and on the biggest crafts it did
+not: the Maelström Twirl's five-target craft without bones ran out at Standard, and several six-target
+crafts gave no number even to the plain solve on a minute or two, bones or not. The question: seed the
+smaller craft from a smaller one still, down to one target. `markovBuildUp.ts` does that for a from-white
+craft of four or more slot groups under policy iteration: each group solved alone, the groups ordered
+cheapest first, then 2 … n−1 groups, each seeded from the last that settled, and the full craft from the
+last. The smaller crafts share a quarter of the solve's clock; the full craft keeps all of it.
+
+**Why cheapest first**, measured while planning: a five-target Ring seeded from ANY of its four-target
+crafts solves in 0.1–0.3 s at the same cost, but the four-target craft itself took 0.3 s with the rarest
+target dropped and 102 s with the essence target dropped. A big craft solved unseeded is the slow thing,
+so the build-up starts from one target.
+
+`scripts/build-up.mts [effort] [plainSeconds] [bones|nobones] [tight]`: live price sheet, from white, item
+level 82, the first prefixes and suffixes of Wands, Rings, Amulets and Body Armour (str) for 4, 5 and 6
+targets at T2 and T1, plus two streamer items (a streamer's Maelström Twirl and Morbid Bane, both with a
+carved target); single runs. "app" is `runSolve` at Standard (100,000 sweeps / 15 s); "plain" is
+`markovFromItem` alone, the old two-phase solve, on its own clock. `tight` compares at `tolerance: 1e-9`.
+"Identical" is the same number to the last digit.
+
+| run | identical | new (plain: none) | lost | differs |
+|---|---|---|---|---|
+| no bones, default tolerance, plain on 60 s | 18 | 6 | 0 | 0 |
+| no bones, tolerance 1e-9, plain on 60 s | 16 | 8 | 0 | 0 |
+| with bones, default tolerance, plain on 120 s | 16 | 9 | 0 | 1 |
+| with bones, tolerance 1e-9, plain on 120 s | 13 | 12 | 0 | the same 1 |
+
+Without bones, at Standard against the plain solve on 60 s:
+
+| craft | app | plain |
+|---|---|---|
+| Wands ×6 T2 / T1 | **590,261 (2.5 s)** / **19,890,381 (11.3 s)** | none / none |
+| Rings ×6 T2 / T1 | 163,470 (0.7 s) / **1,583,389 (0.8 s)** | same (15.2 s) / none |
+| Amulets ×6 T2 / T1 | 674,493 (2.4 s) / **8,343,099 (11.2 s)** | same (43.1 s) / none |
+| Body Armour (str) ×6 T2 / T1 | 104,249 (1.2 s) / **1,413,893 (6.6 s)** | same (17.2 s) / none |
+
+With bones as priced, at Standard against the plain solve on 120 s:
+
+| craft | app | plain |
+|---|---|---|
+| Wands ×5 T2 | 39,332 (1.1 s) | same (36.6 s) |
+| Wands ×6 T2 / T1 | **148,199 (4.8 s)** / **1,286,154 (17.3 s)** | none / none |
+| Rings ×6 T2 / T1 | 63,889 (4.7 s) / **218,534 (5.5 s)** | same (113.6 s) / none |
+| Amulets ×6 T2 / T1 | **125,726 (6.8 s)** / **574,244 (16.7 s)** | none / none |
+| Body Armour (str) ×6 T2 / T1 | 33,463 (3.2 s) / **169,950 (8.2 s)** | same (72.0 s) / none |
+| a streamer's Maelström Twirl | **304,623 (2.7 s)** | none |
+| a streamer's Morbid Bane | 13,801 (2.6 s) | same (51.6 s) |
+
+The Maelström Twirl, which on 2026-11-12 still needed Exhaustive, now settles at Standard on the same
+cost.
+
+**The one craft that differs, and it is the plain solve that is wrong.** Body Armour (str) ×4 T2 with
+bones: built up 2,454.80, plain 2,462.31 — 0.3% higher, reported `exact`. Settled three ways at tolerance
+1e-9: the composition before this change (the plain solve without bones seeding the full one) gives
+2454.8009873196133, identical to the built-up; value iteration at tolerance 1e-12 gives
+2454.8009873927613 (64 s); plain gives 2462.30908952529. So the built-up number is the optimum, and the
+plain two-phase policy iteration stopped on a dearer policy while calling it exact. Control: Wands ×4 T2
+with bones, value iteration 3585.148542035251 (791 s) against 3585.1485411780936 from both solves.
+
+**The opposite case, on the frozen sheet.** A four-target Wand (IncreasedMana, WeaponSpellDamage,
+WeaponSpellDamageAndMana, Intelligence): plain 596.1716101227129, value iteration at 1e-12
+596.1716101257705 — the plain solve is the optimum here; the seeded solve, old composition and new
+identically, 596.1719573402944, 5.8e-7 above and reported `exact`, the same at the default tolerance and
+at 1e-9. The Rings counterpart: all three solves 571.8968783865325, value iteration 571.8968783888877.
+Neither case comes from the build-up; both are TODO 29.
+
+**The default tolerance reads slightly low.** At `tolerance: 1e-9` every cost is a little HIGHER than at
+the default (a thousandth of the cheapest action), plain and built up alike: Rings ×6 T2 no bones
+163,469.79 → 163,487.96 (+1.1e-4); Amulets ×6 T2 674,492.78 → 674,705.54; Wands ×4 T2 5,952.14 →
+5,952.36. Not caused by the build-up, and the cause is not established; recorded because the engineering
+notes said the default stops above the fixed point.
+
+**Before and after**, alone on the machine, interleaved, two repetitions each: the app's path with bones
+as priced, T2; before = commit f383048. Exhaustive capped at 120 s on both sides.
+
+| craft | Quick | Standard | Exhaustive (120 s) |
+|---|---|---|---|
+| Wands ×2 | 0.15 s → 0.15 s | 0.11 → 0.11 | 0.11 → 0.11 |
+| Wands ×3 | 0.37 → 0.39 | 0.35 → 0.35 | 0.35 → 0.35 |
+| Wands ×4 | 1.03 → 0.52 | 1.0 → 0.5 | 1.0 → 0.5 |
+| Wands ×5 | none (5.0 s) → 39,332 in 1.2 s | 5.1 → 1.2 | 5.2 → 1.2 |
+| Wands ×6 | none (6.6 s) → none (6.8 s) | none (32.2 s) → 148,199 in 4.9 s | 69 s → 4.9 s |
+| Rings ×2 | 0.13 → 0.13 | 0.13 → 0.13 | 0.13 → 0.13 |
+| Rings ×3 | 0.48 → 0.49 | 0.46 → 0.46 | 0.46 → 0.46 |
+| Rings ×4 | none (4.5 s) → 5,253 in 0.6 s | 3.3 → 0.6 | 3.2 → 0.6 |
+| Rings ×5 | none (5.2 s) → 19,194 in 1.5 s | 3.2 → 1.3 | 3.6 → 1.4 |
+| Rings ×6 | none (8.4 s) → 63,889 in 5.1 s | 16.8 → 5.0 | 16.8 → 4.9 |
+
+Wherever both sides have a number it is the identical number. Two- and three-target crafts do not take
+the new path and are unchanged (within 10 ms). The one slower case: Wands ×6 at Quick, no number on
+either side, about 0.25 s longer.
+
+**The gates, re-run.**
+- `scripts/required-bone.mts standard 120`: passed — 13 crafts the same as plain, 5 new, none lost. The
+  new ones (plain: none in 120 s): Wands ×5 + carved 72,878 (3.1 s), Rings ×4 + carved 9,533 (1.5 s),
+  Amulets ×5 + carved 113,374 (3.3 s), Body Armour ×5 + carved 52,699 (3.0 s), the Maelström Twirl
+  304,623 (3.0 s). Plain Rings ×4 + carved settled in 92.9 s on 2026-11-12 and gave none in 121 s this
+  time, on a shared machine; only the plain side.
+- The streamer sweep (`scripts/start-items-sweep.mts`): 37 items, 35 exact with every check passing, the
+  corrupted two refused as before; every cost the identical number to the 2026-11-12 run. Re-timed alone,
+  the gloves that took 751 s in that sweep take 3.3 s, and the staff that took 586 s 2.0 s (256,645 and
+  391,451, the same costs).
+- The bone table (`scripts/bone-fallback.mts`, Standard): all 12 crafts settle with bones, none falls back
+  to the ceiling without them. Wands ×5 39,332 in 1.4 s (74,280 without bones); Amulets ×5 60,668 in
+  2.1 s (110,544); Rings ×5 19,194 in 1.8 s (35,577); Body Armour ×5 8,015 in 1.6 s (21,579).
+
+**Played out.** Two crafts with no number before, without bones, replayed on real items: Wands ×6 T2
+solved 590,261, played 629,317 ± 83,648 over 64 runs (z = +0.47); Rings ×6 T1 solved 1,583,389, played
+1,480,717 ± 117,706 over 144 runs (z = −0.87). Both inside 3 standard errors, but a weak check: these
+crafts take 6.2 and 2.6 million orbs a run, past the replay's default cap of 1,000,000 moves (the Lab's
+play-out declines them, "too long a craft to play out"), and these runs needed the cap raised to
+200,000,000 and ten minutes each. The strong evidence is the identical numbers against the plain solve.
+
+**Tests.** `markovBuildUp.test.ts`: 15 tests on frozen prices, each mutation-checked (28 mutations, all
+caught). One app test restated because the answer improved, not loosened: a ring craft both solvers
+refused at 2,000 sweeps now answers exactly under policy iteration — 781.2514842362901, the same at 2,000,
+5,000 and 20,000,000 sweeps; still none at 50, and value iteration still refuses at 2,000.
+
 ## Still deferred
 - **Confirm the Omen of Whittling TIE rule in game** (2026-09-02): when two or more modifiers share
   the lowest item level, which does the Chaos Orb remove? Modelled as uniform — 50/50 on two — by the

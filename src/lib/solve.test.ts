@@ -396,6 +396,65 @@ describe('a from-white craft with a bone priced', () => {
   });
 });
 
+/**
+ * A from-white craft of four or more slot groups is built up from smaller crafts first (markovBuildUp.ts),
+ * which report under their own label over a thin slice at the front of the model's span. Whether a craft
+ * is built up is known only once the first of them reports, so a craft that is not must keep the bar it
+ * always had. Four Ring targets on the frozen sheet, each request ~0.2–0.4 s.
+ */
+describe('a from-white craft built up from smaller crafts', () => {
+  const frozen = { data: eng.data, prices: loadFrozenPrices() };
+  const four = ['IncreasedLife', 'IncreasedMana', 'ColdResistance', 'ChaosResistance']
+    .map((m) => ({ modId: `Rings/${m}`, tierDisplay: 99 }));
+  const standard = { maxMillis: 60_000, maxNodes: 100, maxSweeps: 100_000, solver: 'policy' as const };
+  // Without Desecration the craft is solved once; with it, the solve without bones is the one built up.
+  const ring = (targets: typeof four, excluded: string[]): SolveRequest =>
+    ({ kind: 'lab', from: { baseId: 'Rings', level: 82 }, targets, excluded, effort: standard });
+  const progress = (req: SolveRequest): SolveProgress[] => {
+    const seen: SolveProgress[] = [];
+    runSolve(frozen, req, (p) => seen.push(p));
+    return seen;
+  };
+
+  it('reports the smaller crafts first, under their own label, and never moves the bar backwards', () => {
+    for (const excluded of [['desecrate'], []]) {
+      const seen = progress(ring(four, excluded));
+      const phases = seen.map((p) => p.phase);
+      const first = phases.indexOf('smaller');
+      const last = phases.lastIndexOf('smaller');
+      expect(first).toBeGreaterThan(-1);
+      // After planning and before any solve they seed — and the solve after them starts where they end.
+      expect(phases.slice(0, first).every((p) => p === 'plan')).toBe(true);
+      expect(phases.slice(first, last + 1).every((p) => p === 'smaller')).toBe(true);
+      expect(seen[last + 1]!.fraction).toBe(seen[last]!.fraction);
+      for (let i = 1; i < seen.length; i++) expect(seen[i]!.fraction).toBeGreaterThanOrEqual(seen[i - 1]!.fraction);
+      expect(seen[seen.length - 1]).toEqual({ phase: 'solve', fraction: 1 });
+    }
+  });
+
+  it('keeps a craft of three targets on the bar it had before', () => {
+    for (const excluded of [['desecrate'], []]) {
+      const seen = progress(ring(four.slice(0, 3), excluded));
+      expect(seen.some((p) => p.phase === 'smaller')).toBe(false);
+      // The model's first report sits exactly where planning ended: no slice is held for the smaller
+      // crafts a three-target craft never solves.
+      const model = seen.findIndex((p) => p.phase !== 'plan');
+      expect(seen[model]!.fraction).toBe(seen[model - 1]!.fraction);
+      for (let i = 1; i < seen.length; i++) expect(seen[i]!.fraction).toBeGreaterThanOrEqual(seen[i - 1]!.fraction);
+      expect(seen[seen.length - 1]).toEqual({ phase: 'solve', fraction: 1 });
+    }
+  });
+
+  // At 2,000 sweeps the full craft settles only from the smaller crafts' seed (phase A alone refuses it —
+  // see the policy-iteration block below), so a callback that changed what they do would show here.
+  it('gives the same answer with and without a progress callback', () => {
+    const req: SolveRequest = { ...ring(four, ['desecrate']), effort: { ...standard, maxSweeps: 2_000 } };
+    const quiet = runSolve(frozen, req);
+    expect(quiet.kind === 'lab' && quiet.markov.bound).toBe('exact');
+    expect(runSolve(frozen, req, () => {})).toEqual(quiet);
+  });
+});
+
 describe('Search effort reaches value iteration, not just the preset table', () => {
   const generous = { maxMillis: 60_000, maxNodes: 200 };
   const run = (maxSweeps: number) =>
@@ -512,7 +571,7 @@ describe('policy iteration answers where value iteration can only bound', () => 
     const vi = solve(5_000, 'value');
     const pi = solve(5_000, 'policy');
     expect(vi.bound).toBe('upper');   // ≤ 8,906 — an honest ceiling, and 11x the truth
-    expect(pi.bound).toBe('exact');   // 781.82
+    expect(pi.bound).toBe('exact');   // 781.25
     // A from-white solve truncates DOWNWARD, so VI's ceiling must sit above the exact cost. If this
     // ever inverts, the bound is being read the wrong way round somewhere.
     expect(vi.expectedCost).toBeGreaterThan(pi.expectedCost);
@@ -522,13 +581,28 @@ describe('policy iteration answers where value iteration can only bound', () => 
    * …and it cannot turn a number into a refusal, which is what makes the swap safe rather than merely
    * better on average.
    *
-   * "No number" comes from PHASE A failing, and phase A is plain value iteration on both paths —
-   * `markovFromItem` returns `fail(...)` before it reads the solver choice. So a budget too small for
-   * phase A must refuse identically under both, and this craft at 2,000 sweeps is exactly that budget.
+   * For a craft that is not built up, "no number" comes from PHASE A failing, and phase A is plain value
+   * iteration on both paths — `markovFromItem` returns `fail(...)` before it reads the solver choice. So
+   * a budget too small for phase A refuses identically under both. This ring has four targets, so under
+   * policy iteration it is built up from smaller crafts first (markovBuildUp.ts), and when their seed
+   * holds the full craft does not run phase A at all. At 50 sweeps not even one target alone settles, so
+   * there is no seed, and phase A refuses both.
    */
   it('refuses identically when the budget is too small for either', () => {
+    expect(solve(50, 'value').feasible).toBe(false);
+    expect(solve(50, 'policy').feasible).toBe(false);
+  }, 60_000);
+
+  // The build-up's side of it: at 2,000 sweeps phase A still stops value iteration (the test above used to
+  // refuse both here), while the seeded policy solve skips it and settles — on the answer a generous
+  // budget gives, so the seed bought speed and nothing else.
+  it('answers exactly where phase A would refuse, once the craft is built up', () => {
     expect(solve(2_000, 'value').feasible).toBe(false);
-    expect(solve(2_000, 'policy').feasible).toBe(false);
+    const tight = solve(2_000, 'policy');
+    const generous = solve(100_000, 'policy');
+    expect(tight).toMatchObject({ feasible: true, bound: 'exact' });
+    expect(generous).toMatchObject({ feasible: true, bound: 'exact' });
+    expect(Math.abs(tight.expectedCost - generous.expectedCost) / generous.expectedCost).toBeLessThan(1e-9);
   }, 60_000);
 });
 

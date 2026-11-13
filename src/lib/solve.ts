@@ -131,10 +131,13 @@ export type SolveResult =
   | { readonly kind: 'item'; readonly plan: EngineResult; readonly markov: EngineMarkovResult };
 
 /**
- * Every phase that can report. `item` runs the MDP's three; `lab` runs planning, the MDP, a replay of
- * its policy when the request has a watch list, and, when a budget is set, the budget search.
+ * Every phase that can report. `item` runs the MDP's three; `lab` runs planning, the MDP (on a big
+ * from-white craft, after the smaller crafts it is built up from; with bones, after the solve without
+ * them), a replay of its policy when the request has a watch list, and, when a budget is set, the budget
+ * search.
  */
-export type SolvePhase = MarkovProgress['phase'] | 'plan' | 'replay' | 'playout' | 'withoutBones' | 'alternatives';
+export type SolvePhase =
+  | MarkovProgress['phase'] | 'plan' | 'replay' | 'playout' | 'smaller' | 'withoutBones' | 'alternatives';
 
 /**
  * How far along a solve is, as a single 0–1 fraction the UI can render directly.
@@ -229,6 +232,12 @@ const MODEL_BEFORE_PLAYOUT = 0.5;
  * (markovBoneFree.ts): measured at 75–90% of the pair's time, the seeded solve with bones the rest.
  */
 const BONE_FREE_SHARE = 0.75;
+/**
+ * The model's share of the bar the smaller crafts take, when a big craft is built up from them first
+ * (markovBuildUp.ts). A thin slice at the front: each is normally solved in a fraction of a second,
+ * and the solve they seed is the long one.
+ */
+const SMALLER_SHARE = 0.1;
 
 /**
  * A lab compute's split depends on whether a budget was set, which is why these can't be a static
@@ -426,9 +435,20 @@ export function runSolve(eng: Engine, req: SolveRequest, onProgress?: (p: SolveP
   const modelShare = req.watch ? MODEL_BEFORE_REPLAY : MODEL_BEFORE_PLAYOUT;
   const mdpSpan: Span = watch ? [modelFrom, modelFrom + (modelTo - modelFrom) * modelShare] : [modelFrom, modelTo];
   const replayProgress = emit(replayPhase, [mdpSpan[1], modelTo]);
+  // A big from-white craft is built up from smaller crafts first (markovBuildUp.ts), over a thin slice at
+  // the front of the model's span; the solves they seed take the rest. Whether a craft is built up is
+  // known only once the first smaller craft reports, and none of them reports before it, so a craft that
+  // is not keeps the whole span — the same bar it had before the build-up existed.
+  const built = mdpSpan[0] + (mdpSpan[1] - mdpSpan[0]) * SMALLER_SHARE;
+  let builtUp = false;
+  const rest = (): Span => [builtUp ? built : mdpSpan[0], mdpSpan[1]];
   // A craft whose bones are optional is two solves (markovBoneFree.ts): without bones first, over the
-  // first part of the model's span, then with them over the rest. The end keeps the last label.
-  const split = mdpSpan[0] + (mdpSpan[1] - mdpSpan[0]) * BONE_FREE_SHARE;
+  // first part of what is left of the model's span, then with them over the rest. The end keeps the last
+  // label.
+  const split = (): number => {
+    const [from, to] = rest();
+    return from + (to - from) * BONE_FREE_SHARE;
+  };
   let freeRan = false;
   let lastPhase: SolvePhase = 'solve';
   const report = (phase: SolvePhase, span: Span, pr: MarkovProgress): void => {
@@ -451,14 +471,24 @@ export function runSolve(eng: Engine, req: SolveRequest, onProgress?: (p: SolveP
     ...(req.smallLattice ? { heuristicSeed: true, exactEvaluation: true } : {}),
     ...(mdpClock === undefined ? {} : { maxMillis: mdpClock }),
     ...(onProgress
-      ? { onProgress: (pr: MarkovProgress): void => report(pr.phase, freeRan ? [split, mdpSpan[1]] : mdpSpan, pr) }
+      ? { onProgress: (pr: MarkovProgress): void => report(pr.phase, freeRan ? [split(), mdpSpan[1]] : rest(), pr) }
       : {}),
   }))), {
     // The solve without bones gets a clock of its own, the same as the one with them: its plan seeds
     // that solve, or answers as a ceiling if it runs out.
     ...(mdpClock === undefined ? {} : { maxMillis: mdpClock }),
     ...(onProgress
-      ? { onProgress: (pr: MarkovProgress): void => { freeRan = true; report('withoutBones', [mdpSpan[0], split], pr); } }
+      ? {
+          onProgress: (pr: MarkovProgress): void => { freeRan = true; report('withoutBones', [rest()[0], split()], pr); },
+          // Not through `report`: the end of the bar should read as the solve that finished, never as
+          // these, which only seed it.
+          smaller: {
+            onLevel: (done: number, of: number): void => {
+              builtUp = true;
+              onProgress({ phase: 'smaller', fraction: within([mdpSpan[0], built], done, of) });
+            },
+          },
+        }
       : {}),
   }));
 

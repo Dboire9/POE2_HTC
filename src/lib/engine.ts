@@ -299,8 +299,9 @@ export function optimizeItem(
 export function optimizeItemMarkov(
   eng: Engine, item: ExistingItem, targets: readonly TargetInput[], opts: MarkovOptions = {},
   /** A from-white craft whose bones are optional is solved without them first, on this clock of its own,
-   *  and that plan seeds the solve with them — or answers as a ceiling (`markovBoneFree.ts`). Absent ⇒
-   *  the craft is solved once, as it always was. */
+   *  and that plan seeds the solve with them — or answers as a ceiling (`markovBoneFree.ts`); a big one is
+   *  built up from smaller crafts first, reporting through `smaller` (`markovBuildUp.ts`). Absent ⇒ the
+   *  craft is solved once, as it always was. */
   withoutBones?: BoneFreeOptions,
 ): EngineMarkovResult {
   const { data, prices } = eng;

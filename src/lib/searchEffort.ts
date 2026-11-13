@@ -77,6 +77,12 @@ export interface EffortLimits {
    * runs out under PI yields `bound: 'upper'`, the same kind of ceiling VI gives. The measured
    * no-number counts are identical at every rung (8/8, 4/4, 2/2), as that predicts.
    *
+   * The build-up came later: under PI only, a from-white craft of four or more slot groups is built up
+   * from smaller crafts whose plan seeds the full one (markovBuildUp.ts); when that seed holds, the full craft
+   * skips phase A, so PI can now answer where phase A would have refused (solve.test.ts: a Ring at 2,000
+   * sweeps). The direction of the claim is unchanged — PI never turns a number into a refusal — but the
+   * no-number counts above may now differ in PI's favour.
+   *
    * Where both converge they agree to 1e-6, which is what licenses the swap at all.
    */
   readonly solver?: 'value' | 'policy';

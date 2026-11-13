@@ -20,6 +20,11 @@
 // finishes THIS craft: always for optional bones, and for required ones only when every slot keeps a
 // member that is not carved (a carved mod named as an alternative), since otherwise that plan never
 // places the carved mod.
+//
+// The solve without bones — and a craft that takes no bone path at all — is itself built up from
+// smaller crafts where it is big enough (markovBuildUp.ts): one target at a time, cheapest first, each
+// level seeding the next. The solve with bones is still seeded from the full plan without them, so it is
+// in effect the top level of that build-up.
 
 import type { ItemState, PatchData } from '../../engine/src/types.ts';
 import type { Prices } from './cost.ts';
@@ -28,6 +33,7 @@ import { slotIndexGroups } from './slots.ts';
 import {
   BONE_KEYS, boneRole, markovFromItem, type MarkovOptions, type MarkovProgress, type MarkovResult,
 } from './markovFromItem.ts';
+import { markovBuiltUp, type BuildUpOptions } from './markovBuildUp.ts';
 
 export { BONE_KEYS };
 
@@ -36,6 +42,12 @@ export interface BoneFreeOptions {
   readonly maxMillis?: number;
   /** Its progress, apart from the solve with bones: they are two solves, each from nothing. */
   readonly onProgress?: (p: MarkovProgress) => void;
+  /**
+   * The smaller crafts a big solve is built up from (markovBuildUp.ts): their shared clock and their
+   * progress. They serve the solve without bones, or — for a craft that takes no bone path — the one
+   * solve there is. Absent ⇒ that module's defaults.
+   */
+  readonly smaller?: BuildUpOptions;
 }
 
 /**
@@ -72,16 +84,16 @@ export function markovBoneFreeFirst(
   first: BoneFreeOptions = {},
 ): MarkovResult {
   const craft = boneFreeCraft(data, prices, start, targets, opts);
-  if (!craft) return markovFromItem(data, prices, start, targets, opts);
+  if (!craft) return markovBuiltUp(data, prices, start, targets, opts, first.smaller);
   // A play-out is for the answer, and the solve with bones has its own clock and progress.
   const { replay: _replay, onProgress: _onProgress, maxMillis: _maxMillis, ...same } = opts;
-  const free = markovFromItem(data, prices, start, craft.targets, {
+  const free = markovBuiltUp(data, prices, start, craft.targets, {
     ...same,
     keepRoutes: true,
     policy: { excluded: new Set([...(opts.policy?.excluded ?? []), ...BONE_KEYS]) },
     ...(first.maxMillis === undefined ? {} : { maxMillis: first.maxMillis }),
     ...(first.onProgress ? { onProgress: first.onProgress } : {}),
-  });
+  }, first.smaller);
   const seed = free.feasible && free.bound === 'exact' ? free.routes : undefined;
   const res = markovFromItem(data, prices, start, targets, seed ? { ...opts, seedFrom: seed } : opts);
   if (!craft.finishes) return res;

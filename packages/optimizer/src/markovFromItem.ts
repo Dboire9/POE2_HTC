@@ -182,6 +182,10 @@ export interface MarkovOptions {
    * still sits tol/(1−r) above the limit, and r is near 1 here — which is why the error is ~1e-3 and
    * not ~1e-6. Dividing by 10,000 instead buys 10x the accuracy for almost none of the speed: 92.2 s.)
    *
+   * That direction was measured under value iteration. Under policy iteration it does NOT hold: measured
+   * 2026-11-13, every cost at `tolerance: 1e-9` came out a little HIGHER than at the default (Rings ×6
+   * T2: 163,469.79 → 163,487.96), so there the default reads slightly low. Why is open — TODO 29.
+   *
    * Pass a value to override, which is what the hand-computed tests do: they assert the model's
    * arithmetic to nine decimals, so they ask for a tolerance that supports it.
    */

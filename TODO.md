@@ -1301,19 +1301,44 @@ line in `profileItems.test.ts` pin it.
 
 **Verify.** New rows get the CoE check every other category had.
 
-## 20. A bone in play costs 2-8x the solve time — DONE from white, 2026-11-12; held items OPEN
+## 20. A bone in play costs 2-8x the solve time — DONE from white, 2026-11-12; big crafts built up 2026-11-13; held items OPEN
 
 Optional bones are handled since 2026-09-24 (seeded from the plan without them, below). **Required bones —
 a desecrated target — since 2026-11-12**: the craft with the carved target dropped is solved without bones
 and seeds the full solve (`boneFreeCraft`, `markovBoneFree.ts`). Identical exact costs on all 13 crafts
 both settle, up to 20x faster, three ×5 crafts get a number where they had none, and Zizaran's ring
-(below) settles at Exhaustive in 10 s (docs/validation.md, 2026-11-12). What stays open:
+(below) settles at Exhaustive in 10 s (docs/validation.md, 2026-11-12).
+
+**The next lever is built, 2026-11-13** (`markovBuildUp.ts`): a from-white craft of four or more slot
+groups is built up from its smaller crafts — each group alone, cheapest first, then 2, 3, … groups, each
+seeded from the last that settled — and the full craft is seeded from the last. It serves both solves
+without bones, so it helps any big craft, bones or not. The app's path at Standard, T2 unless marked
+(docs/validation.md, 2026-11-13):
+
+| craft | before | built up |
+|---|---|---|
+| Wands ×5, bones as priced | 39,332 in 5.1 s | same in 1.2 s |
+| Rings ×6, bones as priced | 63,889 in 16.8 s | same in 5.0 s |
+| Wands ×6, bones as priced | none (32.2 s) | 148,199 in 4.9 s |
+| Amulets ×6, no bones | 674,493 in 43.1 s (plain, 60 s clock) | same in 2.4 s |
+| Wands ×6 T1, no bones | none in 60 s (plain) | 19,890,381 in 11.3 s |
+
+Every cost both sides give is the identical number. What stays open:
 
 - **A held item with a carved target.** It cannot start over, so its solve climbs and stops on a floor;
-  nothing to seed, and no ceiling. Same as for optional bones.
-- **The ring still needs Exhaustive.** Its smaller craft (five targets, no bones) spends Standard's
+  nothing to seed, and no ceiling. Same as for optional bones — and the build-up cannot reach it either,
+  for the same reason.
+- ~~**The ring still needs Exhaustive.** Its smaller craft (five targets, no bones) spends Standard's
   100,000 sweeps in 2 s without settling, so there is nothing to seed from. Seeding THAT craft the same
-  way — from a smaller craft still — is the next lever, and would help any big craft, bones or not.
+  way — from a smaller craft still — is the next lever, and would help any big craft, bones or not.~~
+  DONE 2026-11-13: built up, the ring settles at Standard in 2.7 s, 304,623 ex.
+- **Wands ×6 at Quick** still gives no number, before or after (about 0.25 s longer now). The only
+  measured craft the build-up leaves without one.
+- **Six-target crafts are too long to play out.** They take millions of orbs a run (6.2 million on Wands
+  ×6 T2 without bones), past the replay's default cap of 1,000,000 moves, so the Lab's play-out declines
+  them ("too long a craft to play out").
+- **Where the built-up and the plain solve disagreed** (one craft), value iteration found the PLAIN one
+  wrong: TODO 29.
 - **A seeded solve that runs out throws away a proper plan's value** (`markovSolve.ts`: it resets and runs
   phase A on no clock). Keeping it as a ceiling needs the closed form to tell "settled" from "hit its
   sweep cap" (engineering notes, "A ceiling's plan is followable"). Not built: no measured craft needed it.
@@ -1345,7 +1370,8 @@ docs/validation.md). Zizaran's Maelström Twirl, a 6-mod Ring asking T1 Cast Spe
 desecrated T1 suffix, does not settle from white alone in 900 s, nor in 2,400 s: phase A does not converge in either.
 At Exhaustive the Lab gets no number, and prints the solver's advice to raise Search effort, which at
 the top preset is a dead end. **Closed 2026-11-12**: seeded from the craft without its carved suffix,
-exact 304,623 ex in 10 s at Exhaustive; a play-out of 64 crafts agrees to 0.83 standard errors.
+exact 304,623 ex in 10 s at Exhaustive; a play-out of 64 crafts agrees to 0.83 standard errors. Since
+2026-11-13, built up from smaller crafts, it settles at Standard too (2.7 s, the same cost).
 ## 21. Ancient bones and the Omen of Abyssal Echoes — what is assumed, and where they are not — OPEN, 2026-09-10
 
 Both are in the true-cost route and the Quick check (docs/validation.md, 2026-09-10). What rests on a
@@ -1579,6 +1605,39 @@ accounting (one fewer prefix or suffix for the whole craft, like a fractured tar
 and every removal distribution. The step planners already get this right: `annulProbability` and the
 Chaos removal in `probability.ts` never pick a fractured mod. Test: a held Rare with a fractured junk prefix, a full prefix side asked for, and no spare —
 infeasible; with one spare prefix — feasible, and no route removes the fractured mod.
+
+## 29. Policy iteration can stop on a policy that is not the cheapest and still say `exact` — OPEN, found 2026-11-13
+
+Found while measuring the build-up (TODO 20; docs/validation.md, 2026-11-13). `exact` means the policy
+stopped changing; on two crafts the number it stopped on is not the optimum, and a third observation
+says the default tolerance reads low:
+
+- **The plain two-phase solve, 0.3% high.** Body Armour (str) ×4 T2 with bones, live sheet, from white:
+  plain 2,462.31 `exact`, built up 2,454.80. At `tolerance: 1e-9`: the composition before the build-up
+  (the plain solve without bones seeding the full one) 2454.8009873196133, the build-up the same, value
+  iteration at 1e-12 2454.8009873927613 (64 s), plain 2462.30908952529. Control, Wands ×4 T2 with bones:
+  value iteration 3585.148542035251 (791 s), both solves 3585.1485411780936.
+- **The seeded solve, 5.8e-7 high.** A four-target Wand on the frozen sheet (IncreasedMana,
+  WeaponSpellDamage, WeaponSpellDamageAndMana, Intelligence): plain 596.1716101227129, value iteration at
+  1e-12 596.1716101257705, seeded 596.1719573402944 `exact` — old composition and new alike, at the
+  default tolerance and at 1e-9. The Rings counterpart: all three solves 571.8968783865325, value
+  iteration 571.8968783888877.
+- **The default tolerance reads slightly low.** At `tolerance: 1e-9` every cost measured came out a little
+  HIGHER than at the default (a thousandth of the cheapest action), plain and built up alike: Rings ×6 T2
+  no bones 163,469.79 → 163,487.96 (+1.1e-4); Amulets ×6 T2 674,492.78 → 674,705.54; Wands ×4 T2
+  5,952.14 → 5,952.36. The engineering notes said the opposite ("never flatters it") and now say so.
+
+**Known.** Value iteration at 1e-12 settles which number is the optimum in the first two — the built-up
+one in the first, the plain one in the second. Neither is caused by the build-up: the composition before
+it and the build-up give the identical number in both. **Not known: the cause.** One lead, unverified: an
+offer's keep-weights are evaluated against the previous values.
+
+**Who is exposed.** The seeded path answers a from-white Lab craft with optional bones since 2026-09-24,
+one with a carved target since 2026-11-12, and every from-white craft of four or more slot groups since
+2026-11-13. The plain path still answers where no seed settled, and for callers that solve once.
+
+**First step.** A script that compares every craft of the build-up set (`scripts/build-up.mts`) against
+value iteration at 1e-12, wherever that settles: how often a solve stops high, and how far.
 
 ## What 1.0 means — ALL FIVE SHIPPED, prepared 2026-09-02
 

@@ -117,8 +117,12 @@ export function expandSlots<T extends TierTarget>(targets: readonly T[]): T[][] 
  */
 export function itemLegalCombinations<T extends TierTarget>(
   combos: readonly T[][], isDesecrated: (modId: string) => boolean,
+  /** The same rule for CRAFTED mods, against the base's cap — what essence twins (essenceTwins.ts) need:
+   *  two slots each offering an Essence is a fine ask, the combination taking both is not an item. */
+  crafted?: { readonly is: (modId: string) => boolean; readonly cap: number },
 ): T[][] {
-  const legal = combos.filter((c) => c.filter((t) => isDesecrated(t.modId)).length <= 1);
+  const legal = combos.filter((c) => c.filter((t) => isDesecrated(t.modId)).length <= 1
+    && (!crafted || c.filter((t) => crafted.is(t.modId)).length <= crafted.cap));
   // Never return nothing: with no combination left, the caller must run one anyway so the planner's
   // own validator produces the real message rather than the caller inventing an empty frontier.
   return legal.length > 0 ? legal : [...combos];

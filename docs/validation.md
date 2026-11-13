@@ -5058,6 +5058,77 @@ tiny saving hidden by TODO 29.
 **Reverted.** The repo carries no trace of the stand-in; the definition above is how to rebuild it. The
 real action is planned separately in TODO 12b.
 
+## A rolled target, met by its Essence (2026-11-13, TODO 30)
+
+**The question.** The "Or try one" crafts never used an Essence, and no craft naming rolled modifiers ever
+did: the data keeps an essence's mod apart from the rolled one (`Rings/Essence_FireResistance` beside
+`Rings/FireResistance`), a target names the rolled one, and the MDP offers an Essence only for a target
+that IS an essence mod. Yet the essence levels are rolled tiers — Greater Essence of Insulation is
+`[[31,35]]`, the rolled T3. Of the essence levels that equal a rolled tier on the same base, side and
+family (0.5.0, every base), 49 equal a T1 or T2 and 872 a lower tier.
+
+**What was built.** Each rolled target is offered its ESSENCE TWIN as an alternative in its own slot
+(`essenceTwins.ts`; the rules are in the engineering notes, "Game mechanics: essences"). Two things found
+on the way: the crafted cap counted CANDIDATES, so offering two twins refused the craft ("at most one
+crafted modifier") — now twins do not count (each is an alternative to a rolled mod, and only one regular
+Essence ever lands), while every crafted position the player names still does; and a twin is an extra
+position, so a six-target Ring with bones (six targets and three obstacles: the model's nine) refused —
+now twins that do not fit are dropped, the one on the rarest roll kept first. A twin is never merged with
+its rolled mod: crafted mods have their own family namespace, so both can sit on one item. The states a
+twin cannot be in — blocked, two at once, on a Magic item — are pruned: the four-twin Ring went from 8.2 s
+to 1.4 s at Standard.
+
+**Measured** with `scripts/essence-twins.mts [effort] [bones|nobones]`: the app's path (`runSolve`, the Lab,
+from white, item level 82, live sheet), "as asked" with every essence level excluded — for these crafts,
+which name no essence, exactly the solve before twins — against "with twins". Standard; single runs, one
+after the other; costs in ex.
+
+| craft | bones: as asked → with twins | saving | no bones: as asked → with twins | saving |
+|---|---|---|---|---|
+| A caster Wand (example) | 3,934 (0.9 s) → 283 (5.6 s) | 92.8% | 4,148 → 283 | 93.2% |
+| A life and resistances Ring (example) | 4,189 (0.4 s) → 1,152 (1.4 s) | 72.5% | 5,687 → 1,152 | 79.7% |
+| An armour Body Armour (example) | 951 (0.4 s) → 122 (1.0 s) | 87.2% | 2,466 → 442 | 82.1% |
+| A Spirit Amulet (example) | 4,267 (0.4 s) → 276 (0.7 s) | 93.5% | 4,267 → 276 | 93.5% |
+| Wands ×4 / ×5 / ×6 T3 | 1,271 / 9,648 / 48,673 → 223 / 1,541 / 12,137 | 82.5 / 84.0 / 75.1% | 2,122 / 15,426 / 99,182 → 271 / 2,151 / 17,970 | 87.2 / 86.1 / 81.9% |
+| Rings ×4 / ×5 / ×6 T3 | 2,306 / 6,648 / 25,873 → 1,460 / 5,455 / 25,873 | 36.7 / 17.9 / 0% | 3,289 / 11,178 / 39,900 → 1,475 / 8,720 / 35,160 | 55.2 / 22.0 / 11.9% |
+| Amulets ×4 / ×5 / ×6 T3 | 5,726 / 21,276 / 58,821 → 1,351 / 5,877 / 58,821 | 76.4 / 72.4 / 0% | 9,365 / 40,702 / 162,595 → 1,351 / 9,928 / 48,860 | 85.6 / 75.6 / 69.9% |
+| Body Armour (str) ×4 / ×5 / ×6 T3 | 915 / 2,382 / 10,645 → 107 / 409 / 1,870 | 88.4 / 82.8 / 82.4% | 2,450 / 6,073 / 25,016 → 363 / 1,096 / 4,658 | 85.2 / 82.0 / 81.4% |
+| the 24 T2 and T1 crafts | identical to the last digit | 0% | identical | 0% |
+
+Both gates passed: no craft lost its number, none got dearer. The six-target T3 Ring and Amulet with bones
+are unchanged because their twin had no room; without bones (no carved obstacles) it fits and saves 12%
+and 70%. The T2/T1 crafts are unchanged because no essence level on these bases equals a T1 or T2 of these
+mods. Times move only where a twin is offered, and most by under a second; the caster Wand is the
+slowest (0.9 s → 5.6 s: three targets, two twins, too few slot groups to be built up — TODO 30).
+
+**Quick and Exhaustive** (alone, bones as priced). Exhaustive passed with every T3 craft at its Standard
+cost. Quick FAILED the gate on the first run, on the caster Wand example: 3,934 as asked, nothing with its
+two twins — the twin solve ran past Quick's 2 s clock. Hence the rule now in `optimizeItemMarkov`
+(engine.ts): a craft whose twins did not settle is solved again as asked, and that answer stands when it
+is exact and no dearer than what the twins reached (`essenceFallback.test.ts`, the twin solve's outcome
+set around the real solver). Re-run: passed — the Wand answers 3,934 as before, in 5.5 s instead of 0.8 s
+(the twin solve overruns its clock before giving up); every other T3 craft at its Standard cost; the four
+crafts with no number at Quick before (Wands ×6 T2 and T1, Amulets and Body Armour ×6 T1) still have none.
+
+**The gates, re-run** (side by side; the bone table and the sweep's checks do not depend on the clock):
+- `scripts/required-bone.mts standard 120`: passed — every line as on the morning of 2026-11-13, 13 the
+  same as plain, 5 new, none lost.
+- `scripts/bone-fallback.mts`: all 12 crafts settle with bones, every cost as before.
+- The streamer sweep (`scripts/start-items-sweep.mts`): 37 items, 35 exact and the corrupted two refused,
+  every check passed; 32 costs identical to the morning's run and 5 cheaper — fubgun's gloves 256,645 →
+  62,361 (75.7%), their Pandemonium Star 36,800 → 5,303 (85.6%), an Empyrean Gyre 18,432 → 5,384 (70.8%),
+  Zizaran's Rage Sole 19,384 → 7,775 (59.9%), fubgun's Phoenix Core 20,315 → 19,485 (4.1%). None dearer.
+
+**Also fixed: excluding an Essence level excluded nothing.** "Currency I don't have" names essences by
+level (`essence_greater`), but an essence step is priced and checked under its own key
+(`essence:greater:<mod>`), and `allowsStep` read only that one. It now reads both.
+
+**Tests.** `essenceTwins.test.ts`, 17 on frozen prices, and three in `solve.test.ts` through the app's
+path, and four in `essenceFallback.test.ts`; each mutation-checked (21 mutations, all caught). Three app tests that measure something else —
+binning against the base price, value against policy iteration, the order of Regal and Desecration —
+were moved: the first two exclude essences (their claim is about the lattice without twins, as the ring
+already excludes Desecration), the third accepts an Essence as the step that makes the item Rare.
+
 ## Still deferred
 - **Confirm the Omen of Whittling TIE rule in game** (2026-09-02): when two or more modifiers share
   the lowest item level, which does the Chaos Orb remove? Modelled as uniform — 50/50 on two — by the

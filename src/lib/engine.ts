@@ -17,19 +17,22 @@ import { TABLET_CATEGORY } from '../../packages/engine/src/types.ts';
 import {
   annulProbability, augmentationProbability, bossOmenAllowed, chaosProbability,
   ANCIENT_BONE_FLOOR, desecrationBossAnySideProbability, desecrationOffered, desecrationOmenForMod, desecrationProbability,
-  exaltProbability, regalProbability,
+  exaltProbability, isEssenceMod, regalProbability,
 } from '../../packages/engine/src/probability.ts';
 // Whether a Desecration on this base can be boss-targeted ("Weapon or Jewellery" only). Re-exported
 // because the UI has to DESCRIBE desecration differently on armour, not just cost it differently.
 export { bossOmenAllowed };
 import {
-  ECHOES_OMEN, cheapestEssenceLevel, currencyKey, essenceLevelOf, indexPrices, pricesForBase, stepCost,
-  type PricedStep, type Prices, type PricesFile,
+  ECHOES_OMEN, cheapestEssenceLevel, currencyKey, essenceLevelOf, indexPrices, pricesForBase, stepAvailable, stepCost,
+  type CurrencyPolicy, type PricedStep, type Prices, type PricesFile,
 } from '../../packages/optimizer/src/cost.ts';
 import { atStrength } from '../../packages/optimizer/src/levers.ts';
 import { stepProbability, type PlanStep } from '../../packages/engine/src/plan.ts';
 import { optimizePareto, type OptimizeParetoOptions } from '../../packages/optimizer/src/optimize.ts';
 import { optimizeFromItem } from '../../packages/optimizer/src/fromItem.ts';
+import { withEssenceTwins } from '../../packages/optimizer/src/essenceTwins.ts';
+import { limitsOf } from '../../packages/engine/src/item.ts';
+import type { TierTarget } from '../../packages/optimizer/src/optimize.ts';
 import { markovFromItem, type MarkovOptions } from '../../packages/optimizer/src/markovFromItem.ts';
 import { markovBoneFreeFirst, type BoneFreeOptions } from '../../packages/optimizer/src/markovBoneFree.ts';
 import { routeFrom, stepFrom } from '../../packages/optimizer/src/markovRoute.ts';
@@ -265,7 +268,10 @@ export function optimize(
   if (!raw) throw new Error(`Unknown base: ${baseId}`);
   // A from-white craft has no item to carry its runes, so they ride in on the options.
   const base = withRunes(raw, opts.runes ?? []);
-  const res = optimizePareto(data, prices, base, toTierTargets(data, targets), { ...opts, level });
+  // A white base passes through Magic, so a rolled target may be forced by its Essence (essenceTwins.ts).
+  const tiers = withEssenceTwins(data, base, toTierTargets(data, targets), level, limitsOf(base).crafted,
+    buyable(prices, opts.policy));
+  const res = optimizePareto(data, prices, base, tiers, { ...opts, level });
   // A pool rune's weights are assumed, and weight is in the denominator of every weighted draw — so
   // the whole result is qualified, not the steps that happen to land one of its modifiers.
   return mapFrontier(data, res, usesAssumedPool(opts.runes ?? []));
@@ -306,14 +312,55 @@ export function optimizeItemMarkov(
 ): EngineMarkovResult {
   const { data, prices } = eng;
   const state = buildItemState(data, item);
-  const tiers = toTierTargets(data, targets);
-  const res = withoutBones
-    ? markovBoneFreeFirst(data, prices, state, tiers, opts, withoutBones)
-    : markovFromItem(data, prices, state, tiers, opts);
+  const named = toTierTargets(data, targets);
+  const tiers = twinsFor(data, state, named, buyable(prices, opts.policy));
+  const solve = (t: readonly TierTarget[]) => (withoutBones
+    ? markovBoneFreeFirst(data, prices, state, t, opts, withoutBones)
+    : markovFromItem(data, prices, state, t, opts));
+  let res = solve(tiers);
+  /*
+   * A twin is an offer, and an offer must never cost the player an answer they had. Every twin is a
+   * position, and a craft that settles as asked can run out of its clock with them — the caster Wand
+   * example did at Quick (3,934 as asked, nothing with its two twins; docs/validation.md, 2026-11-13). So
+   * a craft whose twins did not settle is solved again as asked, and that answer stands when it is exact
+   * and no dearer than what the twins reached. Only a craft that already ran out pays the second solve.
+   */
+  if (tiers.length !== named.length && !(res.feasible && res.bound === 'exact')) {
+    const plain = solve(named);
+    const settled = plain.feasible && plain.bound === 'exact';
+    if (settled && (!res.feasible || plain.expectedCost <= res.expectedCost)) res = plain;
+  }
   // `targets` is handed on so every position can carry the tier it was ASKED at. It is the UI-shaped
   // list, which is the only place `tierDisplay` survives — `toTierTargets` converts it to the engine's
-  // worst-first index on the way in, and the graph needs it back the way the player wrote it.
-  return mapMarkov(data, res, usesAssumedPool(item.runes ?? []), targets);
+  // worst-first index on the way in, and the graph needs it back the way the player wrote it. A twin
+  // stands in for the target in its slot, so it reads at that target's tier: a Greater Essence of
+  // Insulation in a Fire Resistance T3 slot is shown as T3, not as the essence's own level.
+  const asked = [...targets, ...tiers.flatMap((t) => {
+    if (!t.essenceTwin) return [];
+    const named = tiers.findIndex((x) => !x.essenceTwin && x.slot === t.slot);
+    const tierDisplay = targets[named]?.tierDisplay;
+    return tierDisplay === undefined ? [] : [{ modId: t.modId, tierDisplay }];
+  })];
+  return mapMarkov(data, res, usesAssumedPool(item.runes ?? []), asked);
+}
+
+/**
+ * A rolled target may also be met by its Essence (essenceTwins.ts) — on an item a regular Essence can
+ * still go on: Normal or Magic, carrying no crafted modifier. A Rare you hold cannot take one, so its
+ * targets go through as asked.
+ */
+function twinsFor(
+  data: PatchData, state: ItemState, tiers: TierTarget[], available: (modId: string, tierName: string) => boolean,
+): TierTarget[] {
+  if (state.rarity === 'rare') return tiers;
+  const held = [...state.prefixes, ...state.suffixes].some((m) => isEssenceMod(resolveMod(data, m.modId)));
+  if (held) return tiers;
+  return withEssenceTwins(data, state.base, tiers, state.level, limitsOf(state.base).crafted, available);
+}
+
+/** Whether an essence at a level can be bought: priced on the sheet, and not excluded by the player. */
+function buyable(prices: Prices, policy: CurrencyPolicy | undefined): (modId: string, tierName: string) => boolean {
+  return (modId, tierName) => stepAvailable(prices, policy, { currency: 'essence', add: modId, essenceLevel: essenceLevelOf(tierName) });
 }
 
 /**

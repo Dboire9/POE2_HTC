@@ -46,7 +46,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   six-modifier Wand that ran out with no number now gets an exact one in 5 seconds. Wherever the old way
   finished, the cost is the same number.
 
+- **A rolled modifier can now come from its Essence.** A Greater Essence of Insulation gives exactly the
+  Fire Resistance a T3 roll does, so wherever you ask a modifier at a tier an Essence reaches, both the
+  true cost and the step routes may force it with that Essence instead of rolling — you no longer have to
+  add the Essence yourself. The "Or try one" crafts now cost 72–94% less (the caster Wand 3,934 → 283 ex).
+  Most T1 and T2 asks are unchanged: on most modifiers the best Essence is a T3.
+
 ### Fixed
+
+- **Ticking an Essence level under "Currency I don't have" now leaves those essences out.** It used to
+  exclude nothing: each essence is priced under its own name, and only that name was checked.
 
 - **The price note names every price that is not live.** It said "All prices are live market data, except
   50 essence variants" while three boss omens were priced from a quote copied in August, because they

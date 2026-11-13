@@ -14,10 +14,11 @@ import type { ResolvedCandidate } from './markovSymmetry.ts';
 import {
   canonicalFilterFor, encoderFor, familiesOfTarget, mergeSlots, permutationClasses, slotMasksOf,
 } from './markovSymmetry.ts';
-import type { McState, McTarget } from './markovState.ts';
+import type { McRarity, McState, McTarget } from './markovState.ts';
 import { bit, classifyStart, has, isAccepting, popcount, prefUsed, representative, sideIndexOf, sufUsed } from './markovState.ts';
 import { flagFieldsOf } from './markovRoute.ts';
 import { resolveSiblings } from './markovSiblings.ts';
+import { MAX_POSITIONS, fitTwins } from './essenceTwins.ts';
 import type { MarkovOptions, MarkovResult } from './markovFromItem.ts';
 
 /** A phase that answers outright: a refusal, or an item that is already finished. */
@@ -38,7 +39,7 @@ const answered = (answer: MarkovResult): Answer => ({ answer });
  * desecration flag axis multiplies it), against measured solve times of 264s at 3,963 states. Past
  * nine it stops being a wait anybody sits through.
  */
-const MAX_CANDIDATES = 9;
+const MAX_CANDIDATES = MAX_POSITIONS;
 
 export function resolveProblem(
   data: PatchData, rawPrices: Prices, start: ItemState, targets: readonly TierTarget[], opts: MarkovOptions,
@@ -160,8 +161,23 @@ export function resolveProblem(
       const inPool = pools.essence.prefixes.includes(mod.id) || pools.essence.suffixes.includes(mod.id);
       if (!inPool) return fail(`${t.modId} isn't in ${start.base.id}'s essence pool`);
     }
-    cands.push({ mod, minIndex: t.minTierIndex ?? 0, fractured: fracturedIds.has(mod.id) });
+    cands.push({
+      mod, minIndex: t.minTierIndex ?? 0, fractured: fracturedIds.has(mod.id), ...(t.essenceTwin ? { twin: true as const } : {}),
+    });
   }
+  // Is Desecration in play at all — see `boneRole`.
+  // …and never with a locked bone-placed mod on board (above): the craft then runs without bones.
+  const desecratable = bones !== undefined && lockedCarved === undefined;
+  /*
+   * ESSENCE TWINS are offered, not asked for (essenceTwins.ts). Each costs a position, and a craft whose
+   * named targets and their siblings already fill the model must not be refused for an offer the player
+   * never made — so twins are kept only while they fit, the one on the RAREST roll first: that is where
+   * forcing the mod saves the most rolls. With none to drop this is the list as given.
+   */
+  const fitted = fitTwins(data, pools, level, targets, cands, desecratable);
+  const kept = fitted.targets;
+  cands.length = 0;
+  cands.push(...fitted.cands);
   if (cands.length === 0) return fail('no target mods');
   if (cands.length > MAX_CANDIDATES) {
     return fail(`target names more than ${MAX_CANDIDATES} candidate mods`);
@@ -179,11 +195,8 @@ export function resolveProblem(
    * plain mod. `list` is the merged positions from here on, and `n` counts positions, not candidates;
    * the cap above deliberately still counts candidates, since that is the limit the player set.
    */
-  const merged = mergeSlots(cands, slotIndexGroups(targets));
+  const merged = mergeSlots(cands, slotIndexGroups(kept));
   const slots = merged.slots;
-  // Is Desecration in play at all — see `boneRole`.
-  // …and never with a locked bone-placed mod on board (above): the craft then runs without bones.
-  const desecratable = bones !== undefined && lockedCarved === undefined;
   /*
    * Then every OTHER mod the base can roll into a target's family (markovSiblings.ts). A same-side one
    * lands its target as blocked, as an off-tier roll does; anything else becomes an OBSTACLE position,
@@ -302,7 +315,11 @@ export function resolveProblem(
   // `isEssenceMod`) — unless a socketed Astrid's Creativity raised `limits.crafted`. Without a cap here
   // `actionsOf` builds a perfect-essence action per crafted target and the policy stacks them happily,
   // producing a route to an item the game cannot hold.
-  const craftedTargets = list.filter((t) => isEssenceMod(representative(t))).length;
+  // Essence TWINS do not count (essenceTwins.ts): each is an alternative to a rolled member of its slot,
+  // so "Fire Resistance, or its Greater Essence" asks for no crafted mod, and at most one twin ever lands
+  // (a regular Essence needs a Magic item and leaves it Rare). Every position the player NAMED still
+  // counts as before — two Perfect Essences named in one slot could both be stacked on a Rare.
+  const craftedTargets = list.filter((t) => !t.twin && isEssenceMod(representative(t))).length;
   if (craftedTargets > limits.crafted) {
     return fail(limits.crafted === 1
       ? 'an item can hold at most one crafted modifier (Essence, Perfect Essence or Alloy) — pick one, '
@@ -383,7 +400,18 @@ export function resolveProblem(
    */
   const classes = permutationClasses({ data, pools, level, sameSide: siblings.sameSide }, list, slots);
   const encode = encoderFor(classes);
-  const onlyCanonical = canonicalFilterFor(classes);
+  /*
+   * …and an essence twin's position is never blocked (only its own Essence can occupy a crafted family)
+   * and at most one is ever present, on a Rare (an Essence needs a Magic item, and leaves it Rare). The
+   * states that break those rules are unreachable, and `actionsOf` is the cost of every state built. Only
+   * twins are pruned, so a craft without them keeps its lattice exactly.
+   */
+  const twinMask = list.reduce((m, t, i) => (t.twin ? m | bit(i) : m), 0);
+  const canonical = canonicalFilterFor(classes);
+  const onlyCanonical = twinMask === 0 ? canonical
+    : (present: number, blocked: number, rarity: McRarity): boolean =>
+      (blocked & twinMask) === 0 && popcount(present & twinMask) <= (rarity === 'rare' ? 1 : 0)
+      && (canonical ? canonical(present, blocked) : true);
 
   const s0 = classifyStart(data, start, list, idxOf, siblings.blocks);
 

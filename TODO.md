@@ -1681,6 +1681,27 @@ one with a carved target since 2026-11-12, and every from-white craft of four or
 **First step.** A script that compares every craft of the build-up set (`scripts/build-up.mts`) against
 value iteration at 1e-12, wherever that settles: how often a solve stops high, and how far.
 
+## 30. A rolled target never came from its Essence — DONE 2026-11-13
+
+The data stores an essence's modifier apart from the rolled one, and a target names the rolled one, so
+no planner would force "Fire Resistance T3" with the Greater Essence of Insulation that IS that tier.
+Now every rolled target is offered its essence twin in its own slot (`essenceTwins.ts`; engineering notes,
+"Game mechanics: essences"; docs/validation.md, 2026-11-13). T3 crafts where a twin fits 12–94% cheaper;
+the examples 72–94%. With bones, the six-target T3 Ring and Amulet have no room for a twin (nine positions
+already) and are unchanged.
+Found on the way: excluding an Essence LEVEL excluded nothing (fixed in `allowsStep`). What stays open:
+
+- **The caster Wand example is slower**: 0.9 s → 5.6 s at Standard (three targets, two twins, too few
+  slot groups for the build-up). Still exact; the examples were chosen to answer "in a second or two". At
+  Quick its twins do not settle at all: the craft is solved again as asked (3,934, today's answer) in
+  5.5 s instead of 0.8 s, because the twin solve overruns its 2 s clock before giving up. Building up a
+  three-slot craft whose twins add positions, or seeding the twin solve from the craft as asked, are the
+  two levers; neither measured.
+- **Perfect Essences as twins.** A Perfect Essence's mods are rolled tiers too, but it swaps a mod on a
+  Rare rather than converting a Magic item — a different offer, not measured.
+- **Held Rare items get no twin** — right for a regular Essence (it needs Magic), and the reason a
+  Perfect-Essence twin would matter there.
+
 ## What 1.0 means — ALL FIVE SHIPPED, prepared 2026-09-02
 
 The definition written on 2026-09-01 was: §7 the docs describe the app that exists, §8 prices refresh

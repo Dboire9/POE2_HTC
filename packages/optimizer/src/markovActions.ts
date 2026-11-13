@@ -698,11 +698,16 @@ export function createActionSpace(params: ActionSpaceParams): {
    *
    * WHICH LEVEL is not this function's choice — see `essenceTargets` below.
    */
+  const essencePositions = list.reduce((m, t, i) => (representative(t).source === 'essence' ? m | bit(i) : m), 0);
   const essenceOutcomes = (s: McState, i: number, tierIndex: number): Dist => {
     const out: Dist = new Map();
     if (s.rarity !== 'magic') return out;              // a regular Essence needs a Magic item
     const t = list[i]!;
     if (has(s.present, i) || has(s.blocked, i)) return out;  // its family is already occupied
+    // A Magic item never carries an essence mod (the Essence made it Rare), so a state that holds one is
+    // not a Magic item anyone has. Only essence twins can put such a state in the lattice at all — and
+    // `resolveProblem` prunes them — so this guard changes nothing reachable.
+    if (essencePositions & s.present) return out;
     const mod = representative(t);
     const occ = occupiedFamilies(s.present, s.blocked, list);
     if (excluded(mod, occ)) return out;                // defensive (validated distinct upstream)

@@ -444,6 +444,16 @@ sacrifice and the row gives you the odds it takes that one. The Sinistral and De
 omens restrict it to prefixes or to suffixes, and only the omen that can actually reach your sacrifice
 is offered. A regular Essence is a Magic-item move: it forces its mod and turns the item Rare, at 100%.
 
+**An Essence can stand in for a rolled modifier.** An Essence's modifier is the rolled one at a fixed
+tier — a Greater Essence of Insulation gives exactly the 31–35% Fire Resistance a T3 roll does. So when
+you ask for a modifier at a tier an Essence reaches, the planner may force it with that Essence instead
+of rolling for it, and it does whenever that is cheaper: on the four "Or try one" crafts it costs 72–94%
+less. You don't need to add the Essence yourself. It works from a white base or a Magic item (a Rare
+can't take a regular Essence), and it uses the item's one crafted modifier. On most modifiers the
+Greater Essence is a T3, so a T1 or T2 ask is usually still rolled — but where an Essence does reach
+higher (the Greater Essence of Opulence is the T1 Item Rarity), it is offered there too. Tick the Essence
+levels under *Currency I don't have* and the planner leaves them out.
+
 **About the Desecration rows.** A bone **offers three modifiers and you keep one**, so the number
 shown is the chance one of the three is what you asked for — roughly three times the chance of a
 single draw, and the same number the planner uses. A plain bone draws from the normal **and**

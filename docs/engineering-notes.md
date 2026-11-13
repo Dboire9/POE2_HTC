@@ -207,6 +207,30 @@ Enforced in `packages/engine` (mostly `probability.ts`).
 
 ## Game mechanics: essences
 
+- **A rolled target can be met by its ESSENCE TWIN** (2026-11-13, `essenceTwins.ts`). The data keeps an
+  essence's mod apart from the rolled one (`Rings/Essence_FireResistance` beside `Rings/FireResistance`),
+  but its levels ARE rolled tiers (Greater Insulation is the rolled T3, 31–35). A target names the rolled
+  mod, so no planner ever forced it. `withEssenceTwins` now offers, per rolled target, the essence whose
+  level has the ranges of a rolled tier at or above the asked one, as an ALTERNATIVE in the target's own
+  slot (`essenceTwin: true`) — the slot machinery every planner already has. Rules, each mutation-tested
+  (`essenceTwins.test.ts`): match by identical ranges, never a near miss; offered only where a level that
+  gives the tier is under the item level, priced and not excluded; never when the slots already need as
+  many crafted mods as the base holds; only on an item a regular Essence can still go on (Normal or Magic,
+  no crafted mod held — `twinsFor`, engine.ts). **A twin is its own position, never merged with the rolled
+  mod**: a crafted mod's family is `crafted:<family>` (above), so the two can sit on one item, and merging
+  would hide that. Three consequences: twins do not count toward the crafted cap (`markovProblem.ts`; a twin
+  is an alternative to a rolled mod, and only one regular Essence ever lands — every NAMED crafted position
+  still counts, since two named Perfect Essences could be stacked) and the step planners drop expansions holding two crafted mods
+  (`itemLegalCombinations`); twins that would pass `MAX_POSITIONS` are DROPPED, rarest roll kept first
+  (`fitTwins`) — an offer the player never made must not refuse their craft; and the lattice prunes what a
+  twin cannot be (`onlyCanonical`: never blocked, at most one present, only on a Rare — an Essence needs a
+  Magic item and leaves it Rare), which took the four-twin Ring from 8.2 s to 1.4 s. **And an offer never
+  costs an answer**: a craft whose twins did not settle is solved again as asked (`optimizeItemMarkov`),
+  which kept the caster Wand's 3,934 at Quick. Measured: T3 crafts
+  where a twin fits 12–94% cheaper, the measured T2/T1 crafts unchanged (on most mods the Greater level
+  is the rolled T3; 49 levels across the data do reach a T1 or T2, e.g. Greater Opulence is the T1
+  Rarity), none lost, none dearer (validation.md).
+
 - **An item carries at most ONE essence modifier — regular and perfect counted TOGETHER.** `isEssenceMod` (`probability.ts`) is the single predicate; every planner and picker counts with it. A regular essence needs a Magic item and turns it Rare; a **Perfect Essence works on a Rare and is a SWAP** — it forces its mod on while removing one existing mod uniformly at random (`1/(pf+sf)`, or `1/pf`,`1/sf` under a Sinistral/Dextral Crystallisation omen), and is gated at ilvl 72. The two grant from **disjoint pools**: 317 `source: 'essence'` mods vs 363 `perfect_essence`, zero id overlap, both inside `base.pools.essence`. So a Perfect Essence can never supply a second regular-essence mod, and can never be added on top of one either.
   **A step route feeds a Perfect Essence a THROWAWAY when nothing it holds should be eaten** (2026-09-18).
   `ThrowawayStep` (plan.ts): a Regal (Magic) or Exalt (Rare) landing anything on one side, leaving a

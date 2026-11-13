@@ -176,6 +176,13 @@ export interface TierTarget {
    * case, and the common one), but two different slots may not.
    */
   readonly slot?: number;
+  /**
+   * An ESSENCE TWIN (essenceTwins.ts): the regular-essence mod that gives this slot's rolled modifier at
+   * the asked tier or better, added as an alternative the player did not name. Optional in a way a named
+   * candidate is not — the MDP drops twins that would push the craft past what it can model rather than
+   * refuse it — and at most one ever lands, since a regular Essence needs a Magic item and makes it Rare.
+   */
+  readonly essenceTwin?: true;
 }
 
 export interface ParetoPlan extends CostedPlan {
@@ -425,8 +432,11 @@ export function optimizePareto(
    *
    * The MDP does NOT do this, and must not: see slots.ts. There, "either will do" is the answer.
    */
+  // …and the item's crafted cap: essence twins (essenceTwins.ts) offer an Essence in several slots, and
+  // the combination taking two of them is no item.
   const combos = itemLegalCombinations(expandSlots(targets),
-    (id) => resolveMod(data, id).source === 'desecrated');
+    (id) => resolveMod(data, id).source === 'desecrated',
+    { is: (id) => isEssenceMod(resolveMod(data, id)), cap: limitsOf(base).crafted });
   const one = (t: readonly TierTarget[], onProgress?: (d: number, n: number) => void): ParetoResult =>
     paretoForOneCraft(data, rawPrices, base, t, { ...opts, ...(onProgress ? { onProgress } : {}) });
   if (combos.length > 1) return mergeParetoRuns(combos, one, opts.onProgress);

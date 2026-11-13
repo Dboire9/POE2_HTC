@@ -75,6 +75,9 @@ export interface McTarget {
    * item as junk. Absent on every position the player named.
    */
   readonly obstacle?: true;
+  /** An essence twin's position (`TierTarget.essenceTwin`): at most one is ever on the item, and never
+   *  blocked — nothing but its own Essence can occupy a crafted family. Absent on every other position. */
+  readonly twin?: true;
 }
 
 /** Any member: they share side, families, source and lock state, so member 0 answers for the target. */
@@ -272,7 +275,7 @@ export function enumerateStates(
    *
    * Absent for every craft with nothing interchangeable, which leaves the lattice exactly as it was.
    */
-  canonical?: (present: number, blocked: number) => boolean,
+  canonical?: (present: number, blocked: number, rarity: McRarity) => boolean,
   /**
    * The base's per-side limits (`limitsOf`), which a socketed rune may have raised. Defaults to the
    * game's three a side, which leaves every craft that carries no rune with exactly the state space
@@ -295,7 +298,7 @@ export function enumerateStates(
           for (const m of conflicts) if (popcount(held & m) > 1) { clash = true; break; }
           if (clash) continue;
         }
-        if (canonical && !canonical(present, blocked)) continue;
+        if (canonical && !canonical(present, blocked, rarity)) continue;
         const tp = countSide(present, side.prefix) + countSide(blocked, side.prefix);
         const ts = countSide(present, side.suffix) + countSide(blocked, side.suffix);
         if (tp > capP || ts > capS) continue;

@@ -553,9 +553,11 @@ describe('engine facade — desecrated mods on an item (0.5.0)', () => {
     expect(r.frontier.length).toBeGreaterThan(0);
     const best = r.frontier[r.frontier.length - 1]!;
     const desAt = best.steps.findIndex((s) => s.currency === 'desecrate');
-    const regalAt = best.steps.findIndex((s) => s.currency === 'regal');
-    expect(desAt).toBeGreaterThan(regalAt); // desecration only after the item is Rare
-    expect(regalAt).toBeGreaterThanOrEqual(0);
+    // Magic → Rare by a Regal, or — since a rolled target may be forced by its Essence (essenceTwins.ts)
+    // — by that Essence, which converts the item as it adds. Either way the item is Rare before the bone.
+    const rareAt = best.steps.findIndex((s) => s.currency === 'regal' || s.currency === 'essence');
+    expect(desAt).toBeGreaterThan(rareAt); // desecration only after the item is Rare
+    expect(rareAt).toBeGreaterThanOrEqual(0);
   });
 });
 

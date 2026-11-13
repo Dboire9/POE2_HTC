@@ -31,6 +31,8 @@ const item: ExistingItem = {
   prefixes: [{ modId: p0, tierDisplay: 99 }], suffixes: [],
 };
 const targets = [{ modId: p0, tierDisplay: 99 }, { modId: s0, tierDisplay: 99 }];
+/** "I don't have essences" — every level, as the currency list excludes them (currencyPrefs.ts). */
+const NO_ESSENCES = ['essence_lesser', 'essence', 'essence_greater'] as const;
 
 describe('runSolve — dispatches to the same planners the UI called inline', () => {
   it('lab from a white base matches optimize()', () => {
@@ -122,8 +124,11 @@ describe('runSolve — dispatches to the same planners the UI called inline', ()
   it('charges the base price the player set, and stops binning items when it bites', () => {
     const frozenEng = { data: eng.data, prices: loadFrozenPrices() };
     const solveAt = (baseCost?: number) => {
+      // Essences excluded: the claim is about binning, and since 2026-11-13 a rolled target may also be
+      // forced by its Essence (essenceTwins.ts), which rebuilds this craft's whole graph around one
+      // Magic → Rare step. Counted on the lattice the claim was measured on.
       const got = runSolve(frozenEng, {
-        kind: 'lab', from: { baseId: 'Wands', level: 82 }, targets,
+        kind: 'lab', from: { baseId: 'Wands', level: 82 }, targets, excluded: [...NO_ESSENCES],
         ...(baseCost === undefined ? {} : { baseCost }),
       });
       if (got.kind !== 'lab') throw new Error('wrong kind');
@@ -140,6 +145,72 @@ describe('runSolve — dispatches to the same planners the UI called inline', ()
     // than quietly being some other number.
     expect(solveAt(undefined).expectedCost).toBeCloseTo(free.expectedCost, 6);
   }, 60_000);
+
+  /**
+   * A rolled target may also be met by its Essence (essenceTwins.ts) — the Greater Essence of Insulation
+   * IS the rolled Fire Resistance T3. On a white base both planners now offer it, and the player's own
+   * "I don't have essences" takes it away again. FROZEN prices: the claim is that the offer reaches both
+   * planners and is played, not what this week's essence costs.
+   */
+  it('lets a rolled target come from its Essence, unless essences are excluded', () => {
+    const frozenEng = { data: eng.data, prices: loadFrozenPrices() };
+    const ring = [{ modId: 'Rings/IncreasedMana', tierDisplay: 3 }, { modId: 'Rings/FireResistance', tierDisplay: 3 }];
+    const solveWith = (excluded: readonly string[]) => {
+      const got = runSolve(frozenEng, { kind: 'lab', from: { baseId: 'Rings', level: 82 }, targets: ring, excluded: [...excluded] });
+      if (got.kind !== 'lab' || !got.markov.applicable || !got.markov.feasible) throw new Error('no model');
+      return got;
+    };
+    const offered = solveWith([]);
+    const without = solveWith(NO_ESSENCES);
+    expect(offered.markov.bound).toBe('exact');
+    expect(without.markov.bound).toBe('exact');
+    expect(offered.markov.expectedCost).toBeLessThan(without.markov.expectedCost);
+    // The true cost plays it, and names it…
+    const acts = (m: typeof offered.markov) => m.nodes.map((n) => n.action ?? '');
+    expect(acts(offered.markov).some((a) => a.startsWith('Greater Essence of'))).toBe(true);
+    expect(acts(without.markov).some((a) => a.includes('Essence'))).toBe(false);
+    // …excluded, none is even offered (no position spent on an Essence the player cannot buy)…
+    const twinPositions = (m: typeof offered.markov) => (m.routes?.positions ?? []).flat().filter((id) => id.includes('/Essence_'));
+    expect(twinPositions(offered.markov).length).toBeGreaterThan(0);
+    expect(twinPositions(without.markov)).toEqual([]);
+    // …and the step routes offer it too.
+    const essenceStep = (r: typeof offered.result) => r.frontier.some((plan) => plan.steps.some((st) => st.currency === 'essence'));
+    expect(essenceStep(offered.result)).toBe(true);
+    expect(essenceStep(without.result)).toBe(false);
+  }, 60_000);
+
+  it('shows an Essence’s modifier at the tier of the target it stands in for', () => {
+    // A Magic Ring that already has its Mana, asking three more: the Essence that makes it Rare lands one
+    // of them, and the plan still has an Exalt or a bone to play — so the graph shows the twin ON the
+    // item, mid-route. It must read T3 like the rolled target it replaces, not "1", which is the Greater
+    // Essence's own level.
+    const magic: ExistingItem = {
+      baseId: 'Rings', level: 82, rarity: 'magic',
+      prefixes: [{ modId: 'Rings/IncreasedMana', tierDisplay: 1 }], suffixes: [],
+    };
+    const got = runSolve({ data: eng.data, prices: loadFrozenPrices() }, {
+      kind: 'item', item: magic,
+      targets: [
+        { modId: 'Rings/IncreasedMana', tierDisplay: 3 }, { modId: 'Rings/FireResistance', tierDisplay: 3 },
+        { modId: 'Rings/ColdResistance', tierDisplay: 3 }, { modId: 'Rings/IncreasedLife', tierDisplay: 3 },
+      ],
+    });
+    if (got.kind !== 'item' || !got.markov.applicable || !got.markov.feasible) throw new Error('no model');
+    const positions = got.markov.routes!.positions;
+    const twinBits = positions.reduce((m, ids, i) => (ids.some((id) => id.includes('/Essence_')) ? m | (1 << i) : m), 0);
+    const withTwin = got.markov.nodes.filter((n) => !n.isGoal && (Number(n.key.split(':')[0]) & twinBits) !== 0);
+    expect(withTwin.length).toBeGreaterThan(0);
+    for (const n of withTwin) for (const p of n.present) expect(p.tier).toBe(3);
+  }, 120_000);
+
+  it('offers no Essence on an item you hold — a Rare cannot take one', () => {
+    const at = (excluded: readonly string[]) => {
+      const got = runSolve(eng, { kind: 'item', item, targets, excluded: [...excluded] });
+      if (got.kind !== 'item') throw new Error('wrong kind');
+      return got.markov;
+    };
+    expect(at([])).toEqual(at(NO_ESSENCES));
+  });
 
   // A held item cannot be thrown away and re-bought, so the price must not reach that model at all.
   it('ignores a base price on a craft that starts from an item you hold', () => {
@@ -552,8 +623,11 @@ describe('policy iteration answers where value iteration can only bound', () => 
   // with them the craft is easy enough to settle inside 2,000 sweeps, so "too small for either" had
   // nothing left to refuse. Excluding them is the lattice these numbers were measured on.
   const frozen = { data: eng.data, prices: loadFrozenPrices() };
+  //
+  // Essences excluded for the same reason again (2026-11-13): a rolled target may now be forced by its
+  // Essence (essenceTwins.ts), and with that the craft settles at 5,000 sweeps under value iteration too.
   const ring = {
-    kind: 'lab', from: { baseId: 'Rings', level: 82 }, excluded: ['desecrate'],
+    kind: 'lab', from: { baseId: 'Rings', level: 82 }, excluded: ['desecrate', ...NO_ESSENCES],
     targets: [
       { modId: 'Rings/IncreasedLife', tierDisplay: 99 }, { modId: 'Rings/IncreasedMana', tierDisplay: 99 },
       { modId: 'Rings/ColdResistance', tierDisplay: 99 }, { modId: 'Rings/ChaosResistance', tierDisplay: 99 },

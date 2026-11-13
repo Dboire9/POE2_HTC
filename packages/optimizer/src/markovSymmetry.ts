@@ -45,6 +45,8 @@ export interface ResolvedCandidate {
   readonly mod: Mod;
   readonly minIndex: number;
   readonly fractured: boolean;
+  /** An essence twin (`TierTarget.essenceTwin`) — always a position of its own. */
+  readonly twin?: true;
 }
 
 /**
@@ -66,7 +68,7 @@ export interface ResolvedCandidate {
  */
 export function mergeKey(c: ResolvedCandidate, index: number): string {
   const fams = familiesOf(c.mod);
-  if (fams.length === 0 || c.mod.source === 'perfect_essence') return `alone:${index}`;
+  if (fams.length === 0 || c.mod.source === 'perfect_essence' || c.twin) return `alone:${index}`;
   return [c.mod.type, c.mod.source, c.fractured, [...fams].sort().join('+')].join('|');
 }
 
@@ -103,7 +105,7 @@ export function mergeSlots(
     slots[s]!.push(targets.length);
     const members: McCandidate[] = [{ mod: c.mod, minIndex: c.minIndex }];
     mods.push(members);
-    targets.push({ mods: members, type: c.mod.type, fractured: c.fractured });
+    targets.push({ mods: members, type: c.mod.type, fractured: c.fractured, ...(c.twin ? { twin: true as const } : {}) });
   }
   return { targets, slots };
 }

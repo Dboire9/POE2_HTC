@@ -295,7 +295,12 @@ export interface CurrencyPolicy {
  */
 export function allowsStep(policy: CurrencyPolicy | undefined, step: PricedStep): boolean {
   if (!policy || policy.excluded.size === 0) return true;
-  if (policy.excluded.has(currencyKey(step))) return false;
+  const key = currencyKey(step);
+  if (policy.excluded.has(key)) return false;
+  // An essence is priced per essence (`essence:<level>:<modId>`), but "I don't have Greater Essences" is
+  // excluded by LEVEL (`essence_greater`, currencyPrefs.ts). Both name the step, so either keeps it out —
+  // until 2026-11-13 only the per-essence key was read, and excluding a level excluded nothing.
+  if (key.startsWith('essence:') && policy.excluded.has(legacyEssenceKey(step))) return false;
   return !stepOmenIds(step).some((id) => policy.excluded.has(id));
 }
 

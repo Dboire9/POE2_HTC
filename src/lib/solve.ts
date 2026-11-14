@@ -11,10 +11,11 @@
 // jsdom has no Worker at all.
 
 import type { Engine } from './engine.ts';
-import { optimize, optimizeItem, optimizeItemMarkov, alternatives, alternativesForItem } from './engine.ts';
+import { optimize, optimizeItem, optimizeItemMarkov, alternatives, alternativesForItem, priceBasis } from './engine.ts';
 import type {
-  AltTargetInput, EngineAlternatives, EngineMarkovResult, EngineResult, ExistingItem, TargetInput,
+  AltTargetInput, EngineAlternatives, EngineMarkovResult, EnginePriceBasis, EngineResult, ExistingItem, TargetInput,
 } from './engineTypes.ts';
+import { FOUND_BASE_WEIGHT, FOUND_PRICES } from '../../packages/optimizer/src/foundPrices.ts';
 import type { MarkovProgress, WatchMod } from '../../packages/optimizer/src/markovFromItem.ts';
 import type { CurrencyPolicy } from '../../packages/optimizer/src/cost.ts';
 import type { Spare } from '../../packages/optimizer/src/slots.ts';
@@ -114,6 +115,23 @@ export type SolveRequest =
        * the market that a tablet craft starts from instead of a plain one. A held or carved item cannot.
        */
       readonly rebuyable?: boolean;
+      /**
+       * Which sheet the craft is planned on. Absent ⇒ the trade sheet the app loaded, exactly as always.
+       * `'found'` ⇒ the FOUND sheet (packages/optimizer/src/foundPrices.ts), used WHOLE by every planner
+       * in this solve — scarcity weights for what a new player picks up, for a starter recipe. A start over
+       * then costs `FOUND_BASE_WEIGHT` unless `baseCost` says otherwise; `excluded` still applies on top.
+       * Nothing that only means something on a market runs: no budget search (`budget` is ignored), no
+       * replay (`playOut`, `watch`, `sell` are ignored), no starting-item table (`holdings`). The result
+       * says so in `basis` and counts what the plan uses (`EngineMarkovResult.uses`).
+       */
+      readonly priceBasis?: 'found';
+      /**
+       * Count what the solved plan uses (`EngineMarkovResult.uses`) on a trade-basis solve too. Always on
+       * for `priceBasis: 'found'`. Off by default so a trade result is exactly what it always was; the
+       * count itself is cheap (measured 2026-11-14: a median 0.14 ms on a four-target Wand, 1.6 ms on a
+       * six-target one whose solve took 106 s).
+       */
+      readonly uses?: boolean;
     } & ExcludingRequest)
   | ({
       readonly kind: 'item';
@@ -127,6 +145,13 @@ export type SolveResult =
       /** The true-cost model for a lab craft too. It only ever ran for the Item tab, so the app's
        *  PRIMARY mode — craft this from a white base — had no honest cost and no policy at all. */
       readonly markov: EngineMarkovResult;
+      /**
+       * The sheet this solve was planned on, when it is NOT the trade sheet the app loaded: present
+       * exactly on a `priceBasis: 'found'` solve, with `found: true` and no exchange rates. Every cost in
+       * such a result — the frontier's, the model's, every node's — is a scarcity weight: a UI shows the
+       * counts (`markov.uses`, `markov.restarts`) and this basis's caveat, never an Exalted or Chaos figure.
+       */
+      readonly basis?: EnginePriceBasis;
     }
   | { readonly kind: 'item'; readonly plan: EngineResult; readonly markov: EngineMarkovResult };
 
@@ -401,9 +426,14 @@ export function runSolve(eng: Engine, req: SolveRequest, onProgress?: (p: SolveP
   }
 
   const from = req.from;
+  // The found sheet replaces the trade sheet for EVERY planner below, never merged with it: spread over
+  // the trade sheet it would inherit that sheet's omens and bones (foundPrices.ts).
+  const found = req.priceBasis === 'found';
+  const sheet: Engine = found ? { ...eng, prices: FOUND_PRICES } : eng;
   // A budget also asks the near-miss question: what's the closest thing this much money actually buys?
+  // A question about money, so not on the found sheet, whose numbers are no amount of anything.
   const budget = req.budget;
-  const hasBudget = budget !== undefined && Number.isFinite(budget) && budget > 0;
+  const hasBudget = !found && budget !== undefined && Number.isFinite(budget) && budget > 0;
   const emit = (phase: SolvePhase, span: Span) =>
     (done: number, total: number): void => onProgress?.({ phase, fraction: within(span, done, total) });
 
@@ -413,8 +443,8 @@ export function runSolve(eng: Engine, req: SolveRequest, onProgress?: (p: SolveP
   const result = frontierOrReason(() => ('item' in from
     // The from-item planner has no progress reporting of its own yet; a carved craft therefore shows
     // no movement until the budget search starts.
-    ? optimizeItem(eng, runed(from.item), req.targets, spared(withClock(withPolicy({}))))
-    : optimize(eng, from.baseId, from.level, req.targets, runed(planOpts))));
+    ? optimizeItem(sheet, runed(from.item), req.targets, spared(withClock(withPolicy({}))))
+    : optimize(sheet, from.baseId, from.level, req.targets, runed(planOpts))));
 
   // The same push-forward model the Item tab uses. A white base is not an item you hold, so it gets the
   // one thing a held item cannot have: permission to scrap and start again, priced at what another base
@@ -429,7 +459,9 @@ export function runSolve(eng: Engine, req: SolveRequest, onProgress?: (p: SolveP
   // thing that made a 24-second solve feel like ten minutes in the first place.
   // A watch list asks for the replay — an EMPTY one too: the spread of what a craft costs comes from
   // the same walk, and the Tablets tab wants it whether or not anything is watched.
-  const watch = req.watch ?? (req.playOut ? [] : undefined);
+  // Not on the found sheet: the replay's spread is of what a craft COSTS, and a watched set sells for
+  // exalts — the counts (`uses`) are what a found-basis result reports instead.
+  const watch = found ? undefined : req.watch ?? (req.playOut ? [] : undefined);
   const replayPhase: SolvePhase = req.watch ? 'replay' : 'playout';
   const [modelFrom, modelTo] = hasBudget ? LAB_MDP_THEN_SEARCH : LAB_MDP_ALONE;
   const modelShare = req.watch ? MODEL_BEFORE_REPLAY : MODEL_BEFORE_PLAYOUT;
@@ -456,7 +488,7 @@ export function runSolve(eng: Engine, req: SolveRequest, onProgress?: (p: SolveP
     onProgress?.({ phase, fraction: within(span, toFraction(pr) * 1000, 1000) });
   };
   const mdpClock = clockLeft();
-  const markov = markovOrReason(() => optimizeItemMarkov(eng, mdpItem, req.targets, spared(withSweepLimit(withPolicy({
+  const model = markovOrReason(() => optimizeItemMarkov(sheet, mdpItem, req.targets, spared(withSweepLimit(withPolicy({
     ...(watch ? { replay: {
       runs: REPLAY_RUNS, seed: 1, watch, maxMillis: req.watch ? REPLAY_MILLIS : PLAYOUT_MILLIS,
       ...(req.sell?.some((p) => p > 0) ? { sell: req.sell } : {}),
@@ -465,7 +497,7 @@ export function runSolve(eng: Engine, req: SolveRequest, onProgress?: (p: SolveP
     // …and the whole solved policy: the Lab draws the route from any item a player might buy instead of
     // a white base without solving again, and Craft along follows the plan move by move — which a carved
     // item's craft needs as much as a white base's. Only a white base (or a rebuyable item) can restart.
-    ...(fromWhite || req.rebuyable ? { restartCost: req.baseCost ?? WHITE_BASE_COST } : {}),
+    ...(fromWhite || req.rebuyable ? { restartCost: req.baseCost ?? (found ? FOUND_BASE_WEIGHT : WHITE_BASE_COST) } : {}),
     keepRoutes: true,
     ...(req.fillOnFinish ? { fillOnFinish: true } : {}),
     ...(req.smallLattice ? { heuristicSeed: true, exactEvaluation: true } : {}),
@@ -490,14 +522,17 @@ export function runSolve(eng: Engine, req: SolveRequest, onProgress?: (p: SolveP
           },
         }
       : {}),
-  }));
+  }, found || req.uses === true));
+  // The starting-item table prices items a player could BUY instead of a white base — a market question.
+  const markov: EngineMarkovResult = found ? withoutHoldings(model) : model;
+  const basis = found ? { basis: priceBasis(sheet) } : {};
 
   if (!hasBudget) {
     // The MODEL finishes the bar now, not planning — planning is the first ~30% of it. Reporting
     // `plan: 1` here would jump the label backwards after the model had already reported done, and
     // `solve` after a replay would do the same.
     onProgress?.({ phase: watch ? replayPhase : lastPhase, fraction: 1 });
-    return { kind: 'lab', result, alts: null, markov };
+    return { kind: 'lab', result, alts: null, markov, ...basis };
   }
 
   // The slow half of a lab compute when a budget is set — every node it visits is a full Pareto run.
@@ -518,4 +553,10 @@ export function runSolve(eng: Engine, req: SolveRequest, onProgress?: (p: SolveP
   // sitting at 98% while the work is finished. Say so explicitly, as the MDP path does.
   onProgress?.({ phase: 'alternatives', fraction: 1 });
   return { kind: 'lab', result, alts, markov };
+}
+
+/** A model result without its starting-item table (`holdings`). */
+function withoutHoldings(m: EngineMarkovResult): EngineMarkovResult {
+  const { holdings: _holdings, ...rest } = m;
+  return rest;
 }

@@ -37,6 +37,7 @@ import { markovFromItem, type MarkovOptions } from '../../packages/optimizer/src
 import { markovBoneFreeFirst, type BoneFreeOptions } from '../../packages/optimizer/src/markovBoneFree.ts';
 import { routeFrom, stepFrom } from '../../packages/optimizer/src/markovRoute.ts';
 import { keyOfItem, type Located } from '../../packages/optimizer/src/markovLocate.ts';
+import { markovUses } from '../../packages/optimizer/src/markovUses.ts';
 import {
   alternativesFromWhite, alternativesFromItem, type AlternativesOptions,
 } from '../../packages/optimizer/src/alternatives.ts';
@@ -80,7 +81,7 @@ export function runeHint(
 export type {
   EngineBase, EngineTier, EngineMod, EngineBaseMods, TargetInput, EngineStep, EnginePlan, EngineResult,
   ItemModInput, ExistingItem, CurrencyAction, AltTargetInput, EngineSlot, EngineAlternative, EngineAlternatives,
-  EngineMarkovResult, EnginePolicyNode, EnginePolicyEdge, EnginePriceBasis, PolicyMod,
+  EngineMarkovResult, EnginePolicyNode, EnginePolicyEdge, EnginePriceBasis, EngineUse, PolicyMod,
 } from './engineTypes.ts';
 
 // ── Data loading (memoized) ──────────────────────────────────────────────────
@@ -139,6 +140,16 @@ export function loadEngine(): Promise<Engine> {
  *  cost views can caveat their own numbers without reaching into the optimizer's Prices type. */
 export function priceBasis(eng: { prices: Prices }): EnginePriceBasis {
   const m = eng.prices.meta;
+  // The found sheet lists a Chaos Orb at its scarcity weight, 8 — read as an exchange rate that is
+  // "1 chaos = 8", and `pickUnit` would relabel weights as Chaos Orbs. It carries no rates at all.
+  if (m?.basis === 'found') {
+    return {
+      estimated: true, found: true,
+      ...(m.generated ? { asOf: m.generated } : {}),
+      ...(m.unit ? { unit: m.unit } : {}),
+      ...(m.caveat ? { caveat: m.caveat } : {}),
+    };
+  }
   return {
     estimated: m?.estimated ?? true, // absent provenance ⇒ assume estimated; never overclaim
     ...(m?.updated ?? m?.generated ? { asOf: m?.updated ?? m?.generated } : {}),
@@ -309,6 +320,8 @@ export function optimizeItemMarkov(
    *  built up from smaller crafts first, reporting through `smaller` (`markovBuildUp.ts`). Absent ⇒ the
    *  craft is solved once, as it always was. */
   withoutBones?: BoneFreeOptions,
+  /** Also count what the plan uses (`EngineMarkovResult.uses`). Off ⇒ the result is what it always was. */
+  countUses = false,
 ): EngineMarkovResult {
   const { data, prices } = eng;
   const state = buildItemState(data, item);
@@ -341,7 +354,11 @@ export function optimizeItemMarkov(
     const tierDisplay = targets[named]?.tierDisplay;
     return tierDisplay === undefined ? [] : [{ modId: t.modId, tierDisplay }];
   })];
-  return mapMarkov(data, res, usesAssumedPool(item.runes ?? []), asked);
+  // Read off the plan the result already carries — no second solve — and only where there is one: an
+  // exact solve, or a ceiling whose plan was checked to finish (`routes`). Priced on the sheet the solve
+  // resolved for this base, since a bone's price is the base's.
+  const uses = countUses && res.routes ? markovUses(res.routes, pricesForBase(prices, state.base)) : undefined;
+  return mapMarkov(data, res, usesAssumedPool(item.runes ?? []), asked, uses);
 }
 
 /**

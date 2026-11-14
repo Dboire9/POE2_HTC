@@ -1,0 +1,31 @@
+{
+  "about": "The FOUND price sheet that starter recipes are planned on: a scarcity weight for each currency a new player picks up during the campaign and early maps, with an Orb of Transmutation as 1. A higher weight is a rarer drop. It is not a market and is never merged with the trade sheet (data/patches/<patch>/prices.json, refreshed daily by the price bot, which never reads or writes this file). A currency missing from `prices` is UNAVAILABLE on this sheet, never free: every Greater and Perfect orb, Greater and Perfect Essences (and the Alloys), Annulment, Divine, every omen and every bone. Keys are the trade sheet's own, so an essence of either strength is weighed by its LEVEL key: `essence_lesser` is any Lesser Essence, `essence` any Essence of the middle strength.",
+  "names": {
+    "transmute": "Orb of Transmutation",
+    "augment": "Orb of Augmentation",
+    "regal": "Regal Orb",
+    "exalt": "Exalted Orb",
+    "alchemy": "Orb of Alchemy",
+    "essence_lesser": "any Lesser Essence",
+    "essence": "any Essence (the middle strength)",
+    "chaos": "Chaos Orb"
+  },
+  "prices": {
+    "transmute": 1,
+    "augment": 1,
+    "regal": 3,
+    "exalt": 4,
+    "alchemy": 4,
+    "essence_lesser": 3,
+    "essence": 6,
+    "chaos": 8
+  },
+  "baseWeight": 1,
+  "baseWeightAbout": "What another white base of the right type weighs, for the true-cost model's restart on this sheet. A beginner who scraps an item has to find another base of the same weapon or armour class at a usable item level, which is roughly as common as a Transmute; a free restart would recommend walking away from every Transmute that misses.",
+  "basis": "found",
+  "unit": "scarcity weight (an Orb of Transmutation is 1)",
+  "estimated": true,
+  "generated": "2026-11-14",
+  "source": "A judgement on how common each currency drop is for a new player in the campaign and early maps — not market data. Only currency such a player finds is listed; everything else is unavailable on this sheet.",
+  "caveat": "These are scarcity weights, not prices: a judgement on how often a new player finds each currency, with an Orb of Transmutation as 1. They rank plans by what drops, and are not Exalted Orbs."
+}

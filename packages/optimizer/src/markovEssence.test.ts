@@ -109,8 +109,21 @@ describe('a regular Essence forces its mod and converts Magic → Rare', () => {
 
   it('is not offered when the player has excluded it', () => {
     const r = markovFromItem(data, prices, white(), [{ modId: 'P1' }, { modId: 'E1' }],
-      { ...EXACT, restartCost: 0, policy: { excluded: new Set(['essence:lesser:E1']) } });
+      { ...EXACT, restartCost: 0, policy: { excluded: new Set(['essence:lesser:E1', 'essence:normal:E1', 'essence:greater:E1']) } });
     expect(r.feasible).toBe(false); // the Essence is the only route to a suffix on this base
+  });
+
+  /**
+   * Excluding ONE level hands the choice to the cheapest level still on offer — every level at or above
+   * the one asked gives the target. Until 2026-11-14 the level was chosen before the exclusion was read
+   * (`cheapestEssenceLevel`), so excluding the Lesser Essence here made the craft infeasible though the
+   * player had the middle one.
+   */
+  it('buys the next level up when the player has excluded the cheapest', () => {
+    const r = markovFromItem(data, prices, white(), [{ modId: 'P1' }, { modId: 'E1' }],
+      { ...EXACT, restartCost: 0, policy: { excluded: new Set(['essence:lesser:E1']) } });
+    expect(r.feasible).toBe(true);
+    expect(r.expectedCost).toBeCloseTo(0.2 + 50, 9);
   });
 
   /**

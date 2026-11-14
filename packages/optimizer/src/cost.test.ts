@@ -199,6 +199,35 @@ describe('cheapestEssenceLevel — a better essence is often the cheaper one', (
     expect(stepCost(sheet, { currency: 'essence', add: 'E', essenceLevel: essenceLevelOf(E.tiers[2]!.name) }))
       .toBe(900);
   });
+
+  /**
+   * An UNPRICED level is unavailable, not free. `stepCost` reads it as 0, so it used to win this
+   * comparison; the caller's availability gate then dropped the action and no level was offered at all
+   * (the found sheet lists no Greater Essence). Here it must lose to the dearest level that IS priced.
+   */
+  it('never picks a level the sheet does not price, however "cheap" it reads', () => {
+    const sheet: Prices = { currency: { 'essence:lesser:E': 15, 'essence:normal:E': 100 }, omens: {} };
+    expect(stepCost(sheet, { currency: 'essence', add: 'E', essenceLevel: 'greater' })).toBe(0); // the trap
+    expect(cheapestEssenceLevel(sheet, E, 0, 82)).toBe(0);
+    expect(cheapestEssenceLevel(sheet, E, 1, 82)).toBe(1);
+  });
+
+  /** "I don't have Greater Essences" (excluded by LEVEL) must hand the choice to the next-cheapest level. */
+  it('never picks a level the player excluded, when told the policy', () => {
+    const sheet = priced(15, 100, 1.886);
+    const noGreater = { excluded: new Set(['essence_greater']) };
+    expect(cheapestEssenceLevel(sheet, E, 0, 82)).toBe(2);
+    expect(cheapestEssenceLevel(sheet, E, 0, 82, noGreater)).toBe(0);
+    // Excluding the per-essence key works the same way.
+    expect(cheapestEssenceLevel(sheet, E, 0, 82, { excluded: new Set(['essence:greater:E']) })).toBe(0);
+    // An empty policy changes nothing.
+    expect(cheapestEssenceLevel(sheet, E, 0, 82, { excluded: new Set() })).toBe(2);
+  });
+
+  it('with no level on offer, hands back the named one for the caller to refuse', () => {
+    const none = { excluded: new Set(['essence_lesser', 'essence', 'essence_greater']) };
+    expect(cheapestEssenceLevel(priced(15, 100, 1.886), E, 1, 82, none)).toBe(1);
+  });
 });
 
 describe('a bone has two grades, priced apart, and the Echoes omen rides on either', () => {

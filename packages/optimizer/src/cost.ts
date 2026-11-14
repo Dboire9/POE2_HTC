@@ -94,6 +94,11 @@ export interface PricesMeta {
   /** What specifically is estimated, when a sheet is part-observed and part-guessed. Without this the
    *  UI can only say "all guesses" — an overclaim in the opposite direction once most keys are live. */
   readonly caveat?: string;
+  /**
+   * `'found'` on the FOUND sheet (foundPrices.ts): scarcity weights, not prices, so the sheet carries no
+   * exchange rate and no cost on it is an amount of any currency. Absent on a trade sheet.
+   */
+  readonly basis?: 'found';
 }
 
 export interface Prices {
@@ -111,7 +116,7 @@ export interface PricesFile {
   patch?: string; prices: Record<string, number>; omens?: Record<string, number>;
   bones?: Record<string, number>;
   generated?: string; updated?: string; source?: string; unit?: string; estimated?: boolean; league?: string;
-  caveat?: string;
+  caveat?: string; basis?: 'found';
 }
 
 /** Build a Prices sheet from an already-parsed prices.json (no I/O — browser/worker safe). */
@@ -129,6 +134,7 @@ export function indexPrices(file: PricesFile): Prices {
     ...(file.unit !== undefined ? { unit: file.unit } : {}),
     ...(file.league !== undefined ? { league: file.league } : {}),
     ...(file.caveat !== undefined ? { caveat: file.caveat } : {}),
+    ...(file.basis === 'found' ? { basis: 'found' as const } : {}),
     estimated,
   };
   return {
@@ -353,9 +359,18 @@ export function essenceLevelOf(tierName: string | undefined): string {
  * choice and the bill disagree. Ties keep the lowest index, so a sheet with one flat price reproduces
  * the old behaviour exactly. Levels the item outranks are skipped (`tier.ilvl > itemLevel`), which is
  * the same gate `essenceForcedProbability` applies.
+ *
+ * **Only a level the planner may OFFER is a candidate** (`stepAvailable`: priced, and not excluded by
+ * `policy`). `stepCost` reads an absent key as 0, so before 2026-11-14 an unpriced level won this
+ * comparison as "free", the caller's availability gate then dropped the action, and the levels that
+ * WERE on offer were never tried — the essence target went infeasible. Measured on a white
+ * Quarterstaff at item level 70 (flat Physical Damage + an Essence modifier): on the found sheet, which
+ * lists no Greater Essence, no plan at all; on the trade sheet with Greater Essences excluded — Greater
+ * being the cheap level there — the same, though Lesser and Normal were allowed. A caller that has a
+ * policy must pass it; with nothing excluded and every level priced the choice is unchanged.
  */
 export function cheapestEssenceLevel(
-  prices: Prices, mod: Mod, minIndex: number, itemLevel: number,
+  prices: Prices, mod: Mod, minIndex: number, itemLevel: number, policy?: CurrencyPolicy,
 ): number {
   const lo = Math.max(0, Math.min(mod.tiers.length - 1, minIndex));
   let best = lo;
@@ -363,13 +378,13 @@ export function cheapestEssenceLevel(
   for (let j = lo; j < mod.tiers.length; j++) {
     const tier = mod.tiers[j];
     if (tier === undefined || tier.ilvl > itemLevel) continue;
-    const c = stepCost(prices, {
-      currency: 'essence', add: mod.id, essenceLevel: essenceLevelOf(tier.name),
-    });
+    const step: PricedStep = { currency: 'essence', add: mod.id, essenceLevel: essenceLevelOf(tier.name) };
+    if (!stepAvailable(prices, policy, step)) continue;
+    const c = stepCost(prices, step);
     if (c < bestCost) { best = j; bestCost = c; }
   }
-  // Every level outranked by the item: nothing is buyable, so hand back the one the target named and
-  // let the caller's own ilvl gate refuse it. Choosing here would hide the refusal.
+  // No level both buyable at this item level and on offer: hand back the one the target named and let
+  // the caller's own gates (ilvl, `stepAvailable`) refuse it. Choosing here would hide the refusal.
   return bestCost === Infinity ? lo : best;
 }
 
@@ -380,16 +395,43 @@ function legacyEssenceKey(step: PricedStep): string {
   return lvl === 'lesser' || lvl === 'greater' ? `essence_${lvl}` : 'essence';
 }
 
-/** Cost of a single step: its currency price plus any omen surcharge. Unknown keys cost 0. */
-export function stepCost(prices: Prices, step: PricedStep): number {
-  const key = currencyKey(step);
+/** What a step's ORB costs, under its `currencyKey`. The one reading of that price — see `stepCost`. */
+function orbPrice(prices: Prices, step: PricedStep, key: string): number {
   // Fall back to the per-level price when this specific essence isn't in the sheet, rather than
   // charging 0 — a free essence would look like a bargain and dominate every frontier.
-  const base = prices.currency[key]
+  return prices.currency[key]
     ?? (key.startsWith('essence:') ? prices.currency[legacyEssenceKey(step)] ?? 0 : 0);
+}
+
+/** Cost of a single step: its currency price plus any omen surcharge. Unknown keys cost 0. */
+export function stepCost(prices: Prices, step: PricedStep): number {
+  const base = orbPrice(prices, step, currencyKey(step));
   // Up front only: the Echoes omen is paid on a reroll, if one happens — see ECHOES_OMEN.
   const omens = stepOmenIds(step).reduce((sum, id) => (id === ECHOES_OMEN ? sum : sum + (prices.omens[id] ?? 0)), 0);
   return base + omens;
+}
+
+/** One thing a step spends, by its sheet key, and what the sheet charges for it. */
+export interface PricePart {
+  /** A `prices.currency` key (`currencyKey`) for the orb, or an omen id. */
+  readonly key: string;
+  readonly kind: 'orb' | 'omen';
+  readonly price: number;
+}
+
+/**
+ * What a step spends, item by item: its orb, then each omen it pays for up front — `stepCost` is their
+ * sum. The Echoes omen is left out exactly as `stepCost` leaves it out: it is paid on a reroll, and
+ * whoever counts rerolls counts it (markovUses.ts).
+ *
+ * The same `currencyKey`, `orbPrice` and `stepOmenIds` that make the total, so a bill read line by line
+ * can never disagree with the step's one price.
+ */
+export function stepPriceParts(prices: Prices, step: PricedStep): PricePart[] {
+  const key = currencyKey(step);
+  const parts: PricePart[] = [{ key, kind: 'orb', price: orbPrice(prices, step, key) }];
+  for (const id of stepOmenIds(step)) if (id !== ECHOES_OMEN) parts.push({ key: id, kind: 'omen', price: prices.omens[id] ?? 0 });
+  return parts;
 }
 
 /** One way an attempt can end: `cost` spent, with probability `prob`. The branches sum to 1. */

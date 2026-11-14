@@ -11,9 +11,9 @@ import { CURRENCY_FLOOR, type ItemBase, type PatchData } from '../../engine/src/
 import { excluded, familiesOf, modTierWeight, poolTotalWeight } from '../../engine/src/pool.ts';
 import type { DesecrationBossOmen } from '../../engine/src/probability.ts';
 import { ANCIENT_BONE_FLOOR, DESECRATION_OFFER_COUNT, desecrationOmenForMod } from '../../engine/src/probability.ts';
-import type { CurrencyPolicy, Prices, PricedStep } from './cost.ts';
+import type { CurrencyPolicy, PricePart, Prices, PricedStep } from './cost.ts';
 import type { Siblings } from './markovSiblings.ts';
-import { ECHOES_OMEN, allowsStep, cheapestEssenceLevel, essenceLevelOf, stepCost, stepIsPriced } from './cost.ts';
+import { ECHOES_OMEN, allowsStep, cheapestEssenceLevel, essenceLevelOf, stepCost, stepIsPriced, stepPriceParts } from './cost.ts';
 import type { Dist, FlagCode, McRarity, McState, McTarget, SideIndex, StateEncoder } from './markovState.ts';
 import {
   FLAG_JUNK_PREFIX, FLAG_JUNK_SUFFIX, FLAG_NONE, addTo, anyWeightOf, bit, decodeState,
@@ -162,6 +162,16 @@ function pricedStepOf(action: McAction): PricedStep {
 export function actionCostOf(prices: Prices, action: McAction): number {
   if (action.currency === 'restart') return action.cost;
   return stepCost(prices, pricedStepOf(action));
+}
+
+/**
+ * What one play of an action spends, item by item — its orb and each omen paid up front — through the
+ * same pricing view as `actionCostOf`, so the parts always sum to it. Empty for `restart`, which buys a
+ * base rather than anything on the sheet. Read by markovUses.ts to count each currency a plan uses.
+ */
+export function actionPriceParts(prices: Prices, action: McAction): PricePart[] {
+  if (action.currency === 'restart') return [];
+  return stepPriceParts(prices, pricedStepOf(action));
 }
 
 /** Whether the player can play this action — the same permission the linear planner's steps get. */
@@ -733,7 +743,7 @@ export function createActionSpace(params: ActionSpaceParams): {
   const essenceTargets = list.map((t, i) => {
     const mod = representative(t);
     if (mod.source !== 'essence') return undefined;
-    const tierIndex = cheapestEssenceLevel(prices, mod, t.mods[0]!.minIndex, level);
+    const tierIndex = cheapestEssenceLevel(prices, mod, t.mods[0]!.minIndex, level, policy);
     return { i, tierIndex, level: essenceLevelOf(mod.tiers[tierIndex]?.name), target: mod.id };
   }).filter((e) => e !== undefined);
 

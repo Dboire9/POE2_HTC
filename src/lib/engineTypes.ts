@@ -77,8 +77,15 @@ export interface EnginePriceBasis {
   /** The league these prices are from — what a trade search has to be pointed at to mean anything. */
   readonly league?: string;
   /** Exalts per Chaos / per Divine, so the UI can show a huge cost in a unit a player can picture
-   *  instead of a wall of digits. See `src/lib/currency.ts`. */
+   *  instead of a wall of digits. See `src/lib/currency.ts`. Never present on the found sheet. */
   readonly rates?: { readonly chaos?: number; readonly divine?: number };
+  /**
+   * The FOUND sheet (packages/optimizer/src/foundPrices.ts): scarcity weights for the currency a new
+   * player picks up, not prices. A cost on it is no amount of any currency, so a UI shows what the plan
+   * USES — `EngineMarkovResult.uses` and `restarts` — and `caveat`, and never formats a cost as Exalted or
+   * Chaos (`pickUnit` / `formatCost` must not see these numbers). Absent ⇒ a trade sheet.
+   */
+  readonly found?: true;
 }
 
 /** Every exclusion group a UI mod belongs to — the single accessor the UI should use, so a
@@ -418,6 +425,19 @@ export interface EnginePolicyEdge {
 }
 
 /** One candidate starting item: target modifiers already on it, and what finishing then costs. */
+/** One currency a solved plan uses — see `EngineMarkovResult.uses`. Plain data, for the worker's clone. */
+export interface EngineUse {
+  /** The sheet key it is priced under (`transmute`, `essence:lesser:<modId>`, an omen id, …). Stable; for keys. */
+  readonly key: string;
+  /** Its name as the route names it: "Transmute", "Exalt (Greater)", "Lesser Essence of Haste", "Omen of Light". */
+  readonly label: string;
+  readonly kind: 'orb' | 'omen';
+  /** How many the whole craft uses, on average. */
+  readonly count: number;
+  /** What one costs on the solve's sheet — a scarcity weight on the found basis, never to be shown as a price. */
+  readonly price: number;
+}
+
 export interface EngineHolding {
   /** Target-mod texts already on the item, one per filled slot; interchangeable alternatives read
    *  "Cold or Lightning". */
@@ -486,6 +506,16 @@ export interface EngineMarkovResult {
    * player can edit after solving.
    */
   readonly restartCost?: number;
+  /**
+   * What following the plan uses, on average, from the craft's start: each currency by name, most-used
+   * first — orbs, then omens (packages/optimizer/src/markovUses.ts). Exact, from the solved plan, never
+   * sampled. Present on a found-basis Lab solve, or when the request asked (`SolveRequest.uses`), and only
+   * where the result carries a plan known to finish (`routes`). Σ `price × count` + `restartCost ×
+   * restarts` is `expectedCost`, to the solver's tolerance.
+   */
+  readonly uses?: readonly EngineUse[];
+  /** How many times the plan starts over, on average — the craft takes `1 + restarts` bases. Beside `uses`. */
+  readonly restarts?: number;
   /**
    * The solved policy over the whole lattice, opaque to the UI: `routeFor` walks it to draw the route
    * from any starting item, and `stepFor` reads it one move at a time (Craft along), without solving

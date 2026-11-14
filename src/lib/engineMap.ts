@@ -9,6 +9,7 @@ import type { PlanStep } from '../../packages/engine/src/plan.ts';
 import type { TierTarget, ParetoResult } from '../../packages/optimizer/src/optimize.ts';
 import type { Alternative, AlternativeTarget, AlternativesResult, SlotChange } from '../../packages/optimizer/src/alternatives.ts';
 import type { MarkovResult, McAction, PolicyEdge, PolicyNode } from '../../packages/optimizer/src/markovFromItem.ts';
+import type { MarkovUses } from '../../packages/optimizer/src/markovUses.ts';
 import type {
   EngineMod, EngineTier, EngineResult, EnginePlan, EngineStep, EngineSlot, EngineAlternative,
   EngineAlternatives, EngineMarkovResult, EnginePolicyEdge, EnginePolicyNode, ExistingItem, PolicyMod,
@@ -400,6 +401,12 @@ function actionLabel(data: PatchData, action: McAction): string {
   return 'Chaos';
 }
 
+/**
+ * An omen named from its sheet id: `OmenofSinistralExaltation` → "Omen of Sinistral Exaltation",
+ * `OmenoftheLiege` → "Omen of the Liege" — the spelling `actionLabel` already uses for the omens it names.
+ */
+const omenLabel = (id: string): string => id.replace(/^Omenof/, 'Omen of ').replace(/([a-z])([A-Z])/g, '$1 $2');
+
 /** A filled position named: the texts of the ids that could be filling it, joined with "or". */
 const positionLabel = (data: PatchData, ids: readonly string[]): string =>
   ids.map((id) => data.mods.get(id)?.text ?? id).join(' or ');
@@ -498,6 +505,8 @@ export function mapMarkov(
   /** The craft's targets, for the tier each position was asked at. Optional so a caller that has none
    *  still gets every other label; the graph then shows sides without tiers. */
   targets: readonly TargetInput[] = [],
+  /** What the plan uses (`markovUses`), when the caller counted it. */
+  uses?: MarkovUses,
 ): EngineMarkovResult {
   /**
    * The positions of one holding, named — with the SIDE appended to any two that read alike.
@@ -536,6 +545,15 @@ export function mapMarkov(
     } : {}),
     ...(res.restartCost !== undefined ? { restartCost: res.restartCost } : {}),
     ...(res.routes ? { routes: res.routes } : {}),
+    // Each currency named the way the route names the move that spends it (`actionLabel`): an Essence
+    // by its tier name, "Lesser Essence of Haste", which is what the player looks for in their stash.
+    ...(uses ? {
+      uses: uses.uses.map((u) => ({
+        key: u.key, kind: u.kind, count: u.count, price: u.price,
+        label: u.action ? actionLabel(data, u.action) : omenLabel(u.key),
+      })),
+      restarts: uses.restarts,
+    } : {}),
     // The replay, as plain numbers: the watch shares a caller asked for, and what the policy really
     // costs. A declined replay carries its reason instead, so a panel can say why a column is empty.
     ...(res.replay?.ok

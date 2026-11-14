@@ -18,9 +18,19 @@
 // Use the sheet WHOLE: spread over the trade sheet it would inherit that sheet's omens and bones.
 //
 // The weights are a judgement, the maintainer's to confirm or change — how common each drop is for a
-// new player, not data anyone measured. They live in one table so a change is one line.
+// new player, not data anyone measured. They live in `data/found/prices.json`, with their source beside
+// them, because data lives in JSON and never in source (CLAUDE.md). That file sits OUTSIDE
+// `data/patches/`: the daily price bot rewrites `data/patches/<patch>/prices.json` and stages
+// `data/patches`, and its guards (`priceResolution`, `costConsistency`) read that file by name — none of
+// them can reach this one. It is a static import, not a fetched asset: a few hundred bytes, never
+// refreshed, and an import works the same in the browser bundle, the worker, vitest and `npx tsx`.
 
-import type { Prices } from './cost.ts';
+import type { Prices, PricesFile } from './cost.ts';
+import { indexPrices } from './cost.ts';
+import sheet from '../../../data/found/prices.json';
+
+/** The file's shape: a `PricesFile` plus the restart's weight. Its `about`/`names` notes are for people. */
+const file: PricesFile & { readonly baseWeight: number } = { ...sheet, basis: 'found' };
 
 /**
  * How scarce each found currency is to a new player, relative to an Orb of Transmutation (1).
@@ -29,27 +39,19 @@ import type { Prices } from './cost.ts';
  * the player is less likely to be able to follow. Keys are the trade sheet's own (`currencyKey`), so
  * an essence of either strength is priced by its LEVEL key — any Lesser Essence, any Essence.
  */
-export const FOUND_WEIGHTS: Readonly<Record<string, number>> = Object.freeze({
-  transmute: 1, // Orb of Transmutation
-  augment: 1, // Orb of Augmentation
-  regal: 3, // Regal Orb
-  exalt: 4, // Exalted Orb
-  alchemy: 4, // Orb of Alchemy
-  essence_lesser: 3, // any Lesser Essence
-  essence: 6, // any Essence (the middle strength)
-  chaos: 8, // Chaos Orb
-});
+export const FOUND_WEIGHTS: Readonly<Record<string, number>> = Object.freeze({ ...file.prices });
 
 /**
  * What another white base of the right type weighs, for the MDP's `restartCost` on this sheet.
  *
- * A JUDGEMENT, like the table above, and NOT wired into anything here: the solve's default
- * (`WHITE_BASE_COST` in src/lib/solve.ts) is 0, at which the policy bins almost every state rather than
- * repair it. A beginner who scraps an item has to find another base of the same weapon or armour class
- * at a usable item level, which is roughly as common as a Transmute — and a free restart would
- * recommend walking away from every Transmute that misses.
+ * A JUDGEMENT, like the table above. A found-basis Lab solve (`priceBasis: 'found'`, src/lib/solve.ts)
+ * restarts at this unless the request names its own base cost; the trade basis keeps `WHITE_BASE_COST`
+ * (0), at which the policy bins almost every state rather than repair it. A beginner who scraps an item
+ * has to find another base of the same weapon or armour class at a usable item level, which is roughly
+ * as common as a Transmute — and a free restart would recommend walking away from every Transmute that
+ * misses.
  */
-export const FOUND_BASE_WEIGHT = 1;
+export const FOUND_BASE_WEIGHT: number = file.baseWeight;
 
 /**
  * The found sheet, in the trade sheet's shape so every planner reads it unchanged.
@@ -57,18 +59,7 @@ export const FOUND_BASE_WEIGHT = 1;
  * `estimated: true` and a full-sentence `caveat`, because `PriceBasisNote` renders the caveat wherever a
  * cost is shown, and a scarcity weight presented without one would read as an Exalted price.
  */
-export const FOUND_PRICES: Prices = Object.freeze({
-  currency: FOUND_WEIGHTS,
-  omens: Object.freeze({}),
-  meta: Object.freeze({
-    generated: '2026-11-14',
-    unit: 'scarcity weight (an Orb of Transmutation is 1)',
-    estimated: true,
-    source: 'A judgement on how common each currency drop is for a new player in the campaign and early '
-      + 'maps — not market data. Only currency such a player finds is listed; everything else is '
-      + 'unavailable on this sheet.',
-    caveat: 'These are scarcity weights, not prices: a judgement on how often a new player finds each '
-      + 'currency, with an Orb of Transmutation as 1. They rank plans by what drops, and are not Exalted '
-      + 'Orbs.',
-  }),
-});
+export const FOUND_PRICES: Prices = Object.freeze((() => {
+  const indexed = indexPrices({ ...file, prices: FOUND_WEIGHTS });
+  return { ...indexed, omens: Object.freeze({}), ...(indexed.meta ? { meta: Object.freeze(indexed.meta) } : {}) };
+})());

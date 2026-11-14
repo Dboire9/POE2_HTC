@@ -3,6 +3,7 @@ import { loadPatch } from '../../engine/src/loadPatch.ts';
 import type { ItemState } from '../../engine/src/types.ts';
 import type { PlanStep } from '../../engine/src/plan.ts';
 import { loadPrices } from './loadPrices.ts';
+import { loadFrozenPrices } from './frozenPrices.ts';
 import type { CurrencyPolicy } from './cost.ts';
 import { optimizePareto } from './optimize.ts';
 import { optimizeFromItem } from './fromItem.ts';
@@ -188,5 +189,48 @@ describe('markovFromItem honours exclusions', () => {
     expect(r.feasible).toBe(false);
     expect(r.expectedCost).toBe(Infinity);
     expect(r.reason).toMatch(/currencies you have/i);
+  });
+});
+
+// REGRESSION (2026-11-14). "I don't have Greater Essences" used to take a whole Essence target away
+// wherever the item level allows the Greater level and the sheet makes it the cheap one: the level
+// choice (`cheapestEssenceLevel`) still picked Greater, the exclusion then dropped that action, and the
+// Lesser and middle levels the player DOES have were never offered. Frozen sheet, because the premise —
+// Greater Essence of Ice is the cheapest of its three levels — is a fact about prices that can move.
+describe('excluding one essence LEVEL leaves the others on offer', () => {
+  const frozen = loadFrozenPrices();
+  const staves = data.bases.get('Quarterstaves')!;
+  const COLD = 'Quarterstaves/Essence_ColdDamage'; // Lesser 8, Essence 46, Greater 60
+  const craft = [{ modId: 'Quarterstaves/LocalPhysicalDamage', minTierIndex: 0 }, { modId: COLD, minTierIndex: 0 }];
+  const white: ItemState = { base: staves, level: 70, rarity: 'normal', prefixes: [], suffixes: [] };
+  const noGreater = policy('essence_greater');
+  const essenceLevels = (frontier: readonly { steps: readonly PlanStep[] }[]): (string | undefined)[] =>
+    allSteps(frontier).flatMap((s) => (s.currency === 'essence' ? [s.essenceLevel] : []));
+  const levelsPlayed = (r: ReturnType<typeof markovFromItem>): string[] =>
+    [...new Set([...r.policy.values()].flatMap((a) => (a.currency === 'essence' ? [a.level] : [])))];
+
+  it('the premise: unexcluded, both planners buy the Greater Essence', () => {
+    const r = markovFromItem(data, frozen, white, craft, { restartCost: 0 });
+    expect(r.feasible && r.bound === 'exact').toBe(true);
+    expect(levelsPlayed(r)).toEqual(['greater']);
+    const { frontier } = optimizePareto(data, frozen, staves, craft, { level: 70 });
+    expect(essenceLevels(frontier)).toContain('greater');
+  });
+
+  it('the true-cost model still solves it, on a level the player has', () => {
+    const r = markovFromItem(data, frozen, white, craft, { restartCost: 0, policy: noGreater });
+    expect(r.feasible).toBe(true);
+    expect(r.bound).toBe('exact');
+    const played = levelsPlayed(r);
+    expect(played.length).toBeGreaterThan(0);
+    expect(played).not.toContain('greater');
+  });
+
+  it('the step routes still solve it, on a level the player has', () => {
+    const { frontier } = optimizePareto(data, frozen, staves, craft, { level: 70, policy: noGreater });
+    expect(frontier.length).toBeGreaterThan(0);
+    const levels = essenceLevels(frontier);
+    expect(levels.length).toBeGreaterThan(0);
+    expect(levels).not.toContain('greater');
   });
 });

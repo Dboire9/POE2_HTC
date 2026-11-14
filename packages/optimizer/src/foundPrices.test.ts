@@ -1,4 +1,5 @@
 import { describe, it, expect } from 'vitest';
+import { readFileSync } from 'node:fs';
 import { loadPatch } from '../../engine/src/loadPatch.ts';
 import type { ItemState } from '../../engine/src/types.ts';
 import { FOUND_BASE_WEIGHT, FOUND_PRICES, FOUND_WEIGHTS } from './foundPrices.ts';
@@ -44,6 +45,20 @@ describe('the found sheet prices exactly the currency a new player finds', () =>
   it('weighs each one above zero — a 0 would be "free on purpose", which nothing found is', () => {
     for (const w of Object.values(FOUND_WEIGHTS)) expect(w > 0 && Number.isFinite(w)).toBe(true);
     expect(FOUND_BASE_WEIGHT > 0 && Number.isFinite(FOUND_BASE_WEIGHT)).toBe(true);
+  });
+
+  // Data lives in JSON (CLAUDE.md): the weights are the file's, read here straight off the disk, and the
+  // file sits outside `data/patches/`, which the daily price bot rewrites and stages.
+  it('is built from data/found/prices.json, number for number', () => {
+    const file = JSON.parse(readFileSync('data/found/prices.json', 'utf8')) as {
+      prices: Record<string, number>; baseWeight: number; caveat: string; basis: string;
+    };
+    expect(FOUND_WEIGHTS).toEqual(file.prices);
+    expect(FOUND_PRICES.currency).toEqual(file.prices);
+    expect(FOUND_BASE_WEIGHT).toBe(file.baseWeight);
+    expect(FOUND_PRICES.meta?.caveat).toBe(file.caveat);
+    expect(file.basis).toBe('found');
+    expect(FOUND_PRICES.meta?.basis).toBe('found');
   });
 
   it('says it is a judgement in scarcity weights, never an Exalted price', () => {
@@ -179,6 +194,22 @@ describe('a real starter craft solves on the found sheet', () => {
     const played = [...r.policy.values()];
     expect(played.some((a) => a.currency === 'essence' && a.level === 'lesser')).toBe(true);
     expect(played.filter((a) => !playable(a))).toEqual([]);
+  });
+
+  // REGRESSION (2026-11-14). Where the item level allows a GREATER Essence — which this sheet does not
+  // price — the level choice used to pick it as "free" (`stepCost` reads an absent key as 0), the gate
+  // then dropped it, and Lesser and middle were never offered: no plan at all from either planner.
+  it('still plays a found Essence where the item level would allow an unpriced Greater one', () => {
+    const high: ItemState = { ...white, level: 70 };
+    const craft = [{ modId: PHYS, minTierIndex: 1 }, { modId: HASTE, minTierIndex: 0 }];
+    const r = markovFromItem(data, FOUND_PRICES, high, craft, { restartCost: FOUND_BASE_WEIGHT });
+    expect(r.feasible && r.bound === 'exact').toBe(true);
+    const played = [...r.policy.values()];
+    expect(played.some((a) => a.currency === 'essence')).toBe(true);
+    expect(played.filter((a) => !playable(a))).toEqual([]);
+    const { frontier } = optimizePareto(data, FOUND_PRICES, staves, craft, { level: 70 });
+    expect(frontier.length).toBeGreaterThan(0);
+    for (const plan of frontier) for (const step of plan.steps) expect(stepAvailable(found, undefined, step)).toBe(true);
   });
 
   it('the step routes for the same craft spend only what the sheet prices', () => {

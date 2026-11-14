@@ -531,7 +531,7 @@ function paretoForOneCraft(
    */
   const essenceTierOf = new Map([...essSet].map((id) => {
     const mod = resolveMod(data, id);
-    return [id, cheapestEssenceLevel(prices, mod, tierOf.get(id) ?? 0, level)] as const;
+    return [id, cheapestEssenceLevel(prices, mod, tierOf.get(id) ?? 0, level, opts.policy)] as const;
   }));
 
   // (1) Add-chain / essence / desecration / perfect-essence openers: every mod ordering. A

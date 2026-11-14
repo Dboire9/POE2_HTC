@@ -48,9 +48,10 @@ Open **[poe2htc.com](https://poe2htc.com)**. That's it — there is nothing to d
 The whole engine is JavaScript running in your browser; nothing you type leaves your machine, except a
 rating or a "What next?" message you choose to send (see [Getting help](#getting-help)).
 
-Not sure where to start? On an empty **Plan from scratch** tab, **Or try one** offers a few ready crafts
-— a caster Wand, a life and resistances Ring, an armour Body Armour, a Spirit Amulet. One click loads it
-and solves it, so you see what the app answers before you pick your own modifiers.
+Not sure where to start? On an empty **Plan from scratch** tab, **Or try one** offers 15 ready crafts,
+filed by build type — **Caster**, **Attack**, **Minion**, **Defence**. Each is cut from an item a tracked
+build wears (the Streamer gear snapshot of 2026-09-16) and says which class: "From an Invoker build". One
+click loads it and solves it, so you see what the app answers before you pick your own modifiers.
 
 The first load pulls the modifier data for patch 0.5.0 — about 1 MB, and 85 kB over the wire once
 compressed. After that the page works offline.
@@ -447,8 +448,8 @@ is offered. A regular Essence is a Magic-item move: it forces its mod and turns 
 **An Essence can stand in for a rolled modifier.** An Essence's modifier is the rolled one at a fixed
 tier — a Greater Essence of Insulation gives exactly the 31–35% Fire Resistance a T3 roll does. So when
 you ask for a modifier at a tier an Essence reaches, the planner may force it with that Essence instead
-of rolling for it, and it does whenever that is cheaper: on the four "Or try one" crafts it costs 72–94%
-less. You don't need to add the Essence yourself. It works from a white base or a Magic item (a Rare
+of rolling for it, and it does whenever that is cheaper: on nine of the fifteen "Or try one" crafts it
+costs 5–96% less. You don't need to add the Essence yourself. It works from a white base or a Magic item (a Rare
 can't take a regular Essence), and it uses the item's one crafted modifier. On most modifiers the
 Greater Essence is a T3, so a T1 or T2 ask is usually still rolled — but where an Essence does reach
 higher (the Greater Essence of Opulence is the T1 Item Rarity), it is offered there too. Tick the Essence

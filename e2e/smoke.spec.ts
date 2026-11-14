@@ -122,6 +122,26 @@ test('2c — an example craft on the empty Plan tab loads and solves in one clic
   expect(errors.filter(cspish), 'CSP refusals').toEqual([]);
 });
 
+test('2d — a build-type chip swaps the example crafts, and one of its crafts solves in one click', async ({ page }) => {
+  const errors = watchForErrors(page);
+  await page.goto('/');
+  await waitForReady(page);
+
+  // The card opens on Caster; the Defence chip swaps the grid for the Defence crafts.
+  const chips = page.getByRole('group', { name: 'Build type' });
+  await chips.getByRole('button', { name: 'Defence' }).click();
+  await expect(chips.getByRole('button', { name: 'Defence' })).toHaveAttribute('aria-pressed', 'true');
+  await expect(page.getByRole('button', { name: /A caster Wand/ })).toHaveCount(0);
+
+  await page.getByRole('button', { name: /^Armour Boots/ }).click();
+  await expect(page.getByText(/Target item \(3 mods\)/)).toBeVisible();
+  const cost = page.getByText('True expected cost').locator('xpath=following-sibling::span');
+  await expect(cost).toBeVisible({ timeout: 60_000 });
+  await expect(cost).not.toHaveText(/[≤≥]/);
+
+  expect(errors.filter(cspish), 'CSP refusals').toEqual([]);
+});
+
 test('3 — item compute: the from-item planner answers on a held item', async ({ page }) => {
   const errors = watchForErrors(page);
   await page.goto('/');

@@ -60,6 +60,7 @@ vi.mock('../../lib/engine', async (importOriginal) => {
 
 import EngineLab from './EngineLab';
 import { DEFAULT_EFFORT, EFFORT_PRESETS, getEffort, limitsFor, nextEffort, setEffort } from '../../lib/searchEffort';
+import { EXAMPLE_CATEGORIES, EXAMPLE_CRAFTS, type ExampleCategory } from '../../lib/exampleCrafts';
 
 /** The picker row for a mod's text (the row div holding its "+"), from within the mod-picker card. */
 const pickerRow = (text: string): HTMLElement => screen.getByText(text).closest('div') as HTMLElement;
@@ -897,5 +898,52 @@ describe('EngineLab — crafts to try on an empty Plan tab', () => {
     expect(mocks.optimize.mock.calls[0]!.slice(1, 4)).toEqual(['Wands', wand.goal.level, wand.goal.targets]);
     expect(await screen.findByText(/True expected cost/)).toBeInTheDocument();
     expect(screen.queryByText('Or try one')).toBeNull();
+  });
+
+  // Read from the list itself, so these hold as crafts are added to it.
+  const inCategory = (id: ExampleCategory) => EXAMPLE_CRAFTS.filter((e) => e.category === id);
+  const chips = () => within(screen.getByRole('group', { name: 'Build type' }));
+  const exampleButton = (name: string) => screen.getByText(name).closest('button')!;
+
+  it('opens on Caster, showing only the Caster crafts', async () => {
+    await loaded();
+    expect(chips().getByRole('button', { name: 'Caster' })).toHaveAttribute('aria-pressed', 'true');
+    expect(inCategory('caster').length).toBeGreaterThan(0);
+    for (const e of EXAMPLE_CRAFTS) {
+      if (e.category === 'caster') expect(screen.getByText(e.name)).toBeInTheDocument();
+      else expect(screen.queryByText(e.name), e.name).toBeNull();
+    }
+  });
+
+  it('shows a chip only for a category that holds a craft', async () => {
+    await loaded();
+    for (const c of EXAMPLE_CATEGORIES) {
+      const chip = chips().queryByRole('button', { name: c.label });
+      if (inCategory(c.id).length > 0) expect(chip, c.label).toBeInTheDocument();
+      else expect(chip, c.label).toBeNull();
+    }
+  });
+
+  it('a chip swaps the grid to its category and says which one is shown', async () => {
+    const user = userEvent.setup();
+    await loaded();
+    expect(inCategory('defence').length).toBeGreaterThan(0);
+    await user.click(chips().getByRole('button', { name: 'Defence' }));
+    await waitFor(() => expect(chips().getByRole('button', { name: 'Defence' })).toHaveAttribute('aria-pressed', 'true'));
+    expect(chips().getByRole('button', { name: 'Caster' })).toHaveAttribute('aria-pressed', 'false');
+    for (const e of inCategory('defence')) expect(screen.getByText(e.name)).toBeInTheDocument();
+    for (const e of inCategory('caster')) expect(screen.queryByText(e.name), e.name).toBeNull();
+  });
+
+  it('says which class each craft comes from, with the right article', async () => {
+    const user = userEvent.setup();
+    await loaded();
+    for (const e of inCategory('caster')) expect(exampleButton(e.name)).toHaveTextContent(new RegExp(`From an? ${e.build} build`));
+    // "an" before a vowel, "a" before a consonant — one of each from the list as it stands.
+    const invoker = inCategory('caster').find((e) => e.build === 'Invoker')!;
+    expect(exampleButton(invoker.name)).toHaveTextContent('From an Invoker build');
+    const gemling = inCategory('defence').find((e) => e.build === 'Gemling Legionnaire')!;
+    await user.click(chips().getByRole('button', { name: 'Defence' }));
+    await waitFor(() => expect(exampleButton(gemling.name)).toHaveTextContent('From a Gemling Legionnaire build'));
   });
 });

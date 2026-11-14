@@ -27,6 +27,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- **Fifteen crafts to try, by build type.** *Or try one* now has chips — Caster, Attack, Minion, Defence —
+  with three or four crafts each, and every one is cut from an item a tracked streamer build wears: its
+  modifiers are ones that item rolled, at the tier worn or lower, and the card says which class ("From an
+  Invoker build"). Each still settles exactly at Standard in about two seconds or less. The caster Wand,
+  life and resistances Ring and armour Body Armour keep their names with that gear's modifiers; the Spirit
+  Amulet is gone.
+
 - **On the Plan tab, the step-by-step routes fold under the true expected cost**, as on the Item tab:
   *Step-by-step routes (N)* opens them. They stay open when there is no true cost to read instead, or no
   route at all.
@@ -49,7 +56,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **A rolled modifier can now come from its Essence.** A Greater Essence of Insulation gives exactly the
   Fire Resistance a T3 roll does, so wherever you ask a modifier at a tier an Essence reaches, both the
   true cost and the step routes may force it with that Essence instead of rolling — you no longer have to
-  add the Essence yourself. The "Or try one" crafts now cost 72–94% less (the caster Wand 3,934 → 283 ex).
+  add the Essence yourself. Nine of the fifteen "Or try one" crafts cost 5–96% less for it.
   Most T1 and T2 asks are unchanged: on most modifiers the best Essence is a T3.
 
 ### Fixed

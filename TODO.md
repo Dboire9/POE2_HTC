@@ -1702,6 +1702,27 @@ Found on the way: excluding an Essence LEVEL excluded nothing (fixed in `allowsS
 - **Held Rare items get no twin** — right for a regular Essence (it needs Magic), and the reason a
   Perfect-Essence twin would matter there.
 
+## 31. Example crafts by build type, cut from tracked gear — DONE 2026-11-14
+
+*Or try one* files its crafts under chips — Caster, Attack, Minion, Defence — 15 in all, three or four each,
+and every card says "From a/an <class> build". Each is cut from one item a tracked build wears in the gear
+snapshot of 2026-09-16: a subset of what it rolled, at the tier worn or lower (copy-audit row 118). Chosen by
+measurement with `scripts/example-crafts.mts` (docs/validation.md, 2026-11-14): all exact at Standard on the
+live sheet, 0.2–1.8 s. The caster Wand, life and resistances Ring and armour Body Armour were replaced under
+their names; the Spirit Amulet was dropped. (The caster Wand §30 speaks of is the old one: the Wand now shown
+answers in about 1.4 s.) What stays open:
+
+- **A cast speed Ring never settles.** The Invoker's Ring — Cast Speed T1, Cold Damage T1, Life T2 — gets no
+  number at Standard (stopped after 22 s; 47 s with every tier lowered a step). Three modifiers on a Ring is
+  small; worth a look as a solver observation, not as an example.
+- **A gem-level Amulet costs the same at T1 and T2 but takes three to four times as long at T1** (the
+  Martial Artist's melee Amulet: 1,715 ex both, 6.5–8.8 s against 1.6–2.2 s). Unexplained.
+- **Minion has three crafts**: the snapshot holds one minion build, and the rest of its gear is not
+  minion-specific. A refresh that brings another could add a fourth — by hand: the list is static, and the
+  weekly gear refresh does not change it (`SOURCED` in the script says whether it still matches the file).
+- **No cost on the cards**, deliberately: the price sheet moves daily, and the card would quote a number
+  the solve then contradicts.
+
 ## What 1.0 means — ALL FIVE SHIPPED, prepared 2026-09-02
 
 The definition written on 2026-09-01 was: §7 the docs describe the app that exists, §8 prices refresh

@@ -5129,6 +5129,99 @@ binning against the base price, value against policy iteration, the order of Reg
 were moved: the first two exclude essences (their claim is about the lattice without twins, as the ring
 already excludes Desecration), the third accepts an Essence as the step that makes the item Rare.
 
+## Example crafts by build type, cut from tracked gear (2026-11-14)
+
+**The question.** The "Or try one" card grew from four crafts to build-type chips — Caster, Attack, Minion,
+Defence — with three or four crafts each, and every card now says "From a/an <class> build". That line
+has to be true, so each craft is cut from ONE item a tracked build wears in the gear snapshot
+`data/streamers/0.5.0.json` (2026-09-16; 5 characters, 37 Rare items): its targets are a subset of the
+modifiers that item ROLLED, on the same base, at the tier it wears or a lower one. The item's Desecrated,
+Fractured, Essence and Perfect Essence modifiers do not count, nor is magic-find filler kept; only what
+the base rolls normally (`pools.normal`). Each must settle EXACTLY at Standard in about two seconds, at a
+cost a new player might really pay.
+
+**Measured** with `npx tsx scripts/example-crafts.mts` (the shipped list; `candidates` measures the pool of
+53 it was chosen from): the app's path (`runSolve`, the Lab, from white, item level 82), Standard (15 s
+clock, 100k sweeps), live sheet of 2026-11-10, alone, after one untimed warm-up solve. "Bone": the route
+the result shows plays a Desecration. Costs in ex.
+
+| category | craft | cut from (class, slot, base) | cost | time | bone | Essence |
+|---|---|---|---|---|---|---|
+| Caster | A caster Wand | Invoker, weapon, `Wands` | 5,021 | 1.36 s | yes | — |
+| Caster | A caster Amulet | Invoker, amulet, `Amulets` | 17,855 | 0.59 s | yes | — |
+| Caster | An Energy Shield caster Helmet | Invoker, helmet, `Helmets_int` | 240 | 1.40 s | yes | Greater of the Mind, Greater of Enhancement |
+| Caster | A mana regeneration Ring | Invoker, ring, `Rings` | 490 | 0.82 s | no | Greater of Thawing |
+| Attack | A Quarterstaff | Martial Artist, weapon, `Quarterstaves` | 3,724 | 0.78 s | yes | Greater of Haste |
+| Attack | A projectile Crossbow | Gemling Legionnaire, weapon 2, `Crossbows` | 4,612 | 0.72 s | yes | Lesser of Ice |
+| Attack | Elemental attack Gloves | Gemling Legionnaire, gloves, `Gloves_dex_int` | 3,817 | 0.87 s | yes | Greater of Insulation |
+| Attack | An attack Ring | Gemling Legionnaire, ring, `Rings` | 1,093 | 1.79 s | no | Greater of Insulation |
+| Minion | A minion Amulet | Spirit Walker, amulet, `Amulets` | 2,552 | 0.21 s | no | — |
+| Minion | A minion Helmet | Spirit Walker, helmet, `Helmets_int` | 4,034 | 0.52 s | yes | — |
+| Minion | A Spirit Sceptre | Invoker, off-hand, `Sceptres` | 4,085 | 0.42 s | yes | — |
+| Defence | A life and resistances Ring | Gemling Legionnaire, ring, `Rings` | 121 | 1.33 s | no | Greater of Ruin |
+| Defence | An armour Body Armour | Gemling Legionnaire, body armour, `Body_Armours_str` | 325 | 0.79 s | yes | Greater of Thawing |
+| Defence | Armour Boots | Gemling Legionnaire, boots, `Boots_str` | 1,582 | 0.28 s | yes | — |
+| Defence | A life and mana Belt | Invoker, belt, `Belts` | 1,546 | 0.61 s | no | Essence of Grounding |
+
+All 15 exact; `SOURCED: 15 of 15` (the script checks the rule against the gear file, and prints it as a
+verdict rather than an exit code — the gear file is refreshed weekly, and the claim is about the snapshot
+the list was cut from). Times across five runs (one with four processes side by side, four alone): 0.2–1.8 s each; the attack
+Ring (1.47–1.79 s), the caster Helmet (1.36–1.61 s) and the Wand (1.16–1.40 s) are the slowest. On the
+frozen sheet with the clock lifted, `exampleCrafts.test.ts` holds each category to settling within
+Standard's sweeps (one test per category; 1–4.4 s per category under vitest).
+
+**With and without their Essence** (`scripts/essence-twins.mts standard bones|nobones`, as the 2026-11-13
+entry; both gates passed — none lost its number, none got dearer):
+
+| craft | bones: as asked → with twins | saving | no bones: as asked → with twins | saving |
+|---|---|---|---|---|
+| An Energy Shield caster Helmet | 849 → 240 | 71.7% | 1,799 → 426 | 76.3% |
+| A mana regeneration Ring | 1,923 → 490 | 74.5% | 2,121 → 490 | 76.9% |
+| A Quarterstaff | 26,066 → 3,724 | 85.7% | 56,098 → 6,346 | 88.7% |
+| A projectile Crossbow | 5,504 → 4,612 | 16.2% | 11,171 → 7,530 | 32.6% |
+| Elemental attack Gloves | 17,942 → 3,817 | 78.7% | 45,050 → 9,938 | 77.9% |
+| An attack Ring | 2,849 → 1,093 | 61.6% | 2,849 → 1,093 | 61.6% |
+| A life and resistances Ring | 2,252 → 121 | 94.6% | 3,072 → 121 | 96.1% |
+| An armour Body Armour | 1,390 → 325 | 76.6% | 3,099 → 744 | 76.0% |
+| A life and mana Belt | 1,625 → 1,546 | 4.8% | 1,677 → 1,546 | 7.8% |
+| the other six (Wand, caster Amulet, minion Amulet and Helmet, Sceptre, Boots) | identical | 0% | identical | 0% |
+
+So nine of the fifteen are cheaper with their Essence, by 5–96% (the guide's figure; it was 72–94% on the
+four examples of 2026-11-13).
+
+**What was dropped or lowered, and why.**
+- The four examples of 2026-09-24 were hand-made and none is cut from a tracked item. *A caster Wand*
+  asked for +Level of all Spell Skills and Cast Speed, which no tracked Wand rolls: replaced under the same
+  name, three targets (e2e 2c clicks it), from the Invoker's Wand. *A life and resistances Ring* asked for
+  three single resistances, which no tracked Ring rolls with Life: replaced under the same name by Life,
+  all Elemental Resistances and Chaos Resistance from a Gemling Legionnaire's Ring, all at T3 (worn T2 / T1
+  / T3: 171 ex but 1.6–2.1 s, over the line). *An armour Body Armour* asked for Life and Fire Resistance,
+  which the tracked one (Gemling Legionnaire) does not have: replaced under the same name by its increased
+  Armour, Armour also applies to Elemental Damage, Cold and Lightning Resistance at T3 (as worn, T1/T1/T1/T2:
+  10,864 ex). *A Spirit Amulet* asked for all Elemental Resistances, which the Spirit amulet that qualifies
+  (a Gemling Legionnaire's: Spirit and Life; a Martial Artist's Spirit is Desecrated) does not have, and
+  "From a Gemling Legionnaire build" on a Minion card would mislead: dropped; the Spirit Walker's Amulet and
+  Helmet and the Sceptre carry Minion.
+- Tiers lowered: the Quarterstaff to Attack Speed and Mana Leech T2 (as worn 84,800 ex; with T1 speed and
+  leech 46,101; with T1 speed 26,607); the Ring and Body Armour above. Every other craft is at the tiers its
+  item wears; some drop a mod (the Wand its Mana, to keep three targets; the Helmet its flat Energy Shield;
+  the Sceptre its Mana; the Crossbow its Dexterity).
+- Rejected: a cast speed Ring (Invoker: Cast Speed T1, Cold Damage T1, Life T2) got **no number** — the solver
+  stopped early, after 22 s and, with every tier lowered one step, after 47 s; the melee Amulet
+  (Martial Artist) is exact but 6.5–8.8 s as worn; the lightning Spear (Gemling Legionnaire) settles in
+  under 0.7 s but costs 37,168 ex as worn and 23,325 with one tier lowered; the Gemling Legionnaire's Staff has
+  only two modifiers that count (its Cast Speed is a Perfect Essence's). Settled, measured and kept in the
+  pool as alternatives: the Staff, the Spear, the four-mod Wand, Armour Gloves, three other Body Armours, two
+  Belts, the Spirit Walker's Boots.
+
+**Worth keeping.**
+- Minion has three crafts: the snapshot holds one minion build, and the rest of its gear is not
+  minion-specific. The Sceptre (Invoker) is filed under Minion for its Spirit and allies' Attack Speed.
+- **Unexplained**: on the Martial Artist's Amulet, +Level of all Melee Skills costs the same at T1 and T2
+  (1,715 ex both) yet T1 takes three to four times as long (6.5–8.8 s against 1.6–2.2 s); the Invoker's
+  Amulet with three modifiers does the same (3,738 ex at T1 and at T2). Not traced.
+- The cast speed Ring above: three modifiers at T1/T1/T2 that a Standard solve cannot settle.
+
 ## Still deferred
 - **Confirm the Omen of Whittling TIE rule in game** (2026-09-02): when two or more modifiers share
   the lowest item level, which does the Chaos Orb remove? Modelled as uniform — 50/50 on two — by the

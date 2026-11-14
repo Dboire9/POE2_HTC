@@ -5,9 +5,9 @@
 //
 //   npx tsx scripts/essence-twins.mts [effort] [bones|nobones]
 //
-// Crafts: the four "Or try one" examples, then the first prefixes and suffixes of Wands, Rings, Amulets
-// and Body Armour (str) for 4, 5 and 6 targets at T1, T2 and T3. Per craft: both costs and times, the
-// saving, and which essences the plan plays.
+// Crafts: the "Or try one" examples (all of EXAMPLE_CRAFTS — four until 2026-11-14, fifteen since), then
+// the first prefixes and suffixes of Wands, Rings, Amulets and Body Armour (str) for 4, 5 and 6 targets at
+// T1, T2 and T3. Per craft: both costs and times, the saving, and which essences the plan plays.
 //
 // The gate: no craft that answers as asked is left without an exact number, and no cost goes UP — an
 // extra alternative can only help, so a rise is a bug (or TODO 29, which value iteration referees).

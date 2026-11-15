@@ -1226,6 +1226,14 @@ Enforced in `packages/engine` (mostly `probability.ts`).
 
 - `pricesForBase(prices, base)` resolves the sheet once per solve for the base's bone. Don't thread a base through every step.
 
+- **There is a SECOND sheet, the found sheet, and it is never merged with the first (2026-11-15, TODO 32).** `data/found/prices.json` → `FOUND_PRICES` (`packages/optimizer/src/foundPrices.ts`): a scarcity weight per currency a new player picks up, for starter recipes. It exists because trade prices answer "what would this cost to BUY", and late in a league that is useless to a beginner — a level-12 Quarterstaff with two modifiers read 80–108 ex. It lives outside `data/patches/` so the price bot, which stages only that folder, cannot touch it, and it is a static import, not a fetch. Use it WHOLE: spread over the trade sheet it would inherit that sheet's omens and bones, and `pricesForBase` would re-create `desecrate`. What it leaves out is unavailable by the rule above, not free. The weights are a judgement and the file says so (`estimated: true`, `source`, `caveat`).
+
+- **A found-basis number is not an amount of anything.** A Lab request with `priceBasis: 'found'` (`solve.ts`) runs every planner on the found sheet, restarts at the sheet's base weight, and runs nothing that only means something on a market (no budget search, no replay, no `holdings`). Its result carries `basis.found` and NO exchange rates — `priceBasis()` would otherwise read `currency.chaos` as "1 chaos = 8 ex". The UI shows counts (`markov.uses`, `markov.restarts`) and never passes a found-basis cost through `pickUnit` / `formatCost`; `StarterRecipes.test.tsx` and e2e 2e assert no currency figure reaches the result.
+
+- **`markovUses` counts what a plan uses, exactly.** From the published `RouteTable`, not from a re-solve or a sample: expected visits per attempt on the chain where a start-over state is terminal, scaled by 1/(1−q), solved piece by piece in topological order. Each charge is attributed through `stepPriceParts`, which shares `orbPrice` with `stepCost`, so the bill read line by line cannot disagree with the step's one price. The identity Σ price × count + restart cost × restarts = `expectedCost` is the test (3e-13 on the found sheet). Opt-in on a trade solve (`uses: true`), so trade results are unchanged.
+
+- **`cheapestEssenceLevel` only considers a level the planner may OFFER** (priced, and not excluded by the policy). `stepCost` reads an absent key as 0; before 2026-11-15 an unpriced or excluded level therefore won the comparison as free, the availability gate dropped the action, and the levels still on offer were never tried — no plan at all with Greater Essences excluded on an item level that allows them. A caller that has a policy must pass it.
+
 - **Costs are computed in exalt-equivalents and DISPLAYED on a unit ladder.** `src/lib/currency.ts` is the only place that formats one — there were four formatters and they had already drifted on rounding. `pickUnit` chooses one unit for a whole view from its largest value (a frontier is read by comparing rows, so mixing "9,800 ex" with "300 chaos" defeats it), escalating exalt → chaos → divine only above 10,000, since players think in exalts below that. Rates come from the sheet (`priceBasis().rates`), never hardcoded. The exact exalt figure always stays in a `title`.
 
 - **The optimizer ranks plans BY cost**, so a wrong *relative* price changes the recommendation, not just the total. Omens are 20–27× the orb they modify — an earlier sheet had this inverted and made chaos-heavy routes look cheap.
@@ -1325,6 +1333,23 @@ Enforced in `packages/engine` (mostly `probability.ts`).
   sell reuses the Tablets tab's verdict, run plan and breakdown (`src/features/profit/`) and counts the
   white base as a tablet craft counts its first tablet. Gear sale prices have their own storage key
   (`gearPrices`), keyed by base + each slot's modifiers at their tiers — exactly what the trade search asks.
+
+- **A position that stands for a permutation class is named by ALL its members (2026-11-15).** The solver
+  re-spells interchangeable positions to one canonical state (`permutationClasses` / `encoderFor`,
+  markovSymmetry.ts; the classes ride on the route table as `routes.locate.classes`) — flat Fire and flat
+  Cold Damage weigh the same on a Bow, so "holds Cold" is stored as "holds Fire". The plan and the paste
+  matching were always right; the WORDS named the first member alone, so a player who rolled Cold read
+  "Fire Damage" in Craft along. `namerFor` (engineMap.ts) is the one place a canonical state is worded:
+  a class reads "X or Y", as a same-family merge already did. Do not word a state from `modId` directly.
+
+- **Starter recipes hand the solve their free slots, and that is what "the others can be anything" IS.**
+  `targetsAt` (starterRecipes.ts) returns the two slots and every other slot of the base as `spare`.
+  Solved clean, the goal wants zero unwanted modifiers: the plan bins a finished weapon, and the first
+  build shipped a card whose sentence the solve contradicted. The one case left to wording is a Magic
+  weapon holding both modifiers — not the solve's goal, which is a Rare — and Craft along's
+  `holdsEverySlot` exists for exactly that. The basis of the craft on screen is Lab state (`basis`,
+  useLabCraft.ts), never saved and never in a share link; Reset, a build-type example, a share link and
+  a Streamer gear craft all put it back on trade.
 
 ## Tablets
 

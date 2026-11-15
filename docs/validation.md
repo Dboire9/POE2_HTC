@@ -5222,6 +5222,121 @@ four examples of 2026-11-13).
   Amulet with three modifiers does the same (3,738 ex at T1 and at T2). Not traced.
 - The cast speed Ring above: three modifiers at T1/T1/T2 that a Standard solve cannot settle.
 
+## Starter recipes: a first weapon from what drops (2026-11-15, TODO 32)
+
+**The question.** Can a new player craft a good first weapon from currency that drops, on a low-level
+white base — and what should the app tell them it takes? Trade prices cannot answer it: on the live sheet
+of 2026-11-10 a white Quarterstaff at item level 12 asked for flat Physical Damage and Attack Speed reads
+80–108 ex, because a Lesser Essence is priced at 3–135 ex there and a plain Transmute at 2.2 ex while
+Greater currency is cheap. A beginner buys nothing. So a starter recipe is planned on a second sheet, the
+FOUND sheet (`data/found/prices.json`): a scarcity weight for each currency a new player picks up —
+Transmute 1, Augment 1, Regal 3, Exalt 4, Alchemy 4, Lesser Essence 3, Essence 6, Chaos 8 — a start over
+at 1 (another white base), and nothing else usable. The weights are a judgement, not data; what is
+measured below is what follows from them, and how little the plans depend on them.
+
+**Measured** with `npx tsx scripts/starter-recipes.mts` (the shipped recipes; `candidates` the shapes they
+were chosen from; `sensitivity` the weights): the app's path — `runSolve`, the Lab, from white,
+`priceBasis: 'found'`, the recipe's targets and free slots from `targetsAt` — at Standard. Each row is
+solved twice, with the live and the frozen trade sheet in the engine, and must agree: the trade sheet
+does not matter on the found basis. Counts are exact, from the solved plan (`markovUses`). "Bases" is
+1 + the expected number of restarts. 146 recipe-and-level rows, all exact, each in 0.27 s or less.
+
+A recipe is two modifiers, each asked at the best tier the item level rolls or up to two below it, with
+every other slot of the weapon left free. Weights / bases:
+
+| recipe | 8 | 16 | 25 | 40 | 55 | last offered |
+|---|---|---|---|---|---|---|
+| hard-hitting Bow, Crossbow (easy) | 4.7 / 1.1 | 4.8 / 1.2 | 5.0 / 1.2 | 6.3 / 1.7 | 11.2 / 2.5 | 64: 13.2 / 3.2 |
+| fast-attacking Bow, Crossbow (better) | 21.6 / 7.5 | 11.5 / 3.4 | 13.0 / 3.9 | 23.1 / 6.6 | 32.1 / 9.4 | 64: 38.9 / 11.7 |
+| hard-hitting Quarterstaff, Spear, Maces (easy) | 4.7 / 1.1 | 4.8 / 1.2 | 5.1 / 1.2 | 6.3 / 1.7 | 11.3 / 2.5 | 64: 13.3 / 3.2 |
+| fast-attacking Quarterstaff, Spear, Maces (better) | 26.3 / 9.5 | 20.0 / 7.0 | 13.9 / 4.1 | 20.4 / 6.4 | 33.4 / 9.8 | 59: 34.3 / 10.1 |
+| fast-casting Wand, Staff | 31.2 / 11.7 | 10.0 / 3.3 | 10.0 / 3.1 | 13.5 / 4.5 | 20.2 / 6.7 | 65: 32.8 / 9.7 |
+| ally-boosting Sceptre | 11.1 / 3.7 | 10.4 / 3.4 | 11.3 / 3.6 | 14.4 / 4.8 | 25.8 / 8.0 | 65: 45.4 / 15.6 |
+
+The casters' worst level is 12 (39.3 / 15.2): below item level 15 the Lesser Essence of Alacrity cannot
+roll and Cast Speed has to be rolled. What a craft uses, exactly, on four representative rows:
+
+| row | uses |
+|---|---|
+| hard-hitting Bow, 16 | 1.16 Transmute, 0.82 Lesser Essence of Abrasion, 0.45 Augment, 0.18 Lesser Essence of Flames |
+| fast-attacking Bow, 30 | 4.62 Transmute, 4.00 Augment, 0.60 Lesser Essence of Haste, 0.40 Lesser Essence of Abrasion |
+| fast-casting Wand, 25 | 3.12 Transmute, 1.75 Augment, 0.88 Lesser Essence of Alacrity, 0.12 Lesser Essence of Sorcery |
+| ally-boosting Sceptre, 25 | 3.60 Transmute, 2.08 Augment, 1.00 Lesser Essence of Command |
+
+**The plan, read off the solved policy.** Every recipe has one shape. Transmute. If it shows a recipe
+modifier, the other modifier's Essence finishes the weapon. If it shows only a modifier nobody asked for
+(39–60% of Transmutes), Augment for a recipe modifier, then the Essence. Otherwise start over (23–46%).
+The Essences: Lesser Essence of Abrasion and of Flames on the easy recipes (the plain Essences from item
+level 46); Lesser Essence of Haste and of Abrasion on the better attack ones (Essence of Haste from 40 on
+Bows and Crossbows, 46 on the rest); Lesser Essence of Alacrity and of Sorcery on casters; Lesser Essence
+of Command on the Sceptre. Below the level where Haste can roll (11 on Bows and Crossbows, 22 on the
+rest) or Alacrity (15), the plan Augments for that modifier instead, and a Regal appears in about one
+craft in ten.
+
+**"The others can be anything" had to be put in the solve.** The first build solved the recipes for a
+clean item: the goal then wants zero unwanted modifiers, so the plan binned a Magic item for a stray
+modifier and read "Start over with a new base" on a pasted Rare Bow that held the recipe plus an unwanted
+suffix. With every unnamed slot handed over as a free slot the solve means what the card says, and it is
+cheaper everywhere — clean → free, weights / bases: easy Bow at 16, 5.8 / 1.9 → 4.8 / 1.2; better Bow at
+30, 19.6 / 8.8 → 15.2 / 4.6; Wand at 25, 14.8 / 6.4 → 10.0 / 3.1; Sceptre at 55, 45.4 / 20.2 → 25.8 / 8.0.
+Clean, the plan started over on 80–95% of Transmutes. The free slots also settled what had not: the
+Sceptre at 60–65 gets no number clean and 0.02 s free. One case is left to wording: a MAGIC weapon holding
+both modifiers is not the solve's goal (the goal is a Rare; the plan would Regal), and Craft along calls
+it done (`holdsEverySlot`).
+
+**The shape was chosen by measuring the others** (found sheet, slack 2 unless said, weights):
+
+| shape | what it showed |
+|---|---|
+| two named modifiers (shipped for attack "better") | within about 45 weights and 20 bases at every offered level |
+| a modifier or its hybrid in one slot (shipped for casters and the Sceptre) | cheaper than the single modifier: Sceptre at 55, 45 against 86 (clean) |
+| flat Physical + any one of five damage modifiers (shipped as "easy") | the cheapest: 4.7–13.3 weights, 1–4 bases |
+| three named modifiers | Bow 42–1,950, Wand 350–3,200: not affordable |
+| slack 1 instead of 2 | about double from item level 33: the asked tier outruns the Lesser Essence's |
+| any flat damage + Attack Speed | Bow 5.6–21 weights, 1.5–6.3 bases from item level 12 — cheaper than the shipped better recipe; NOT shipped, the flat damage may be elemental (the maintainer's call) |
+| Physical + Attack Speed + any one damage modifier | Bow 16–46 weights, 3.4–10.5 bases at 8–40, then 63–87 from 46 — NOT shipped |
+
+**Where a recipe stops.** Offered levels are where it stays within about 45 weights and 20 bases. The easy
+recipes end at 64: at 65 the asked Physical tier passes what the plain Essence of Abrasion gives, the
+found sheet has no Greater Essence, and the craft jumps from 13 weights to 230–240 (46 bases). The better
+Bow ends at 64 (65: 95 weights, 36 bases), the better Quarterstaff, Spear and Maces at 59 (60: 47.9
+weights). Casters and the Sceptre run to 65 (45.4 / 15.6 on the Sceptre, at the edge).
+
+**How much the weights matter** (`sensitivity`: each weight and the base weight halved and doubled, 101
+recipe-and-level cases × 18 sheets, every solve exact). Totals move with Transmute (×0.81–1.37), Augment
+(×0.86–1.24), the base (×0.83–1.34) and Lesser Essence (×0.68–1.0). No recipe's ROUTE changes, with one
+exception: with Exalt halved, the Wand and Staff at 8, 16 and 25 Regal and Exalt where they started over,
+and their bases halve (11.7 → 4.8 at level 8) while the total barely moves (31.2 → 29.7). So the casters'
+stated bases lean on the Exalt weight; every other stated range holds across a factor of two in any one
+weight.
+
+**The counts are checked two ways** (`markovUses.test.ts`). The identity: Σ price × count + restart cost ×
+restarts equals the solve's expected cost — to 3e-13 relative on the found sheet and 1e-14 on the frozen
+trade sheet (a Wand with Greater orbs, a bone and Necromancy omens), at a tolerance of 1e-12; at the app's
+default tolerance the gap is the solver's own, up to about 3e-4. A replay: 20 seeded batches of 500 crafts
+on three crafts, every count and the restarts within three standard errors. Counting costs 0.14 ms on a
+four-target Wand and 1.6 ms on a six-target one whose solve took 106 s.
+
+**Two defects found on the way, both fixed.**
+- `cheapestEssenceLevel` compared Essence levels at a price that read an absent key as 0, so an unpriced
+  or excluded level won as "free", was then dropped by the availability gate, and the levels still on
+  offer were never tried. On the found sheet (no Greater Essence) a white Quarterstaff at item level 70
+  wanting flat Physical Damage and the Haste Essence modifier was infeasible; fixed, it is exact at 42.17
+  weights. The same on the TRADE sheet with Greater Essences excluded — a defect players had: frozen
+  sheet, the same Quarterstaff with Essence of Ice (Greater 0.25, plain 7.0, Lesser 10): no plan from
+  either planner; fixed, 9.99 ex on the plain level. Nothing moves when nothing is excluded.
+- A position standing for a permutation class — flat Fire and flat Cold Damage weigh the same on a Bow, so
+  the solver re-spells "holds Cold" as the canonical "holds Fire" — was named by its first member alone:
+  Craft along's outcome read "Adds # to # Fire Damage lands" (15.5%, Fire and Cold together) and a pasted
+  Cold bow "Magic · Adds # to # Fire Damage". Now "Adds # to # Fire Damage or Adds # to # Cold Damage",
+  through one naming path (`namerFor`, engineMap.ts), on trade crafts too (a Wand asking Extra Cold or
+  Extra Lightning Damage read "Extra Cold" alone).
+
+**Not measured.** The weights themselves: nobody counted drops. A new player's supply of white bases of
+one weapon type: the base weight of 1 says it is about as common as a Transmute, and the better recipes'
+worst levels assume 10–16 of them. The recipes on the element-locked Wand and Staff bases a player may
+actually hold (measured cheaper before the free slots; not re-measured after).
+
 ## Still deferred
 - **Confirm the Omen of Whittling TIE rule in game** (2026-09-02): when two or more modifiers share
   the lowest item level, which does the Chaos Orb remove? Modelled as uniform — 50/50 on two — by the

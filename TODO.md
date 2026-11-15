@@ -1723,6 +1723,42 @@ answers in about 1.4 s.) What stays open:
 - **No cost on the cards**, deliberately: the price sheet moves daily, and the card would quote a number
   the solve then contradicts.
 
+## 32. Starter recipes: a first weapon from what drops — DONE 2026-11-15
+
+*Or try one* opens on a **Starter** chip: type the item level of a white base, pick a recipe, and the Lab
+plans a first weapon on the FOUND sheet (`data/found/prices.json`: a scarcity weight per currency a new
+player picks up, nothing else usable) with `priceBasis: 'found'`. Fifteen recipes (`starterRecipes.ts`): an
+easy and a better one for each of six attack weapons, one each for Wand, Staff and Sceptre; two modifiers
+each, at the best tier the item level rolls or up to two below, every other slot left free. The result is
+*What you'll use* — exact counts of each orb and Essence and of bases (`markovUses.ts`) — never an Exalted
+figure. Measured with `scripts/starter-recipes.mts` (docs/validation.md, 2026-11-15): 146 rows, all exact in
+0.27 s or less; copy-audit rows 119–123. Fixed on the way: an Essence was not offered when its cheapest
+level was unpriced or excluded (`cheapestEssenceLevel`); interchangeable modifiers were named by the first
+alone. What stays open:
+
+- **The weights are a judgement the maintainer has not yet confirmed**: Transmute 1, Augment 1, Regal 3,
+  Exalt 4, Alchemy 4, Lesser Essence 3, Essence 6, Chaos 8, a new base 1. Only the casters' route depends
+  on one of them within a factor of two (Exalt halved: they Regal and Exalt where they started over).
+- **The "good" modifiers per weapon are the maintainer's to confirm**: flat Physical + Attack Speed
+  (better), flat Physical + any one damage modifier (easy), Spell Damage + Cast Speed, Spirit + allies'
+  damage.
+- **Two shapes got affordable with free slots and were not shipped**: "any flat damage + Attack Speed"
+  (Bow 1.5–6.3 bases from item level 12, against 3–12 for the shipped better recipe; the flat damage may be
+  elemental) and "Physical + Attack Speed + any one damage modifier" (Bow 3.4–10.5 bases at 8–40, not
+  affordable from 46). Either could replace or join the better recipe.
+- **A Magic weapon holding both modifiers is not the solve's goal** (the goal is a Rare; the plan would
+  Regal). Craft along calls it done by wording (`holdsEverySlot`); the counts still include that Regal.
+- **The Starter panel is long on a phone** (nine weapons, up to two recipes each): a weapon picker that
+  then shows that weapon's recipes would shorten it.
+- **Starter armour and jewellery**, "what can I make with N orbs", the found basis on the Item tab, and
+  where the game shows a base's item level (the panel states no game fact it cannot point to) — not built.
+- **A two-slot craft whose alternatives ask different tiers can stop on the sweep cap when an unrelated
+  weight changes** (seen on the clean casters at 60–65 with Chaos doubled, a currency the plan never plays).
+  Gone with free slots; a solver observation, beside TODO 29.
+- **A pasted modifier whose roll fits no rolled tier resolved to the Essence modifier** and was refused as
+  "more modifiers than the plan has room for" (a bow with "Adds 3 to 6 Fire Damage" at item level 16). Seen
+  once while probing, not investigated.
+
 ## What 1.0 means — ALL FIVE SHIPPED, prepared 2026-09-02
 
 The definition written on 2026-09-01 was: §7 the docs describe the app that exists, §8 prices refresh

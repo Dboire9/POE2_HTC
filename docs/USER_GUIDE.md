@@ -9,6 +9,7 @@ that one are meant to agree; if they ever don't, ALGORITHM.md is the one that's 
 ## Table of Contents
 
 - [Getting started](#getting-started)
+- [Your first weapon](#your-first-weapon)
 - [The tabs](#the-tabs)
 - [Plan from scratch](#plan-from-scratch)
   - [1. Pick a base and item level](#1-pick-a-base-and-item-level)
@@ -48,16 +49,66 @@ Open **[poe2htc.com](https://poe2htc.com)**. That's it — there is nothing to d
 The whole engine is JavaScript running in your browser; nothing you type leaves your machine, except a
 rating or a "What next?" message you choose to send (see [Getting help](#getting-help)).
 
-Not sure where to start? On an empty **Plan from scratch** tab, **Or try one** offers 15 ready crafts,
-filed by build type — **Caster**, **Attack**, **Minion**, **Defence**. Each is cut from an item a tracked
-build wears (the Streamer gear snapshot of 2026-09-16) and says which class: "From an Invoker build". One
-click loads it and solves it, so you see what the app answers before you pick your own modifiers.
+Not sure where to start? On an empty **Plan from scratch** tab, **Or try one** has crafts ready to load.
+It opens on **Starter**: a first weapon made from currency you find, with no trading — see
+[Your first weapon](#your-first-weapon). The other chips hold 15 ready crafts, filed by build type —
+**Caster**, **Attack**, **Minion**, **Defence**. Each is cut from an item a tracked build wears (the
+Streamer gear snapshot of 2026-09-16) and says which class: "From an Invoker build". One click loads a
+craft and solves it, so you see what the app answers before you pick your own modifiers.
 
 The first load pulls the modifier data for patch 0.5.0 — about 1 MB, and 85 kB over the wire once
 compressed. After that the page works offline.
 
 Running it yourself instead? `npm run dev` serves it at `http://localhost:5173` — see
 [DEVELOPMENT.md](DEVELOPMENT.md).
+
+---
+
+## Your first weapon
+
+New to crafting? The **Starter** chip on the **Or try one** card makes a first weapon from what you pick
+up while you play. You buy nothing.
+
+1. Find a white (Normal) base of the weapon you use.
+2. Type its item level in **Item level of your base**.
+3. Pick a recipe. The app loads it and works out the plan.
+
+**A recipe is two modifiers.** The weapon is done when it has them — the others can be anything. Each is
+asked at the best tier your base's item level can roll, or up to two tiers below it, so the same recipe
+works on a level 8 base and a level 60 one.
+
+| Weapon | Recipe | It is done with | Item levels | Bases it uses, on average |
+|---|---|---|---|---|
+| Bow, Crossbow | A hard-hitting … (**Easy**) | Adds Physical Damage, and any one of: increased Physical Damage, increased Physical Damage and Accuracy, Adds Fire, Cold or Lightning Damage | 8–64 | 1–4 |
+| Bow, Crossbow | A fast-attacking … (**Better**) | Adds Physical Damage and increased Attack Speed | 8–64 | 3–12 |
+| Quarterstaff, Spear, One Hand Mace, Two Hand Mace | A hard-hitting … (**Easy**) | as the easy Bow | 8–64 | 1–4 |
+| Quarterstaff, Spear, One Hand Mace, Two Hand Mace | A fast-attacking … (**Better**) | as the better Bow | 8–59 | 4–11 |
+| Wand, Staff | A fast-casting … | increased Spell Damage (or Spell Damage and Mana) and increased Cast Speed | 8–65 | 3–16 |
+| Sceptre | An ally-boosting Sceptre | increased Spirit (or Spirit and Mana) and Allies in your Presence deal increased Damage | 8–65 | 3–16 |
+
+Start with the **Easy** recipe if you have few bases. The **Better** one makes a stronger weapon and takes
+more of them. A recipe outside its item levels is greyed out, with the reason. Above item level 65 no
+starter recipe is offered: pick a build type instead.
+
+**What you'll use.** A starter recipe has no cost in Exalted Orbs. The result lists each orb and Essence
+with how many the plan uses on average, and how many bases. A hard-hitting Bow on a level 16 base reads:
+Orb of Transmutation about 1, Lesser Essence of Abrasion about 1, Orb of Augmentation about 1 for every 2
+crafts, Lesser Essence of Flames about 1 for every 5 crafts, bases about 1. These are averages: one weapon
+can take more, or fewer.
+
+**How the plan goes.** Every recipe works the same way. Use an Orb of Transmutation on the base. If it
+shows one of the two modifiers, an Essence adds the other and the weapon is done. If it shows something
+else, an Orb of Augmentation gets another try at a recipe modifier. If that misses too, the plan starts
+over on a new base. Open **Craft along** under the list and it walks you through it: it names the next
+orb, you pick what happened.
+
+**Why no prices.** Late in a league nobody trades low-level Essences, so trade prices make a first weapon
+look expensive: a level 12 Quarterstaff with two modifiers read 80–108 Exalted Orbs on 2026-11-10. So a
+starter recipe is planned on what a new player finds instead — the app's own estimate of how common each
+orb and Essence is, not trade data. Only what you find is used: Orbs of Transmutation, Augmentation and
+Alchemy, Regal, Exalted and Chaos Orbs, and Lesser and plain Essences. Nothing Greater or Perfect, no
+omens, no bones, no Orb of Annulment. The switch above the result, **Counted in what drops** / **Priced on
+the trade market**, shows the same craft both ways.
 
 ---
 

@@ -7,10 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.2.0] - 2026-11-15
+
+Everything since 1.1.0 (2026-09-16). 1.1.0 itself had no release page: its changes are in the
+[changelog](https://github.com/Dboire9/POE2_HTC/blob/main/docs/CHANGELOG.md#110---2026-09-16).
+
 ### Added
 
-- **Starter recipes: a first weapon from what you find.** *Or try one* now opens on a **Starter** chip.
-  Type the item level of a white base, pick your weapon and a recipe, and the app plans a first Bow,
+- **Starter recipes: a first weapon from what you find.** On the **Starter** chip of the ready
+  crafts, type the item level of a white base, pick your weapon and a recipe, and the app plans a first Bow,
   Crossbow, Quarterstaff, Spear, Mace, Wand, Staff or Sceptre from currency a new player picks up — no
   trading. A recipe is two modifiers, and the weapon is done when it has them: the others can be
   anything. Attack weapons have an **Easy** recipe (1–4 bases on average) and a **Better** one (3–12).
@@ -18,13 +23,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   about 1, bases about 1" — not a cost in Exalted Orbs, and **Craft along** walks you through it. A switch
   shows the same craft on trade prices.
 
-- **Streamer gear refreshes itself every week.** A Monday job reads each streamer's current gear from
-  poe.ninja, runs the whole test suite on it, and merges it when every streamer came back and the suite
-  passed — otherwise it opens a pull request marked REVIEW NEEDED. A week with no change opens nothing.
+- **Ready crafts, first on the Plan tab.** The Plan tab opens with **New here? Start with a ready craft**,
+  above the base and modifier pickers, so a first visit gets an answer in one click before it meets the
+  full planner. Beside the Starter recipes it has fifteen crafts under Caster, Attack, Minion and Defence
+  chips, each loaded and solved in one click. Every one is cut from an item a tracked streamer build
+  wears: its modifiers are ones that item rolled, at the tier worn or lower, and the card says which class
+  ("From an Invoker build"). Each settles exactly at Standard in about two seconds or less. **Hide** folds
+  the card to one line, and it stays folded on your next visit; the line opens it again.
 
-- **Crafts to try on an empty Plan tab.** *Or try one*: a caster Wand, a life and resistances Ring, an
-  armour Body Armour and a Spirit Amulet, each loaded and solved in one click — chosen to settle exactly
-  at Standard in a second or two, so a first visit sees an answer before learning the picker.
+- **Craft along: follow the plan with the game open.** Under the true expected cost, open *Craft along*:
+  it shows the next orb for the item you have now; use it in game, pick what happened, and the next move
+  comes up — no new solve. It keeps count of what you have spent, says which of a Desecration's three
+  modifiers to keep (best first) and, with an Omen of Abyssal Echoes, when to throw them back. Undo takes
+  back a mis-click, and your place is kept in this browser. On both gear tabs, for an exact result.
 
 - **Craft along picks up from a pasted item.** Lost your place after a mis-click or a break? Copy the
   item in game (Ctrl+C) and paste it in the Craft along panel: it moves to that item and shows its next
@@ -34,31 +45,148 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Craft along on a craft that did not settle.** A result shown as "≤ x" had no Craft along. Its plan is
   now checked to finish and can be followed, marked as not proven cheapest, with its costs as ceilings.
 
+- **Precursor Tablets have their own tab.** Pick a **Ritual**, **Overseer** or **Temple** tablet, add up
+  to four modifiers with the same search-and-add picker as gear, and the same solver that prices gear tells you what rolling it costs —
+  for a FULL tablet, since one is always run with all four: whatever lands beside your picks is kept, the
+  empty slots are filled with Exalts at the end, and the plain tablet you start from is counted — with the odds
+  of each modifier beside it (*1 in 7 rolls on this side*), and the pairs that can never share a tablet
+  greyed out with the reason. Nobody publishes tablet weights, so the odds rest on **Morce Faster's**
+  rolling data: 19,147 modifiers counted across the three tablets, credited on the tab.
+  The market half is yours to drive, because no feed lists tablets: every row has a **Search on trade**
+  button that opens the official site with an instant-buyout search for an unused tablet (10 uses left) filled in, and a box for the price you read there.
+  The plain-tablet price box has one too: **Find a plain one on trade** lists Normal tablets of the kind picked.
+  Every price box takes **ex, chaos or div** — whichever the listing is in — converted at the price sheet's rates.
+  The tab shows its numbers in **chaos** by default, the currency tablets trade in; switch to ex or div at the
+  top of the result, and the pick is remembered. New price boxes start in the same unit.
+  Prices stay in your browser with the day you typed them, and sit next to what crafting costs.
+  And while you roll for what you asked for, other things land — the **watch list** shows the valuable
+  ones, in four tiers from super jackpot to good, set per tablet from what each sells for (an extra
+  Favour reroll plus an extra Rare modifier on Unique monsters is a super jackpot on Ritual). Where the roll matters
+  the row names it — rerolling Favours **3** times is its own row. Each says how often it turns up on the
+  way (measured by playing your plan out thousands of times, with the progress bar following along), with
+  its own search and price box; price one above your own craft and
+  the tab says so: that is the tablet to stop on.
+  Type what your tablet sells for and the tab answers **is it worth crafting**: the profit or loss per
+  tablet on average — net of what you sell on the way: price a set in the watch list and the craft is
+  recounted with you selling it whenever that beats carrying on —
+  what half the crafts cost less than, what 1 in 10 costs more than, and how often you finish within the
+  sale price — drawn, too: spend-against-get bars and a chart of how often a craft finishes within a
+  budget, shaded up to the sale price, with each watch-list tier in its own colour. The rarest pairs solve exactly now (the tab uses the app's Search effort). A short **Why
+  this plan** says how the plan gets there — fresh tablets, Chaos rerolls, or a mix — why that is cheaper
+  at these prices, and what an average craft uses.
+
+- **Plan a tablet craft from a Magic tablet, not only a plain one.** *Start from*: Plain tablet · Magic ·
+  one prefix · Magic · one suffix, beside its own price box and trade search. The solve starts from that
+  Magic tablet (holding the commonest unwanted modifier on its side that blocks nothing asked for) and buys
+  another on every start over (`rebuyable`). Priced at what the Magic tip says it is worth, the plan from it
+  costs exactly what the plan from plain tablets does — checked on the Ritual reroll, 10,017.3 ex both ways.
+
+- **Tip: buy a Magic tablet instead of a plain one.** The two a market lists — one prefix and no suffix,
+  one suffix and no prefix — each priced from the solve (a plain tablet + V(plain) − V(that tablet)) with
+  the most to pay and an exact trade search on the site's empty-prefix / empty-suffix filters. Ritual
+  reroll: the prefix one ≈ a plain tablet, the suffix one ≈ half.
+
+- **Where a tablet craft stops paying.** Beside the verdict: *Pays while a plain tablet costs X or less* —
+  the plan's plain tablets and orbs per craft, held fixed, solved for the price that breaks even (a
+  floor: the plan adapts to any other price) — and *or while it sells for Y or more*. Ritual reroll:
+  ~154 ex; re-solved at exactly that price it comes out even (−0.2 ± 5.5 chaos).
+
+- **"How is this worked out?" under the tablet profit.** The verdict taken apart: every orb and plain
+  tablet one craft uses on average, count × price; the tablet and each set sold on the way, count ×
+  price; the difference; and how sure the average is (±, 19 times in 20, from the crafts played out) —
+  flagged when a thin profit is inside that margin.
+
+- **Plan a run, on the Tablets tab.** Once your tablet has a price: how many to craft to come out ahead
+  9 times in 10, what that run should make, and how much currency to have on hand before its sales pay
+  you back — with 1, 10 and 100 beside it for scale. Played out by resampling the crafts the replay
+  measured (tabletRun.ts). The Ritual reroll at 130 ex a plain tablet: 94 tablets, ~2,050 chaos, ~1,430
+  chaos on hand.
+
+- **What to do with each tablet.** The route only followed the crafts that go well, so it never said what to
+  do with a Magic tablet that rolled a prefix, or a Rare with a junk prefix and suffix.
+  A table on the result now lists every tablet the plan can leave you holding and its next move — or *Stop:
+  run or sell it, start a new one* — with what finishing still costs, straight from the solved policy.
+
+- **Make the tablet watch list your own.** Add your own sets to *While you roll for that, these can land*
+  (one modifier, or two that land together) and hide the built-in ones; both are kept per tablet in your
+  browser, and each change recounts the craft with the list as it stands.
+
+- **Ritual's watch list has Omen chance on its own**: *Ritual Favours in Map have #% increased chance to be
+  Omens*, *good*, ~1 div at any roll (priced from a real tablet). It lands about one suffix roll in 15,
+  so at that price it reshapes Ritual crafting: aiming for it pays ~+11 chaos a tablet at 120 ex a plain
+  one, and the reroll craft sells ~10 of them on the way.
+
+- **Temple's watch list has a new pair**: a Vaal Beacon Unique Monster chance with the extra-Crystal
+  chance, *very good* (~3 div).
+
+- **A "New" badge on the Tablets tab**, so a returning player sees it is there.
+
+- **Craft to sell.** On the Plan tab, type what the finished item sells for, beside its trade search: the
+  verdict (profit or loss per item, the white base counted), and once played out how often one craft
+  pays for itself, how many to craft, and every move on the bill — the Tablets tab's tools, shared.
+
+- **What a craft can cost — not only on average.** Under the true expected cost on both gear tabs, *Play
+  it out* plays the plan on real items for a few seconds: half the crafts cost less than X, the luckiest
+  and unluckiest 1 in 10, and the curve of how often a craft finishes within a budget — with the Plan
+  tab's Budget read against it. Every plan can be played out now, a Desecration's offer (and an Omen of
+  Abyssal Echoes' reroll), an Essence, a Perfect Essence and an Omen of Light included.
+
+- **Every item the planner shows has a Search on trade button.** The target item — beside the target
+  list, before anything is computed — the finished item (*Or buy it already made*, beside the true
+  expected cost), every row of *Start from an item you buy instead*, and every row
+  of the Item tab's *What to look for when you buy one* open the official trade site on that item: its
+  class, its rarity, each modifier at the tier your craft asks or better, instant buyout, cheapest first.
+  The trade ids come from Exiled Exchange 2's data, matched to every gear modifier — Essence, Perfect
+  Essence and Desecrated ones by their wording — 3,026 of 3,086 modifier lines; a **≈** marks a search
+  looser than the item.
+
+- **"Any prefix / any suffix" — a slot you don't care about.** A target list has always meant *these
+  modifiers and nothing else*, so anything you had not named had to come off before the app called the
+  item finished. The only way to say "three prefixes I want, and whatever lands in the last suffix is
+  fine" was to name every remaining suffix as an alternative in one slot — and on a Sceptre that is
+  twelve alternatives, seventeen candidates, past the nine the model will enumerate. Pick **Any prefix**
+  or **Any suffix** from the mod picker instead. The craft finishes with anything in that position, or
+  with nothing in it — you can always Exalt or Desecrate afterwards, and whatever lands counts.
+  It is *cheaper* to solve than the workaround rather than dearer, because a free slot adds no states
+  and lets a bad roll on that side count as a finish. Measured from white on Sceptres, five named
+  modifiers: **366.84 ex strict → 191.27 ex** with one free suffix, and the solve got faster (4.5s →
+  3.7s). The workaround — four alternatives in the sixth slot — costs **402.08 ex** and takes 94s.
+  On the **Item tab** the step-by-step plan understands it too, and leaves a modifier you tolerate where
+  it is instead of annulling it: on a held Sceptre wanting five modifiers, the chance per attempt goes
+  from **0.144% to 0.865%**. The Lab's step routes deliberately do not use it, and say so — a route has
+  to name the modifier every step aims at, so it cannot decide after a roll which one was the spare.
+  That is the true expected cost's job, and it does it.
+  Free slots travel in share links under their own link version, so an older build refuses a link
+  rather than quoting the strict craft's price for it.
+
+- **Step routes can roll a throwaway for a Perfect Essence or Alloy to eat.** An Alloy or Perfect
+  Essence removes one of the item's modifiers at random as it adds its own, and a route could only offer
+  it something already on the item. From an item holding only mods you want that meant no route at all
+  — a Magic Sceptre with two Alloys to add got *No step-by-step route*. From scratch it was worse than a
+  refusal: the essence ate one of your targets and the route rolled it again. A route can now roll a
+  **throwaway** — anything, on either side — right before the essence, which removes it. The reported
+  Sceptre gets nine routes. From scratch, measured on a fixed price sheet, a Sceptre with one Alloy got
+  **6× likelier** (best route 1 in 47,000 → 1 in 7,800) and its cheapest **4.5× cheaper** (11,731 →
+  2,595 ex); the six-modifier Spirit Star with two Alloys got **55× likelier**. The odds stay exact: a
+  throwaway is always removed on the very next step, so which modifier it was never changes a number.
+  Crafts without a Perfect Essence or Alloy get byte-identical routes. Crafts with one take longer to
+  plan — the Spirit Star went from 0.4 s to 2 s, well inside the default search effort.
+
+- **What do you want next?** A 💡 button in the header opens a box to say, in your own words, what the
+  app should do next. It goes to the same inbox as ratings, marked apart, with the same privacy — only
+  your words and the app version are sent.
+
+- **Streamer gear refreshes itself every week.** A Monday job reads each streamer's current gear from
+  poe.ninja, runs the whole test suite on it, and merges it when every streamer came back and the suite
+  passed — otherwise it opens a pull request marked REVIEW NEEDED. A week with no change opens nothing.
+
 ### Changed
 
-- **The ready crafts come first.** The Plan tab now opens with **New here? Start with a ready craft** at the
-  top, above the base and modifier pickers, so a first visit gets an answer in one click before it meets
-  the full planner. **Hide** folds it to one line, and it stays folded on your next visit; the line opens
-  it again.
-
-- **Fifteen crafts to try, by build type.** *Or try one* now has chips — Caster, Attack, Minion, Defence —
-  with three or four crafts each, and every one is cut from an item a tracked streamer build wears: its
-  modifiers are ones that item rolled, at the tier worn or lower, and the card says which class ("From an
-  Invoker build"). Each still settles exactly at Standard in about two seconds or less. The caster Wand,
-  life and resistances Ring and armour Body Armour keep their names with that gear's modifiers; the Spirit
-  Amulet is gone.
-
-- **On the Plan tab, the step-by-step routes fold under the true expected cost**, as on the Item tab:
-  *Step-by-step routes (N)* opens them. They stay open when there is no true cost to read instead, or no
-  route at all.
-
-- **A route step "aims for" a modifier** instead of "most likely lands" it. The route follows the way most
-  finished crafts go, which is often a step's less likely outcome — the old wording sat beside odds like
-  "0.6% onward · 91% back".
-
-- **Crafts with a desecrated modifier as a target solve several times faster**, and some that ran out
-  of time with no number now get one. The craft without that modifier is solved first and its plan is
-  the starting point; the answers are the same to the last digit wherever both ways finished.
+- **A rolled modifier can now come from its Essence.** A Greater Essence of Insulation gives exactly the
+  Fire Resistance a T3 roll does, so wherever you ask a modifier at a tier an Essence reaches, both the
+  true cost and the step routes may force it with that Essence instead of rolling — you no longer have to
+  add the Essence yourself. Nine of the fifteen ready crafts cost 5–96% less for it.
+  Most T1 and T2 asks are unchanged: on most modifiers the best Essence is a T3.
 
 - **Big crafts from a white base solve several times faster, and six-modifier crafts get a number.** A
   craft of four or more modifiers is now worked up to one modifier at a time, each step starting from the
@@ -67,11 +195,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   six-modifier Wand that ran out with no number now gets an exact one in 5 seconds. Wherever the old way
   finished, the cost is the same number.
 
-- **A rolled modifier can now come from its Essence.** A Greater Essence of Insulation gives exactly the
-  Fire Resistance a T3 roll does, so wherever you ask a modifier at a tier an Essence reaches, both the
-  true cost and the step routes may force it with that Essence instead of rolling — you no longer have to
-  add the Essence yourself. Nine of the fifteen "Or try one" crafts cost 5–96% less for it.
-  Most T1 and T2 asks are unchanged: on most modifiers the best Essence is a T3.
+- **Big crafts with bones settle, and faster.** With a bone priced, a big craft from a white base could
+  run past its Search effort with no number at all — at Standard, Amulets and Rings with five modifiers
+  did. The Plan tab now solves such a craft without Desecration first and starts the solve with bones
+  from that plan: the same exact costs, 2.5 to 9 times faster, and those crafts settle at Standard. If the
+  solve with bones still runs out, the plan without Desecration answers as a ceiling — "≤ x", with its
+  route — saying that bones can only make it cheaper.
+
+- **Crafts with a desecrated modifier as a target solve several times faster**, and some that ran out
+  of time with no number now get one. The craft without that modifier is solved first and its plan is
+  the starting point; the answers are the same to the last digit wherever both ways finished.
+
+- **On the Plan tab, the step-by-step routes fold under the true expected cost**, as on the Item tab:
+  *Step-by-step routes (N)* opens them. They stay open when there is no true cost to read instead, or no
+  route at all.
+
+- **A route step "aims for" a modifier** instead of "most likely lands" it. The route follows the way most
+  finished crafts go, which is often a step's less likely outcome — the old wording sat beside odds like
+  "0.6% onward · 91% back".
 
 ### Fixed
 
@@ -113,141 +254,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **A craft loaded from scratch no longer keeps the last craft's free slots** — a streamer's item sent to
   the Plan tab carried over "any prefix / any suffix" slots it never asked for.
 
-- **What do you want next?** A 💡 button in the header opens a box to say, in your own words, what the
-  app should do next. It goes to the same inbox as ratings, marked apart, with the same privacy — only
-  your words and the app version are sent.
-
-- **Big crafts with bones settle, and faster.** With a bone priced, a big craft from a white base could
-  run past its Search effort with no number at all — at Standard, Amulets and Rings with five modifiers
-  did. The Plan tab now solves such a craft without Desecration first and starts the solve with bones
-  from that plan: the same exact costs, 2.5 to 9 times faster, and those crafts settle at Standard. If the
-  solve with bones still runs out, the plan without Desecration answers as a ceiling — "≤ x", with its
-  route — saying that bones can only make it cheaper.
-
-- **What a craft can cost — not only on average.** Under the true expected cost on both gear tabs, *Play
-  it out* plays the plan on real items for a few seconds: half the crafts cost less than X, the luckiest
-  and unluckiest 1 in 10, and the curve of how often a craft finishes within a budget — with the Plan
-  tab's Budget read against it. Every plan can be played out now, a Desecration's offer (and an Omen of
-  Abyssal Echoes' reroll), an Essence, a Perfect Essence and an Omen of Light included.
-
-- **Craft to sell.** On the Plan tab, type what the finished item sells for, beside its trade search: the
-  verdict (profit or loss per item, the white base counted), and once played out how often one craft
-  pays for itself, how many to craft, and every move on the bill — the Tablets tab's tools, shared.
-
-- **Craft along: follow the plan with the game open.** Under the true expected cost, open *Craft along*:
-  it shows the next orb for the item you have now; use it in game, pick what happened, and the next move
-  comes up — no new solve. It keeps count of what you have spent, says which of a Desecration's three
-  modifiers to keep (best first) and, with an Omen of Abyssal Echoes, when to throw them back. Undo takes
-  back a mis-click, and your place is kept in this browser. On both gear tabs, for an exact result.
-
-- **A "New" badge on the Tablets tab**, so a returning player sees it is there.
-
-- **Make the tablet watch list your own.** Add your own sets to *While you roll for that, these can land*
-  (one modifier, or two that land together) and hide the built-in ones; both are kept per tablet in your
-  browser, and each change recounts the craft with the list as it stands.
-
-- **What to do with each tablet.** The route only followed the crafts that go well, so it never said what to
-  do with a Magic tablet that rolled a prefix, or a Rare with a junk prefix and suffix.
-  A table on the result now lists every tablet the plan can leave you holding and its next move — or *Stop:
-  run or sell it, start a new one* — with what finishing still costs, straight from the solved policy.
-
-- **Plan a tablet craft from a Magic tablet, not only a plain one.** *Start from*: Plain tablet · Magic ·
-  one prefix · Magic · one suffix, beside its own price box and trade search. The solve starts from that
-  Magic tablet (holding the commonest unwanted modifier on its side that blocks nothing asked for) and buys
-  another on every start over (`rebuyable`). Priced at what the Magic tip says it is worth, the plan from it
-  costs exactly what the plan from plain tablets does — checked on the Ritual reroll, 10,017.3 ex both ways.
-
-- **Tip: buy a Magic tablet instead of a plain one.** The two a market lists — one prefix and no suffix,
-  one suffix and no prefix — each priced from the solve (a plain tablet + V(plain) − V(that tablet)) with
-  the most to pay and an exact trade search on the site's empty-prefix / empty-suffix filters. Ritual
-  reroll: the prefix one ≈ a plain tablet, the suffix one ≈ half.
-- **Where a tablet craft stops paying.** Beside the verdict: *Pays while a plain tablet costs X or less* —
-  the plan's plain tablets and orbs per craft, held fixed, solved for the price that breaks even (a
-  floor: the plan adapts to any other price) — and *or while it sells for Y or more*. Ritual reroll:
-  ~154 ex; re-solved at exactly that price it comes out even (−0.2 ± 5.5 chaos).
-
-- **"How is this worked out?" under the tablet profit.** The verdict taken apart: every orb and plain
-  tablet one craft uses on average, count × price; the tablet and each set sold on the way, count ×
-  price; the difference; and how sure the average is (±, 19 times in 20, from the crafts played out) —
-  flagged when a thin profit is inside that margin.
-
-- **Plan a run, on the Tablets tab.** Once your tablet has a price: how many to craft to come out ahead
-  9 times in 10, what that run should make, and how much currency to have on hand before its sales pay
-  you back — with 1, 10 and 100 beside it for scale. Played out by resampling the crafts the replay
-  measured (tabletRun.ts). The Ritual reroll at 130 ex a plain tablet: 94 tablets, ~2,050 chaos, ~1,430
-  chaos on hand.
-
-- **Every item the planner shows has a Search on trade button.** The target item — beside the target
-  list, before anything is computed — the finished item (*Or buy it already made*, beside the true
-  expected cost), every row of *Start from an item you buy instead*, and every row
-  of the Item tab's *What to look for when you buy one* open the official trade site on that item: its
-  class, its rarity, each modifier at the tier your craft asks or better, instant buyout, cheapest first.
-  The trade ids come from Exiled Exchange 2's data, matched to every gear modifier — Essence, Perfect
-  Essence and Desecrated ones by their wording — 3,026 of 3,086 modifier lines; a **≈** marks a search
-  looser than the item.
-
-- **Precursor Tablets have their own tab.** Pick a **Ritual**, **Overseer** or **Temple** tablet, add up
-  to four modifiers with the same search-and-add picker as gear, and the same solver that prices gear tells you what rolling it costs —
-  for a FULL tablet, since one is always run with all four: whatever lands beside your picks is kept, the
-  empty slots are filled with Exalts at the end, and the plain tablet you start from is counted — with the odds
-  of each modifier beside it (*1 in 7 rolls on this side*), and the pairs that can never share a tablet
-  greyed out with the reason. Nobody publishes tablet weights, so the odds rest on **Morce Faster's**
-  rolling data: 19,147 modifiers counted across the three tablets, credited on the tab.
-  The market half is yours to drive, because no feed lists tablets: every row has a **Search on trade**
-  button that opens the official site with an instant-buyout search for an unused tablet (10 uses left) filled in, and a box for the price you read there.
-  The plain-tablet price box has one too: **Find a plain one on trade** lists Normal tablets of the kind picked.
-  Every price box takes **ex, chaos or div** — whichever the listing is in — converted at the price sheet's rates.
-  The tab shows its numbers in **chaos** by default, the currency tablets trade in; switch to ex or div at the
-  top of the result, and the pick is remembered. New price boxes start in the same unit.
-  Prices stay in your browser with the day you typed them, and sit next to what crafting costs.
-  And while you roll for what you asked for, other things land — the **watch list** shows the valuable
-  ones, in four tiers from super jackpot to good, set per tablet from what each sells for (an extra
-  Favour reroll plus an extra Rare modifier on Unique monsters is a super jackpot on Ritual). Where the roll matters
-  the row names it — rerolling Favours **3** times is its own row. Each says how often it turns up on the
-  way (measured by playing your plan out thousands of times, with the progress bar following along), with
-  its own search and price box; price one above your own craft and
-  the tab says so: that is the tablet to stop on.
-  Type what your tablet sells for and the tab answers **is it worth crafting**: the profit or loss per
-  tablet on average — net of what you sell on the way: price a set in the watch list and the craft is
-  recounted with you selling it whenever that beats carrying on —
-  what half the crafts cost less than, what 1 in 10 costs more than, and how often you finish within the
-  sale price — drawn, too: spend-against-get bars and a chart of how often a craft finishes within a
-  budget, shaded up to the sale price, with each watch-list tier in its own colour. The rarest pairs solve exactly now (the tab uses the app's Search effort). A short **Why
-  this plan** says how the plan gets there — fresh tablets, Chaos rerolls, or a mix — why that is cheaper
-  at these prices, and what an average craft uses.
-- **"Any prefix / any suffix" — a slot you don't care about.** A target list has always meant *these
-  modifiers and nothing else*, so anything you had not named had to come off before the app called the
-  item finished. The only way to say "three prefixes I want, and whatever lands in the last suffix is
-  fine" was to name every remaining suffix as an alternative in one slot — and on a Sceptre that is
-  twelve alternatives, seventeen candidates, past the nine the model will enumerate. Pick **Any prefix**
-  or **Any suffix** from the mod picker instead. The craft finishes with anything in that position, or
-  with nothing in it — you can always Exalt or Desecrate afterwards, and whatever lands counts.
-  It is *cheaper* to solve than the workaround rather than dearer, because a free slot adds no states
-  and lets a bad roll on that side count as a finish. Measured from white on Sceptres, five named
-  modifiers: **366.84 ex strict → 191.27 ex** with one free suffix, and the solve got faster (4.5s →
-  3.7s). The workaround — four alternatives in the sixth slot — costs **402.08 ex** and takes 94s.
-  On the **Item tab** the step-by-step plan understands it too, and leaves a modifier you tolerate where
-  it is instead of annulling it: on a held Sceptre wanting five modifiers, the chance per attempt goes
-  from **0.144% to 0.865%**. The Lab's step routes deliberately do not use it, and say so — a route has
-  to name the modifier every step aims at, so it cannot decide after a roll which one was the spare.
-  That is the true expected cost's job, and it does it.
-  Free slots travel in share links under their own link version, so an older build refuses a link
-  rather than quoting the strict craft's price for it.
-- **Step routes can roll a throwaway for a Perfect Essence or Alloy to eat.** An Alloy or Perfect
-  Essence removes one of the item's modifiers at random as it adds its own, and a route could only offer
-  it something already on the item. From an item holding only mods you want that meant no route at all
-  — a Magic Sceptre with two Alloys to add got *No step-by-step route*. From scratch it was worse than a
-  refusal: the essence ate one of your targets and the route rolled it again. A route can now roll a
-  **throwaway** — anything, on either side — right before the essence, which removes it. The reported
-  Sceptre gets nine routes. From scratch, measured on a fixed price sheet, a Sceptre with one Alloy got
-  **6× likelier** (best route 1 in 47,000 → 1 in 7,800) and its cheapest **4.5× cheaper** (11,731 →
-  2,595 ex); the six-modifier Spirit Star with two Alloys got **55× likelier**. The odds stay exact: a
-  throwaway is always removed on the very next step, so which modifier it was never changes a number.
-  Crafts without a Perfect Essence or Alloy get byte-identical routes. Crafts with one take longer to
-  plan — the Spirit Star went from 0.4 s to 2 s, well inside the default search effort.
-
-### Fixed
-
 - **Life Regeneration and Leech read in the game's own units.** The game stores a few stats finer than
   it prints — Life Regeneration per MINUTE, Leech in hundredths of a percent — and the data kept the
   stored numbers, so a Body Armour's best Life Regeneration tier read "1986–2160 Life Regeneration per
@@ -269,6 +275,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   into the goal now names only what it lands. And junk is compared per side: a Chaos whose new junk
   landed as a prefix read "no change", beside the roll that really changed nothing; it now reads
   *clears a junk suffix · adds a junk prefix*. On every graph, gear included.
+
 - **A step that finishes the item says what it leaves, and counts all of it as onward.** Finishing
   outcomes are drawn as one goal, so a Regal that finishes a Ritual tablet read "magic · 1 mod → 1 mod,
   51% onward" — it now reads *adds a junk suffix (51%) or a junk prefix (49%)*, 100% onward, and a
@@ -281,12 +288,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   seconds and says so in words (*too long a craft to play out — about 270,183 orbs and fresh tablets a
   craft*), once, under the cost, which still stands. And when the solver stops before a number, it no
   longer says it "ran out of time … a six-mod target": it had used its sweeps, not its time.
-- **Ritual's watch list has Omen chance on its own**: *Ritual Favours in Map have #% increased chance to be
-  Omens*, *good*, ~1 div at any roll (priced from a real tablet). It lands about one suffix roll in 15,
-  so at that price it reshapes Ritual crafting: aiming for it pays ~+11 chaos a tablet at 120 ex a plain
-  one, and the reroll craft sells ~10 of them on the way.
-- **Temple's watch list has a new pair**: a Vaal Beacon Unique Monster chance with the extra-Crystal
-  chance, *very good* (~3 div).
+
 - **Every tablet you pick now gets a number, at any Search effort.** A tablet's four rarest modifiers
   never settled before — Standard gave up in 1.5 s, and even Exhaustive's twenty million sweeps
   "settled" short of the answer, so the planner flipped between two plans forever. A tablet's lattice is
@@ -312,22 +314,33 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   base almost nothing moves — at most **0.1%** across the ten streamer items that settle — and crafts
   naming no such modifier are unchanged to the last digit. The graph says **blocked** rather than
   *off-tier* now, because a lower tier is only one of the two reasons.
+
 - **A tab left open overnight failed on its first plan.** The site is updated every morning when the
   prices refresh, and a tab opened before that asked the new site for the old price file — which no
   longer exists — then failed with a meaningless error. The first plan in an old tab now works,
   because the data is loaded as soon as the page opens rather than on the first click.
+
 - **In a tab older than the site, a cancelled plan then hung forever.** The next plan now says the
   site was updated and offers a **Reload**, which keeps your targets.
+
 - **A failed data download no longer breaks the page until you reload** — the next plan tries again —
   and when one fails, the message now names the file and the error instead of a JSON parse error.
+
 - **The Item tab's step-by-step routes never said why they had none.** When the step planner can't lay
   out a craft, the panel showed a generic guess — "usually the target needs more mods than fit, or a
   tier gated above the item level" — under a heading claiming every path had scored 0%. It now says
   *No step-by-step route for this craft*, gives the planner's own reason, and points to the true
   expected cost above, which isn't limited to fixed routes. The craft that exposed it — two Alloys to
   add on a Magic Sceptre — now gets routes instead; see *throwaway* above.
+
 - **"Your item has done X% of this craft" now uses the same unit as the cost above it.** It could read
   "saves 3,321 chaos" one line under "1,733 div".
+
+### Security
+
+- **The build and test tools are up to date.** `npm audit` listed 16 findings, all in development tools
+  (Vite, Vitest, ESLint and what they pull in); none was in what the site serves. They are updated and the
+  audit is clean.
 
 ## [1.1.0] - 2026-09-16
 

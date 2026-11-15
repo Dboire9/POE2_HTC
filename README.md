@@ -84,7 +84,7 @@ and the surest way. The crafting runs entirely in your browser, and there is not
 mobile browsers.
 
 New here? The **[User Guide](docs/USER_GUIDE.md)** walks through a first craft end to end.
-Used it before? **[What's new in 1.0](docs/WHATS-NEW.md)** is the tour of what the site does now.
+Used it before? **[What's new](docs/WHATS-NEW.md)** is the tour of what the site does now.
 
 ### Running from source
 
@@ -223,7 +223,7 @@ Everything in `docs/`, so nothing is only findable by knowing it exists.
 
 | | |
 |---|---|
-| [What's new in 1.0](docs/WHATS-NEW.md) | What the site does now, and what changed. Start here if you've used it before. |
+| [What's new](docs/WHATS-NEW.md) | What the site does now, and what changed. Start here if you've used it before. |
 | [User Guide](docs/USER_GUIDE.md) | Every panel and every number, plus what to do when a result looks wrong. |
 | [Running POE2HTC](docs/DOWNLOAD.md) | Short version: there is nothing to download. |
 

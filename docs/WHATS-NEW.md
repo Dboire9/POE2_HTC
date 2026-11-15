@@ -1,4 +1,4 @@
-# What's new in 1.0
+# What's new
 
 [poe2htc.com](https://poe2htc.com) works out how to craft a Path of Exile 2 item: which orbs, in
 which order, what each attempt costs, and what your actual odds are.
@@ -10,6 +10,35 @@ connection drops.
 
 New here? The **[User Guide](USER_GUIDE.md)** walks through a first craft end to end. This page is
 the tour.
+
+---
+
+## New since 1.0
+
+The short list, as of 1.2. The [changelog](CHANGELOG.md) has every change; the rest of this page is the
+1.0 tour, and still holds.
+
+- **A first weapon from what you find.** New to the game? On the Plan tab, under **Starter**, type the
+  item level of a white base and pick your weapon. The app plans a Bow, Crossbow, Quarterstaff, Spear,
+  Mace, Wand, Staff or Sceptre from currency that drops, with no trading, and lists what you will use. A
+  recipe is two modifiers: the weapon is done when it has them, and the others can be anything.
+  See [Your first weapon](USER_GUIDE.md#your-first-weapon).
+- **Ready crafts, first on the Plan tab.** Fifteen crafts by build type (Caster, Attack, Minion,
+  Defence), each cut from an item a tracked streamer build wears, loaded and solved in one click.
+  **Hide** folds the card away.
+- **Craft along.** Follow the plan with the game open: it shows the next orb for the item you have now,
+  you pick what happened, and the next move comes up. Lost your place? Paste the item from the game.
+  See [Craft along](USER_GUIDE.md#craft-along).
+- **A Tablets tab.** Plan a Ritual, Overseer or Temple Precursor Tablet: what rolling it costs, whether
+  it is worth crafting at the price you read on trade, and which other valuable tablets land on the way.
+  See [Tablets](USER_GUIDE.md#tablets).
+- **What a craft can cost, and Craft to sell.** *Play it out* shows what half the crafts cost less than
+  and what the unluckiest 1 in 10 costs more than. Type what the finished item sells for and the Plan tab
+  says whether crafting it pays.
+- **Search on trade.** Every item the planner shows opens the official trade site on that item.
+- **"Any prefix / any suffix".** A slot you do not care about: the craft finishes with anything in it.
+- **Cheaper and faster answers.** A rolled modifier can come from its Essence when that is cheaper, and
+  big crafts from a white base solve several times faster.
 
 ---
 

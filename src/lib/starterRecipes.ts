@@ -10,6 +10,12 @@
 // plan measured is "Transmute; keep it if it shows one of the two modifiers, and put the other on with
 // its Essence; otherwise start over on another base".
 //
+// DONE means what the card says: the item holds every slot of the recipe, and the rest of it can be anything.
+// The solve is told so — every position the recipe does not name is a free slot (`targetsAt`'s `spare`), so
+// a finished item may hold anything there, and the plan never bins an item for a modifier nobody asked for.
+// Without them the solver's goal is a CLEAN item, and it binned a weapon the recipe calls done (2026-11-15:
+// a Rare Bow holding the recipe and an Attack Speed suffix read "Start over with a new base").
+//
 // Chosen by measurement, 2026-11-14, on the found sheet at Standard, with `scripts/starter-recipes.mts`
 // (its `candidates` list holds the shapes compared; the numbers go in docs/validation.md). Two modifiers,
 // not three: with three named, 70 to over 2,700 weights; with the third an "any one of" slot, 19–35 below
@@ -20,18 +26,21 @@
 // stopped unsettled from item level 46).
 //
 // Each attack weapon has two (the maintainer's call, 2026-11-14): an `easy` one — flat Physical and any one
-// of five damage modifiers, 1–8 bases — listed before a `better` one — flat Physical and Attack Speed, 5–20.
+// of five damage modifiers, 1–4 bases — listed before a `better` one — flat Physical and Attack Speed, 3–12.
 //
-// Measured again the same day once `cheapestEssenceLevel` (cost.ts) stopped taking an unpriced Greater
-// Essence as free, through the app's own found-basis solve (`priceBasis: 'found'`), with exact counts of
-// what each plan uses (`markov.uses`, `markov.restarts`), at item levels 8–65 and at each recipe's first and
-// last. Each recipe is offered up to the last level inside the yardstick — about 45 weights and 20 bases —
-// where it still settles with any one found weight halved or doubled (`sensitivity`); the comment on each
-// says where and why it stops. Every offered level measured settles exactly, in
-// under a second (most under half a second; an easy recipe at 60–64 up to 0.9 s, with a sensitivity run
-// alongside).
+// Measured last on 2026-11-15, with the free slots, through the app's own found-basis solve (`priceBasis:
+// 'found'`) with exact counts of what each plan uses (`markov.uses`, `markov.restarts`), at item levels
+// 8–65 and at each recipe's first and last; `cheapestEssenceLevel` (cost.ts) no longer takes an unpriced
+// Greater Essence as free. The free slots made every craft cheaper (a better Bow at 30: 15.2 weights and 4.6
+// bases against 19.6 and 8.8 clean) and faster, and let the casters and the Sceptre settle at 60–65, where
+// solved clean they did not, or only on the weights exactly as they stand. Each recipe is offered up to the
+// last level inside the yardstick — about 45 weights and 20 bases — where it still settles with any one
+// found weight halved or doubled (`sensitivity`); the comment on each says where and why it stops. Every
+// offered level measured settles exactly in a quarter of a second or less.
 
 import type { PatchData } from '../../packages/engine/src/types.ts';
+import { limitsOf } from '../../packages/engine/src/item.ts';
+import type { Spare } from '../../packages/optimizer/src/slots.ts';
 import type { TargetInput } from './engineTypes.ts';
 
 /** One position on the finished weapon: a modifier, or several any one of which will do. */
@@ -43,9 +52,9 @@ export interface StarterSlot {
 }
 
 /**
- * How hard a recipe is to finish, as measured (2026-11-14, bases a craft uses over its offered levels):
- * `easy` uses few — 1–8 for the attack weapons' — and `better` makes the stronger weapon for more of them,
- * 5–20. The card lists a weapon's easy recipe first.
+ * How hard a recipe is to finish, as measured (2026-11-15, bases a craft uses over its offered levels):
+ * `easy` uses few — 1–4 for the attack weapons' — and `better` makes the stronger weapon for more of them,
+ * 3–12. The card lists a weapon's easy recipe first.
  */
 export type StarterGrade = 'easy' | 'better';
 
@@ -83,12 +92,20 @@ export interface StarterTargets {
   readonly targets: readonly TargetInput[];
   /** Modifier ids the level cannot roll at any tier, dropped from the recipe. */
   readonly dropped: readonly string[];
+  /**
+   * The rest of the item, left free: per side, every position the base holds that the recipe does not name
+   * (a slot of alternatives is one position). Handed to the solve with the targets, it is what makes "the
+   * others can be anything" true of the plan — a finished item may hold anything there, so the plan never
+   * bins an item for a modifier nobody asked for.
+   */
+  readonly spare: Spare;
 }
 
 /**
  * `recipe` at item level `level`, as Lab targets: each modifier at its best tier this level can roll, or
  * up to `slack` tiers below it. A modifier the level cannot roll at all is dropped and named; a slot
  * left with no modifier is gone; with fewer than `MIN_SLOTS` slots left the recipe is not offered (null).
+ * Every position the base holds beyond the slots left is free (`spare`), the base's own limits per side.
  *
  * The data keeps a modifier's tiers WORST first, by the item level they need; a target's `tierDisplay`
  * counts from the best (1), and means "this tier or better".
@@ -99,6 +116,8 @@ export function targetsAt(
   const targets: TargetInput[] = [];
   const dropped: string[] = [];
   let slots = 0;
+  let prefixes = 0;
+  let suffixes = 0;
   for (const s of recipe.slots) {
     const members: TargetInput[] = [];
     for (const modId of s.modIds) {
@@ -113,8 +132,13 @@ export function targetsAt(
     // A lone modifier is a slot of its own; alternatives share one id.
     targets.push(...(s.modIds.length === 1 ? members : members.map((t) => ({ ...t, slot: slots }))));
     slots++;
+    // Members of a slot share a side, so the first one that rolls says which.
+    if (data.mods.get(members[0]!.modId)?.type === 'prefix') prefixes++; else suffixes++;
   }
-  return slots < MIN_SLOTS ? null : { targets, dropped };
+  if (slots < MIN_SLOTS) return null;
+  const limits = limitsOf(data.bases.get(recipe.baseId));
+  const spare = { prefixes: Math.max(0, limits.prefixes - prefixes), suffixes: Math.max(0, limits.suffixes - suffixes) };
+  return { targets, dropped, spare };
 }
 
 /** A modifier's in-game text without its numbers: "Adds # to # Physical Damage" → "Adds Physical Damage". */
@@ -146,10 +170,10 @@ const DAMAGE = [
  * An attack weapon's easy recipe: flat Physical Damage and a second modifier that adds weapon damage on its
  * own — increased Physical (or its hybrid with Accuracy, as a caster's Spell Damage takes its hybrid with
  * Mana), or flat Fire, Cold or Lightning, whichever lands. A Transmute then lands one of six modifiers
- * instead of one of two: 1–8 bases where the better recipe uses 5–20. From item level 8, where the Lesser
+ * instead of one of two: 1–4 bases where the better recipe uses 3–12. From item level 8, where the Lesser
  * Essence of Abrasion (flat Physical) and the hybrid can roll; to 64, because at 65 the Physical tier asked
- * is past what the Essence of Abrasion gives, the Greater one is not found, and the cost jumped from 19–21
- * weights to 630–820.
+ * is past what the Essence of Abrasion gives, the Greater one is not found, and the cost jumped from 13
+ * weights and 3 bases to 230–240 and 46.
  *
  * Measured with and without the hybrid (`candidates`, shapes c3 and c4): it made every weapon cheaper at
  * every level (a Quarterstaff at 55: 16.8 against 19.3). "Increased Elemental Damage with Attacks" (c5) is
@@ -163,9 +187,9 @@ const hardHitting = (weapon: string, baseId: string, bases: Range): StarterRecip
 /**
  * An attack weapon's better recipe: flat Physical Damage and Attack Speed. From item level 8, where the
  * Lesser Essence of Abrasion (flat Physical) can roll; Attack Speed's Lesser Essence of Haste follows at 11
- * on Bows and Crossbows and 22 on the rest, and below it Attack Speed has to be rolled: 24–39 weights
- * there. Up to `to`, the last level inside the yardstick (about 45 weights and 20 bases): 59 on Bows and
- * Crossbows (60: 49.7 weights, 22.3 bases), 57 on the rest (58: 45.6 and 20.3; 60: 66.0 and 30.5).
+ * on Bows and Crossbows and 22 on the rest, and below it Attack Speed has to be rolled: 18–26 weights
+ * there. Up to `to`, the last level inside the yardstick (about 45 weights and 20 bases): 64 on Bows and
+ * Crossbows (65: 95 weights, 36 bases), 59 on the rest (60: 47.9 weights, 16.9 bases).
  */
 const fastAttacking = (weapon: string, baseId: string, to: number, bases: Range): StarterRecipe => ({
   name: `A fast-attacking ${weapon}`, weapon, grade: 'better', baseId,
@@ -177,50 +201,49 @@ const attack = (weapon: string, baseId: string, betterTo: number, easy: Range, b
   [hardHitting(weapon, baseId, easy), fastAttacking(weapon, baseId, betterTo, better)];
 
 /**
- * A spell weapon: Spell Damage (or its hybrid with Mana) and Cast Speed. From item level 15, where the
- * Lesser Essence of Alacrity (Cast Speed) can roll: below it Cast Speed has to be rolled, and the plan was
- * Transmute on 19–22 bases for 41–49 weights. To 59: from 60 (65 on a Staff) the craft settled on the found
- * weights as they stand (42.4–42.7 weights, 19 bases) but stopped unsettled at Standard — on its sweep cap,
- * not its clock — when the Transmute or Augment weight was halved or the Chaos one doubled
- * (`sensitivity`), so a judgement on the weights would take the recipe away.
+ * A spell weapon: Spell Damage (or its hybrid with Mana) and Cast Speed. From item level 8, where the
+ * Lesser Essence of Sorcery (Spell Damage) can roll; below 15, where the Lesser Essence of Alacrity (Cast
+ * Speed) does, Cast Speed has to be rolled: 31–39 weights and 12–15 bases there, 9–33 and 3–10 above. To
+ * 65 (32.8 weights, 10 bases). Solved clean, these were cut at 15–59: below 15 they cost 41–49 weights and
+ * 19–22 bases, and from 60 they settled only on the weights exactly as they stand.
  *
  * On the base that rolls every element. Neither modifier is element-locked, so the recipe's modifiers
  * are on every element-locked variant (`Wands_cold`, a Frigid Wand) too, where the same craft measured
  * cheaper at every level (a Wand at 33: 13 against 18) — those bases roll fewer modifiers.
  */
 const caster = (weapon: string, baseId: string, bases: Range): StarterRecipe => ({
-  name: `A caster ${weapon}`, weapon, grade: CASTER_GRADE, baseId,
-  slots: [slot(baseId, SPELL, SPELL_MANA), slot(baseId, CAST)], levels: { from: 15, to: 59 }, bases,
+  name: `A fast-casting ${weapon}`, weapon, grade: CASTER_GRADE, baseId,
+  slots: [slot(baseId, SPELL, SPELL_MANA), slot(baseId, CAST)], levels: { from: 8, to: 65 }, bases,
 });
 
 /**
  * The grade of the one recipe a Wand, a Staff and a Sceptre each have, by what it measured against the
- * attack grades: a Wand or Staff used 5–14 bases and a Sceptre 6–21, inside the better grade's range and
- * past the easy grade's 1–8. Their plans are the better grade's too — Transmute until the rarer of two
+ * attack grades: a Wand, a Staff and a Sceptre each used 3–16 bases, the better grade's range and past it,
+ * never the easy grade's 1–4. Their plans are the better grade's too — Transmute until the rarer of two
  * modifiers shows, then the other's Essence.
  */
 const CASTER_GRADE: StarterGrade = 'better';
 
 /**
  * By weapon, each weapon's easy recipe before its better one. The `bases` ranges are measured
- * (`scripts/starter-recipes.mts`, 2026-11-14) and held by the test: change a weight, a level or a modifier
+ * (`scripts/starter-recipes.mts`, 2026-11-15) and held by the test: change a weight, a level or a modifier
  * and they are re-measured, never widened by hand.
  */
 export const STARTER_RECIPES: readonly StarterRecipe[] = [
-  ...attack('Bow', 'Bows', 59, { from: 1, to: 7 }, { from: 5, to: 19 }),
-  ...attack('Crossbow', 'Crossbows', 59, { from: 1, to: 7 }, { from: 5, to: 19 }),
-  ...attack('Quarterstaff', 'Quarterstaves', 57, { from: 2, to: 8 }, { from: 7, to: 20 }),
-  ...attack('Spear', 'Spears', 57, { from: 2, to: 8 }, { from: 7, to: 20 }),
-  ...attack('One Hand Mace', 'OneHand_Maces', 57, { from: 2, to: 8 }, { from: 7, to: 20 }),
-  ...attack('Two Hand Mace', 'TwoHand_Maces', 57, { from: 2, to: 8 }, { from: 7, to: 20 }),
-  caster('Wand', 'Wands', { from: 5, to: 14 }),
-  caster('Staff', 'Staves', { from: 5, to: 14 }),
+  ...attack('Bow', 'Bows', 64, { from: 1, to: 4 }, { from: 3, to: 12 }),
+  ...attack('Crossbow', 'Crossbows', 64, { from: 1, to: 4 }, { from: 3, to: 12 }),
+  ...attack('Quarterstaff', 'Quarterstaves', 59, { from: 1, to: 4 }, { from: 4, to: 11 }),
+  ...attack('Spear', 'Spears', 59, { from: 1, to: 4 }, { from: 4, to: 11 }),
+  ...attack('One Hand Mace', 'OneHand_Maces', 59, { from: 1, to: 4 }, { from: 4, to: 11 }),
+  ...attack('Two Hand Mace', 'TwoHand_Maces', 59, { from: 1, to: 4 }, { from: 4, to: 11 }),
+  caster('Wand', 'Wands', { from: 3, to: 16 }),
+  caster('Staff', 'Staves', { from: 3, to: 16 }),
   // Spirit (or its hybrid with Mana) for more minions and auras, and damage for the allies it keeps. From
-  // item level 8, where the Lesser Essence of Command (allies' damage) can roll; to 55, the last level inside
-  // the yardstick (45.4 weights, 20.2 bases; 56: 46.1 and 20.6; 58: 57.1 and 26.1; 60 and 65 do not settle
-  // at Standard).
+  // item level 8, where the Lesser Essence of Command (allies' damage) can roll; to 65, at the edge of the
+  // yardstick (45.4 weights, 15.6 bases). Solved clean it stopped at 55: 56 cost 46.1 weights and 20.6 bases,
+  // and 60–65 did not settle.
   {
-    name: 'A Spirit Sceptre',
+    name: 'An ally-boosting Sceptre',
     weapon: 'Sceptre',
     grade: CASTER_GRADE,
     baseId: 'Sceptres',
@@ -228,7 +251,7 @@ export const STARTER_RECIPES: readonly StarterRecipe[] = [
       slot('Sceptres', ['LocalIncreasedSpiritPercent', 'increased Spirit'], ['LocalIncreasedSpiritAndMana', 'increased Spirit and +maximum Mana']),
       slot('Sceptres', ['AlliesInPresenceAllDamage', 'Allies in your Presence deal increased Damage']),
     ],
-    levels: { from: 8, to: 55 },
-    bases: { from: 6, to: 21 },
+    levels: { from: 8, to: 65 },
+    bases: { from: 3, to: 16 },
   },
 ];

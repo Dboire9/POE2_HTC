@@ -28,6 +28,7 @@ import { loadPrices } from '../packages/optimizer/src/loadPrices.ts';
 import { loadFrozenPrices } from '../packages/optimizer/src/frozenPrices.ts';
 import { FOUND_BASE_WEIGHT, FOUND_PRICES, FOUND_WEIGHTS } from '../packages/optimizer/src/foundPrices.ts';
 import type { Prices } from '../packages/optimizer/src/cost.ts';
+import { NO_SPARE, type Spare } from '../packages/optimizer/src/slots.ts';
 import { runSolve, type SolveRequest } from '../src/lib/solve.ts';
 import { limitsFor } from '../src/lib/searchEffort.ts';
 import { mainLine } from '../src/lib/policyPath.ts';
@@ -133,8 +134,8 @@ const CANDIDATES: readonly Candidate[] = [
 
 const effort = limitsFor('standard');
 /** The request the card makes: a white base at `level`, planned on the found sheet. */
-const foundRequest = (baseId: string, level: number, targets: readonly TargetInput[]): SolveRequest =>
-  ({ kind: 'lab', from: { baseId, level }, targets, priceBasis: 'found', effort });
+const foundRequest = (baseId: string, level: number, targets: readonly TargetInput[], spare: Spare = NO_SPARE): SolveRequest =>
+  ({ kind: 'lab', from: { baseId, level }, targets, priceBasis: 'found', effort, ...(spare.prefixes + spare.suffixes > 0 ? { spare } : {}) });
 
 const solve = (eng: Engine, req: SolveRequest): { m: EngineMarkovResult; s: number } => {
   const t0 = performance.now();
@@ -142,8 +143,12 @@ const solve = (eng: Engine, req: SolveRequest): { m: EngineMarkovResult; s: numb
   return { m, s: (performance.now() - t0) / 1000 };
 };
 
-/** Bases a craft uses on average: the first, and one per start over. Undefined without exact counts. */
-const basesOf = (m: EngineMarkovResult): number | undefined => (m.restarts === undefined ? undefined : 1 + m.restarts);
+/**
+ * Bases a craft uses on average: the first, and one per start over — to a millionth, the solver's own
+ * tolerance, so a count that is 3 to the solve does not floor to 2 as 2.9999999.
+ */
+const basesOf = (m: EngineMarkovResult): number | undefined =>
+  (m.restarts === undefined ? undefined : Math.round((1 + m.restarts) * 1e6) / 1e6);
 
 /** What the plan uses, every currency by name — "7.4 Transmute, 0.8 Lesser Essence of Abrasion" — and its bases. */
 const showUses = (m: EngineMarkovResult): string => (m.uses === undefined ? '-'
@@ -202,7 +207,7 @@ const row = (label: string, rec: StarterRecipe, level: number, slack: number, co
   const at = targetsAt(data, rec, level, slack);
   const head = `${label.padEnd(30)} ${String(level).padStart(2)}`;
   if (!at) { console.log(`${head}  not offered (fewer than two modifiers roll)`); return { level, exact: true }; }
-  const req = foundRequest(rec.baseId, level, at.targets);
+  const req = foundRequest(rec.baseId, level, at.targets, at.spare);
   const { m, s } = solve(live, req);
   let exact = m.applicable && m.feasible && m.bound === 'exact' && m.uses !== undefined;
   let note = '';
@@ -211,9 +216,12 @@ const row = (label: string, rec: StarterRecipe, level: number, slack: number, co
     const same = c.bound === m.bound && c.expectedCost === m.expectedCost && c.restarts === m.restarts
       && JSON.stringify(c.uses) === JSON.stringify(m.uses);
     if (!same) { exact = false; note = `  MOVES WITH THE TRADE SHEET: ${show(c)} on the frozen one`; }
+    // Beside it, the same craft solved CLEAN — no free slots, as the recipes were before — for comparison.
+    const clean = solve(live, foundRequest(rec.baseId, level, at.targets)).m;
+    note += `  [clean: ${show(clean)}, ${basesOf(clean)?.toFixed(2) ?? '-'} bases]`;
   }
   console.log(`${head}  ${show(m).padStart(8)}  ${(m.feasible ? m.bound : '-').padEnd(5)} ${s.toFixed(2).padStart(5)}s${s > 1.5 ? '!' : ' '} `
-    + `${tiersOf(at.targets)}${at.dropped.length ? ` (dropped ${at.dropped.join(', ')})` : ''}${note}\n`
+    + `${tiersOf(at.targets)} free ${at.spare.prefixes}p+${at.spare.suffixes}s${at.dropped.length ? ` (dropped ${at.dropped.join(', ')})` : ''}${note}\n`
     + `      uses: ${showUses(m)}\n`
     + `      plan: ${exact ? planOf(m) : (m.reason ?? '').slice(0, 100)}`
     + `${exact ? `\n      first move: ${forkOf(m)}` : ''}`);
@@ -255,9 +263,9 @@ if (which === 'sensitivity') {
   // weight and says nothing on its own.
   // A few levels across the range, and each recipe's last: where a recipe stops is where it is most likely
   // to stop settling.
-  const SENSITIVITY_LEVELS = [16, 25, 40, 55];
-  const direct = (prices: Prices, baseCost: number, baseId: string, level: number, targets: readonly TargetInput[]) =>
-    solve({ data, prices }, { kind: 'lab', from: { baseId, level }, targets, baseCost, uses: true, effort }).m;
+  const SENSITIVITY_LEVELS = [8, 16, 25, 40, 55, 60];
+  const direct = (prices: Prices, baseCost: number, baseId: string, level: number, targets: readonly TargetInput[], spare: Spare) =>
+    solve({ data, prices }, { kind: 'lab', from: { baseId, level }, targets, baseCost, uses: true, effort, spare }).m;
   type Variant = { readonly name: string; readonly prices: Prices; readonly baseCost: number };
   const variants: Variant[] = [];
   for (const key of Object.keys(FOUND_WEIGHTS)) {
@@ -270,12 +278,12 @@ if (which === 'sensitivity') {
     + `${variants.length} sheets (each found weight and the base weight halved and doubled)`);
   const cases = STARTER_RECIPES.flatMap((rec) => [...new Set([...SENSITIVITY_LEVELS, rec.levels.to])]
     .filter((l) => l >= rec.levels.from && l <= rec.levels.to)
-    .map((level) => ({ rec, level, targets: targetsAt(data, rec, level)!.targets })));
-  const baseline = cases.map((c) => solve(live, foundRequest(c.rec.baseId, c.level, c.targets)).m);
+    .map((level) => ({ rec, level, ...targetsAt(data, rec, level)! })));
+  const baseline = cases.map((c) => solve(live, foundRequest(c.rec.baseId, c.level, c.targets, c.spare)).m);
   // The check: the shipped sheet handed directly answers what the found basis answers.
   let mismatch = 0;
   cases.forEach((c, i) => {
-    const d = direct(FOUND_PRICES, FOUND_BASE_WEIGHT, c.rec.baseId, c.level, c.targets);
+    const d = direct(FOUND_PRICES, FOUND_BASE_WEIGHT, c.rec.baseId, c.level, c.targets, c.spare);
     if (d.expectedCost !== baseline[i]!.expectedCost || d.restarts !== baseline[i]!.restarts) mismatch++;
   });
   console.log(mismatch === 0 ? 'the found sheet handed directly answers what the found basis does, on every case'
@@ -288,7 +296,7 @@ if (which === 'sensitivity') {
     const totals: number[] = [];
     let states = 0;
     cases.forEach((c, i) => {
-      const m = direct(v.prices, v.baseCost, c.rec.baseId, c.level, c.targets);
+      const m = direct(v.prices, v.baseCost, c.rec.baseId, c.level, c.targets, c.spare);
       if (m.bound !== 'exact' || !m.feasible) { notExact++; changed.push(`${c.rec.name} ${c.level}: not exact`); return; }
       const was = baseline[i]!;
       totals.push(m.expectedCost / was.expectedCost);

@@ -4,6 +4,10 @@ import { loadFrozenPrices } from '../../packages/optimizer/src/frozenPrices.ts';
 import { MIN_SLOTS, STARTER_RECIPES, TIER_SLACK, modWords, targetsAt, type StarterRecipe } from './starterRecipes';
 import { runSolve } from './solve';
 import { limitsFor } from './searchEffort';
+import { EXAMPLE_CRAFTS } from './exampleCrafts';
+import { locateItem, stepFor } from './engine';
+import { START_OVER } from './stateWords';
+import type { EngineMarkovResult, ExistingItem, ItemModInput } from './engineTypes';
 
 // The data the browser gets: a recipe naming a base or modifier a refresh renamed would plan a craft the
 // picker cannot show.
@@ -67,6 +71,13 @@ describe('the starter recipes', () => {
     for (const baseId of ['Bows', 'Crossbows', 'Quarterstaves', 'Spears', 'OneHand_Maces', 'TwoHand_Maces']) {
       expect(STARTER_RECIPES.filter((r) => r.baseId === baseId).map((r) => r.grade), baseId).toEqual(['easy', 'better']);
     }
+  });
+
+  // Both sit on the same "Or try one" card, so a starter recipe named like an example craft would read as
+  // the same craft with another answer.
+  it('share no name with an example craft', () => {
+    const examples = new Set(EXAMPLE_CRAFTS.map((e) => e.name));
+    for (const r of STARTER_RECIPES) expect(examples.has(r.name), r.name).toBe(false);
   });
 
   it('each carry a unique name and a level range inside the game’s', () => {
@@ -151,6 +162,8 @@ describe('targetsAt', () => {
     expect(targetsAt(data, leech, 12)).toEqual({
       targets: [{ modId: `${QS}/LocalPhysicalDamage`, tierDisplay: 9 }, { modId: `${QS}/LocalIncreasedAttackSpeed`, tierDisplay: 8 }],
       dropped: [`${QS}/LifeLeechLocalPermyriad`],
+      // The dropped suffix leaves its position free too: one prefix and one suffix named, two of each free.
+      spare: { prefixes: 2, suffixes: 2 },
     });
     expect(targetsAt(data, leech, 21)!.dropped).toEqual([]);
     // A slot keeps the alternatives that roll: Spirit and Mana first rolls at 2, plain Spirit at 1.
@@ -158,6 +171,32 @@ describe('targetsAt', () => {
     const at = targetsAt(data, sceptre, 1)!;
     expect(at.dropped).toEqual(['Sceptres/LocalIncreasedSpiritAndMana']);
     expect(at.targets.map((t) => t.modId)).toEqual(['Sceptres/LocalIncreasedSpiritPercent', 'Sceptres/AlliesInPresenceAllDamage']);
+  });
+
+  // Every position the recipe does not name is free, per side, the base's three a side less the recipe's
+  // slots there — and a slot of alternatives is one position. Each side read off the data, not assumed.
+  it('leaves every other position of the item free', () => {
+    const side = (id: string) => data.mods.get(id)!.type;
+    const recipe = (baseId: string, grade: string) => STARTER_RECIPES.find((r) => r.baseId === baseId && r.grade === grade)!;
+    // Easy Bow: flat Physical and the damage slot (increased Physical, its hybrid, flat Fire/Cold/Lightning),
+    // all prefixes — one prefix and three suffixes free.
+    const easy = recipe('Bows', 'easy');
+    expect(easy.slots.flatMap((s) => s.modIds).map(side).every((t) => t === 'prefix')).toBe(true);
+    expect(targetsAt(data, easy, 16)!.spare).toEqual({ prefixes: 1, suffixes: 3 });
+    // Better Bow: flat Physical (prefix) and Attack Speed (suffix) — two of each free.
+    const better = recipe('Bows', 'better');
+    expect(better.slots.map((s) => side(s.modIds[0]!))).toEqual(['prefix', 'suffix']);
+    expect(targetsAt(data, better, 30)!.spare).toEqual({ prefixes: 2, suffixes: 2 });
+    // A Wand: Spell Damage or its Mana hybrid (prefixes, one slot) and Cast Speed (suffix) — two of each.
+    const wand = recipe('Wands', 'better');
+    expect(wand.slots.map((s) => s.modIds.map(side))).toEqual([['prefix', 'prefix'], ['suffix']]);
+    expect(targetsAt(data, wand, 25)!.spare).toEqual({ prefixes: 2, suffixes: 2 });
+    // The Sceptre: Spirit or its Mana hybrid, and the allies' Damage — both prefixes; one prefix, three suffixes.
+    const sceptre = recipe('Sceptres', 'better');
+    expect(sceptre.slots.map((s) => s.modIds.map(side))).toEqual([['prefix', 'prefix'], ['prefix']]);
+    expect(targetsAt(data, sceptre, 25)!.spare).toEqual({ prefixes: 1, suffixes: 3 });
+    // A slot that keeps one of its alternatives still takes its position: Spirit and Mana dropped at 1.
+    expect(targetsAt(data, sceptre, 1)!.spare).toEqual({ prefixes: 1, suffixes: 3 });
   });
 
   it('is not offered when fewer than two modifiers roll', () => {
@@ -168,7 +207,8 @@ describe('targetsAt', () => {
 });
 
 describe('each starter recipe on the found sheet', () => {
-  // The request the card makes: a white base, planned on the found basis (`priceBasis: 'found'`), which
+  // The request the card makes: a white base, the recipe's targets with the rest of the item free (`spare`),
+  // planned on the found basis (`priceBasis: 'found'`), which
   // reads the found sheet whole and none of the engine's own — the frozen trade sheet here, the live one
   // in the script, and the script holds the two to the same answer.
   //
@@ -184,11 +224,12 @@ describe('each starter recipe on the found sheet', () => {
     const levels = [...new Set([r.levels.from, ...MEASURED_LEVELS, r.levels.to])].filter((l) => l >= r.levels.from && l <= r.levels.to);
     const used: number[] = [];
     for (const level of levels) {
-      const { targets } = targetsAt(data, r, level)!;
-      const got = runSolve(eng, { kind: 'lab', from: { baseId: r.baseId, level }, targets, priceBasis: 'found', effort });
+      const { targets, spare } = targetsAt(data, r, level)!;
+      const got = runSolve(eng, { kind: 'lab', from: { baseId: r.baseId, level }, targets, spare, priceBasis: 'found', effort });
       expect(got.markov, `${r.name} at ${level}`).toMatchObject({ applicable: true, feasible: true, bound: 'exact' });
       expect(got.markov.restarts, `${r.name} at ${level}`).toBeDefined();
-      const bases = 1 + got.markov.restarts!;
+      // To a millionth, the solver's tolerance: a count of 3 must not read as 2.9999999 and floor to 2.
+      const bases = Math.round((1 + got.markov.restarts!) * 1e6) / 1e6;
       expect(bases, `${r.name} at ${level}`).toBeGreaterThanOrEqual(r.bases.from);
       expect(bases, `${r.name} at ${level}`).toBeLessThanOrEqual(r.bases.to);
       used.push(bases);
@@ -197,4 +238,71 @@ describe('each starter recipe on the found sheet', () => {
     expect(Math.min(...used), `${r.name}: the stated ${r.bases.from} is below the floor of the fewest`).toBeLessThan(r.bases.from + 1);
     expect(Math.max(...used), `${r.name}: the stated ${r.bases.to} is above the ceiling of the most`).toBeGreaterThan(r.bases.to - 1);
   }, 300_000);
+});
+
+describe('a starter recipe means what the card says: the other modifiers can be anything', () => {
+  // Through the app's own path: the solve the card asks for (`priceBasis: 'found'`, the targets and free
+  // slots `targetsAt` gives), then the plan read the way Craft along reads it — `locateItem` places a held
+  // item in the solved plan, `stepFor` gives the plan's move there. A plan solved without the free slots
+  // finishes only a CLEAN item, so it would bin each of these — which the last test says outright.
+  const eng = { data, prices: loadFrozenPrices() };
+  const effort = { ...limitsFor('standard'), maxMillis: 600_000 };
+  /** A Bow modifier at the best tier `ilvl` rolls — a roll the recipe accepts at that level, or junk. */
+  const mod = (id: string, ilvl: number): ItemModInput => {
+    const tiers = data.mods.get(`Bows/${id}`)!.tiers;
+    let j = 0;
+    tiers.forEach((t, i) => { if (t.ilvl <= ilvl) j = i; });
+    return { modId: `Bows/${id}`, tierDisplay: tiers.length - j };
+  };
+  const plan = (grade: string, level: number, free = true): EngineMarkovResult => {
+    const r = STARTER_RECIPES.find((x) => x.baseId === 'Bows' && x.grade === grade)!;
+    const { targets, spare } = targetsAt(data, r, level)!;
+    return runSolve(eng, { kind: 'lab', from: { baseId: 'Bows', level }, targets, ...(free ? { spare } : {}), priceBasis: 'found', effort }).markov;
+  };
+  /** The plan's move for a held item: undefined when the item is finished. */
+  const moveFor = (m: EngineMarkovResult, item: ExistingItem): { finished: boolean; action?: string } => {
+    const at = locateItem(eng, m, item);
+    if (!at.ok) throw new Error(at.reason);
+    const node = stepFor(eng, m, at.key)!.nodes[0]!;
+    return { finished: node.isGoal, ...(node.action ? { action: node.action } : {}) };
+  };
+  // Easy Bow at 16: flat Physical and flat Cold (the damage slot), plus Accuracy and three suffixes nobody
+  // asked for. Better Bow at 30: flat Physical and Attack Speed, plus flat Cold and a Critical Hit Chance.
+  const easyDone: ExistingItem = {
+    baseId: 'Bows', level: 16, rarity: 'rare',
+    prefixes: [mod('LocalPhysicalDamage', 8), mod('LocalColdDamage', 8), mod('LocalAccuracyRating', 8)],
+    suffixes: [mod('LocalIncreasedAttackSpeed', 1), mod('LocalBaseCriticalStrikeChance', 1), mod('LocalCriticalStrikeMultiplier', 8)],
+  };
+  const betterDone: ExistingItem = {
+    baseId: 'Bows', level: 30, rarity: 'rare',
+    prefixes: [mod('LocalPhysicalDamage', 16), mod('LocalColdDamage', 8)],
+    suffixes: [mod('LocalIncreasedAttackSpeed', 22), mod('LocalBaseCriticalStrikeChance', 1)],
+  };
+
+  it('starts from a white base with a Transmute', () => {
+    for (const [grade, level] of [['easy', 16], ['better', 30]] as const) {
+      const m = plan(grade, level);
+      expect(m.bound).toBe('exact');
+      expect(m.nodes.find((n) => n.isStart)!.action, grade).toBe('Transmute');
+    }
+  });
+
+  it('counts an item holding the recipe and anything else as finished', () => {
+    expect(moveFor(plan('easy', 16), easyDone)).toEqual({ finished: true });
+    expect(moveFor(plan('better', 30), betterDone)).toEqual({ finished: true });
+  });
+
+  it('keeps a Magic item that rolled one of the recipe and something unwanted, and finishes it', () => {
+    // One recipe modifier and a Critical Hit Chance suffix: the plan puts the other on with its Essence.
+    const magic = (level: number, prefix: ItemModInput): ExistingItem =>
+      ({ baseId: 'Bows', level, rarity: 'magic', prefixes: [prefix], suffixes: [mod('LocalBaseCriticalStrikeChance', 1)] });
+    expect(moveFor(plan('easy', 16), magic(16, mod('LocalPhysicalDamage', 8)))).toEqual({ finished: false, action: 'Lesser Essence of Flames' });
+    expect(moveFor(plan('easy', 16), magic(16, mod('LocalColdDamage', 8)))).toEqual({ finished: false, action: 'Lesser Essence of Abrasion' });
+    expect(moveFor(plan('better', 30), magic(30, mod('LocalPhysicalDamage', 16)))).toEqual({ finished: false, action: 'Lesser Essence of Haste' });
+  });
+
+  it('would bin every one of them if the rest of the item were not free', () => {
+    expect(moveFor(plan('easy', 16, false), easyDone)).toEqual({ finished: false, action: START_OVER });
+    expect(moveFor(plan('better', 30, false), betterDone)).toEqual({ finished: false, action: START_OVER });
+  });
 });

@@ -238,7 +238,8 @@ describe('Craft along on a Desecration', () => {
  */
 describe('Craft along on a plan counted in what drops', () => {
   const bow = STARTER_RECIPES.find((r) => r.weapon === 'Bow' && r.grade === 'easy')!;
-  const found = runSolve(engine, { kind: 'lab', priceBasis: 'found', from: { baseId: 'Bows', level: 16 }, targets: targetsAt(data, bow, 16)!.targets });
+  const at = targetsAt(data, bow, 16)!;
+  const found = runSolve(engine, { kind: 'lab', priceBasis: 'found', from: { baseId: 'Bows', level: 16 }, targets: at.targets, spare: at.spare });
   const fm = (found as { markov: EngineMarkovResult }).markov;
 
   it('counts moves, prices none, and says why it starts over in words', () => {
@@ -250,8 +251,8 @@ describe('Craft along on a plan counted in what drops', () => {
     expect(panel()).toHaveTextContent('Next: Transmute');
     const noCost = /\(about|Spent so far|still to spend|\d\s?(ex|chaos|div)\b/;
     expect(panel().textContent).not.toMatch(noCost);
-    // A suffix nobody asked for, and the plan starts over.
-    fireEvent.click(button('A suffix you did not ask for lands'));
+    // A prefix nobody asked for (both recipe modifiers are prefixes), and the plan starts over.
+    fireEvent.click(button('A prefix you did not ask for lands'));
     expect(panel()).toHaveTextContent('Next: bin this item and start again on a new base — with what drops, that is a better bet than finishing this one.');
     expect(panel()).toHaveTextContent('1 move so far.');
     expect(panel().textContent).not.toMatch(noCost);

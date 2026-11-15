@@ -208,7 +208,9 @@ const LabTargets: React.FC<{ lab: LabCraft }> = ({ lab }) => {
             first and "and one more, whatever" after is the order the player thinks in. */}
         <FreeSlotRows spare={spare} onRemove={(side) => setSpare(withSpare(spare, side, -1))} />
       </div>
-      <FreeSlotNote spare={spare} fromWhite={fractured.size === 0} />
+      {/* Its second half compares the step-by-step plans with the true expected cost: neither is drawn
+          for a craft counted in what drops, so it says only what a free slot is. */}
+      <FreeSlotNote spare={spare} fromWhite={fractured.size === 0 && !craftFound} />
       {slots.some((sl) => sl.members.length > 1) && (
         /* Answered honestly rather than left to be discovered: an alternative eases ONE slot, so a
            target with six of them gains far less than a small one. Measured on Wands from white —

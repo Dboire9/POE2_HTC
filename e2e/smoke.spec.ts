@@ -112,7 +112,7 @@ test('2c — an example craft on the empty Plan tab loads and solves in one clic
   await page.goto('/');
   await waitForReady(page);
 
-  // The card opens on Starter, whose recipes include one with the same name: the build types are a chip away.
+  // The card opens on Starter: the build-type crafts are a chip away.
   await page.getByRole('group', { name: 'Crafts to try' }).getByRole('button', { name: 'Caster' }).click();
   await page.getByRole('button', { name: /A caster Wand/ }).click();
   // Its targets fill the card, and the true cost answers — exactly, with no bound marker.
@@ -154,8 +154,11 @@ test('2e — a starter recipe loads at the typed item level and reads as what yo
   await page.getByRole('spinbutton', { name: 'Item level of your base' }).fill('16');
   await page.getByRole('button', { name: /^A hard-hitting Bow/ }).click();
 
-  // Its two slots fill the targets card, the second one of alternatives.
-  await expect(page.getByText(/Target item \(2 slots, 6 mods\)/)).toBeVisible();
+  // Its two slots fill the targets card, the second one of alternatives, and the rest of the item is
+  // left free — "the others can be anything" — on both sides.
+  await expect(page.getByText(/Target item \(\d+ slots, 6 mods named\)/)).toBeVisible();
+  await expect(page.getByRole('button', { name: 'Stop leaving a prefix free' }).first()).toBeVisible();
+  await expect(page.getByRole('button', { name: 'Stop leaving a suffix free' }).first()).toBeVisible();
   const uses = page.getByRole('list', { name: 'What you’ll use' });
   await expect(uses).toBeVisible({ timeout: 60_000 });
   await expect(uses.getByText('Orb of Transmutation')).toBeVisible();

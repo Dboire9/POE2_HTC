@@ -364,12 +364,15 @@ export function useLabCraft(engine: Engine | null) {
       })()
       + (alts ? ` ${alts.rows.length} budget alternative${alts.rows.length === 1 ? '' : 's'} listed.` : '');
 
-  // Clear the whole craft (targets, tier picks, fractured marks, results) — keeps the base + item level.
+  // Clear the whole craft (targets, tier picks, fractured marks, free slots, results) — keeps the base +
+  // item level. Free slots are part of the target (`clearCraft`): a starter recipe's, left behind, kept
+  // the card of crafts to try hidden behind a target of nothing but "Any prefix".
   const reset = () => {
     setTargets([]);
     setPickTier({});
     setFractured(new Set());
     setPinned(new Set());
+    setSpare(NO_SPARE);
     setResult(null);
     setMarkov(null);
     setAlts(null);
@@ -457,9 +460,13 @@ export function useLabCraft(engine: Engine | null) {
    */
   const playOut = () => { if (solved) run(solved, true); };
 
-  /** Load an example craft (exampleCrafts.ts) into the fields, and solve it — from the example itself. */
-  const tryExample = (goal: CraftGoal, on: LabBasis = TRADE) => {
+  /**
+   * Load an example craft (exampleCrafts.ts) into the fields, and solve it — from the example itself.
+   * `free`: the free slots the craft comes with (a starter recipe's); `craftFromScratch` clears any others.
+   */
+  const tryExample = (goal: CraftGoal, on: LabBasis = TRADE, free: Spare = NO_SPARE) => {
     craftFromScratch(goal);
+    if (free.prefixes + free.suffixes > 0) setSpare(free);
     setResult(null);
     setMarkov(null);
     setAlts(null);
@@ -468,7 +475,7 @@ export function useLabCraft(engine: Engine | null) {
     if (engine) {
       run(jobFor({
         baseId: goal.baseId, level: goal.level, targets: goal.targets, fractured: new Set(), pinned: new Set(),
-        runes: goal.runes ?? [], spare: NO_SPARE,
+        runes: goal.runes ?? [], spare: free,
       }, effort, on));
     }
   };
@@ -476,12 +483,14 @@ export function useLabCraft(engine: Engine | null) {
   /**
    * Load a starter recipe at an item level, and solve it on the found sheet — the recipe's targets as
    * `targetsAt` gives them (each modifier at the best tier the level rolls or up to two below; a slot of
-   * alternatives sharing one `slot` id). Nothing when the recipe is not offered at that level.
+   * alternatives sharing one `slot` id), and the rest of the item left free (its `spare`) — the card's
+   * "the others can be anything", which the solve then plans for. Nothing when the recipe is not offered
+   * at that level.
    */
   const tryStarter = (recipe: StarterRecipe, at: number) => {
     const got = data ? targetsAt(data, recipe, at) : null;
     if (!got) return;
-    tryExample({ baseId: recipe.baseId, level: at, targets: got.targets }, { found: true, starter: true });
+    tryExample({ baseId: recipe.baseId, level: at, targets: got.targets }, { found: true, starter: true }, got.spare);
   };
 
   /** The craft on screen solved again on the other sheet — the switch beside a starter recipe's result. */

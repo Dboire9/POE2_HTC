@@ -16,7 +16,7 @@ const LabSetup: React.FC<{ lab: LabCraft }> = ({ lab }) => {
     bases, baseId, changeBase, level, setLevel, budget, setBudget, fractured, baseCost, setBaseCost,
     category, runes, setRunes, share, targets, reset, result, compute, canCompute, computing, progress,
     cancel, runErr, outcome, search, setSearch, filtered, counts, spare, limits, offerSpare, spareBlock,
-    addSpare, blockFor, pickTier, onPickTier, addTarget,
+    addSpare, blockFor, pickTier, onPickTier, addTarget, craftFound,
   } = lab;
   return (
     <Card className="p-4 space-y-4">
@@ -30,20 +30,24 @@ const LabSetup: React.FC<{ lab: LabCraft }> = ({ lab }) => {
             className={`${selectCls} w-24`}
           />
         </label>
-        <label className="flex flex-col gap-1">
-          <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-            Budget <span className="font-normal normal-case opacity-70">(exalts, optional)</span>
-          </span>
-          <input
-            type="number" min={0} step="any" value={budget} placeholder="ex"
-            onChange={(e) => setBudget(e.target.value)}
-            className={`${selectCls} w-28`}
-            title="What you're willing to spend, in Exalted-Orb equivalents. Adds a panel showing the closest items this much money can actually finish."
-          />
-        </label>
+        {/* Budget and Base cost are typed in exalts, and a craft counted in what drops reads neither
+            (`jobFor`): a field that does nothing is not shown. They come back with the trade market. */}
+        {!craftFound && (
+          <label className="flex flex-col gap-1">
+            <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+              Budget <span className="font-normal normal-case opacity-70">(exalts, optional)</span>
+            </span>
+            <input
+              type="number" min={0} step="any" value={budget} placeholder="ex"
+              onChange={(e) => setBudget(e.target.value)}
+              className={`${selectCls} w-28`}
+              title="What you're willing to spend, in Exalted-Orb equivalents. Adds a panel showing the closest items this much money can actually finish."
+            />
+          </label>
+        )}
         {/* Only a from-WHITE craft can start over, so this is the one place the number means
             anything — a carved base is an item you hold and the planner may not bin it. */}
-        {fractured.size === 0 && (
+        {fractured.size === 0 && !craftFound && (
           <label className="flex flex-col gap-1">
             <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
               Base cost <span className="font-normal normal-case opacity-70">(exalts, optional)</span>

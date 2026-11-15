@@ -23,7 +23,7 @@ vi.mock('../../lib/solve', async (importOriginal) => {
 
 import EngineLab from './EngineLab';
 import { runSolve } from '../../lib/solve';
-import type { Engine } from '../../lib/engine';
+import { stepFor, type Engine } from '../../lib/engine';
 import { STARTER_RECIPES, targetsAt, type StarterRecipe } from '../../lib/starterRecipes';
 import { EXAMPLE_CRAFTS } from '../../lib/exampleCrafts';
 import { STOP_LINE } from '../../lib/foundUses';
@@ -49,6 +49,7 @@ async function typeLevel(user: ReturnType<typeof userEvent.setup>, level: number
   await user.type(levelBox(), String(level));
 }
 const easyBow = STARTER_RECIPES.find((r) => r.weapon === 'Bow' && r.grade === 'easy')!;
+const fastBow = STARTER_RECIPES.find((r) => r.weapon === 'Bow' && r.grade === 'better')!;
 
 /** Everything a found-basis result must not draw: a cost in a currency, or a part that only means something on a market. */
 function expectNoMarket() {
@@ -60,7 +61,7 @@ function expectNoMarket() {
     'True expected cost', 'Play it out', 'What a craft can cost', 'Or buy it already made',
     'Start from an item you buy instead', 'Step-by-step routes', 'Your options — likeliest first',
     'Optimal policy, as text', 'Search on trade',
-  ]) expect(screen.queryByText(new RegExp(gone)), gone).toBeNull();
+  ]) expect(screen.queryByText(new RegExp(gone, 'i')), gone).toBeNull();
   expect(screen.queryByRole('img', { name: 'Optimal crafting policy graph' })).toBeNull();
 }
 
@@ -70,9 +71,8 @@ describe('the Starter chip', () => {
     expect(chips().getAllByRole('button')[0]).toHaveTextContent('Starter');
     expect(chips().getByRole('button', { name: 'Starter' })).toHaveAttribute('aria-pressed', 'true');
     for (const r of STARTER_RECIPES) expect(recipeButton(r)).toBeInTheDocument();
-    // No build-type craft is drawn under it — read by its "From a … build" line, since one example and
-    // one recipe are both called "A caster Wand".
-    for (const e of EXAMPLE_CRAFTS) expect(screen.queryByText(new RegExp(`From an? ${e.build} build`)), e.name).toBeNull();
+    // No build-type craft is drawn under it (no recipe shares an example's name: starterRecipes.test.ts).
+    for (const e of EXAMPLE_CRAFTS) expect(screen.queryByText(e.name), e.name).toBeNull();
     // The rule for when the weapon is done, said once for the panel.
     expect(screen.getAllByText(STOP_LINE)).toHaveLength(1);
   });
@@ -156,13 +156,22 @@ describe('a starter recipe, loaded', () => {
     if (req.kind !== 'lab') throw new Error('not a lab request');
     expect(req.priceBasis).toBe('found');
     expect(req.from).toEqual({ baseId: easyBow.baseId, level: 16 });
-    const want = targetsAt(engine().data, easyBow, 16)!.targets;
+    const at = targetsAt(engine().data, easyBow, 16)!;
+    const want = at.targets;
     expect(req.targets).toEqual(want);
     expect(want.filter((t) => t.slot !== undefined).length).toBe(easyBow.slots[1]!.modIds.length); // the premise
-    // The targets card holds the recipe: one slot of its own, one of alternatives.
-    expect(await screen.findByText(/Target item \(2 slots, 6 mods\)/)).toBeInTheDocument();
+    // The rest of the item is left free, and the solve is told so: "the others can be anything".
+    expect(req.spare).toEqual(at.spare);
+    expect(at.spare.prefixes + at.spare.suffixes).toBeGreaterThan(0); // the premise
+    // The targets card holds the recipe — one slot of its own, one of alternatives — and the free slots.
+    const free = at.spare.prefixes + at.spare.suffixes;
+    expect(await screen.findByText(new RegExp(`Target item \\(${2 + free} slots, ${want.length} mods named\\)`))).toBeInTheDocument();
     expect(screen.getByText(/Any one of/i)).toBeInTheDocument();
+    expect(screen.queryAllByRole('button', { name: 'Stop leaving a prefix free' })).toHaveLength(at.spare.prefixes);
+    expect(screen.queryAllByRole('button', { name: 'Stop leaving a suffix free' })).toHaveLength(at.spare.suffixes);
     expect(screen.getByRole('spinbutton', { name: /^Item level$/i })).toHaveValue(16);
+    // The craft is loaded, so the card of crafts to try has given way.
+    expect(screen.queryByText('Or try one')).toBeNull();
   });
 
   it('reads as what you will use — counts, bases, the note and when it is done — with no cost anywhere', async () => {
@@ -191,13 +200,19 @@ describe('a starter recipe, loaded', () => {
     const sw = () => within(screen.getByRole('group', { name: 'How this craft is planned' }));
     expect(sw().getByRole('button', { name: 'Counted in what drops' })).toHaveAttribute('aria-pressed', 'true');
 
+    // Budget and Base cost are in exalts, which a craft counted in what drops does not read: not shown.
+    const exaltFields = () => [/^Budget/, /^Base cost/].map((name) => screen.queryByRole('spinbutton', { name }));
+    expect(exaltFields()).toEqual([null, null]);
+
     await user.click(sw().getByRole('button', { name: 'Priced on the trade market' }));
     expect(await screen.findByText('True expected cost')).toBeInTheDocument();
+    for (const f of exaltFields()) expect(f).toBeInTheDocument();
     const [found, trade] = labRequests();
     if (found?.kind !== 'lab' || trade?.kind !== 'lab') throw new Error('not lab requests');
     expect(trade.priceBasis).toBeUndefined();
     expect(trade.targets).toEqual(found.targets);
     expect(trade.from).toEqual(found.from);
+    expect(trade.spare).toEqual(found.spare);
     expect(sw().getByRole('button', { name: 'Priced on the trade market' })).toHaveAttribute('aria-pressed', 'true');
 
     await user.click(sw().getByRole('button', { name: 'Counted in what drops' }));
@@ -216,6 +231,8 @@ describe('a starter recipe, loaded', () => {
     await user.click(screen.getByRole('button', { name: /Find plans/i }));
     await waitFor(() => expect(labRequests()).toHaveLength(2));
     expect(labRequests()[1]!.kind === 'lab' && labRequests()[1]!.priceBasis).toBe('found');
+    const [first, again] = labRequests();
+    expect(again!.kind === 'lab' && again!.spare).toEqual(first!.kind === 'lab' && first!.spare);
 
     await user.click(screen.getByRole('button', { name: /^Reset$/ }));
     await user.click(await chips().findByRole('button', { name: 'Caster' }));
@@ -224,6 +241,7 @@ describe('a starter recipe, loaded', () => {
     await waitFor(() => expect(labRequests()).toHaveLength(3));
     const example = labRequests()[2]!;
     expect(example.kind === 'lab' && example.priceBasis).toBeUndefined();
+    expect(example.kind === 'lab' && example.spare).toBeUndefined();
     expect(screen.queryByRole('group', { name: 'How this craft is planned' })).toBeNull();
   }, 60_000);
 
@@ -239,6 +257,8 @@ describe('a starter recipe, loaded', () => {
     await waitFor(() => expect(labRequests()).toHaveLength(2));
     const byHand = labRequests()[1]!;
     expect(byHand.kind === 'lab' && byHand.priceBasis).toBeUndefined();
+    // Reset clears the recipe's free slots with the rest of the target.
+    expect(byHand.kind === 'lab' && byHand.spare).toBeUndefined();
   }, 60_000);
 
   it('follows along with no cost, and calls the weapon done at the finish', async () => {
@@ -284,20 +304,81 @@ Adds 2 to 3 Cold Damage
 6% increased Attack Speed`);
     await user.click(screen.getByRole('button', { name: 'This is my item now' }));
     const panel = screen.getByRole('region', { name: 'Craft along' });
-    // Named as the class it stands for (engineMap's `namerFor`), and done.
-    expect(panel).toHaveTextContent('Your item: Rare · Adds # to # Physical Damage + Adds # to # Fire Damage or Adds # to # Cold Damage, and one suffix you did not ask for');
+    // With the rest of the item free this is the plan's own finish (drawn as one goal, so not named).
     expect(panel).toHaveTextContent('Your weapon is done.');
-    expect(panel).not.toHaveTextContent(/Start over with a new base|bin this item/);
+    expect(panel).not.toHaveTextContent(/Start over with a new base|bin this item|Your item:/);
+  });
+
+  /** Paste `text` into an open Craft along and apply it. */
+  async function paste(user: ReturnType<typeof userEvent.setup>, text: string) {
+    await user.click(screen.getByRole('button', { name: /^Craft along/ }));
+    await user.click(screen.getByRole('button', { name: /Paste your item/i }));
+    await user.click(screen.getByLabelText(/Paste your item’s text/i));
+    await user.paste(text);
+    await user.click(screen.getByRole('button', { name: 'This is my item now' }));
+    return screen.getByRole('region', { name: 'Craft along' });
+  }
+
+  it('names a pasted Cold Damage as the class it stands for, not as Fire', async () => {
+    const user = userEvent.setup();
+    await loaded();
+    await typeLevel(user, 16);
+    await user.click(recipeButton(easyBow));
+    await screen.findByRole('list', { name: 'What you’ll use' });
+    const panel = await paste(user, `Item Class: Bows
+Rarity: Magic
+Crude Bow of Frost
+--------
+Item Level: 16
+--------
+Adds 2 to 3 Cold Damage`);
+    expect(panel).toHaveTextContent('Your item: Magic · Adds # to # Fire Damage or Adds # to # Cold Damage');
+    expect(panel).not.toHaveTextContent('Your weapon is done.');
+  });
+
+  // A Magic weapon holding both modifiers of a better recipe is done by the card's sentence, though the
+  // solve's goal is a Rare and its plan would go on (`holdsEverySlot`).
+  it('calls a pasted Magic weapon done when it holds both modifiers', async () => {
+    const user = userEvent.setup();
+    await loaded();
+    await typeLevel(user, 30);
+    await user.click(recipeButton(fastBow));
+    await screen.findByRole('list', { name: 'What you’ll use' });
+    const panel = await paste(user, `Item Class: Bows
+Rarity: Magic
+Crude Bow of Skill
+--------
+Item Level: 30
+--------
+Adds 5 to 9 Physical Damage
+12% increased Attack Speed`);
+    expect(panel).toHaveTextContent('Your item: Magic · Adds # to # Physical Damage + #% increased Attack Speed');
+    expect(panel).toHaveTextContent('Your weapon is done. It has the modifiers you asked for; the others can be anything.');
   });
 });
 
 describe('holdsEverySlot', () => {
-  it('is every goal of the plan, and not the white base', () => {
-    const at = targetsAt(engine().data, easyBow, 16)!;
-    const res = runSolve(engine(), { kind: 'lab', priceBasis: 'found', from: { baseId: 'Bows', level: 16 }, targets: at.targets });
+  const solve = (r: StarterRecipe, level: number) => {
+    const at = targetsAt(engine().data, r, level)!;
+    const res = runSolve(engine(), { kind: 'lab', priceBasis: 'found', from: { baseId: r.baseId, level }, targets: at.targets, spare: at.spare });
     if (res.kind !== 'lab') throw new Error('not lab');
-    const t = res.markov.routes!;
+    return res.markov;
+  };
+
+  it('is every goal of the plan, and not the white base', () => {
+    const t = solve(easyBow, 16).routes!;
     t.keys.forEach((k, i) => { if (t.goal[i] === 1) expect(holdsEverySlot(t, k), k).toBe(true); });
     expect(holdsEverySlot(t, t.keys[t.restartIdx]!)).toBe(false);
+  });
+
+  it('adds to the goal only a Magic weapon holding both modifiers, which the plan would go on from', () => {
+    const m = solve(fastBow, 30);
+    const t = m.routes!;
+    const extra = t.keys.filter((k, i) => t.goal[i] !== 1 && holdsEverySlot(t, k));
+    expect(extra.length).toBeGreaterThan(0);
+    for (const k of extra) {
+      expect(k.split(':')[5], k).toBe('1'); // rarity code 1: Magic
+      expect(stepFor(engine(), m, k)!.nodes[0]!.action, k).toBeDefined();
+    }
   });
 });

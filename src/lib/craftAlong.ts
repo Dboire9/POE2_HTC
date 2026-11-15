@@ -107,9 +107,13 @@ export function writeSession(tab: CraftTab, s: CraftSession | undefined): void {
 
 /**
  * Whether the item at `key` holds every slot of the craft — each wanted modifier at its tier, nothing of
- * it below — whatever else is on it. A starter recipe's weapon is done then (starterRecipes.ts: the rest
- * of the item can be anything), even where the plan, solved for a clean item, would go on: a pasted Rare
- * bow with Physical, Cold and a stray Attack Speed suffix read "Start over with a new base".
+ * it below — whatever else is on it, and whatever its rarity.
+ *
+ * A starter recipe's weapon is done then (starterRecipes.ts). Its free slots (`targetsAt`'s `spare`) already
+ * make the solve's goal a RARE holding the recipe and anything else; what this adds is the MAGIC weapon
+ * holding both modifiers — a better recipe's flat Physical prefix and Attack Speed suffix — which the goal
+ * (`isAccepting`, markovState.ts) does not take, and the plan would Regal. Measured 2026-11-15 over every
+ * recipe at its first, middle and last level: that Magic case is the only state where the two disagree.
  */
 export function holdsEverySlot(t: Pick<RouteTable, 'slotMasks'>, key: string): boolean {
   // A key of the table's own (a session holds no other), branded only in the solver's types.

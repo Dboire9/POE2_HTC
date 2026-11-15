@@ -1,5 +1,5 @@
 import { describe, it, expect, vi } from 'vitest';
-import { render, screen } from '@testing-library/react';
+import { render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import type { EngineMod, EngineResult } from '../../lib/engine';
 import { SearchEffort } from './SearchEffort';
@@ -33,7 +33,7 @@ vi.mock('../../lib/engine', async (importOriginal) => {
   const actual = await importOriginal<typeof import('../../lib/engine')>();
   return {
     ...actual,
-    loadEngine: () => Promise.resolve({ data: {} as never, prices: { currency: {}, omens: {} } as never }),
+    loadEngine: () => Promise.resolve({ data: { mods: new Map() } as never, prices: { currency: {}, omens: {} } as never }),
     listBases: () => [{ id: 'Wands', name: 'Wands', category: 'weapon' }],
     listMods: () => ({ prefixes: [NP, NP2], suffixes: [NS] }),
     listDesecrated: () => [],
@@ -82,6 +82,20 @@ describe('controls are named by what they do, not by their icon', () => {
 });
 
 describe('toggles report their state', () => {
+  // The card's chips — Starter first, then the build types — and the Starter panel's level box, named by
+  // the words beside it.
+  it('the crafts-to-try chips say which is shown, and the level box is named', async () => {
+    const user = userEvent.setup();
+    await lab();
+    const chips = within(screen.getByRole('group', { name: 'Crafts to try' }));
+    expect(chips.getByRole('button', { name: 'Starter' })).toHaveAttribute('aria-pressed', 'true');
+    expect(screen.getByRole('spinbutton', { name: 'Item level of your base' })).toBeInTheDocument();
+    await user.click(chips.getByRole('button', { name: 'Caster' }));
+    expect(chips.getByRole('button', { name: 'Starter' })).toHaveAttribute('aria-pressed', 'false');
+    expect(chips.getByRole('button', { name: 'Caster' })).toHaveAttribute('aria-pressed', 'true');
+    expect(screen.queryByRole('spinbutton', { name: 'Item level of your base' })).toBeNull();
+  });
+
   it('the tab switcher says which tab is current', async () => {
     const user = userEvent.setup();
     await lab();

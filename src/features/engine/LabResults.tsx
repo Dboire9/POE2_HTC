@@ -9,7 +9,31 @@ import AlternativesView from './AlternativesView';
 import StartFromItem from './StartFromItem';
 import TrueCostCard from './TrueCostCard';
 import CraftToSell from './CraftToSell';
+import { FOCUS_RING } from './ui';
+import { cn } from '../../lib/utils';
 import type { LabCraft } from './useLabCraft';
+
+/**
+ * The sheet a starter recipe's result is planned on, as a switch: counted in what drops (the found sheet)
+ * or priced on the trade market. Flipping solves the same craft again on the other sheet (`solveOn`).
+ */
+const BasisSwitch: React.FC<{ found: boolean; busy: boolean; onPick: (found: boolean) => void }> = ({ found, busy, onPick }) => (
+  <div role="group" aria-label="How this craft is planned" className="inline-flex flex-wrap rounded-md border border-border bg-muted/40 p-0.5 text-sm">
+    {([[true, 'Counted in what drops'], [false, 'Priced on the trade market']] as const).map(([value, label]) => (
+      <button
+        key={label}
+        type="button"
+        aria-pressed={found === value}
+        disabled={busy}
+        onClick={() => onPick(value)}
+        // FOCUS_RING first: it carries a `rounded-sm` that would otherwise win the merge.
+        className={cn(FOCUS_RING, 'rounded px-2.5 py-1.5 disabled:opacity-50', found === value ? 'bg-background font-medium shadow-sm' : 'text-muted-foreground hover:text-foreground')}
+      >
+        {label}
+      </button>
+    ))}
+  </div>
+);
 
 /** The Plan tab's answers: the true cost and its route, the items to start from instead, the step routes. */
 const LabResults: React.FC<{ lab: LabCraft }> = ({ lab }) => {
@@ -17,7 +41,12 @@ const LabResults: React.FC<{ lab: LabCraft }> = ({ lab }) => {
     stale, runErr, markov, result, engine, solvedFor, alongSig, markovSpare, markovRun, fractured, markovEffort,
     computing, compute, playOut, desecrationNeedsRare, normalTargets, excludedKeys, freeSlots, alts, altBudget,
     budget, sale, setSale, saleKey, trueCostAnswered, showRoutes, setShowRoutes,
+    foundResult, starterResult, shownBasis, solveOn,
   } = lab;
+  // On the found sheet every cost is a weight, not an amount of any currency: whatever only means
+  // something on a market — the step routes and their costs, the items to buy instead, the budget
+  // search, the spread, Craft to sell — is not drawn (the card itself turns into "What you'll use").
+  const market = !foundResult;
   // Folded only when there is something to fold: an empty list carries the hint saying WHY no route
   // exists, which is worth seeing beside the true cost rather than behind a button.
   const foldRoutes = trueCostAnswered && result !== null && result.frontier.length > 0;
@@ -58,9 +87,13 @@ const LabResults: React.FC<{ lab: LabCraft }> = ({ lab }) => {
       {/* Same rule as ItemActions: there are two ways to have no true cost and the card must cover
           both, or the panel loses half its content with no explanation. Keyed on the NEGATION of the
           condition below so the two are exhaustive by construction. */}
+      {starterResult && markov && !runErr && (
+        <BasisSwitch found={foundResult} busy={computing} onPick={solveOn} />
+      )}
+
       {markov && !runErr && result && !(markov.applicable && markov.feasible) && markov.reason && (
         <Card className="p-4">
-          <p className="text-sm font-medium">No true expected cost for this craft</p>
+          <p className="text-sm font-medium">{foundResult ? 'No plan from what drops for this craft' : 'No true expected cost for this craft'}</p>
           <p className="text-sm text-muted-foreground mt-1">{markov.reason}</p>
         </Card>
       )}
@@ -68,7 +101,13 @@ const LabResults: React.FC<{ lab: LabCraft }> = ({ lab }) => {
       {/* The true expected cost + policy route, the same model the Item tab uses. From a white base the
           policy may also simply start over, which is why its number is believable here (see
           WHITE_BASE_COST in solve.ts). */}
-      {markov && !runErr && markov.applicable && markov.feasible && (
+      {markov && !runErr && markov.applicable && markov.feasible && !market && (
+        <TrueCostCard
+          markov={markov} rates={undefined} spare={markovSpare} basis={shownBasis}
+          along={engine && alongSig ? { engine, tab: 'lab', sig: alongSig, plain: 'A white base' } : undefined}
+        />
+      )}
+      {markov && !runErr && markov.applicable && markov.feasible && market && (
         <TrueCostCard
           markov={markov} rates={rates} spare={markovSpare}
           along={engine && alongSig ? { engine, tab: 'lab', sig: alongSig, plain: 'A white base' } : undefined}
@@ -120,7 +159,7 @@ const LabResults: React.FC<{ lab: LabCraft }> = ({ lab }) => {
       {/* Its own section on every craft from scratch, open unless the player hid it (their choice,
           2026-09-11). It reads the solve above, which may bin a bought item and start over; the Item
           tab's `WhatToBuy` asks the keep-the-item question from its own solve. See StartFromItem. */}
-      {markov && !runErr && engine && (
+      {markov && !runErr && engine && market && (
         <StartFromItem
           key={markovRun} markov={markov} engine={engine} rates={priceBasis(engine).rates}
           {...(solvedFor ? { solvedFor } : {})}
@@ -128,10 +167,10 @@ const LabResults: React.FC<{ lab: LabCraft }> = ({ lab }) => {
         />
       )}
 
-      {result && !runErr && foldRoutes && (
+      {result && !runErr && market && foldRoutes && (
         <RoutesToggle open={showRoutes} count={result.frontier.length} onToggle={setShowRoutes} />
       )}
-      {result && !runErr && (!foldRoutes || showRoutes) && (
+      {result && !runErr && market && (!foldRoutes || showRoutes) && (
         <FrontierView
           result={result}
           priceBasis={engine ? priceBasis(engine) : undefined}
@@ -165,7 +204,7 @@ const LabResults: React.FC<{ lab: LabCraft }> = ({ lab }) => {
               ) : undefined}
         />
       )}
-      {alts && !runErr && <AlternativesView alts={alts} budget={altBudget} rates={rates} />}
+      {alts && !runErr && market && <AlternativesView alts={alts} budget={altBudget} rates={rates} />}
     </>
   );
 };

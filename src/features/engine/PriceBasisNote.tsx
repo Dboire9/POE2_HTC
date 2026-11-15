@@ -55,6 +55,18 @@ const PriceBasisNote: React.FC<{
       <strong>assumed</strong> spawn weight for desecrated mods — the data source publishes none. Treat
       those steps as an estimate; every other probability here is exact.</>
   );
+  // The found sheet: the plan counts what it uses and prices nothing, so the note says where the plan
+  // comes from in a beginner's words. It is the sheet's own caveat (data/found/prices.json: a judgement
+  // of how often a new player finds each currency, not market prices) restated for counts — its wording
+  // names weights, which nothing in a counted result shows.
+  if (basis.found) {
+    return (
+      <p className={`text-[11px] text-muted-foreground ${className ?? ''}`}>
+        This plan is picked by how often a new player finds each orb and Essence — the app’s own estimate,
+        not trade prices. It shows how many you use, not what they are worth.
+      </p>
+    );
+  }
   if (!basis.estimated) {
     return (
       <p className={`text-[11px] text-muted-foreground ${className ?? ''}`}>

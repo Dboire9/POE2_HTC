@@ -74,11 +74,18 @@ export interface JunkChange { readonly prefixes: number; readonly suffixes: numb
  * Positions carry a side and a tier now, and comparing whole objects would make two spellings of the
  * same position — one mapped with a tier, one without — read as a mod gained and a mod lost. The text
  * is what identifies a position to a reader and it is what these lists hold, so it is what the
- * difference is taken on. De-duplicated by construction on both sides.
+ * difference is taken on.
  */
 const without = (a: readonly PolicyMod[], b: readonly PolicyMod[]): string[] => {
-  const seen = new Set(b.map((p) => p.text));
-  return a.filter((p) => !seen.has(p.text)).map((p) => p.text);
+  // As MULTISETS: two members of one permutation class on one item share a name (`namerFor`,
+  // engineMap.ts), so a second one landing is "Fire or Cold lands" — a set difference would lose it.
+  const left = new Map<string, number>();
+  for (const p of b) left.set(p.text, (left.get(p.text) ?? 0) + 1);
+  return a.filter((p) => {
+    const n = left.get(p.text) ?? 0;
+    if (n > 0) left.set(p.text, n - 1);
+    return n === 0;
+  }).map((p) => p.text);
 };
 
 /**

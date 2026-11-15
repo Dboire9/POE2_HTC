@@ -1,12 +1,15 @@
 import React from 'react';
 import { Card } from '../../components/ui/card';
-import type { Engine, EngineMarkovResult } from '../../lib/engine';
+import type { Engine, EngineMarkovResult, EnginePriceBasis } from '../../lib/engine';
 import type { CraftTab } from '../../lib/craftAlong';
 import { exactExalts, formatBoundedCost, type Rates } from '../../lib/currency';
+import { STOP_LINE } from '../../lib/foundUses';
 import type { Spare } from '../../../packages/optimizer/src/slots.ts';
 import PolicyGraph from './PolicyGraph';
 import CraftAlong from './CraftAlong';
 import CostSpread, { type PlayOut } from './CostSpread';
+import FoundUses from './FoundUses';
+import PriceBasisNote from './PriceBasisNote';
 
 /**
  * The true expected cost of a craft and its policy route — the card both gear tabs draw.
@@ -16,6 +19,11 @@ import CostSpread, { type PlayOut } from './CostSpread';
  * answer shows — what one craft can cost once played out, the Plan tab's "Craft to sell" (`sell`, which
  * carries that tab's trade search), Craft along, the route. One card rather than two copies, so what
  * every true-cost answer shows is added once.
+ *
+ * On the FOUND sheet (`basis.found`, a starter recipe counted in what drops) every cost is a weight, not
+ * an amount of any currency: the card is "What you'll use" instead — the counts, the sheet's note and when
+ * the weapon is done — and Craft along without costs. Nothing that reads a cost is drawn: no figure, no
+ * spread, no Craft to sell, no graph (its every box and step is priced).
  */
 const TrueCostCard: React.FC<{
   markov: EngineMarkovResult;
@@ -34,29 +42,49 @@ const TrueCostCard: React.FC<{
   sale?: number | undefined;
   /** Under the spread, reading the same play-out: the Plan tab's "Craft to sell". */
   sell?: React.ReactNode;
+  /** The sheet the solve ran on, when it is not the trade sheet (`SolveResult.basis`). */
+  basis?: EnginePriceBasis | undefined;
   children?: React.ReactNode;
-}> = ({ markov, rates, spare, along, playOut, budget, sale, sell, children }) => (
-  <Card className="p-4 space-y-3">
-    <div className="flex flex-wrap items-baseline justify-between gap-2">
-      <h3 className="text-sm font-bold">True expected cost</h3>
-      {/* An unconverged solve is a BOUND, not an estimate, and `bound` says which way it leans — a
-          floor from an item you hold, which never restarts, so value iteration starts at 0 and climbs;
-          a ceiling from white. Rendering it as a bare number would be the most precise-looking wrong
-          figure in the app. */}
-      <span className="text-2xl font-bold tabular-nums text-primary" title={exactExalts(markov.expectedCost)}>
-        {formatBoundedCost(markov.bound, markov.expectedCost, rates)}
-      </span>
-    </div>
-    {children}
-    <CostSpread markov={markov} rates={rates} playOut={playOut} budget={budget} sale={sale} />
-    {sell}
-    {along && markov.routes && (
-      <CraftAlong key={along.sig} engine={along.engine} markov={markov} tab={along.tab} sig={along.sig} rates={rates} plain={along.plain} />
-    )}
-    {/* The graph's legend lives IN PolicyGraph, which is the only place that knows whether the
-        picture or the route list is on screen. */}
-    <PolicyGraph result={markov} rates={rates} spare={spare} />
-  </Card>
-);
+}> = ({ markov, rates, spare, along, playOut, budget, sale, sell, basis, children }) => {
+  const craftAlong = (found: boolean) => along && markov.routes && (
+    <CraftAlong
+      key={along.sig} engine={along.engine} markov={markov} tab={along.tab} sig={along.sig} rates={rates}
+      plain={along.plain} found={found}
+    />
+  );
+  if (basis?.found) {
+    return (
+      <Card className="p-4 space-y-3">
+        <h3 className="text-sm font-bold">What you’ll use</h3>
+        <FoundUses markov={markov} />
+        <PriceBasisNote basis={basis} />
+        <p className="text-sm font-medium">{STOP_LINE}</p>
+        {children}
+        {craftAlong(true)}
+      </Card>
+    );
+  }
+  return (
+    <Card className="p-4 space-y-3">
+      <div className="flex flex-wrap items-baseline justify-between gap-2">
+        <h3 className="text-sm font-bold">True expected cost</h3>
+        {/* An unconverged solve is a BOUND, not an estimate, and `bound` says which way it leans — a
+            floor from an item you hold, which never restarts, so value iteration starts at 0 and climbs;
+            a ceiling from white. Rendering it as a bare number would be the most precise-looking wrong
+            figure in the app. */}
+        <span className="text-2xl font-bold tabular-nums text-primary" title={exactExalts(markov.expectedCost)}>
+          {formatBoundedCost(markov.bound, markov.expectedCost, rates)}
+        </span>
+      </div>
+      {children}
+      <CostSpread markov={markov} rates={rates} playOut={playOut} budget={budget} sale={sale} />
+      {sell}
+      {craftAlong(false)}
+      {/* The graph's legend lives IN PolicyGraph, which is the only place that knows whether the
+          picture or the route list is on screen. */}
+      <PolicyGraph result={markov} rates={rates} spare={spare} />
+    </Card>
+  );
+};
 
 export default TrueCostCard;

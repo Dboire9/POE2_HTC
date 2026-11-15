@@ -6,6 +6,8 @@
 // and solving the same craft again picks up where the player left off.
 
 import { PREFS_PREFIX } from './currencyPrefs';
+import { decodeState, slotsFilled, type StateKey } from '../../packages/optimizer/src/markovState.ts';
+import type { RouteTable } from '../../packages/optimizer/src/markovRoute.ts';
 
 /** One move made: where the item was, and what had been spent, before it — what Undo goes back to. */
 export interface CraftStep {
@@ -101,4 +103,16 @@ export function writeSession(tab: CraftTab, s: CraftSession | undefined): void {
     else delete all[tab];
     localStorage.setItem(KEY, JSON.stringify(all));
   } catch { /* it just does not persist */ }
+}
+
+/**
+ * Whether the item at `key` holds every slot of the craft — each wanted modifier at its tier, nothing of
+ * it below — whatever else is on it. A starter recipe's weapon is done then (starterRecipes.ts: the rest
+ * of the item can be anything), even where the plan, solved for a clean item, would go on: a pasted Rare
+ * bow with Physical, Cold and a stray Attack Speed suffix read "Start over with a new base".
+ */
+export function holdsEverySlot(t: Pick<RouteTable, 'slotMasks'>, key: string): boolean {
+  // A key of the table's own (a session holds no other), branded only in the solver's types.
+  const s = decodeState(key as StateKey);
+  return s.blocked === 0 && slotsFilled(s.present, t.slotMasks) === t.slotMasks.length;
 }

@@ -17,6 +17,7 @@ const LabTargets: React.FC<{ lab: LabCraft }> = ({ lab }) => {
     targets, freeSlots, slots, engine, baseId, addingTo, setAddingTo, modById, fractured, pinned,
     regularEssenceUsed, patchTarget, toggleFractured, togglePinned, pinEffect, removeTarget,
     startAlternative, spare, setSpare, essenceFractureConflict, desecratedUsed, bossTargetable, normalTargets,
+    craftFound,
   } = lab;
   if (!(targets.length > 0 || freeSlots > 0)) return null;
   return (
@@ -33,8 +34,9 @@ const LabTargets: React.FC<{ lab: LabCraft }> = ({ lab }) => {
             : `Target item (${slots.length + freeSlots} slot${slots.length + freeSlots !== 1 ? 's' : ''}, `
               + `${targets.length} mod${targets.length !== 1 ? 's' : ''}${freeSlots > 0 ? ' named' : ''})`}
         </h3>
-        {/* The item as it stands in the list, before any solve: what it goes for, ready made. */}
-        {engine && targets.length > 0 && (
+        {/* The item as it stands in the list, before any solve: what it goes for, ready made. Not for a
+            craft counted in what drops — a starter recipe is the weapon a player makes without trading. */}
+        {engine && targets.length > 0 && !craftFound && (
           <GearTradeLink
             data={engine.data} league={priceBasis(engine).league} baseId={baseId}
             slots={slotsOfTargets(targets)} rarity="nonunique" label="the target item"

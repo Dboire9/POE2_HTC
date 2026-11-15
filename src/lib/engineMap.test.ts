@@ -1,6 +1,12 @@
 import { describe, it, expect } from 'vitest';
 import { mapMarkov, mapRoute } from './engineMap';
 import type { EngineMarkovResult } from './engineTypes';
+import { loadShippedPatch } from '../../packages/engine/src/loadPatch.ts';
+import { loadFrozenPrices } from '../../packages/optimizer/src/frozenPrices.ts';
+import { runSolve } from './solve';
+import { stepFor } from './engine';
+import { outcomeWords } from './stateWords';
+import { STARTER_RECIPES, targetsAt } from './starterRecipes';
 
 /**
  * Two DIFFERENT modifiers can print the same text, and a holding puts several on one line.
@@ -42,6 +48,15 @@ describe('mapMarkov — naming two positions that read alike', () => {
     expect(out.holdings![1]!.present).toEqual([
       '#% increased Rarity of Items found',
       '+# to maximum Life',
+    ]);
+  });
+
+  // Two members of one class on one item read alike AND sit on one side: a side would tell them apart
+  // no better, and "(prefix)" twice reads as a fault.
+  it('adds no side to two positions that share both their text and their side', () => {
+    const same = { ...res, holdings: [{ present: [[P], [P]], cost: 1, rarity: 'rare', key: 'k' }] } as unknown as Parameters<typeof mapMarkov>[1];
+    expect(mapMarkov(data, same).holdings![0]!.present).toEqual([
+      '#% increased Rarity of Items found', '#% increased Rarity of Items found',
     ]);
   });
 
@@ -184,3 +199,72 @@ describe('mapMarkov — a mod in the way of a target', () => {
     expect(out.nodes[1]!.obstacles).toBeUndefined();
   });
 });
+
+/**
+ * A position standing for a permutation class reads as the whole class (`namerFor`).
+ *
+ * The solve spells interchangeable positions one way (`encoderFor`): on a hard-hitting Bow at item level
+ * 16, flat Fire and flat Cold weigh the same, so an item holding Cold is stored as holding Fire. Named by
+ * its canonical member, a Transmute's "Adds # to # Fire Damage lands" carried Cold's odds too, and a
+ * pasted bow with Cold Damage read as holding Fire.
+ */
+describe('mapMarkov — a permutation class names all its members', () => {
+  const data = loadShippedPatch('data/patches/0.5.0');
+  const text = (id: string) => data.mods.get(id)!.text;
+
+  it('in Craft along’s outcomes and states, on a starter recipe counted in what drops', () => {
+    const eng = { data, prices: loadFrozenPrices() };
+    const bow = STARTER_RECIPES.find((r) => r.weapon === 'Bow' && r.grade === 'easy')!;
+    const res = runSolve(eng, { kind: 'lab', priceBasis: 'found', from: { baseId: 'Bows', level: 16 }, targets: targetsAt(data, bow, 16)!.targets });
+    if (res.kind !== 'lab') throw new Error('not lab');
+    const m = res.markov;
+    const fireOrCold = `${text('Bows/LocalFireDamage')} or ${text('Bows/LocalColdDamage')}`;
+    // The premise: the two are one class in the table.
+    const t = m.routes!;
+    const at = (id: string) => t.positions.findIndex((p) => p.length === 1 && p[0] === id);
+    expect(t.locate.classes).toContainEqual([at('Bows/LocalFireDamage'), at('Bows/LocalColdDamage')]);
+
+    const step = stepFor(eng, m, t.keys[t.restartIdx]!)!;
+    const words = step.edges.map((e) => outcomeWords(step.nodes[0]!, step.nodes.find((n) => n.key === e.to), e));
+    expect(words).toContain(`${fireOrCold} lands`);
+    expect(words).not.toContain(`${text('Bows/LocalFireDamage')} lands`);
+    // The craft's own graph names the state the same way.
+    expect(m.nodes.some((n) => n.present.some((p) => p.text === fireOrCold))).toBe(true);
+    expect(m.nodes.some((n) => n.present.some((p) => p.text === text('Bows/LocalFireDamage')))).toBe(false);
+  });
+
+  // The starting items (`holdings`) already read "Cold or Lightning" — their positions list every member
+  // (startingItem.ts) — so what this changes on a trade craft is the plan's states and Craft along's words.
+  it('in the states and outcomes of an ordinary trade craft with interchangeable alternatives', () => {
+    const wands = (id: string) => `Wands/${id}`;
+    const any = (id: string) => data.mods.get(id)!.tiers.length;
+    const eng = { data, prices: loadFrozenPrices() };
+    const res = runSolve(eng, {
+      kind: 'lab', from: { baseId: 'Wands', level: 82 }, targets: [
+        { modId: wands('DamageGainedAsCold'), tierDisplay: any(wands('DamageGainedAsCold')), slot: 0 },
+        { modId: wands('DamageGainedAsLightning'), tierDisplay: any(wands('DamageGainedAsLightning')), slot: 0 },
+        { modId: wands('IncreasedCastSpeed'), tierDisplay: any(wands('IncreasedCastSpeed')) },
+      ],
+    });
+    if (res.kind !== 'lab') throw new Error('not lab');
+    const either = `${text(wands('DamageGainedAsCold'))} or ${text(wands('DamageGainedAsLightning'))}`;
+    const t = res.markov.routes!;
+    const step = stepFor(eng, res.markov, t.keys[t.restartIdx]!)!;
+    const words = step.edges.map((e) => outcomeWords(step.nodes[0]!, step.nodes.find((n) => n.key === e.to), e));
+    expect(words).toContain(`${either} lands`);
+    const texts = res.markov.nodes.flatMap((n) => n.present.map((p) => p.text));
+    expect(texts).toContain(either);
+    expect(texts).not.toContain(text(wands('DamageGainedAsCold')));
+  });
+
+  it('leaves a position in no class as it was', () => {
+    const res = { ...base, routes: { positions: [['x'], ['y']], locate: { classes: [] } } } as unknown as Parameters<typeof mapMarkov>[1];
+    expect(mapMarkov(labelData, res).nodes[0]!.present.map((p) => p.text)).toEqual(['+# to maximum Life']);
+  });
+});
+
+const labelData = { mods: new Map([['x', { id: 'x', text: '+# to maximum Life', type: 'prefix', tiers: [] }]]) } as unknown as Parameters<typeof mapMarkov>[0];
+const base = {
+  expectedCost: 1, feasible: true, converged: true, bound: 'exact', edges: [], policy: new Map(),
+  nodes: [{ key: '1:0:0:0:0:1', present: [['x']], blocked: [], junkPrefixes: 0, junkSuffixes: 0, rarity: 'magic', isStart: true, isGoal: false, depth: 1, expectedCost: 1, visitRate: 1 }],
+};

@@ -5,7 +5,7 @@ import { locateItem, stepFor, type Engine, type EngineMarkovResult } from '../..
 import type { ImportedItem } from '../../lib/engineTypes';
 import type { EnginePolicyEdge, EnginePolicyNode } from '../../lib/engineTypes';
 import { formatBoundedCost, formatChance, formatIn, pickUnit, type Rates } from '../../lib/currency';
-import { advance, jump, movesMade, readSession, startSession, undo, writeSession, type CraftSession, type CraftTab } from '../../lib/craftAlong';
+import { advance, holdsEverySlot, jump, movesMade, readSession, startSession, undo, writeSession, type CraftSession, type CraftTab } from '../../lib/craftAlong';
 import { START_OVER, describeItem, outcomeWords } from '../../lib/stateWords';
 import { FOCUS_RING } from './ui';
 import PasteItem from './PasteItem';
@@ -45,6 +45,10 @@ const Outcome: React.FC<{
  * A Desecration is the one move where the player chooses — it offers three modifiers and one is kept —
  * so there it lists what to keep, best first, and where the plan rerolls with an Omen of Abyssal
  * Echoes, the line to reroll below. The odds shown already assume both rules are followed.
+ *
+ * `found`: a starter recipe counted in what drops (`SolveRequest.priceBasis: 'found'`). Every cost in
+ * that plan is a weight, not an amount of any currency, so none is shown — the panel counts moves — and
+ * the weapon is done once it holds every modifier asked for, whatever else is on it (`holdsEverySlot`).
  */
 const CraftAlong: React.FC<{
   engine: Engine;
@@ -55,7 +59,8 @@ const CraftAlong: React.FC<{
   rates: Rates | undefined;
   /** What the start is called when it is a bare base: "A white base". */
   plain: string;
-}> = ({ engine, markov, tab, sig, rates, plain }) => {
+  found?: boolean | undefined;
+}> = ({ engine, markov, tab, sig, rates, plain, found = false }) => {
   const t = markov.routes;
   const [session, setSession] = useState<CraftSession | null>(null);
   const [resumed, setResumed] = useState(false);
@@ -66,8 +71,9 @@ const CraftAlong: React.FC<{
   // The craft's start — read only once the panel is open, which is when the table is first needed.
   const startOf = (): string => t.keys[t.restartIdx]!;
 
-  const unit = pickUnit(markov.expectedCost, rates);
-  const fmt = (ex: number): string => formatIn(unit, ex);
+  // Never on the found sheet: its numbers are weights, and no unit may be picked for them.
+  const unit = found ? null : pickUnit(markov.expectedCost, rates);
+  const fmt = (ex: number): string => (unit === null ? '' : formatIn(unit, ex));
   // What finishing costs, read from the plan's values. On a solve that stopped early those values are a
   // CEILING's (markovFromItem attaches such a plan only once it is checked to finish), so they say "≤".
   const bounded = markov.bound !== 'exact';
@@ -90,8 +96,9 @@ const CraftAlong: React.FC<{
       >
         <span className="text-sm font-medium text-primary">Craft along</span>
         <span className="block text-[11px] text-muted-foreground">
-          Follow this plan move by move with the game open: it shows the next orb, you pick what happened,
-          and it keeps count of what you have spent.
+          {found
+            ? 'Follow this plan move by move with the game open: it shows what to use next, and you pick what happened.'
+            : 'Follow this plan move by move with the game open: it shows the next orb, you pick what happened, and it keeps count of what you have spent.'}
         </span>
       </button>
     );
@@ -110,7 +117,8 @@ const CraftAlong: React.FC<{
     save(jump(session, at.key));
     setPasted({
       ok: true,
-      text: 'Moved to the item you pasted. What happened since your last click is not in what you have spent.'
+      text: 'Moved to the item you pasted.'
+        + (found ? '' : ' What happened since your last click is not in what you have spent.')
         + (at.level !== undefined ? ` It is item level ${at.level}; this plan was worked out for another, so its odds may differ.` : ''),
     });
   };
@@ -118,9 +126,17 @@ const CraftAlong: React.FC<{
   // Undo and Start again act on anything taken back — a pasted jump included.
   const anything = session.history.length > 0;
   const startOver = node.action === START_OVER;
+  // What a move costs, beside its name — never on the found sheet, whose numbers are weights.
+  const price = (ex: number): React.ReactNode => (found ? null : <span className="text-muted-foreground"> (about {fmt(ex)})</span>);
 
   let body: React.ReactNode;
-  if (node.isGoal) {
+  if (found && (node.isGoal || holdsEverySlot(t, node.key))) {
+    body = (
+      <p className="rounded-md border border-emerald-500/50 bg-emerald-500/10 px-3 py-2 text-sm text-emerald-700 dark:text-emerald-300">
+        ✓ <strong>Your weapon is done.</strong> It has the modifiers you asked for; the others can be anything.
+      </p>
+    );
+  } else if (node.isGoal) {
     body = (
       <p className="rounded-md border border-emerald-500/50 bg-emerald-500/10 px-3 py-2 text-sm text-emerald-700 dark:text-emerald-300">
         ✓ <strong>Finished.</strong> You spent about {fmt(session.spent)}; the plan put this craft at{' '}
@@ -132,8 +148,9 @@ const CraftAlong: React.FC<{
       <>
         <p>
           Next: <strong>bin this item and start again on a new base</strong>
-          <span className="text-muted-foreground"> (about {fmt(cost)})</span> — finishing this one would cost
-          more than starting over.
+          {found
+            ? <> — with what drops, that is a better bet than finishing this one.</>
+            : <>{price(cost)} — finishing this one would cost more than starting over.</>}
         </p>
         {step.edges[0] && (
           <Button size="sm" onClick={pick(step.edges[0])}>Done — I have a new base</Button>
@@ -148,7 +165,7 @@ const CraftAlong: React.FC<{
     body = (
       <>
         <p>
-          Next: <strong>{node.action}</strong><span className="text-muted-foreground"> (about {fmt(cost)})</span>
+          Next: <strong>{node.action}</strong>{price(cost)}
         </p>
         <p className="text-xs text-muted-foreground">
           It offers three modifiers and you keep one. Keep the <strong>first of these that is on offer</strong>,
@@ -174,7 +191,7 @@ const CraftAlong: React.FC<{
     body = (
       <>
         <p>
-          Next: <strong>{node.action}</strong><span className="text-muted-foreground"> (about {fmt(cost)})</span>
+          Next: <strong>{node.action}</strong>{price(cost)}
         </p>
         <p className="text-xs text-muted-foreground">Use it in game, then pick what happened:</p>
         <div className="flex flex-col gap-1.5">
@@ -202,13 +219,21 @@ const CraftAlong: React.FC<{
       </div>
       {bounded && (
         <p className="text-[11px] text-amber-700 dark:text-amber-300">
-          {markov.withoutBones
+          {found
+            ? <>The app stopped before it was sure this is the best plan. It is a plan that finishes.</>
+            : markov.withoutBones
             ? <>This is the plan <strong>without Desecration</strong>: the solver ran out of time before the craft settled
               with bones, which could only make it cheaper. Every cost to finish here is a ceiling.</>
             : <>The solver stopped before proving this plan the cheapest. It is a plan that finishes, and every cost to
               finish here is a ceiling.</>}
         </p>
       )}
+      {found ? (
+        <p className="text-xs text-muted-foreground" role="status">
+          {resumed && <>Picked up where you left off. </>}
+          {moves} move{moves === 1 ? '' : 's'} so far.
+        </p>
+      ) : (
       <p className="text-xs text-muted-foreground" role="status">
         {resumed && <>Picked up where you left off. </>}
         Spent so far <strong className="tabular-nums text-foreground">{fmt(session.spent)}</strong> over {moves}{' '}
@@ -216,7 +241,11 @@ const CraftAlong: React.FC<{
         {!node.isGoal && <> · still to spend <strong className="tabular-nums text-foreground">{toFinish(node.expectedCost)}</strong> on average</>}
         {' '}— each move counted at the plan’s average price for it.
       </p>
-      <p>Your item: <strong>{describeItem(node, plain)}</strong></p>
+      )}
+      {/* Not at the finish of a plan counted in what drops: every finished state is drawn as ONE goal (the
+          fold in `routeFrom`), named after one member of each slot — an easy Bow finished with Fire read
+          "increased Physical Damage". The done line says what holds instead. */}
+      {!(found && node.isGoal) && <p>Your item: <strong>{describeItem(node, plain)}</strong></p>}
       {pasted && (
         <p className={cn('text-xs', pasted.ok ? 'text-muted-foreground' : 'text-amber-600 dark:text-amber-300')} role="status">
           {pasted.text}

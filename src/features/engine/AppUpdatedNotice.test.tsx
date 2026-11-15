@@ -21,7 +21,7 @@ const tier = { display: 1, name: 't1', ilvl: 1, label: 'T1', range: '1–2', val
 const NP: EngineMod = { id: 'np', text: 'Normal Prefix', type: 'prefix', family: 'A', source: 'normal', tiers: [tier] };
 vi.mock('../../lib/engine', async (orig) => ({
   ...(await orig<typeof import('../../lib/engine')>()),
-  loadEngine: () => Promise.resolve({ data: {} as never, prices: { currency: {}, omens: {} } as never }),
+  loadEngine: () => Promise.resolve({ data: { mods: new Map() } as never, prices: { currency: {}, omens: {} } as never }),
   listBases: () => [{ id: 'Wands', name: 'Wands', category: 'weapon' }],
   listMods: () => ({ prefixes: [NP], suffixes: [] }),
   listDesecrated: () => [],

@@ -12,6 +12,7 @@ import { mapMarkov } from '../../lib/engineMap';
 import { readSession } from '../../lib/craftAlong';
 import { START_OVER, outcomeWords } from '../../lib/stateWords';
 import CraftAlong from './CraftAlong';
+import { STARTER_RECIPES, targetsAt } from '../../lib/starterRecipes';
 
 beforeEach(() => localStorage.clear());
 afterEach(cleanup);
@@ -228,5 +229,31 @@ describe('Craft along on a Desecration', () => {
     expect(keep).toBeGreaterThan(-1);
     expect(line).toBeGreaterThan(keep);
     expect(junk).toBeGreaterThan(line);
+  });
+});
+
+/**
+ * A starter recipe counted in what drops (`found`): its plan's numbers are weights, not an amount of any
+ * currency, so the panel shows moves and odds and never a cost — not beside a move, not as a total.
+ */
+describe('Craft along on a plan counted in what drops', () => {
+  const bow = STARTER_RECIPES.find((r) => r.weapon === 'Bow' && r.grade === 'easy')!;
+  const found = runSolve(engine, { kind: 'lab', priceBasis: 'found', from: { baseId: 'Bows', level: 16 }, targets: targetsAt(data, bow, 16)!.targets });
+  const fm = (found as { markov: EngineMarkovResult }).markov;
+
+  it('counts moves, prices none, and says why it starts over in words', () => {
+    render(<CraftAlong engine={engine} markov={fm} tab="lab" sig="found" rates={undefined} plain="A white base" found />);
+    expect(screen.getByRole('button', { name: /Craft along/ })).toHaveTextContent('it shows what to use next, and you pick what happened.');
+    fireEvent.click(screen.getByRole('button', { name: /Craft along/ }));
+    const panel = () => screen.getByRole('region', { name: 'Craft along' });
+    expect(panel()).toHaveTextContent('0 moves so far.');
+    expect(panel()).toHaveTextContent('Next: Transmute');
+    const noCost = /\(about|Spent so far|still to spend|\d\s?(ex|chaos|div)\b/;
+    expect(panel().textContent).not.toMatch(noCost);
+    // A suffix nobody asked for, and the plan starts over.
+    fireEvent.click(button('A suffix you did not ask for lands'));
+    expect(panel()).toHaveTextContent('Next: bin this item and start again on a new base — with what drops, that is a better bet than finishing this one.');
+    expect(panel()).toHaveTextContent('1 move so far.');
+    expect(panel().textContent).not.toMatch(noCost);
   });
 });

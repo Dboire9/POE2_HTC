@@ -56,7 +56,7 @@ vi.mock('../../lib/engine', async (importOriginal) => {
   const actual = await importOriginal<typeof import('../../lib/engine')>();
   return {
     ...actual,
-    loadEngine: () => Promise.resolve({ data: {} as never, prices: { currency: {}, omens: {} } as never }),
+    loadEngine: () => Promise.resolve({ data: { mods: new Map() } as never, prices: { currency: {}, omens: {} } as never }),
     listBases: () => [
       { id: 'Wands', name: 'Wands', category: 'weapon' },
       { id: 'Staves', name: 'Staves', category: 'weapon' },

@@ -4,9 +4,15 @@ import { cn } from '../../lib/utils';
 import { EXAMPLE_CATEGORIES, EXAMPLE_CRAFTS, type ExampleCategory } from '../../lib/exampleCrafts';
 import { FOCUS_RING } from './ui';
 import type { LabCraft } from './useLabCraft';
+import StarterRecipes from './StarterRecipes';
 
 // Only the categories that hold a craft get a chip: a chip that opens an empty grid is a dead end.
 const CATEGORIES = EXAMPLE_CATEGORIES.filter((c) => EXAMPLE_CRAFTS.some((e) => e.category === c.id));
+
+/** The Starter chip, before the build types: a first weapon from what drops (`StarterRecipes`). */
+const STARTER = 'starter';
+type Chip = typeof STARTER | ExampleCategory;
+const CHIPS: readonly { readonly id: Chip; readonly label: string }[] = [{ id: STARTER, label: 'Starter' }, ...CATEGORIES];
 
 /** "a Gemling Legionnaire", "an Invoker" — every class name in the streamer data reads as it is spelt. */
 const withArticle = (name: string) => `${/^[aeiou]/i.test(name) ? 'an' : 'a'} ${name}`;
@@ -16,9 +22,13 @@ const withArticle = (name: string) => `${/^[aeiou]/i.test(name) ? 'an' : 'a'} ${
  * (`tryExample`), so a first visit sees an answer before it learns the picker. Filed by build type, one
  * category shown at a time — the choice is not kept, since the card is gone once a craft is loaded.
  * Gone as soon as the craft has a target — the targets card takes its place.
+ *
+ * It opens on Starter (the maintainer's call, 2026-11-14): a first weapon for a player who has never
+ * crafted, from currency that drops. Starter is not a build type, so the chips are named for what they
+ * hold — crafts to try.
  */
 const ExampleCrafts: React.FC<{ lab: LabCraft }> = ({ lab }) => {
-  const [category, setCategory] = useState<ExampleCategory | undefined>(CATEGORIES[0]?.id);
+  const [category, setCategory] = useState<Chip>(STARTER);
   if (lab.targets.length > 0 || lab.freeSlots > 0) return null;
   return (
     <Card className="p-4 space-y-2">
@@ -26,8 +36,8 @@ const ExampleCrafts: React.FC<{ lab: LabCraft }> = ({ lab }) => {
       <p className="text-xs text-muted-foreground">
         Pick modifiers above to plan your own craft — or load one of these and see what the app answers.
       </p>
-      <div role="group" aria-label="Build type" className="inline-flex flex-wrap rounded-md border border-border bg-muted/40 p-0.5 text-sm">
-        {CATEGORIES.map((c) => (
+      <div role="group" aria-label="Crafts to try" className="inline-flex flex-wrap rounded-md border border-border bg-muted/40 p-0.5 text-sm">
+        {CHIPS.map((c) => (
           <button
             key={c.id}
             type="button"
@@ -40,6 +50,7 @@ const ExampleCrafts: React.FC<{ lab: LabCraft }> = ({ lab }) => {
           </button>
         ))}
       </div>
+      {category === STARTER ? <StarterRecipes lab={lab} /> : (
       <div className="grid gap-2 sm:grid-cols-2">
         {EXAMPLE_CRAFTS.filter((e) => e.category === category).map((e) => (
           <button
@@ -55,6 +66,7 @@ const ExampleCrafts: React.FC<{ lab: LabCraft }> = ({ lab }) => {
           </button>
         ))}
       </div>
+      )}
     </Card>
   );
 };

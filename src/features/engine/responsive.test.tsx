@@ -31,6 +31,21 @@ describe('the mod columns stack on a phone', () => {
   });
 });
 
+// Nine weapons, up to two recipes each: one column on a phone, two from `sm` up, and nothing that keeps
+// its width — the recipe buttons fill their column and wrap their lines; the chips and the basis switch
+// wrap rather than run off the side (looked at at 375 px, 2026-11-15: no sideways scroll).
+describe('the Starter panel stacks on a phone', () => {
+  it('lays the weapons out one column first, and its rows wrap', () => {
+    const src = read('StarterRecipes.tsx');
+    expect(src).toContain('grid gap-3 sm:grid-cols-2');
+    expect(src).not.toMatch(/"grid gap-3 grid-cols-/); // two columns at every width
+    expect(src).toContain('block w-full');
+    expect(src).toContain('flex flex-wrap items-center gap-x-2');
+    expect(read('LabResults.tsx')).toContain('inline-flex flex-wrap');
+    expect(read('ExampleCrafts.tsx')).toContain('inline-flex flex-wrap');
+  });
+});
+
 // The header's action block was `hidden md:flex`, so on a phone there was NO Discord link and no way
 // to report a bug — the exact loop the app depends on while it gathers feedback. Same jsdom caveat as
 // above: this asserts the class contract that produces the layout, not the layout.

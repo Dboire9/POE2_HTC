@@ -296,8 +296,9 @@ export function routeThrough(
  */
 const PositionList: React.FC<{ readonly items: readonly PolicyMod[]; readonly tone?: string }> = ({ items, tone }) => (
   <ul className="space-y-0.5">
-    {items.map((m) => (
-      <li key={`${m.type}-${m.text}`} className="flex items-start gap-1.5">
+    {/* By index too: two members of one permutation class on one item share a name (engineMap's `namerFor`). */}
+    {items.map((m, i) => (
+      <li key={`${i}-${m.type}-${m.text}`} className="flex items-start gap-1.5">
         <span
           className={cn(
             'mt-px shrink-0 rounded px-1 text-[10px] font-semibold leading-4',

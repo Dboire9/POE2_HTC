@@ -3,7 +3,7 @@ import { Card } from '../../components/ui/card';
 import { Spinner } from '../../components/ui/spinner';
 import { decodeWorkspace, getWorkspace, setWorkspace, useMode } from '../../lib/workspace';
 import { toast } from 'sonner';
-import StreamerGear from './StreamerGear';
+import StreamerGear, { DEFAULT_ROUTES, type GearRoutes } from './StreamerGear';
 import ItemActions from './ItemActions';
 // Lazy, like the guide: the Tablets tab brings its own data (weights, trade ids, the curated list) and
 // a player who never opens it should not download them.
@@ -27,6 +27,9 @@ const EngineLab: React.FC = () => {
   const data = engine?.data ?? null;
   const lab = useLabCraft(engine);
   const [mode, setMode] = useMode();
+  const { forgetStarter } = lab;
+  // A craft sent here from Streamer gear is priced on the trade market, whatever the Lab held before.
+  const gearRoutes: GearRoutes = { ...DEFAULT_ROUTES, scratch: (goal) => { forgetStarter(); DEFAULT_ROUTES.scratch(goal); } };
 
   // A shared link wins over whatever was saved locally — you clicked it expecting to see that item —
   // but never silently: the previous workspace is snapshotted so the toast can put it back.
@@ -43,6 +46,8 @@ const EngineLab: React.FC = () => {
     }
     const previous = getWorkspace();
     setWorkspace(decoded.workspace);
+    // A link carries no price basis: what it opens is priced on the trade market.
+    forgetStarter();
     const missing = decoded.dropped.length;
     toast.success('Loaded from link', {
       description: missing > 0
@@ -52,7 +57,7 @@ const EngineLab: React.FC = () => {
         : undefined,
       action: { label: 'Undo', onClick: () => setWorkspace(previous) },
     });
-  }, [data]);
+  }, [data, forgetStarter]);
 
   if (loadErr) {
     return (
@@ -134,7 +139,7 @@ const EngineLab: React.FC = () => {
 
       {mode === 'item' ? <ItemActions />
         : mode === 'tablets' ? <Suspense fallback={<Spinner />}><TabletsTab /></Suspense>
-        : mode === 'gear' ? <StreamerGear data={data} />
+        : mode === 'gear' ? <StreamerGear data={data} routes={gearRoutes} />
         : (<>
           <LabSetup lab={lab} />
           <LabTargets lab={lab} />

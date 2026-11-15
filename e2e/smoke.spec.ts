@@ -112,6 +112,8 @@ test('2c — an example craft on the empty Plan tab loads and solves in one clic
   await page.goto('/');
   await waitForReady(page);
 
+  // The card opens on Starter, whose recipes include one with the same name: the build types are a chip away.
+  await page.getByRole('group', { name: 'Crafts to try' }).getByRole('button', { name: 'Caster' }).click();
   await page.getByRole('button', { name: /A caster Wand/ }).click();
   // Its targets fill the card, and the true cost answers — exactly, with no bound marker.
   await expect(page.getByText(/Target item \(3 mods\)/)).toBeVisible();
@@ -127,8 +129,8 @@ test('2d — a build-type chip swaps the example crafts, and one of its crafts s
   await page.goto('/');
   await waitForReady(page);
 
-  // The card opens on Caster; the Defence chip swaps the grid for the Defence crafts.
-  const chips = page.getByRole('group', { name: 'Build type' });
+  // The card opens on Starter; the Defence chip swaps it for the Defence crafts.
+  const chips = page.getByRole('group', { name: 'Crafts to try' });
   await chips.getByRole('button', { name: 'Defence' }).click();
   await expect(chips.getByRole('button', { name: 'Defence' })).toHaveAttribute('aria-pressed', 'true');
   await expect(page.getByRole('button', { name: /A caster Wand/ })).toHaveCount(0);
@@ -138,6 +140,32 @@ test('2d — a build-type chip swaps the example crafts, and one of its crafts s
   const cost = page.getByText('True expected cost').locator('xpath=following-sibling::span');
   await expect(cost).toBeVisible({ timeout: 60_000 });
   await expect(cost).not.toHaveText(/[≤≥]/);
+
+  expect(errors.filter(cspish), 'CSP refusals').toEqual([]);
+});
+
+test('2e — a starter recipe loads at the typed item level and reads as what you will use, never a cost', async ({ page }) => {
+  const errors = watchForErrors(page);
+  await page.goto('/');
+  await waitForReady(page);
+
+  const chips = page.getByRole('group', { name: 'Crafts to try' });
+  await expect(chips.getByRole('button', { name: 'Starter' })).toHaveAttribute('aria-pressed', 'true');
+  await page.getByRole('spinbutton', { name: 'Item level of your base' }).fill('16');
+  await page.getByRole('button', { name: /^A hard-hitting Bow/ }).click();
+
+  // Its two slots fill the targets card, the second one of alternatives.
+  await expect(page.getByText(/Target item \(2 slots, 6 mods\)/)).toBeVisible();
+  const uses = page.getByRole('list', { name: 'What you’ll use' });
+  await expect(uses).toBeVisible({ timeout: 60_000 });
+  await expect(uses.getByText('Orb of Transmutation')).toBeVisible();
+  await expect(uses.getByText('Bases, counting the one you start with')).toBeVisible();
+  // Counted, never priced: no cost in a currency anywhere, and no true-cost card.
+  await expect(page.getByText('True expected cost')).toHaveCount(0);
+  await expect(page.getByText(/\d\s?(ex|chaos|div)\b/)).toHaveCount(0);
+
+  await page.getByRole('button', { name: /^Craft along/ }).click();
+  await expect(page.getByRole('region', { name: 'Craft along' }).getByText('0 moves so far.')).toBeVisible();
 
   expect(errors.filter(cspish), 'CSP refusals').toEqual([]);
 });

@@ -411,6 +411,37 @@ const omenLabel = (id: string): string => id.replace(/^Omenof/, 'Omen of ').repl
 const positionLabel = (data: PatchData, ids: readonly string[]): string =>
   ids.map((id) => data.mods.get(id)?.text ?? id).join(' or ');
 
+/** How a result's states name a position — every label a state gets goes through one of these. */
+type PositionNamer = (ids: readonly string[]) => string;
+
+/**
+ * The namer for a solve's states: `positionLabel`, except that a position in a permutation class
+ * (`RouteTable.locate.classes`) reads as the whole class, its members joined with "or" as a merged
+ * position's are.
+ *
+ * The solve stores interchangeable positions in ONE spelling (`encoderFor`, markovSymmetry.ts): an item
+ * holding Cold is written as holding Fire when flat Fire and flat Cold weigh the same. The plan is right
+ * either way — that is what interchangeable means — but a state named by its canonical member told a
+ * player holding Cold that Fire had landed, and a Transmute's "Fire lands" carried Cold's odds too. The
+ * spelling says only HOW MANY of the class are on the item, so every member of the class gets the
+ * class's name; two of them on one item read the name twice, which is what the state knows.
+ */
+function namerFor(
+  data: PatchData,
+  routes?: { readonly positions: readonly (readonly string[])[]; readonly locate: { readonly classes: readonly (readonly number[])[] } },
+): PositionNamer {
+  const plain: PositionNamer = (ids) => positionLabel(data, ids);
+  const byMember = new Map<string, string>();
+  // `locate` is always on a solve's table; a test's stand-in table may leave it out.
+  for (const cls of routes?.locate?.classes ?? []) {
+    const members = cls.map((i) => routes!.positions[i]).filter((m): m is readonly string[] => m !== undefined);
+    if (members.length < 2) continue;
+    const text = members.map(plain).join(' or ');
+    for (const m of members) byMember.set(m.join('\n'), text);
+  }
+  return byMember.size === 0 ? plain : (ids) => byMember.get(ids.join('\n')) ?? plain(ids);
+}
+
 /**
  * The tier a target was asked at, as the picker spells it (1 = best), for one POSITION.
  *
@@ -437,14 +468,14 @@ const askedTierOf = (targets: readonly TargetInput[]): TierOf => {
  * One state of a policy graph, named for the UI. Shared by the craft's own graph and by a route from a
  * starting item (`mapRoute`), so the two can never label one state two ways.
  */
-function mapNode(data: PatchData, nd: PolicyNode, tierOf: TierOf): EnginePolicyNode {
-  /**
+function mapNode(data: PatchData, nd: PolicyNode, tierOf: TierOf, label: PositionNamer): EnginePolicyNode {
+  /*
    * The solver hands back the ids that COULD be filling each position — several when the position is
    * same-family alternatives merged into one bit, because at that point nothing downstream depends on
    * which member landed and the state genuinely does not record it. "or" is therefore the honest word:
-   * the item holds exactly one of these, and the plan works either way.
+   * the item holds exactly one of these, and the plan works either way. `label` (`namerFor`) says the
+   * same of a position standing for a permutation class.
    */
-  const label = (ids: readonly string[]): string => positionLabel(data, ids);
   /**
    * Side comes off the DATA, not off the target list, so it is there even for a route mapped without
    * one. Members of a position always share a side — `markovFromItem` refuses a slot that spans both,
@@ -514,16 +545,19 @@ export function mapMarkov(
    * Eight base/text collisions exist in 0.5.0, all the `ItemFoundRarity` prefix/suffix pair, and they
    * are two genuinely different modifiers an item can carry at once. A graph BOX shows one position
    * at a time so it never had to care; a holding lists several on one line, where "Rarity + Rarity"
-   * reads as a rendering bug rather than as the two modifiers it is. Appended only on collision, so
-   * every other row stays as short as it was.
+   * reads as a rendering bug rather than as the two modifiers it is. Appended only when the colliding
+   * positions sit on different sides, so every other row stays as short as it was — two members of one
+   * permutation class share a name and a side (`namerFor`), and a side would tell them apart no better.
    */
+  const name = namerFor(data, res.routes);
   const bySide = (positions: readonly (readonly string[])[]): string[] => {
-    const labels = positions.map((ids) => positionLabel(data, ids));
-    const seen = new Map<string, number>();
-    for (const l of labels) seen.set(l, (seen.get(l) ?? 0) + 1);
+    const labels = positions.map(name);
+    const sideOf = (i: number) => data.mods.get(positions[i]![0]!)?.type;
+    const sides = new Map<string, Set<string | undefined>>();
+    labels.forEach((l, i) => sides.set(l, (sides.get(l) ?? new Set()).add(sideOf(i))));
     return labels.map((l, i) => {
-      if ((seen.get(l) ?? 0) < 2) return l;
-      const side = data.mods.get(positions[i]![0]!)?.type;
+      if ((sides.get(l)?.size ?? 0) < 2) return l;
+      const side = sideOf(i);
       return side ? `${l} (${side})` : l;
     });
   };
@@ -534,7 +568,7 @@ export function mapMarkov(
     converged: res.converged, bound: res.bound,
     assumedOdds: poolAssumed || desecrateAssumed,
     ...(assumedFrom ? { assumedFrom } : {}),
-    nodes: res.nodes.map((nd) => mapNode(data, nd, askedTierOf(targets))),
+    nodes: res.nodes.map((nd) => mapNode(data, nd, askedTierOf(targets), name)),
     edges: res.edges.map((e) => mapEdge(data, e)),
     ...(res.bareCost !== undefined ? { bareCost: res.bareCost } : {}),
     // Same labels the graph's boxes use, so a merged same-family position reads "Fire or Cold" in
@@ -580,6 +614,8 @@ export function mapRoute(
   data: PatchData, route: { readonly nodes: readonly PolicyNode[]; readonly edges: readonly PolicyEdge[] },
   from: EngineMarkovResult,
 ): EngineMarkovResult {
+  // The craft's table names a route's states: a route walks that table.
+  const name = namerFor(data, from.routes);
   const tierByText = new Map<string, number>();
   for (const n of from.nodes) {
     for (const p of [...n.present, ...n.blocked]) if (p.tier !== undefined) tierByText.set(p.text, p.tier);
@@ -596,7 +632,7 @@ export function mapRoute(
      * disagree with. A position the craft's drawn subset happens not to contain simply arrives with no
      * tier, which is the same honest gap as a caller who passed no targets.
      */
-    nodes: route.nodes.map((nd) => mapNode(data, nd, (ids) => tierByText.get(positionLabel(data, ids)))),
+    nodes: route.nodes.map((nd) => mapNode(data, nd, (ids) => tierByText.get(name(ids)), name)),
     edges: route.edges.map((e) => mapEdge(data, e)),
     ...(from.restartCost !== undefined ? { restartCost: from.restartCost } : {}),
   };

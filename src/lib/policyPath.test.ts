@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { mainLine } from './policyPath.ts';
+import { changesBetween, mainLine } from './policyPath.ts';
 import type { EngineMarkovResult, EnginePolicyEdge, EnginePolicyNode } from './engineTypes.ts';
 
 // `mainLine` is the answer to "what do I actually do", pulled out of a graph that answers "what states
@@ -261,6 +261,18 @@ describe('mainLine — what each step moves', () => {
       [edge('a', 'g', 1)],
     );
     expect(mainLine(r).steps[0]!.changes).toEqual({ gained: [], lost: [], blocked: [], junk: { prefixes: 0, suffixes: 0 } });
+  });
+
+  // Two members of one permutation class on one item share a name (engineMap's `namerFor`), so a step
+  // that lands the second one has to be counted, not lost to a set difference.
+  it('counts a second modifier of the same name landing', () => {
+    const c = changesBetween(
+      withMods('a', 1, ['Fire or Cold'], [], 0),
+      withMods('b', 1, ['Fire or Cold', 'Fire or Cold'], ['Fire or Cold'], 0),
+    );
+    expect(c.gained).toEqual(['Fire or Cold']);
+    expect(c.lost).toEqual([]);
+    expect(c.blocked).toEqual(['Fire or Cold']);
   });
 });
 

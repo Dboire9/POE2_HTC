@@ -2,7 +2,7 @@ import React, { useMemo, useState } from 'react';
 import {
   listBases, listMods, listDesecrated, listPerfectEssences, bossOmenAllowed, isRollable,
   type Engine, type EngineBase, type EngineMod, type EngineResult, type TargetInput, type ExistingItem,
-  type EngineAlternatives, type AltTargetInput, type EngineMarkovResult,
+  type EngineAlternatives, type AltTargetInput, type EngineMarkovResult, type EnginePriceBasis,
 } from '../../lib/engine';
 import type { CraftGoal } from '../../lib/engineTypes';
 import { craftFromScratch } from '../../lib/importItem';
@@ -21,6 +21,7 @@ import type { SolveRequest } from '../../lib/solve';
 import { craftSig } from '../../lib/craftAlong';
 import { gearPriceKey, gearPrices, type PriceEntry, type TypedPrice } from '../../lib/typedPrices';
 import { slotsOfTargets } from '../../lib/gearTrade';
+import { targetsAt, type StarterRecipe } from '../../lib/starterRecipes';
 
 /** What a craft is, as the fields hold it: what `jobFor` builds a solve from. */
 interface CraftFields {
@@ -32,6 +33,16 @@ interface CraftFields {
   readonly runes: readonly string[];
   readonly spare: Spare;
 }
+
+/**
+ * Which sheet a craft is planned on, and whether it came from a starter recipe.
+ *
+ * `found`: the found sheet (`SolveRequest.priceBasis: 'found'`) — counted in what drops, never priced.
+ * `starter`: loaded from a starter recipe, which is what offers the switch between the two sheets (a
+ * craft from scratch or an example has only ever been priced on the trade market).
+ */
+export interface LabBasis { readonly found: boolean; readonly starter: boolean }
+const TRADE: LabBasis = { found: false, starter: false };
 
 /**
  * A solve the Plan tab ran, and what its answer describes: the request, and the fields it was built
@@ -51,6 +62,9 @@ interface LabRun {
   readonly solvedFor: { readonly baseId: string; readonly targets: readonly TargetInput[] };
   /** The budget the alternatives were searched under. */
   readonly budget: number;
+  /** The craft as the fields held it, and its sheet: flipping the sheet solves exactly this craft again. */
+  readonly craft: CraftFields;
+  readonly basis: LabBasis;
 }
 
 /**
@@ -102,6 +116,19 @@ export function useLabCraft(engine: Engine | null) {
   // Not by a play-out, which is the same craft again.
   const [markovRun, setMarkovRun] = useState(0);
   const [solved, setSolved] = useState<LabRun | null>(null);
+  // The sheet the result on screen was planned on, as the solve reports it (`SolveResult.basis`):
+  // present exactly on the found sheet, whose numbers are no amount of any currency.
+  const [shownBasis, setShownBasis] = useState<EnginePriceBasis | undefined>(undefined);
+  /*
+   * The sheet the NEXT solve of this craft runs on. Here, not in the workspace store, on purpose: the
+   * store is what is saved and what a share link carries, and neither should carry it — a link or a
+   * reload is a craft from scratch, priced on the trade market as it always was. Set by a starter recipe;
+   * kept while the same craft is solved again (Search effort, a tier); back to trade wherever a craft is
+   * replaced or cleared (`clearCraft`, `reset`, `tryExample`, the last target removed, and — from
+   * EngineLab — a share link or a Streamer gear craft, through `forgetStarter`).
+   */
+  const [basis, setBasis] = useState<LabBasis>(TRADE);
+  const forgetStarter = React.useCallback(() => setBasis(TRADE), []);
   const markovEffort = solved?.effortId ?? '';
   const markovSpare = solved?.spare ?? NO_SPARE;
   const solvedFor = solved?.solvedFor ?? null;
@@ -168,6 +195,7 @@ export function useLabCraft(engine: Engine | null) {
     setFractured(new Set());
     setPinned(new Set());
     setSpare(NO_SPARE);
+    setBasis(TRADE);
   };
   const changeBase = (id: string) => { setBaseId(id); clearCraft(); };
 
@@ -274,6 +302,8 @@ export function useLabCraft(engine: Engine | null) {
     setAddingTo(id);
   };
   const removeTarget = (modId: string) => {
+    // The last one gone, what the player builds next is their own craft, not the recipe.
+    if (targets.every((x) => x.modId === modId)) setBasis(TRADE);
     setTargets((t) => {
       const next = t.filter((x) => x.modId !== modId);
       // A slot down to its last candidate is no longer a choice, so drop the id and let it render as
@@ -345,6 +375,7 @@ export function useLabCraft(engine: Engine | null) {
     setAlts(null);
     setRunErr(null);
     setSearch('');
+    setBasis(TRADE);
   };
 
   // A carved base IS a Rare holding those mods, so a fractured craft is the from-item planner with them locked.
@@ -367,6 +398,7 @@ export function useLabCraft(engine: Engine | null) {
         setResult(res.result);
         setAlts(res.alts);
         setMarkov(res.markov);
+        setShownBasis(res.basis);
         if (!playOut) setMarkovRun((n) => n + 1);
         setSolved(job);
       },
@@ -384,16 +416,18 @@ export function useLabCraft(engine: Engine | null) {
    * moment (`tryExample`) — whose fields this render does not hold yet. Budget, base cost and exclusions
    * are the player's standing choices and come from the fields either way.
    */
-  const jobFor = (c: CraftFields, effortId: string): LabRun => {
+  const jobFor = (c: CraftFields, effortId: string, on: LabBasis = basis): LabRun => {
     const fromItem = c.fractured.size > 0;
     const b = Number(budget);
-    const hasBudget = budget.trim() !== '' && Number.isFinite(b) && b > 0;
+    // Budget and Base cost are typed in exalts, which mean nothing on the found sheet: neither reaches
+    // a found solve (which would ignore a budget anyway, and read a base cost as a weight).
+    const hasBudget = !on.found && budget.trim() !== '' && Number.isFinite(b) && b > 0;
     const want: AltTargetInput[] = c.targets.map((t) => (c.pinned.has(t.modId) ? { ...t, pinned: true } : t));
     // A blank field means "no opinion", which is NOT the same as zero — it defers to the app's default.
     // 0 typed explicitly is a real answer (bases are free) and must reach the solver as one, so the
     // test is on the string being non-empty, not on the number being truthy.
     const bc = Number(baseCost);
-    const hasBaseCost = baseCost.trim() !== '' && Number.isFinite(bc) && bc >= 0;
+    const hasBaseCost = !on.found && baseCost.trim() !== '' && Number.isFinite(bc) && bc >= 0;
     const req: SolveRequest = {
       kind: 'lab',
       from: fromItem ? { item: carvedItem(c) } : { baseId: c.baseId, level: c.level },
@@ -404,8 +438,11 @@ export function useLabCraft(engine: Engine | null) {
       ...(excludedKeys.length > 0 ? { excluded: excludedKeys } : {}),
       ...(c.runes.length > 0 ? { runes: c.runes } : {}),
       ...(c.spare.prefixes + c.spare.suffixes > 0 ? { spare: c.spare } : {}),
+      ...(on.found ? { priceBasis: 'found' as const } : {}),
     };
-    return { req, effortId, spare: c.spare, solvedFor: { baseId: c.baseId, targets: c.targets }, budget: b };
+    return {
+      req, effortId, spare: c.spare, solvedFor: { baseId: c.baseId, targets: c.targets }, budget: b, craft: c, basis: on,
+    };
   };
 
   const compute = (effortId: string = effort) => {
@@ -421,18 +458,38 @@ export function useLabCraft(engine: Engine | null) {
   const playOut = () => { if (solved) run(solved, true); };
 
   /** Load an example craft (exampleCrafts.ts) into the fields, and solve it — from the example itself. */
-  const tryExample = (goal: CraftGoal) => {
+  const tryExample = (goal: CraftGoal, on: LabBasis = TRADE) => {
     craftFromScratch(goal);
     setResult(null);
     setMarkov(null);
     setAlts(null);
     setSearch('');
+    setBasis(on);
     if (engine) {
       run(jobFor({
         baseId: goal.baseId, level: goal.level, targets: goal.targets, fractured: new Set(), pinned: new Set(),
         runes: goal.runes ?? [], spare: NO_SPARE,
-      }, effort));
+      }, effort, on));
     }
+  };
+
+  /**
+   * Load a starter recipe at an item level, and solve it on the found sheet — the recipe's targets as
+   * `targetsAt` gives them (each modifier at the best tier the level rolls or up to two below; a slot of
+   * alternatives sharing one `slot` id). Nothing when the recipe is not offered at that level.
+   */
+  const tryStarter = (recipe: StarterRecipe, at: number) => {
+    const got = data ? targetsAt(data, recipe, at) : null;
+    if (!got) return;
+    tryExample({ baseId: recipe.baseId, level: at, targets: got.targets }, { found: true, starter: true });
+  };
+
+  /** The craft on screen solved again on the other sheet — the switch beside a starter recipe's result. */
+  const solveOn = (found: boolean) => {
+    if (!solved || solved.basis.found === found) return;
+    const on: LabBasis = { ...solved.basis, found };
+    setBasis(on);
+    run(jobFor(solved.craft, solved.effortId, on));
   };
 
   const canCompute = targets.length > 0 && !runner.computing && !essenceFractureConflict;
@@ -453,6 +510,11 @@ export function useLabCraft(engine: Engine | null) {
     sale, setSale, saleKey,
     computing: runner.computing, progress: runner.progress, cancel: runner.cancel, compute, playOut, canCompute,
     share, reset, outcome, tryExample,
+    tryStarter, solveOn, forgetStarter, shownBasis,
+    // The craft in the fields is a starter recipe counted in what drops (what its next solve runs on).
+    craftFound: basis.found,
+    // The result on screen: counted on the found sheet, and whether it came from a starter recipe.
+    foundResult: shownBasis?.found === true, starterResult: solved?.basis.starter === true,
   };
 }
 

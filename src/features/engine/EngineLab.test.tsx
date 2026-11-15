@@ -42,7 +42,7 @@ vi.mock('../../lib/engine', async (importOriginal) => {
   const actual = await importOriginal<typeof import('../../lib/engine')>();
   return {
     ...actual,
-    loadEngine: () => Promise.resolve({ data: {} as never, prices: { currency: {}, omens: {} } as never }),
+    loadEngine: () => Promise.resolve({ data: { mods: new Map() } as never, prices: { currency: {}, omens: {} } as never }),
     listBases: () => [{ id: 'Wands', name: 'Wands', category: 'weapon' }],
     listMods: () => ({ prefixes: [NP, NP2, EP, EP2], suffixes: [NS] }),
     listDesecrated: () => [DS, DS2],
@@ -886,12 +886,14 @@ describe('EngineLab — what a craft can cost, and whether it pays', () => {
 });
 
 describe('EngineLab — crafts to try on an empty Plan tab', () => {
+  const chips = () => within(screen.getByRole('group', { name: 'Crafts to try' }));
   it('loads an example and solves it in one click, then gives way to the targets card', async () => {
     const { EXAMPLE_CRAFTS } = await import('../../lib/exampleCrafts');
     const wand = EXAMPLE_CRAFTS.find((e) => e.goal.baseId === 'Wands')!;
     const user = userEvent.setup();
     await loaded();
     expect(screen.getByText('Or try one')).toBeInTheDocument();
+    await user.click(chips().getByRole('button', { name: 'Caster' }));
     await user.click(screen.getByRole('button', { name: new RegExp(wand.name) }));
     await waitFor(() => expect(mocks.optimize).toHaveBeenCalledTimes(1));
     // From a white Wand at the example's level, with exactly its targets.
@@ -902,12 +904,14 @@ describe('EngineLab — crafts to try on an empty Plan tab', () => {
 
   // Read from the list itself, so these hold as crafts are added to it.
   const inCategory = (id: ExampleCategory) => EXAMPLE_CRAFTS.filter((e) => e.category === id);
-  const chips = () => within(screen.getByRole('group', { name: 'Build type' }));
   const exampleButton = (name: string) => screen.getByText(name).closest('button')!;
 
-  it('opens on Caster, showing only the Caster crafts', async () => {
+  // The card opens on Starter (StarterRecipes.test.tsx); the build types are one click away.
+  it('shows only the Caster crafts under the Caster chip', async () => {
+    const user = userEvent.setup();
     await loaded();
-    expect(chips().getByRole('button', { name: 'Caster' })).toHaveAttribute('aria-pressed', 'true');
+    await user.click(chips().getByRole('button', { name: 'Caster' }));
+    await waitFor(() => expect(chips().getByRole('button', { name: 'Caster' })).toHaveAttribute('aria-pressed', 'true'));
     expect(inCategory('caster').length).toBeGreaterThan(0);
     for (const e of EXAMPLE_CRAFTS) {
       if (e.category === 'caster') expect(screen.getByText(e.name)).toBeInTheDocument();
@@ -931,6 +935,7 @@ describe('EngineLab — crafts to try on an empty Plan tab', () => {
     await user.click(chips().getByRole('button', { name: 'Defence' }));
     await waitFor(() => expect(chips().getByRole('button', { name: 'Defence' })).toHaveAttribute('aria-pressed', 'true'));
     expect(chips().getByRole('button', { name: 'Caster' })).toHaveAttribute('aria-pressed', 'false');
+    expect(chips().getByRole('button', { name: 'Starter' })).toHaveAttribute('aria-pressed', 'false');
     for (const e of inCategory('defence')) expect(screen.getByText(e.name)).toBeInTheDocument();
     for (const e of inCategory('caster')) expect(screen.queryByText(e.name), e.name).toBeNull();
   });
@@ -938,6 +943,7 @@ describe('EngineLab — crafts to try on an empty Plan tab', () => {
   it('says which class each craft comes from, with the right article', async () => {
     const user = userEvent.setup();
     await loaded();
+    await user.click(chips().getByRole('button', { name: 'Caster' }));
     for (const e of inCategory('caster')) expect(exampleButton(e.name)).toHaveTextContent(new RegExp(`From an? ${e.build} build`));
     // "an" before a vowel, "a" before a consonant — one of each from the list as it stands.
     const invoker = inCategory('caster').find((e) => e.build === 'Invoker')!;

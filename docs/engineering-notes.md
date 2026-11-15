@@ -1506,6 +1506,17 @@ is under Data pipeline and what ships.
   error out in the test instead would have started an exception list, which is where a real error
   eventually hides.
 
+- **One `overrides` entry in `package.json`, and when to delete it** (2026-11-15). `npm audit` listed 16
+  findings, all in build and test tooling (`npm audit --omit=dev` was 0 before and after). Fifteen went
+  with in-range updates: Vite 7.3.8, Vitest 4.1.12, ESLint 10.15 and what they pull in. The last was
+  `minimatch` 10.x (GHSA-g3hv-75wg-m249), which `@typescript-eslint/typescript-estree` 8.72.2 — the
+  latest stable — still asks for as `^10.2.2`; its own next version asks for `^11.0.1`. The override
+  gives it that one release early, scoped to that package so nothing else is forced. **Remove it once
+  `typescript-eslint` 8.73 or later is installed**, then check `npm ls minimatch` shows no 10.x.
+  An override does not rewrite an entry already in the lockfile: the nested 10.2.6 had to be deleted
+  from `package-lock.json` by hand before `npm install` resolved it again. Major upgrades (Vite 8,
+  Vitest 5, Tailwind 4, TypeScript 7) were left out on purpose; each is its own piece of work.
+
 ## Testing and measuring
 
 - Unit tests per currency rule on tiny synthetic pools (3–5 fake mods) with hand-computed expected probabilities.

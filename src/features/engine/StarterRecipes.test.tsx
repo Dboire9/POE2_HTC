@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
-import { render, screen, waitFor, within } from '@testing-library/react';
+import { fireEvent, render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
 // The Starter chip on an empty Plan tab, end to end on the REAL data and the real solve: a recipe loads
@@ -48,6 +48,16 @@ async function typeLevel(user: ReturnType<typeof userEvent.setup>, level: number
   await user.clear(levelBox());
   await user.type(levelBox(), String(level));
 }
+const weaponChips = () => within(screen.getByRole('group', { name: 'Your weapon' }));
+/** The weapons in the list's order, each with its recipes. */
+const WEAPONS = [...new Set(STARTER_RECIPES.map((r) => r.weapon))]
+  .map((weapon) => ({ weapon, recipes: STARTER_RECIPES.filter((r) => r.weapon === weapon) }));
+/**
+ * Show `weapon`'s recipes. `fireEvent`, not `userEvent`: the walks below pick every weapon, at five levels
+ * in one of them, and what is tested is the picker's state, not how a pointer reaches it (8.7 s → 7.7 s
+ * alone for the level walk, 2026-11-15).
+ */
+const pickWeapon = (weapon: string) => { fireEvent.click(weaponChips().getByRole('button', { name: weapon })); };
 const easyBow = STARTER_RECIPES.find((r) => r.weapon === 'Bow' && r.grade === 'easy')!;
 const fastBow = STARTER_RECIPES.find((r) => r.weapon === 'Bow' && r.grade === 'better')!;
 
@@ -70,18 +80,43 @@ describe('the Starter chip', () => {
     await loaded();
     expect(chips().getAllByRole('button')[0]).toHaveTextContent('Starter');
     expect(chips().getByRole('button', { name: 'Starter' })).toHaveAttribute('aria-pressed', 'true');
-    for (const r of STARTER_RECIPES) expect(recipeButton(r)).toBeInTheDocument();
+    // It opens on the first weapon, which is the Bow the other tests load.
+    expect(WEAPONS[0]!.weapon).toBe('Bow');
+    for (const r of WEAPONS[0]!.recipes) expect(recipeButton(r)).toBeInTheDocument();
     // No build-type craft is drawn under it (no recipe shares an example's name: starterRecipes.test.ts).
     for (const e of EXAMPLE_CRAFTS) expect(screen.queryByText(e.name), e.name).toBeNull();
     // The rule for when the weapon is done, said once for the panel.
     expect(screen.getAllByText(STOP_LINE)).toHaveLength(1);
   });
 
+  // The two walks over every weapon re-render the whole Lab at each step: 4.4 s and 7.7 s alone, and the
+  // level walk took 30.6 s under the full suite (2026-11-15), past vitest's default 30 s. Hence their own.
+  const WALK = 120_000;
+
+  // Nine weapons, up to two recipes each, ran to about 2,400 px on a phone: one weapon at a time.
+  it('shows one weapon’s recipes at a time, the weapon picked by a chip', async () => {
+    await loaded();
+    expect(weaponChips().getAllByRole('button').map((b) => b.textContent)).toEqual(WEAPONS.map((w) => w.weapon));
+    for (const { weapon, recipes } of WEAPONS) {
+      pickWeapon(weapon);
+      for (const w of WEAPONS) {
+        expect(weaponChips().getByRole('button', { name: w.weapon })).toHaveAttribute('aria-pressed', String(w.weapon === weapon));
+      }
+      for (const r of STARTER_RECIPES) {
+        if (recipes.includes(r)) expect(recipeButton(r), r.name).toBeInTheDocument();
+        else expect(screen.queryByRole('button', { name: new RegExp(`^${r.name}\\b`) }), r.name).toBeNull();
+      }
+    }
+  }, WALK);
+
   it('opens on a level every recipe takes, without moving the Lab’s own (82 by default)', async () => {
     await loaded();
     const first = Math.max(...STARTER_RECIPES.map((r) => r.levels.from));
     expect(levelBox()).toHaveValue(first);
-    for (const r of STARTER_RECIPES) expect(recipeButton(r)).toBeEnabled();
+    for (const { weapon, recipes } of WEAPONS) {
+      pickWeapon(weapon);
+      for (const r of recipes) expect(recipeButton(r)).toBeEnabled();
+    }
     expect(screen.getByRole('spinbutton', { name: /^Item level$/i })).toHaveValue(82);
   });
 
@@ -92,18 +127,21 @@ describe('the Starter chip', () => {
     // Below some, inside all the attack recipes, above some, and above every one.
     for (const level of [5, 10, 58, 60, last + 1]) {
       await typeLevel(user, level);
-      for (const r of STARTER_RECIPES) {
-        const b = recipeButton(r);
-        if (level < r.levels.from) {
-          expect(b, `${r.name} at ${level}`).toBeDisabled();
-          expect(b).toHaveTextContent(`From item level ${r.levels.from}`);
-        } else if (level > r.levels.to) {
-          expect(b, `${r.name} at ${level}`).toBeDisabled();
-          expect(b).toHaveTextContent(`Up to item level ${r.levels.to}`);
-        } else {
-          expect(targetsAt(engine().data, r, level)).not.toBeNull(); // the premise
-          expect(b, `${r.name} at ${level}`).toBeEnabled();
-          expect(b).not.toHaveTextContent(/item level \d/);
+      for (const { weapon, recipes } of WEAPONS) {
+        pickWeapon(weapon);
+        for (const r of recipes) {
+          const b = recipeButton(r);
+          if (level < r.levels.from) {
+            expect(b, `${r.name} at ${level}`).toBeDisabled();
+            expect(b).toHaveTextContent(`From item level ${r.levels.from}`);
+          } else if (level > r.levels.to) {
+            expect(b, `${r.name} at ${level}`).toBeDisabled();
+            expect(b).toHaveTextContent(`Up to item level ${r.levels.to}`);
+          } else {
+            expect(targetsAt(engine().data, r, level)).not.toBeNull(); // the premise
+            expect(b, `${r.name} at ${level}`).toBeEnabled();
+            expect(b).not.toHaveTextContent(/item level \d/);
+          }
         }
       }
       const above = screen.queryByText(/No starter recipe goes above item level/);
@@ -112,22 +150,24 @@ describe('the Starter chip', () => {
     }
     // The Lab's own level follows what was typed: it is the same field.
     expect(screen.getByRole('spinbutton', { name: /^Item level$/i })).toHaveValue(last + 1);
-  });
+  }, WALK);
 
   it('lists each weapon’s easy recipe first, tagged only where the weapon has both', async () => {
     await loaded();
-    const order = screen.getAllByRole('button').map((b) => b.textContent ?? '');
-    const at = (r: StarterRecipe) => order.findIndex((t) => t.startsWith(r.name));
-    for (const r of STARTER_RECIPES) {
-      const siblings = STARTER_RECIPES.filter((x) => x.weapon === r.weapon);
-      const tag = within(recipeButton(r)).queryByText(/^(Easy|Better)$/);
-      if (siblings.length > 1) {
-        expect(tag, r.name).toHaveTextContent(r.grade === 'easy' ? 'Easy' : 'Better');
-        const easy = siblings.find((x) => x.grade === 'easy')!;
-        const better = siblings.find((x) => x.grade === 'better')!;
-        expect(at(easy), r.weapon).toBeLessThan(at(better));
-      } else {
-        expect(tag, r.name).toBeNull();
+    for (const { weapon, recipes: siblings } of WEAPONS) {
+      pickWeapon(weapon);
+      const order = screen.getAllByRole('button').map((b) => b.textContent ?? '');
+      const at = (r: StarterRecipe) => order.findIndex((t) => t.startsWith(r.name));
+      for (const r of siblings) {
+        const tag = within(recipeButton(r)).queryByText(/^(Easy|Better)$/);
+        if (siblings.length > 1) {
+          expect(tag, r.name).toHaveTextContent(r.grade === 'easy' ? 'Easy' : 'Better');
+          const easy = siblings.find((x) => x.grade === 'easy')!;
+          const better = siblings.find((x) => x.grade === 'better')!;
+          expect(at(easy), r.weapon).toBeLessThan(at(better));
+        } else {
+          expect(tag, r.name).toBeNull();
+        }
       }
     }
   });
@@ -135,6 +175,7 @@ describe('the Starter chip', () => {
   it('says how many bases each uses, from the recipe’s measured range, and every modifier in words', async () => {
     await loaded();
     for (const r of STARTER_RECIPES) {
+      pickWeapon(r.weapon);
       const b = recipeButton(r);
       expect(b).toHaveTextContent(`Uses ${r.bases.from}–${r.bases.to} bases on average`);
       for (const s of r.slots) {

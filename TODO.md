@@ -1748,8 +1748,8 @@ alone. What stays open:
   affordable from 46). Either could replace or join the better recipe.
 - **A Magic weapon holding both modifiers is not the solve's goal** (the goal is a Rare; the plan would
   Regal). Craft along calls it done by wording (`holdsEverySlot`); the counts still include that Regal.
-- **The Starter panel is long on a phone** (nine weapons, up to two recipes each): a weapon picker that
-  then shows that weapon's recipes would shorten it.
+- ~~**The Starter panel is long on a phone**~~ — DONE 2026-11-15: a **Your weapon** picker shows one
+  weapon's recipes at a time (the card went from about 2,400 px to 582 px at 375 px wide).
 - **Starter armour and jewellery**, "what can I make with N orbs", the found basis on the Item tab, and
   where the game shows a base's item level (the panel states no game fact it cannot point to) — not built.
 - **A two-slot craft whose alternatives ask different tiers can stop on the sweep cap when an unrelated

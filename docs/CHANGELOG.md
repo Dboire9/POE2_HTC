@@ -10,13 +10,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 - **Starter recipes: a first weapon from what you find.** *Or try one* now opens on a **Starter** chip.
-  Type the item level of a white base, pick a recipe, and the app plans a first Bow, Crossbow,
-  Quarterstaff, Spear, Mace, Wand, Staff or Sceptre from currency a new player picks up — no trading. A
-  recipe is two modifiers, and the weapon is done when it has them: the others can be anything. Attack
-  weapons have an **Easy** recipe (1–4 bases on average) and a **Better** one (3–12). The result is a
-  list, *What you'll use* — "Orb of Transmutation about 1, Lesser Essence of Abrasion about 1, bases about
-  1" — not a cost in Exalted Orbs, and **Craft along** walks you through it. A switch shows the same craft
-  on trade prices.
+  Type the item level of a white base, pick your weapon and a recipe, and the app plans a first Bow,
+  Crossbow, Quarterstaff, Spear, Mace, Wand, Staff or Sceptre from currency a new player picks up — no
+  trading. A recipe is two modifiers, and the weapon is done when it has them: the others can be
+  anything. Attack weapons have an **Easy** recipe (1–4 bases on average) and a **Better** one (3–12).
+  The result is a list, *What you'll use* — "Orb of Transmutation about 1, Lesser Essence of Abrasion
+  about 1, bases about 1" — not a cost in Exalted Orbs, and **Craft along** walks you through it. A switch
+  shows the same craft on trade prices.
 
 - **Streamer gear refreshes itself every week.** A Monday job reads each streamer's current gear from
   poe.ninja, runs the whole test suite on it, and merges it when every streamer came back and the suite

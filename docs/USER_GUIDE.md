@@ -71,7 +71,8 @@ up while you play. You buy nothing.
 
 1. Find a white (Normal) base of the weapon you use.
 2. Type its item level in **Item level of your base**.
-3. Pick a recipe. The app loads it and works out the plan.
+3. Pick your weapon under **Your weapon**. Its recipes show below.
+4. Pick a recipe. The app loads it and works out the plan.
 
 **A recipe is two modifiers.** The weapon is done when it has them — the others can be anything. Each is
 asked at the best tier your base's item level can roll, or up to two tiers below it, so the same recipe

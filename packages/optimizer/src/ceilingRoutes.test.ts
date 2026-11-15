@@ -21,6 +21,10 @@ const CASTER: TierTarget[] = [
   { modId: 'Wands/IncreasedCastSpeed', minTierIndex: top('Wands/IncreasedCastSpeed') - 2 },
 ];
 
+// The two tests that solve this Wand exactly take 3–4 s alone and ran past the 30 s default twice in a
+// row inside the full suite on 2026-11-15 (16 workers, 280 s wall): a timeout, never a wrong number.
+const SOLVE = 120_000;
+
 /** What following the table's plan really costs from `root`: its chain solved outright, to 1e-12. */
 function planCost(t: RouteTable, root: number): number {
   const n = t.keys.length;
@@ -66,7 +70,7 @@ describe('a ceiling carries its plan, checked', () => {
     const exact = markovFromItem(data, prices, whiteItem(wands, 82), CASTER, { restartCost: 0, solver: 'policy' });
     expect(exact.bound).toBe('exact');
     expect(exact.expectedCost).toBeLessThanOrEqual(cost * (1 + 1e-9));
-  });
+  }, SOLVE);
 });
 
 describe('a floor carries no plan', () => {
@@ -88,5 +92,5 @@ describe('finishesFrom', () => {
     // Cut every goal off: the same plan now leads nowhere.
     const noGoal: RouteTable = { ...t, goal: new Uint8Array(t.goal.length) };
     expect(finishesFrom(noGoal, t.restartIdx)).toBe(false);
-  });
+  }, SOLVE);
 });

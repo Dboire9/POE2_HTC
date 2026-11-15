@@ -141,9 +141,11 @@ const EngineLab: React.FC = () => {
         : mode === 'tablets' ? <Suspense fallback={<Spinner />}><TabletsTab /></Suspense>
         : mode === 'gear' ? <StreamerGear data={data} routes={gearRoutes} />
         : (<>
+          {/* The ready crafts first: a first visit should get an answer in one click before it meets the
+              base picker and the modifiers (ExampleCrafts.tsx). Gone once the craft has a target. */}
+          <ExampleCrafts lab={lab} />
           <LabSetup lab={lab} />
           <LabTargets lab={lab} />
-          <ExampleCrafts lab={lab} />
           <LabResults lab={lab} />
         </>)}
     </div>

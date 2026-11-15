@@ -212,7 +212,7 @@ describe('a starter recipe, loaded', () => {
     expect(screen.queryAllByRole('button', { name: 'Stop leaving a suffix free' })).toHaveLength(at.spare.suffixes);
     expect(screen.getByRole('spinbutton', { name: /^Item level$/i })).toHaveValue(16);
     // The craft is loaded, so the card of crafts to try has given way.
-    expect(screen.queryByText('Or try one')).toBeNull();
+    expect(screen.queryByText('New here? Start with a ready craft')).toBeNull();
   });
 
   it('reads as what you will use — counts, bases, the note and when it is done — with no cost anywhere', async () => {

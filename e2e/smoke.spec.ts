@@ -144,6 +144,33 @@ test('2d — a build-type chip swaps the example crafts, and one of its crafts s
   expect(errors.filter(cspish), 'CSP refusals').toEqual([]);
 });
 
+test('2f — the ready crafts come first, and Hide folds them away for the next visit too', async ({ page }) => {
+  const errors = watchForErrors(page);
+  await page.goto('/');
+  await waitForReady(page);
+
+  // A first visit meets the card before the base picker and the modifiers — on screen, not just in order.
+  const title = page.getByRole('heading', { name: 'New here? Start with a ready craft' });
+  const search = page.getByPlaceholder(/Search modifiers to add as targets/i);
+  const [t, s] = [await title.boundingBox(), await search.boundingBox()];
+  expect(t && s && t.y < s.y, 'card above the modifiers').toBe(true);
+
+  await page.getByRole('button', { name: 'Hide crafts to try' }).click();
+  await expect(title).toHaveCount(0);
+  const line = page.getByRole('button', { name: /Crafts to try/ });
+  await expect(line).toHaveAttribute('aria-expanded', 'false');
+
+  // The next visit keeps it folded; one click opens it again.
+  await page.reload();
+  await waitForReady(page);
+  await expect(line).toHaveAttribute('aria-expanded', 'false');
+  await expect(title).toHaveCount(0);
+  await line.click();
+  await expect(title).toBeVisible();
+
+  expect(errors.filter(cspish), 'CSP refusals').toEqual([]);
+});
+
 test('2e — a starter recipe loads at the typed item level and reads as what you will use, never a cost', async ({ page }) => {
   const errors = watchForErrors(page);
   await page.goto('/');

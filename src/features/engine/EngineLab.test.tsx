@@ -892,14 +892,48 @@ describe('EngineLab — crafts to try on an empty Plan tab', () => {
     const wand = EXAMPLE_CRAFTS.find((e) => e.goal.baseId === 'Wands')!;
     const user = userEvent.setup();
     await loaded();
-    expect(screen.getByText('Or try one')).toBeInTheDocument();
+    expect(screen.getByText('New here? Start with a ready craft')).toBeInTheDocument();
     await user.click(chips().getByRole('button', { name: 'Caster' }));
     await user.click(screen.getByRole('button', { name: new RegExp(wand.name) }));
     await waitFor(() => expect(mocks.optimize).toHaveBeenCalledTimes(1));
     // From a white Wand at the example's level, with exactly its targets.
     expect(mocks.optimize.mock.calls[0]!.slice(1, 4)).toEqual(['Wands', wand.goal.level, wand.goal.targets]);
     expect(await screen.findByText(/True expected cost/)).toBeInTheDocument();
-    expect(screen.queryByText('Or try one')).toBeNull();
+    expect(screen.queryByText('New here? Start with a ready craft')).toBeNull();
+  });
+
+  // A first visit meets the ready crafts before the base picker and the wall of modifiers (2026-11-15).
+  it('sits above the base picker and the modifiers, on a first visit', async () => {
+    await loaded();
+    const card = screen.getByRole('heading', { name: 'New here? Start with a ready craft' });
+    const search = screen.getByPlaceholderText(/Search modifiers to add as targets/i);
+    const base = screen.getByText(/^Base$/i);
+    for (const below of [search, base]) {
+      expect(card.compareDocumentPosition(below) & Node.DOCUMENT_POSITION_FOLLOWING, below.textContent ?? 'search').toBeTruthy();
+    }
+  });
+
+  // A player who knows the planner puts it away once: folded to one line, kept folded on the next visit.
+  it('folds to one line on Hide, stays folded on the next visit, and opens again', async () => {
+    const user = userEvent.setup();
+    await loaded();
+    await user.click(screen.getByRole('button', { name: 'Hide crafts to try' }));
+    const line = screen.getByRole('button', { name: /Crafts to try/ });
+    expect(line).toHaveAttribute('aria-expanded', 'false');
+    expect(screen.queryByRole('heading', { name: 'New here? Start with a ready craft' })).toBeNull();
+    expect(screen.queryByRole('group', { name: 'Crafts to try' })).toBeNull();
+    // The next visit: a fresh mount reads the fold back from the browser.
+    cleanup();
+    await loaded();
+    expect(screen.getByRole('button', { name: /Crafts to try/ })).toHaveAttribute('aria-expanded', 'false');
+    expect(screen.queryByRole('heading', { name: 'New here? Start with a ready craft' })).toBeNull();
+    // Opened again, it is the whole card — and it stays open on the visit after.
+    await user.click(screen.getByRole('button', { name: /Crafts to try/ }));
+    expect(screen.getByRole('heading', { name: 'New here? Start with a ready craft' })).toBeInTheDocument();
+    expect(chips().getByRole('button', { name: 'Starter' })).toHaveAttribute('aria-pressed', 'true');
+    cleanup();
+    await loaded();
+    expect(screen.getByRole('heading', { name: 'New here? Start with a ready craft' })).toBeInTheDocument();
   });
 
   // Read from the list itself, so these hold as crafts are added to it.

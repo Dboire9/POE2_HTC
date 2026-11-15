@@ -73,7 +73,7 @@ describe('the starter recipes', () => {
     }
   });
 
-  // Both sit on the same "Or try one" card, so a starter recipe named like an example craft would read as
+  // Both sit on the same card of crafts to try, so a starter recipe named like an example craft would read as
   // the same craft with another answer.
   it('share no name with an example craft', () => {
     const examples = new Set(EXAMPLE_CRAFTS.map((e) => e.name));

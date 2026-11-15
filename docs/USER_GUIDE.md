@@ -49,12 +49,15 @@ Open **[poe2htc.com](https://poe2htc.com)**. That's it — there is nothing to d
 The whole engine is JavaScript running in your browser; nothing you type leaves your machine, except a
 rating or a "What next?" message you choose to send (see [Getting help](#getting-help)).
 
-Not sure where to start? On an empty **Plan from scratch** tab, **Or try one** has crafts ready to load.
-It opens on **Starter**: a first weapon made from currency you find, with no trading — see
+Not sure where to start? The **Plan from scratch** tab opens with **New here? Start with a ready craft**
+at the top, above the base and modifier pickers. It opens on **Starter**: a first weapon made from currency you find, with no trading — see
 [Your first weapon](#your-first-weapon). The other chips hold 15 ready crafts, filed by build type —
 **Caster**, **Attack**, **Minion**, **Defence**. Each is cut from an item a tracked build wears (the
 Streamer gear snapshot of 2026-09-16) and says which class: "From an Invoker build". One click loads a
-craft and solves it, so you see what the app answers before you pick your own modifiers.
+craft and solves it, so you see what the app answers before you pick your own modifiers. Already know
+the planner? **Hide** folds the card to one line, **Crafts to try**, and it stays folded on your next
+visit in this browser; click that line to open it again. The card also steps aside by itself once your
+craft has a modifier.
 
 The first load pulls the modifier data for patch 0.5.0 — about 1 MB, and 85 kB over the wire once
 compressed. After that the page works offline.
@@ -66,7 +69,7 @@ Running it yourself instead? `npm run dev` serves it at `http://localhost:5173` 
 
 ## Your first weapon
 
-New to crafting? The **Starter** chip on the **Or try one** card makes a first weapon from what you pick
+New to crafting? The **Starter** chip on the ready-crafts card at the top of the Plan tab makes a first weapon from what you pick
 up while you play. You buy nothing.
 
 1. Find a white (Normal) base of the weapon you use.
@@ -500,7 +503,7 @@ is offered. A regular Essence is a Magic-item move: it forces its mod and turns 
 **An Essence can stand in for a rolled modifier.** An Essence's modifier is the rolled one at a fixed
 tier — a Greater Essence of Insulation gives exactly the 31–35% Fire Resistance a T3 roll does. So when
 you ask for a modifier at a tier an Essence reaches, the planner may force it with that Essence instead
-of rolling for it, and it does whenever that is cheaper: on nine of the fifteen "Or try one" crafts it
+of rolling for it, and it does whenever that is cheaper: on nine of the fifteen build-type ready crafts it
 costs 5–96% less. You don't need to add the Essence yourself. It works from a white base or a Magic item (a Rare
 can't take a regular Essence), and it uses the item's one crafted modifier. On most modifiers the
 Greater Essence is a T3, so a T1 or T2 ask is usually still rolled — but where an Essence does reach

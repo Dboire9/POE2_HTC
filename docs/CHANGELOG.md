@@ -36,6 +36,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- **The ready crafts come first.** The Plan tab now opens with **New here? Start with a ready craft** at the
+  top, above the base and modifier pickers, so a first visit gets an answer in one click before it meets
+  the full planner. **Hide** folds it to one line, and it stays folded on your next visit; the line opens
+  it again.
+
 - **Fifteen crafts to try, by build type.** *Or try one* now has chips — Caster, Attack, Minion, Defence —
   with three or four crafts each, and every one is cut from an item a tracked streamer build wears: its
   modifiers are ones that item rolled, at the tier worn or lower, and the card says which class ("From an

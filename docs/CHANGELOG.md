@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- **Prices refresh every day again.** The daily price update had been held since 2026-11-10 by tests
+  that pinned one day's market and by a check that stopped on any essence without a fresh quote. Now
+  poe.ninja is the reference: a market move never holds the update. A price too thin to trust keeps its
+  previous value and is listed. The update still waits for review on a league change, in a league's first
+  week, and when much of the feed goes thin at once.
+
 ## [1.2.0] - 2026-11-15
 
 Everything since 1.1.0 (2026-09-16). 1.1.0 itself had no release page: its changes are in the

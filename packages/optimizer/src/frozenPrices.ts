@@ -24,6 +24,8 @@ import type { Prices } from './cost.ts';
  * **Keep reading the LIVE sheet** where the sheet itself is the subject: `priceResolution.test.ts`
  * and `costConsistency.test.ts` exist to check that what ships resolves and stays consistent, and
  * they are what the refresh workflow runs as its guard. Freezing those would be freezing the guard.
+ * Every test that reads the live sheet is listed, with why, in `src/test/liveSheetReaders.test.ts`;
+ * `scripts/market-sweep.mts` runs them across every shipped sheet to prove no market move fails one.
  */
 export const FROZEN_PATCH_DIR = join(import.meta.dirname, '__fixtures__', 'frozen-patch');
 

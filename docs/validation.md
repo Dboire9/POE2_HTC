@@ -5337,6 +5337,93 @@ one weapon type: the base weight of 1 says it is about as common as a Transmute,
 worst levels assume 10–16 of them. The recipes on the element-locked Wand and Staff bases a player may
 actually hold (measured cheaper before the free slots; not re-measured after).
 
+## No test fails because the market moved — the market sweep (2026-11-18)
+
+The price bot runs the whole suite against each day's poe.ninja sheet and holds the update on any
+failure. On the 2026-11-18 sheet (Chaos 66 → 42 ex, Augment 1.6 → 0.7, Annul 249 → 150) two tablet tests
+in `solve.test.ts` failed with nothing broken, and on 2026-11-13 the Alloys' spread (16.4 against
+`> 20`) had held it the same way. The maintainer's ruling: poe.ninja is the reference; only a BROKEN
+sheet — a price missing, zero, collapsed onto one value — may fail a test.
+
+**The sweep** (`scripts/market-sweep.mts`): the 30 test files that read the live sheet (31 with the new
+allowlist test, whose fixtures name it) against every `prices.json` on `main` — 66 sheets, 2026-07-12 →
+2026-11-10, 39 of them inside the 60-day gate (since 2026-09-19) — plus the bot's 2026-11-18 sheet and
+four synthetic markets made from main's current sheet: every exalt price ×0.3, ×3, and two seeded
+per-key log-uniform ×0.5–2 shuffles. Each run in a temporary copy of the tree; each failure re-run alone;
+an older-shape sheet re-run with today's missing keys filled in from today's sheet.
+
+**Before** (2026-11-18, the tree at `beta` 299fe96; GATE FAILED, 21 gating failures):
+
+| test | gating (last 60 days, bot sheet, synthetic) | before the window |
+|---|---|---|
+| `solve.test.ts` › smallLattice › solves the rarest four the usual solve cannot put a number on | 17: 14 of `main`'s sheets 2026-09-19 → 2026-11-10, the bot sheet, ×0.3, shuffle 1 | 25 |
+| `solve.test.ts` › smallLattice › prices a Magic tablet already rolled against a plain one | 4: the bot sheet, ×0.3, ×3, shuffle 1 | 26 |
+
+Everything else that failed did so only on sheets that predate a key it needs (the rune keys, the
+Ancient bones, `leagueSince`, the per-essence keys), or only under load (`carries socketed runes to the
+from-white planners`, 3 sheets, passed alone each time). The rarest-four claim — the usual solve CANNOT
+settle Ritual's four rarest — is a race between the sweep budget and the prices, and with today's code it
+loses on 14 of the last 39 shipped sheets. The Magic-tablet bands were the
+market's ratios: Ritual prefix:suffix worth 0.886:0.714 of a plain tablet on the frozen sheet,
+0.930:0.639 on the bot sheet; Temple 0.84 each (2026-09-23), 0.901:0.897 on the bot sheet against
+`toBeCloseTo(0.84, 1)`.
+
+The Alloy spread failed nowhere here, because the 2026-11-13 sheet that broke it was held and never
+reached `main`; across `main`'s sheets since the fix the max/min ran from 48.9 (2026-10-06) to 2,560
+(2026-11-02) — the market's, not the sheet's. What the test exists for did show up: the sheets of
+2026-08-22 → 2026-09-02, before the Alloy fix, carry 2 distinct Alloy prices, and fail `≥ 8` on their
+prices (outside the window, so reported, not gated).
+
+**The fixes.**
+- `solve.test.ts` smallLattice `tablet` helper → `loadFrozenPrices()` (the rarest four and the
+  "same cost where the usual solve settles" check it shares): whether the usual solve settles is a fact
+  about one sheet, now asserted on a sheet that never moves.
+- `solve.test.ts` "prices a Magic tablet already rolled" stays on the live sheet and asserts only what
+  holds at any price: each stand-in worth is in (0, plain + the craft from plain); Ritual's
+  prefix-holder is worth more than its suffix-holder; Temple's two are within 15% of each other.
+- `alloys.test.ts` drops the max/min `> 20`; it keeps `≥ 8` distinct of the thirteen and none on the
+  generic `perfect_essence` key.
+- `TabletsTab.test.tsx` spelled the trade league as the literal `Forbidden Rites` while reading the
+  live sheet's league, and failed on every sheet from before the 2026-09-05 rollover; from the next
+  rollover on it would have held every price update, long after the week `leagueHoldDays` holds a new
+  league's sheets for review. It now builds the expected path
+  from the sheet's own `league` — which is the claim, "in the league the prices are from". A sheet with
+  the league renamed passes all 31 files (`--sheets-only --sheet`). The first sweep found it only on
+  history, outside the window: the synthetics keep the league, so a league rollover is not among them.
+
+**After** (the same 71 sheets, 31 files; GATE PASSED, 0 gating failures, 39 minutes on 16 cores):
+nothing fails on any sheet since 2026-09-19, the bot's sheet, or any synthetic market. What is left is
+reported and does not gate:
+
+| test | what fails | where |
+|---|---|---|
+| 37 tests across 14 files (rune keys, Ancient bones, `leagueSince`, per-essence keys, …) | older shape: each passes once today's missing keys are copied in | sheets of 2026-07-12 → 2026-09-17 |
+| `alloys.test.ts` › gives them their own prices | 2 distinct Alloy prices, not `≥ 8` — the collapse it was written for | 2026-08-22 → 2026-09-02 (4 sheets) |
+| `PriceBasisNote.test.tsx` › reads the shipped sheet honestly | the caveat's older wording | 2026-08-22 (1 sheet) |
+| `PolicyGraph.test.tsx` › a blocked state; `solve.test.ts` › plays the plan out | the July sheet's prices, lacking most keys even once filled | 2026-07-12 (1 sheet) |
+| `solve.test.ts` › carries socketed runes to the from-white planners | under load only; passed alone | 1 sheet |
+
+
+**Mutation checks**, each restored after:
+
+| mutation | test | result |
+|---|---|---|
+| `standIns` reads the suffix state for the prefix side and vice versa | Magic tablet | fails: prefix 0.539 < suffix 0.999 |
+| `standIns` worth without the craft from plain (`plain − V`) | Magic tablet | fails: worth 0, not > 0 |
+| `standIns` worth `plain + V(plain) + V` | Magic tablet | fails: 19,307 > 9,719 bound |
+| `standIns` suffix state also holding a prefix (Ritual's ordering survives it) | Magic tablet | fails: Temple ratio off by 2.28, not < 0.15 |
+| `runSolve` ignores `smallLattice` | rarest four | fails: sure solve infeasible |
+| every Alloy on the generic `perfect_essence` price (the 2026-09-08 bug), via the sweep | Alloys | fails: 1 distinct |
+| every Alloy on one arbitrary price | Alloys | fails: 1 distinct |
+| one Alloy on the generic key, 13 distinct | Alloys | fails: generic key present |
+| control: 13 distinct Alloys, spread only ×2 | Alloys | passes (the old `> 20` would fail it) |
+| an unlisted test reading the sheet through a `PATCH` constant | allowlist | fails, naming the file and `loadFrozenPrices()` |
+| an unlisted test reading it through a helper module | allowlist | fails: `via src/lib/zzHelper.ts` |
+| `alloys.test.ts` taken off the allowlist | allowlist | fails, naming it |
+| a stale entry for a file that reads no sheet | allowlist | fails: take it off |
+| control: an unlisted test reading `loadFrozenPrices()` | allowlist | passes |
+| the Tablets tab's two trade links pointed at `Standard` | Tablets tab, both league checks | fail: `/Standard` ≠ the sheet's league |
+
 ## Still deferred
 - **Confirm the Omen of Whittling TIE rule in game** (2026-09-02): when two or more modifiers share
   the lowest item level, which does the Chaos Orb remove? Modelled as uniform — 50/50 on two — by the

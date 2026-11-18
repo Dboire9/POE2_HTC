@@ -10,6 +10,10 @@ import { formatIn } from '../../lib/currency';
 
 const data = loadShippedPatch('data/patches/0.5.0');
 const prices = indexPrices(JSON.parse(readFileSync('data/patches/0.5.0/prices.json', 'utf8')));
+// The trade search is pointed at the league the sheet priced, so it is spelled from the sheet: a
+// literal league name here failed this file on every sheet from before the 2026-09-05 rollover, and would
+// fail the price bot on the next one.
+const LEAGUE_PATH = `/trade2/search/poe2/${encodeURIComponent(prices.meta!.league!)}`;
 
 // The tab loads the engine over the network and solves in a Worker; jsdom has neither. The DATA is real
 // — the picker's odds, families and names all come from the shipped files — and only the two edges are
@@ -236,7 +240,7 @@ describe('the Tablets tab — what it costs and what it sells for', () => {
     const user = await open();
     const plainOf = (): Record<string, unknown> => {
       const url = new URL(screen.getByRole('link', { name: 'Find a plain one on trade' }).getAttribute('href')!);
-      expect(url.pathname).toBe('/trade2/search/poe2/Forbidden%20Rites');
+      expect(url.pathname).toBe(LEAGUE_PATH);
       return (JSON.parse(url.searchParams.get('q')!) as { query: Record<string, unknown> }).query;
     };
     expect(plainOf()).toMatchObject({
@@ -252,7 +256,7 @@ describe('the Tablets tab — what it costs and what it sells for', () => {
     await pick(user);
     const link = await screen.findByRole('link', { name: /Search on trade/ });
     const url = new URL(link.getAttribute('href')!);
-    expect(url.origin + url.pathname).toBe('https://www.pathofexile.com/trade2/search/poe2/Forbidden%20Rites');
+    expect(url.origin + url.pathname).toBe(`https://www.pathofexile.com${LEAGUE_PATH}`);
     expect(decodeURIComponent(url.search)).toContain('"type":"Ritual Tablet"');
   });
 

@@ -686,9 +686,16 @@ describe('policy iteration answers where value iteration can only bound', () => 
  * four-modifier crafts never settled otherwise — at Standard the sweeps ran out in ~1.5 s, and even
  * at Exhaustive's 20,000,000 they "settled" short of the answer, so policy iteration flipped between
  * two plans for good (598M ↔ 324M ex, Ritual's four rarest).
+ *
+ * `tablet` solves on FROZEN prices. Whether the usual solve settles within its budget is a race between
+ * sweeps and the spread of the prices: on the 2026-11-18 sheet (Chaos 66 → 42 ex) Ritual's rarest four
+ * settled and that day's price update was held, and with today's code they settle on 14 of the 39 sheets
+ * `main` shipped since 2026-09-19 too. "The usual solve cannot put a number on it" is a claim about the
+ * solver on one sheet, so it is asserted on a sheet that never moves.
  */
 describe('smallLattice — a tablet solved the sure way', () => {
-  const tablet = (mods: string[], smallLattice: boolean) => runSolve(eng, {
+  const frozenEng = { data: eng.data, prices: loadFrozenPrices() };
+  const tablet = (mods: string[], smallLattice: boolean) => runSolve(frozenEng, {
     kind: 'lab', from: { baseId: 'Tablets_ritual', level: 100 },
     targets: mods.map((m) => ({ modId: `Tablets/${m}`, tierDisplay: 1 })), baseCost: 100, fillOnFinish: true,
     effort: { maxMillis: 15_000, maxNodes: 200, maxSweeps: 100_000, solver: 'policy' }, excluded: ['annul'], smallLattice,
@@ -702,9 +709,10 @@ describe('smallLattice — a tablet solved the sure way', () => {
     expect(usual.bound).toBe('exact');
     expect(sure.bound).toBe('exact');
     // 1e-4, not 1e-6. The usual solve stops when a sweep moves less than its tolerance (a thousandth of
-    // the cheapest action), which leaves an error that moves with the prices: 2.9e-6 on the frozen sheet,
-    // 1.6e-5 on the 2026-11-05 refresh (0.31 ex on 19,062), which held that refresh. An UNsettled solve
-    // is 0.2-0.3% off (docs/validation.md, "A tablet's rarest four"), so 1e-4 still tells the two apart.
+    // the cheapest action), which leaves an error that moves with the prices: 2.9e-6 on the frozen sheet
+    // this now reads, 1.6e-5 on the 2026-11-05 refresh (0.31 ex on 19,062), which held that refresh while
+    // it read the live one. An UNsettled solve is 0.2-0.3% off (docs/validation.md, "A tablet's rarest
+    // four"), so 1e-4 still tells the two apart.
     expect(Math.abs(sure.expectedCost - usual.expectedCost) / usual.expectedCost).toBeLessThan(1e-4);
   });
 
@@ -736,9 +744,16 @@ describe('smallLattice — a tablet solved the sure way', () => {
 
   /**
    * Magic tablets someone already rolled, priced off the solve. Fishing a Ritual reroll (a suffix), one
-   * holding only a prefix is worth about a plain one — a Transmute lands a prefix half the time anyway —
-   * and one holding only a suffix about half. For a Temple Rare Monsters + Crystal pair (one of each side)
-   * both are worth ~0.84 plain ones (2026-09-23).
+   * holding only a prefix is worth MORE than one holding only a suffix: a Transmute lands a prefix half the
+   * time anyway, while a junk suffix sits on the one side the craft needs. For a Temple Rare Monsters +
+   * Crystal pair (one target a side) the two are worth about the same.
+   *
+   * LIVE prices, and only what holds at any price. The ratios themselves are the market's: Ritual's
+   * prefix:suffix worth was 0.89:0.71 of a plain tablet on the frozen sheet and 0.93:0.64 on the
+   * 2026-11-18 one, the Temple pair 0.84 each (2026-09-23) and 0.90 each (2026-11-18) — so a band
+   * around any one of them held the price bot on a day nothing was wrong. The ordering, the bracket and
+   * the symmetry are the solve's, and `scripts/market-sweep.mts` holds them across every shipped sheet
+   * and four synthetic markets.
    */
   it('prices a Magic tablet already rolled against a plain one, from the solve itself', () => {
     const worth = (base: string, mods: string[], spare: { prefixes: number; suffixes: number }, plain: number) => {
@@ -749,15 +764,18 @@ describe('smallLattice — a tablet solved the sure way', () => {
       const at = new Map(m.routes!.keys.map((k, i) => [k as string, i]));
       const list = standIns((k) => { const i = at.get(k); return i === undefined ? undefined : m.routes!.value[i]; }, m.expectedCost, plain);
       expect(list.map((x) => x.side)).toEqual(['prefix', 'suffix']);
+      // Worth something — better than binning it for a plain one — and less than a plain tablet plus the
+      // whole craft from it, which is all that holding one modifier could ever save.
+      for (const x of list) {
+        expect(x.worth).toBeGreaterThan(0);
+        expect(x.worth).toBeLessThan(plain + m.expectedCost);
+      }
       return (side: 'prefix' | 'suffix') => list.find((x) => x.side === side)!.worth / plain;
     };
     const reroll = worth('Tablets_ritual', ['Tablets/RitualAdditionalReroll'], { prefixes: 2, suffixes: 1 }, 130);
-    expect(reroll('prefix')).toBeGreaterThan(0.9);
-    expect(reroll('prefix')).toBeLessThan(1.1);
-    expect(reroll('suffix')).toBeLessThan(0.7);
+    expect(reroll('prefix')).toBeGreaterThan(reroll('suffix'));
     const pair = worth('Tablets_temple', ['Tablets/MapRarePackIncrease', 'Tablets/IncursionTokenChance'], { prefixes: 1, suffixes: 1 }, 442);
-    expect(pair('prefix')).toBeCloseTo(0.84, 1);
-    expect(pair('suffix')).toBeCloseTo(0.84, 1);
+    expect(Math.abs(pair('prefix') / pair('suffix') - 1)).toBeLessThan(0.15);
   });
 
   /**

@@ -147,7 +147,8 @@ npm run lint && npm run type-check && npm run type-check:engine && npm run type-
 - **Mutation-check every regression test**: undo the fix and watch it fail. Several tests here passed
   against the bug they were written for, with a plausible reason attached.
 - **An exact-cost assertion reads `loadFrozenPrices()`**, never the shipped sheet, which changes daily.
-  Everything else reads what ships — the price bot runs the whole suite as its guard.
+  A test may read the live sheet only when the sheet is its subject or it holds at any price — listed with
+  its reason in `src/test/liveSheetReaders.test.ts`, proven by `scripts/market-sweep.mts` (GATE PASSED).
 - **Code the browser runs is tested on `loadShippedPatch`** — the shipped mods file has no `tiers[].stats`.
 - **Never regenerate a golden fixture to turn a test green** (`__fixtures__/*-java.json`,
   `pre-throwaway-frontiers.json`, `pre-sibling-markov.json`) — only for a change meant to move those

@@ -65,15 +65,16 @@ describe('Alloys — price', () => {
   });
 
   /**
-   * Shape, not numbers. These move daily and CLAUDE.md is explicit that a test asserting an EXACT cost
-   * must read `loadFrozenPrices()`; the claim here is that Alloys are priced INDIVIDUALLY, which the
-   * one-distinct-value state falsified and any live sheet should satisfy.
+   * Shape, not numbers: the LIVE sheet is the subject here (this is the test that caught a real collapse,
+   * 2026-09-08), so it asserts only what any correctly built sheet satisfies — Alloys priced
+   * INDIVIDUALLY, which the one-distinct-value state falsified. It used to demand a max/min spread above
+   * 20 as well, and the market alone took that to 16.4 on 2026-11-13 and held the price bot. A spread is
+   * the market's business; a collapse shows as too few distinct prices, or as the generic key.
    */
   it('gives them their own prices rather than one fabricated fallback', () => {
     const vals = alloys.map((m) => priceOf(m.id)!);
     const distinct = new Set(vals);
-    expect(distinct.size).toBeGreaterThanOrEqual(8); // was exactly 1
-    expect(Math.max(...vals) / Math.min(...vals)).toBeGreaterThan(20);
+    expect(distinct.size).toBeGreaterThanOrEqual(8); // was exactly 1; there are thirteen Alloys
     // …and specifically not the generic key they used to collapse onto.
     expect(distinct.has(prices.currency.perfect_essence!)).toBe(false);
   });

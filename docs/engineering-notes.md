@@ -1550,6 +1550,37 @@ is under Data pipeline and what ships.
   not evidence. docs/validation.md carries the two ways to settle it; do not record it as a pass
   before one of them is done.
 
+- **No test may fail because the MARKET moved (2026-11-18).** The price bot runs the whole suite
+  against each day's poe.ninja sheet and holds the update on any failure, so a test asserting a market
+  fact on the live sheet keeps stale prices on the site on a day nothing is broken. It happened on
+  2026-11-13 (the Alloys' max/min spread fell to 16.4 against `> 20`) and again on the 2026-11-18 sheet
+  (Chaos 66 → 42 ex): a tablet's rarest four settled under the usual solve, and a Magic tablet's worth
+  left a band drawn around one day's ratio. The maintainer's ruling: poe.ninja is the reference, and
+  only a sheet that is actually BROKEN — a price missing, zero, collapsed onto one value — may fail a
+  test. Three pieces hold it:
+  - a test that pins a price-derived number reads `loadFrozenPrices()`;
+  - every test file that still reads the live sheet is listed with its reason in
+    `src/test/liveSheetReaders.test.ts` — the sheet is its SUBJECT, or it is PRICE-INDEPENDENT — and
+    that test fails on a reader nobody listed. Its detector (`src/test/liveSheet.ts`) reads source with
+    comments stripped, follows local imports into helpers, and counts any `loadPrices` argument it
+    cannot resolve to the frozen fixture or the `0.5` anchor as live: a false flag costs one line, a
+    missed reader a red bot;
+  - `scripts/market-sweep.mts` proves the second kind. It runs exactly those files against every sheet
+    `main` has shipped, any sheet passed with `--sheet` (the bot's held one), and four synthetic markets
+    (×0.3, ×3, two seeded per-key ×0.5–2 shuffles), each in a temporary copy of the tree so nothing in
+    `data/patches/` is touched. Every failure is re-run alone (load is not the market), and on a sheet
+    that predates a key today's has, re-run again with that key filled in: passing then is "older
+    shape", never gating. It ends `GATE PASSED` only if nothing fails on the last 60 days, the extra
+    sheets or the synthetics. About 40 minutes on 16 cores for ~70 sheets, most of it `solve.test.ts`;
+    `--only <file>` sweeps one file in a minute.
+
+  Run the sweep before adding a file to the allowlist and after restating a live-sheet test, and
+  mutation-check the restatement: "holds at any price" must still mean "fails on the defect". A uniform
+  ×0.3 or ×3 is not a no-op — a test's own typed prices (a tablet's `baseCost`) stay put while the orbs
+  move, so both failed the old Magic-tablet band as the 2026-11-18 sheet did. And the market is more
+  than prices: a literal league name in `TabletsTab.test.tsx` failed every sheet from before the
+  2026-09-05 rollover, and would have held the bot on the next one — it now reads the sheet's league.
+
 - **Measure these solves interleaved, and take medians.** Single runs have a **~40% spread**: unchanged
   code has been timed at 103.8s and 145.6s for identical work. Two opposite conclusions about sweep
   ordering were drawn from single runs before the method was fixed — see docs/validation.md, which also

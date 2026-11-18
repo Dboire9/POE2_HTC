@@ -8,8 +8,8 @@ name: Refresh prices
 # when the data looks trustworthy, so the normal week needs nobody. TWO independent questions decide
 # that, and either one holds the PR:
 #
-#   depth   `prices.mjs` ends its run with a machine-readable `DEPTH-VERDICT:` line — is every price
-#           this sheet uses backed by a real market, and is the league old enough to have one?
+#   depth   `prices.mjs` ends its run with a machine-readable `DEPTH-VERDICT:` line — is the league
+#           old enough to have a market, and is the feed itself sound? (`depthBlockers`, priceDepth.mjs)
 #   tests   does the app still work on the new numbers? The WHOLE suite, run here.
 #
 #   both clean  -> merge automatically. Vercel redeploys; nothing for a human to do.
@@ -23,22 +23,24 @@ name: Refresh prices
 #
 # The verdict is about MARKET DEPTH, measured in units traded per day, because the optimizer ranks
 # plans BY cost: a price with no market behind it does not merely misreport a total, it changes which
-# route the app recommends, and the shape tests pass because the shape is fine. Currency and bones are
-# deep (transmute 2,548/day, preserved rib 347) so one of them going thin-and-moving is genuinely
-# abnormal and holds the PR. Essences are not a market at all (median 2/day) and are handled at the
-# SOURCE instead — the script ignores a quote under 1 unit/day and infers that price from the same
-# essence's other levels — so they hold the PR only if essentially all of them move at once, which
-# means a league rollover rather than one listing.
+# route the app recommends, and the shape tests pass because the shape is fine. poe.ninja is the
+# reference, so a normal day merges by itself, and a single bad quote is handled in the SCRIPT rather
+# than by holding ~1,500 good prices: a currency or bone that goes thin-and-moving keeps its previous
+# price (as a too-thin omen keeps its stored quote), and an essence the feed did not list keeps its
+# previous price rather than dropping to 0. Both are listed in the PR body, and neither holds it.
+# What holds it (since 2026-11-18): the first 7 days of a league, which is handled by hand; more than
+# a quarter of the currency and bone lines thin-and-moving in one run, which is the feed breaking
+# rather than a market; and essentially every essence line moving at once, a rollover by another name.
 
 on:
   schedule:
     # Daily, 06:00 UTC. A scheduled run always uses the default branch, which is what the PR targets.
     #
-    # Daily rather than weekly, and it costs poe.ninja almost nothing: one run is FOUR requests
-    # (/leagues, then the Currency, Abyss and Essences overviews), from one runner, with a descriptive
+    # Daily rather than weekly, and it costs poe.ninja almost nothing: one run is SEVEN requests
+    # (/leagues, then the Currency, Abyss, Essences, Verisium, Runes and Ritual overviews), from one runner, with a descriptive
     # User-Agent. Their stated ask — quoted in prices.mjs's header — is that clients not call the
     # endpoints from end-user machines; the committed-snapshot design already honours that, and a
-    # thousand players still generate zero requests. This moves 4 requests, not 4,000.
+    # thousand players still generate zero requests. This moves 7 requests, not 7,000.
     #
     # It is also self-throttling in two ways that make daily cheap to LIVE with, which was the real
     # question. If no price moved the job stops at the diff check and opens nothing, so quiet weeks
@@ -213,16 +215,20 @@ jobs:
             echo
             if [ "$VERDICT" = clean ]; then
               echo "> [!NOTE]"
-              echo "> Market-depth check passed, so this **merges itself**. Every currency and bone price"
-              echo "> the sheet uses is backed by a real market, and no feed-wide event was detected."
+              echo "> Market-depth check passed, so this **merges itself**: the league is past its first week"
+              echo "> and no feed-wide event was detected. Any currency or bone quote too thin to trust kept"
+              echo "> its previous price, and any essence with no live quote kept its own; both are listed"
+              echo "> under the warnings below, for information."
             else
               echo "> [!CAUTION]"
               echo "> **Held for review — not merged.**"
               echo "$WHY" | sed 's/^/> /'
               echo ">"
-              echo "> A currency or bone price enters EVERY plan, and the optimizer ranks plans BY cost,"
-              echo "> so a quote with no market behind it changes which route is recommended rather than"
-              echo "> only what it says the route costs. Check the depth table below before merging."
+              echo "> Only what a bot cannot judge holds a refresh: the first 7 days of a league (a league"
+              echo "> start is handled by hand), more than a quarter of the currency and bone lines thin and"
+              echo "> moving at once (the feed breaking, not a market), essentially every essence line moving"
+              echo "> at once, or a failing test suite. A single thin quote never holds it — that price keeps"
+              echo "> its previous value. Check the depth table in the full output below before merging."
             fi
             echo
             if grep -q 'WARNING omenQuotes' /tmp/refresh.log; then
@@ -234,7 +240,7 @@ jobs:
               echo
             fi
             if grep -q 'WARNING' /tmp/refresh.log; then
-              echo "Other warnings from this run:"
+              echo "Other warnings from this run (information — none of these holds the PR on its own):"
               echo '```'
               grep 'WARNING' /tmp/refresh.log | grep -v 'omenQuotes' || true
               echo '```'
@@ -265,8 +271,8 @@ jobs:
             fi
             echo
             echo "On the week a new league starts the script correctly follows poe.ninja to the new"
-            echo "league and every price legitimately moves 5-50x. That trips the feed-wide check, so it"
-            echo "arrives held for review rather than merged."
+            echo "league and every price legitimately moves 5-50x. Its first 7 days are held for review"
+            echo "rather than merged, because a league start is handled by hand."
             echo
             echo "<details><summary>Full refresh output</summary>"
             echo

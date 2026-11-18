@@ -335,10 +335,13 @@ describe('the price refresh bot cannot merge quietly', () => {
  */
 describe('early-league prices are held for a read', () => {
   const script = readFileSync('tools/refresh/prices.mjs', 'utf8');
+  // The verdict itself lives in priceDepth.mjs, where priceDepth.test.mjs also checks it by running it.
+  const verdict = readFileSync('tools/refresh/priceDepth.mjs', 'utf8');
 
   it('holds on the league AGE, not only on the changeover day', () => {
-    expect(script).toMatch(/leagueHoldDays/);
-    expect(script).toMatch(/leagueAgeDays < DEPTH\.leagueHoldDays/);
+    expect(verdict).toMatch(/leagueHoldDays/);
+    expect(verdict).toMatch(/leagueAgeDays < DEPTH\.leagueHoldDays/);
+    expect(script).toMatch(/leagueAgeDays,/);
   });
 
   /** poe.ninja's /leagues serves `id` and `name` and no start date, so the sheet has to record when

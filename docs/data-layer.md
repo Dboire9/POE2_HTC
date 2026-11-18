@@ -43,7 +43,7 @@ must agree.
 | `base_items.json` | same pipeline | each base's prefix/suffix pools as mod-id lists |
 | `essences.json` | derived from essence-sourced mods | essence → strength → forced mod ids |
 | `currencies.json` | authored catalog | currency identity + omens; mechanics stay in engine code |
-| `prices.json` | hand-authored | exalt-equivalent prices for the cost model |
+| `prices.json` | poe.ninja, daily, by `tools/refresh/prices.mjs` | exalt-equivalent prices for the cost model |
 | `weights_overrides.json` | hand-authored, community-verified | **always wins over `mods.json`** |
 
 Each file is stamped `{"patch","generated","source"}`.
@@ -74,7 +74,29 @@ The refresh pipeline is `refresh.mjs` (RePoE structure) → `apply_weights.mjs` 
 → `apply_pools.mjs` (poe2db essence + desecrated + perfect-essence pools, and `essences.json`) → `apply_codes.mjs`
 → `apply_tablets.mjs` (the three Precursor Tablets) → `diff.mjs` (writes
 `docs/refresh-0.5.0-diff.md`). RePoE dumps and poe2db pages are cached under `tools/refresh/cache/`
-(gitignored). `currencies.json` / `prices.json` / `weights_overrides.json` are edited by hand.
+(gitignored). `currencies.json` / `weights_overrides.json` are edited by hand.
+
+## Refresh the prices
+
+```bash
+npm run update-prices         # tools/refresh/prices.mjs : poe.ninja -> prices.json
+```
+
+`.github/workflows/refresh-prices.yml` runs this daily, opens a pull request, and merges it by itself
+when the script's last line reads `DEPTH-VERDICT: clean` and the whole test suite passes on the new
+sheet. poe.ninja is the reference, so a single bad quote never holds the refresh — the script handles
+it and reports it:
+
+- a currency or bone line that is **thin and moving** (under 50 units traded a day, and moved 50% or
+  more in a week) keeps its **previous** price; with no previous price it keeps the thin quote, never 0;
+- an essence the feed does not list keeps its previous price rather than being dropped (a missing key
+  would price it at 0); essences are thin every day by nature.
+
+What does hold the PR for a human (`depthBlockers` in `tools/refresh/priceDepth.mjs`, tested in
+`priceDepth.test.mjs`): a league change and the first 7 days of a league, which are handled by hand;
+more than a quarter of the sheet's currency and bone lines thin-and-moving in one run (the feed
+breaking, not a market); and 90% or more of the essence lines moving at once. The reasons are in
+`engineering-notes.md`, "Prices".
 
 > `tools/extractor/` (the original Java-source extractor that produced the `0.5` snapshot) and the old
 > Java round-trip gate are historical — they targeted the retired Java engine and are no longer part

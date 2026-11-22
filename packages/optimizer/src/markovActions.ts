@@ -15,6 +15,8 @@ import type { CurrencyPolicy, PricePart, Prices, PricedStep } from './cost.ts';
 import type { Siblings } from './markovSiblings.ts';
 import { ECHOES_OMEN, allowsStep, cheapestEssenceLevel, essenceLevelOf, stepCost, stepIsPriced, stepPriceParts } from './cost.ts';
 import type { Dist, FlagCode, McRarity, McState, McTarget, SideIndex, StateEncoder } from './markovState.ts';
+import type { RemovalOdds, WhittlingChoice } from './markovWhittling.ts';
+import { ceilingChoices, createWhittling } from './markovWhittling.ts';
 import {
   FLAG_JUNK_PREFIX, FLAG_JUNK_SUFFIX, FLAG_NONE, addTo, anyWeightOf, bit, decodeState,
   encodeState as encodeStateRaw, flagJunkSide, flagTarget, flaggedTarget, has, hasDesecrated,
@@ -29,7 +31,11 @@ export type McAction =
   // `light` = Omen of Light: removes the item's desecrated mod outright (P=1) instead of rolling the
   // uniform 1/N. Mutually exclusive with a side omen — Light already names its target exactly.
   | { readonly currency: 'annul'; readonly side?: 'prefix' | 'suffix'; readonly light?: true }
-  | { readonly currency: 'chaos' }
+  // `whittling` = Omen of Whittling: the removal takes the lowest-LEVEL mod instead of a uniform one, on
+  // average over levels the state does not hold (markovWhittling.ts). `named` is the measurement-only
+  // stand-in of `whittling: 'ceiling'` — the player names the removal (`WhittlingChoice`) — which no app
+  // solve offers and the replay declines.
+  | { readonly currency: 'chaos'; readonly whittling?: true; readonly named?: WhittlingChoice }
   // A Desecration. WITH a boss omen it draws from that boss's desecrated pool (count-uniform);
   // unconstrained it draws across both sides, and a Sinistral/Dextral Necromancy omen (`side`)
   // restricts it to one, shrinking the pool. WITHOUT a boss omen (`boss` absent) it draws by weight
@@ -148,6 +154,9 @@ function pricedStepOf(action: McAction): PricedStep {
       // `tier` is what `currencyKey` turns into `regal_greater` and friends — the same mapping the
       // linear planner's add steps use, so the two cannot drift.
       return { currency: action.currency, tier: action.strength };
+    case 'chaos':
+      // Both the omen and its stand-in are priced as the omen: Chaos Orb + Omen of Whittling.
+      return action.whittling ? { currency: 'chaos', omen: 'whittling' } : { currency: 'chaos' };
     default:
       return { currency: 'chaos' };
   }
@@ -247,6 +256,15 @@ export interface ActionSpaceParams {
    * priced a little worse than it is. See `junkFamilyWeight`.
    */
   readonly junkFamilies?: boolean;
+  /**
+   * Offer a Chaos Orb with the Omen of Whittling (TODO 12b) — on a Rare, where the sheet prices the omen
+   * and the player has not excluded it, like every other omen. OFF unless `true`: the level model fails the
+   * replay (docs/validation.md, 2026-11-22: a whittle's survivors are its high-level mods, which the
+   * average forgets). `'ceiling'` offers
+   * instead the best-case stand-in, whose removal the player names (`WhittlingChoice`): a measurement
+   * that bounds what the real omen could save, never passed by the app.
+   */
+  readonly whittling?: boolean | 'ceiling';
 }
 
 /**
@@ -427,7 +445,11 @@ export function createActionSpace(params: ActionSpaceParams): {
    * a Chaos cannot touch a desecrated mod. That ruling was RETRACTED by the user in the same
    * conversation and the retraction was missed, so it shipped. See docs/validation.md.
    */
-  const removeOutcomes = (s: McState, constrainTo?: 'prefix' | 'suffix'): Dist => {
+  /*
+   * `odds` replaces the uniform pick with the Omen of Whittling's, branch by branch (markovWhittling.ts);
+   * the branches and the flag each one leaves are the same. A branch it gives no chance is left out.
+   */
+  const removeOutcomes = (s: McState, constrainTo?: 'prefix' | 'suffix', odds?: RemovalOdds): Dist => {
     const presentRem: number[] = [];
     const blockedRem: number[] = [];
     for (let i = 0; i < n; i++) {
@@ -445,11 +467,14 @@ export function createActionSpace(params: ActionSpaceParams): {
     // whether it took that one.
     const flaggedIdx = flaggedTarget(s.flagged);
     const after = (i: number): FlagCode => (flaggedIdx === i ? FLAG_NONE : s.flagged);
+    const pick = (i: number): number => (odds ? odds.position.get(i) ?? 0 : 1 / total);
     for (const i of presentRem) {
-      addTo(out, encodeState(s.present & ~bit(i), s.blocked, s.jp, s.js, after(i), s.rarity), 1 / total);
+      const p = pick(i);
+      if (p > 0) addTo(out, encodeState(s.present & ~bit(i), s.blocked, s.jp, s.js, after(i), s.rarity), p);
     }
     for (const i of blockedRem) {
-      addTo(out, encodeState(s.present, s.blocked & ~bit(i), s.jp, s.js, after(i), s.rarity), 1 / total);
+      const p = pick(i);
+      if (p > 0) addTo(out, encodeState(s.present, s.blocked & ~bit(i), s.jp, s.js, after(i), s.rarity), p);
     }
     /**
      * Junk removal splits when the flagged mod is one of that side's junk.
@@ -465,13 +490,16 @@ export function createActionSpace(params: ActionSpaceParams): {
       const js = side === 'suffix' ? s.js - 1 : s.js;
       const share = count / total;
       if (s.flagged === flagJunkSide(side)) {
-        addTo(out, encodeState(s.present, s.blocked, jp, js, FLAG_NONE, s.rarity), share / count);
+        const flagged = odds ? odds.junk[side].flagged : share / count;
+        if (flagged > 0) addTo(out, encodeState(s.present, s.blocked, jp, js, FLAG_NONE, s.rarity), flagged);
         if (count > 1) {
-          addTo(out, encodeState(s.present, s.blocked, jp, js, s.flagged, s.rarity), share * (count - 1) / count);
+          const plain = odds ? odds.junk[side].plain : share * (count - 1) / count;
+          if (plain > 0) addTo(out, encodeState(s.present, s.blocked, jp, js, s.flagged, s.rarity), plain);
         }
         return;
       }
-      addTo(out, encodeState(s.present, s.blocked, jp, js, s.flagged, s.rarity), share);
+      const plain = odds ? odds.junk[side].plain : share;
+      if (plain > 0) addTo(out, encodeState(s.present, s.blocked, jp, js, s.flagged, s.rarity), plain);
     };
     junk(jpRem, 'prefix');
     junk(jsRem, 'suffix');
@@ -506,8 +534,9 @@ export function createActionSpace(params: ActionSpaceParams): {
   };
 
   /** Chaos = remove one uniformly-random mod, then add one weighted mod (base strength) on the freed item. */
-  const chaosOutcomes = (s: McState): Dist => {
-    const removals = removeOutcomes(s);
+  const chaosOutcomes = (s: McState): Dist => addAfter(removeOutcomes(s));
+  /** The add half of a Chaos, after whichever removal: one weighted mod at base strength on each mid-state. */
+  const addAfter = (removals: Dist): Dist => {
     const out: Dist = new Map();
     for (const [midKey, pRem] of removals) {
       const mid = decodeState(midKey);
@@ -753,6 +782,22 @@ export function createActionSpace(params: ActionSpaceParams): {
   const crystallisationOk = (sd: 'prefix' | 'suffix'): boolean =>
     omenOk(sd === 'prefix' ? 'OmenofSinistralCrystallisation' : 'OmenofDextralCrystallisation');
 
+  // ── Omen of Whittling ──────────────────────────────────────────────────────────────────────────
+  // The real omen: the removal by level, averaged (markovWhittling.ts), then exactly a Chaos's add. Where
+  // the level model has nothing to choose between it is the plain removal, which the fold then drops as
+  // the dearer twin of the plain Chaos.
+  const whittlingMode = params.whittling ?? false;
+  const whittlingOk = omenOk('OmenofWhittling');
+  const whittling = whittlingOk && whittlingMode === true ? createWhittling({
+    data, level, pools, list, sameSide,
+    // An Essence lands at the level the action space buys (`essenceTargets`); a Perfect Essence at the tier
+    // the craft asks, as the replay places it.
+    forcedTier: (i) => essenceTargets.find((e) => e.i === i)?.tierIndex ?? list[i]!.mods[0]!.minIndex,
+  }) : undefined;
+  const whittleOutcomes = (s: McState): Dist => {
+    const odds = whittling!.oddsOf(s);
+    return addAfter(removeOutcomes(s, undefined, odds));
+  };
   /**
    * Two actions with the same outcome distribution are the SAME MOVE at two prices, and the dearer one
    * can never be worth playing: value is `(cost + Σ p·V)/(1 − pStay)`, which with the distribution held
@@ -880,6 +925,13 @@ export function createActionSpace(params: ActionSpaceParams): {
     }
     if (lightOk) push({ currency: 'annul', light: true }, lightOutcomes(s));
     push({ currency: 'chaos' }, chaosOutcomes(s));
+    if (whittling) push({ currency: 'chaos', whittling: true }, whittleOutcomes(s));
+    else if (whittlingOk && whittlingMode === 'ceiling') {
+      // The CEILING (TODO 12b): the removal the player names, then a Chaos's add — see `ceilingChoices`.
+      for (const { choice, mid } of ceilingChoices(s, list, encodeState)) {
+        push({ currency: 'chaos', whittling: true, named: choice }, addAfter(new Map([[mid, 1]])));
+      }
+    }
     if (desecratable) {
       // The untargeted draw is always available: it needs no omen, so nothing about the base or the
       // player's omen stock can gate it. On armour it is the ONLY desecration (see

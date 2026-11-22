@@ -88,6 +88,8 @@ function orbOf(a: McAction): McAction {
     case 'annul': return { currency: 'annul' };
     case 'desecrate': return a.ancient ? { currency: 'desecrate', ancient: true } : { currency: 'desecrate' };
     case 'perfect-essence': return { currency: 'perfect-essence', target: a.target };
+    // A Chaos Orb with the Omen of Whittling is still a Chaos Orb; the omen is its own row.
+    case 'chaos': return { currency: 'chaos' };
     default: return a;
   }
 }

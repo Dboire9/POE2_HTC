@@ -189,6 +189,52 @@ describe('every charge the solve makes is attributed to a count', () => {
 });
 
 /**
+ * A Chaos Orb played with the Omen of Whittling is two rows — one Chaos Orb and one Omen of Whittling —
+ * never a renamed Chaos row. The omen ships OFF in the true cost (TODO 12b), so the solve asks for it by
+ * name. The fixture is markovWhittling.test.ts's: every mod one level, junk J at 10 below target A's 50, so
+ * from A and J the plan's first move is the omened Chaos, the first count the Chaos row ever receives.
+ */
+describe('a Chaos with the Omen of Whittling counts one Chaos Orb and one omen', () => {
+  const one = (id: string, type: 'prefix' | 'suffix', ilvl: number, weight: number): Mod => ({
+    id, source: 'normal', type, family: id, tags: [], text: id, tiers: [{ name: `${id}1`, ilvl, weight, ranges: [] }],
+  });
+  const A: Mod = {
+    id: 'A', source: 'normal', type: 'prefix', family: 'A', tags: [], text: 'A',
+    tiers: [{ name: 'a1', ilvl: 20, weight: 100, ranges: [] }, { name: 'a2', ilvl: 50, weight: 100, ranges: [] }],
+  };
+  const base: ItemBase = {
+    id: 'S', name: 'S', category: 'Wands',
+    pools: { normal: { prefixes: ['A', 'J'], suffixes: ['B', 'K'] }, desecrated: { prefixes: [], suffixes: [] }, essence: { prefixes: [], suffixes: [] } },
+  };
+  const fixture: PatchData = {
+    patch: 't',
+    mods: new Map([A, one('B', 'suffix', 50, 100), one('J', 'prefix', 10, 10), one('K', 'suffix', 10, 10)].map((m) => [m.id, m])),
+    bases: new Map([['S', base]]),
+  };
+  const prices: Prices = { currency: { exalt: 5, annul: 100, chaos: 1 }, omens: { OmenofWhittling: 1 } };
+
+  it('keeps the Chaos row a plain Chaos Orb, the omen on a row of its own', () => {
+    const start: ItemState = {
+      base, level: 82, rarity: 'rare', prefixes: [{ modId: 'A', tierName: 'a2' }, { modId: 'J', tierName: 'J1' }], suffixes: [],
+    };
+    const r = markovFromItem(fixture, prices, start, [{ modId: 'A', minTierIndex: 1 }, { modId: 'B' }],
+      { ...TIGHT, keepRoutes: true, whittling: true });
+    expect(r.nodes[0]!.action).toEqual({ currency: 'chaos', whittling: true });
+    const u = markovUses(r.routes!, prices)!;
+    const chaos = u.uses.find((x) => x.key === 'chaos')!;
+    const omen = u.uses.find((x) => x.key === 'OmenofWhittling')!;
+    expect(chaos.kind).toBe('orb');
+    expect(chaos.action).toEqual({ currency: 'chaos' });
+    expect(omen.kind).toBe('omen');
+    // Each omen rides on a Chaos Orb, and the counts priced back up are the solve's cost.
+    expect(omen.count).toBeGreaterThan(0.5);
+    expect(chaos.count).toBeGreaterThanOrEqual(omen.count - 1e-12);
+    expect(u.uses.filter((x) => x.key === 'chaos')).toHaveLength(1);
+    expect(priced(u)).toBeCloseTo(r.expectedCost, 9);
+  });
+});
+
+/**
  * The replay plays the solved plan on REAL items and counts what it spent (`spendByMove`) — a measurement
  * that shares nothing with the linear algebra above. Twenty seeded batches give each mean count a standard
  * error; every exact count must sit within three of it. (The model and the replay differ only by the

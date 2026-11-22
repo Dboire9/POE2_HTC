@@ -398,6 +398,9 @@ function actionLabel(data: PatchData, action: McAction): string {
     const name = data.mods.get(action.target)?.tiers[action.tierIndex]?.name;
     return name ?? `${action.level === 'lesser' ? 'Lesser ' : action.level === 'greater' ? 'Greater ' : ''}Essence`;
   }
+  // The Omen of Whittling, named in full as the step planners name it: "+ Whittling" alone would not say
+  // which orb it modifies. The true cost plays it only when asked (`MarkovOptions.whittling`, OFF today).
+  if (action.currency === 'chaos' && action.whittling) return 'Chaos + Omen of Whittling';
   return 'Chaos';
 }
 

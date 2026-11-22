@@ -972,7 +972,7 @@ that re-routes the policy can expose it, and this one did.
 exclude two-carved states outright, or whether the action space should. Then the gate is a small,
 mechanical re-apply — the diff is described above and the fixture work is understood.
 
-### 12b. The MDP cannot play Whittling — OPEN; its best case BUILT, MEASURED, REVERTED 2026-11-13
+### 12b. The MDP cannot play Whittling — OPEN; its best case measured 2026-11-13; a level average BUILT, FAILED ITS REPLAY, shipped OFF 2026-11-22
 
 `McState` is `(present, blocked, jp, js, flagged, rarity)`: it knows WHICH targets are present and HOW
 MANY junk mods sit per side, and **no mod's level**. "Remove the lowest-level modifier" therefore has
@@ -1017,11 +1017,27 @@ level-ordered omen is most likely to make, which is the reason to think the real
 share of this ceiling; how much is not measured. Numbers in docs/validation.md.
 
 **So it is no longer a low-priority limit: the real action gets a plan of its own, sized by these
-numbers.** Not built yet. The shape: the action as an AVERAGE over levels — each modifier's level an
-independent draw from its tier weights, "which is lowest" by order statistics — so the state needs no
-level axis; the replay plays the omen on real items (`lowestLevelMods` in `probability.ts` already
-models it); shipped only inside the junk-family gate (TODO 23) — within 2% and 3 standard errors of
-the replay.
+numbers.**
+
+**Built 2026-11-22, and OFF.** `markovWhittling.ts` plays the removal as an AVERAGE over levels — each
+mod's level an independent draw from its tiers by weight, "which is lowest" by order statistics, ties
+uniform — behind `MarkovOptions.whittling: true` (`'ceiling'` rebuilds the stand-in above, kept as a
+bound). The replay plays the omen on real tiers (`lowestLevelMods`); "Chaos + Omen of Whittling" is
+labelled and the omen counted as its own row. The default is `false` and nothing in the app passes it,
+because **it failed the gate** (`scripts/whittling.mts`, docs/validation.md 2026-11-22): on a frozen-sheet
+three-target Wand at 1 ex the model says 8,537 and its plan, played on real items, costs 32,337 ± 238
+(+279%); at 30 ex +25%, at 300 ex +2.2% (3.2 SE); three other small crafts +7.5% to +67%. The replays without
+the omen agree within 1.3%. On today's sheet the big crafts it claims to save on (up to 70%) are too long
+to replay. **Do not flip the default without that script ending GATE PASSED.**
+
+**Why it fails: survivor selection.** The average draws every level afresh at each whittle; on the item,
+a junk mod that survived a whittle is a high-level one and stays, so the next whittle takes a target or a
+blocked roll (551 whittles a craft played against 167 planned on that Wand). A replay that re-draws levels
+before each whittle lands near V (9,046 ± 187). A level floor by where a mod came from was not tried: it
+moves the distribution, not the forgetting. **A fix needs state memory of what a whittle has shown**, for
+example: a "survived a whittle" mark per side's junk (or a floor of the lowest removed level) as a new state
+axis; or conditioning the junk's level distribution on the whittles since it rolled, kept as a count. Each
+grows the lattice; measure that first.
 
 **What the ceiling does not cover.** Base-strength Chaos only (the MDP plays no Greater/Perfect Chaos,
 §5d); it never removes a present target, which the real omen can; the price is held fixed at 5–83 omens a
@@ -1758,6 +1774,28 @@ alone. What stays open:
 - **A pasted modifier whose roll fits no rolled tier resolved to the Essence modifier** and was refused as
   "more modifiers than the plan has room for" (a bow with "Adds 3 to 6 Fire Damage" at item level 16). Seen
   once while probing, not investigated.
+
+## 33. A tier is looked up by its NAME, and rune-pool mods repeat names — OPEN, found 2026-11-22
+
+277 of the 2,965 shipped mods give two or more of their tiers one name, and **every one of them is a
+rune-pool mod** (`<base>/Rune_<pool>_<family>`, from the six rune pools: soul, chronomancy, destruction,
+decay, marksman, berserking — 277 of their 439 mods): the tier is named after the rune, "of Chronomancy",
+"Uhtred's". **246 of the 277 carry DIFFERENT item levels under the one name** (e.g.
+`Boots_dex_int/Rune_chronomancy_CooldownRecovery`: "of Chronomancy" at ilvl 45, 55 and 78); the other 31
+repeat a name at one level. No weight differs under a name. None is in a base's own normal pool — they
+roll only once a pool rune is socketed (`runes.ts`). Measured with a probe script, not kept.
+
+A `PlacedMod` carries a `tierName`, and these read it back as the FIRST tier with that name:
+- `lowestLevelMods` (`probability.ts`) — the Omen of Whittling's "lowest level", in the step planners
+  (live) and in the replay's whittled Chaos: a rune mod reads at its lowest tier's level.
+- `classifyStart` (`markovState.ts`) — present or blocked against the tier asked; the replay re-classifies
+  every item it plays through it, so a rune-pool target placed at a higher tier can read as blocked.
+- `markovProblem.ts` — a held fractured target below the tier asked is refused.
+- `tierDisplay` (`tierFit.ts`) — the tier a paste or profile shows; and `markovReplay.ts` `rollValue`,
+  the value range a watch entry's bounds read.
+
+Not fixed. What a fix needs: a placed mod that names its tier unambiguously (an index, or names made
+unique in `tools/refresh/`), and a measurement of which of these readers a real craft reaches.
 
 ## What 1.0 means — ALL FIVE SHIPPED, prepared 2026-09-02
 

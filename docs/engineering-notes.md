@@ -748,6 +748,18 @@ Enforced in `packages/engine` (mostly `probability.ts`).
   narrow enough for `fmtPct(lower)` and `fmtPct(upper)` to render the same string or the panel prints
   a range where it printed a number.
 
+- **The true cost CAN play the Omen of Whittling, and ships with it OFF** (2026-11-22, TODO 12b).
+  `MarkovOptions.whittling: true` offers a Chaos Orb + Omen of Whittling on a Rare, its removal an average
+  over the levels the state does not hold (`markovWhittling.ts`: each mod's level drawn from its tiers by
+  weight, "which is lowest" by order statistics, ties uniform); `'ceiling'` is the 2026-11-13 best-case
+  stand-in, kept as a bound. The default is `false` in both `markovLattice.ts` and `markovActions.ts`, and
+  nothing in the app passes it, because **the model failed its replay**: on a three-target frozen-sheet Wand
+  with the omen at 1 ex it gives 8,537 where playing its plan on real items costs 32,337 ± 238 (docs/validation.md,
+  2026-11-22). Not a code bug — the average is memoryless, and a junk mod that survived a whittle is
+  thereby a high-level one that the next whittle will not take; a replay that re-draws every level before
+  each whittle lands near V. With it off, the solve is the one it was before: the level signature in
+  `markovSymmetry.ts` is asked only when `whittling === true`. **Do not flip the default without
+  `scripts/whittling.mts` ending GATE PASSED.**
 - **A slot's alternatives are made cheap TWO different ways, and they are not interchangeable.**
   `markovSymmetry.ts` decides which. **Same-family** alternatives (`increased Fire / Cold / Lightning`
   are one family) can never be on the item together and behave identically once any of them lands, so

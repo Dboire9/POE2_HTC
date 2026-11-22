@@ -17,7 +17,7 @@
 import type { AffixType, ItemState, Mod, PatchData, PlacedMod, Rarity } from '../../engine/src/types.ts';
 import { CURRENCY_FLOOR } from '../../engine/src/types.ts';
 import { familiesOf, modTierWeight, resolveMod } from '../../engine/src/pool.ts';
-import { ANCIENT_BONE_FLOOR, DESECRATION_OFFER_COUNT, desecrationOmenForMod } from '../../engine/src/probability.ts';
+import { ANCIENT_BONE_FLOOR, DESECRATION_OFFER_COUNT, desecrationOmenForMod, lowestLevelMods } from '../../engine/src/probability.ts';
 import { limitsOf } from '../../engine/src/item.ts';
 import type { McAction } from './markovActions.ts';
 import type { McState, McTarget, StateEncoder, StateKey } from './markovState.ts';
@@ -265,11 +265,16 @@ export function replayPolicy(ctx: ReplayContext, opts: ReplayOptions): ReplayRep
     suffixes: side === 'suffix' ? [...item.suffixes, placed] : item.suffixes,
   });
 
-  /** One uniformly random removable mod gone, optionally from one side only (an Annulment omen). */
-  const remove = (item: ItemState, side?: AffixType): ItemState => {
+  /**
+   * One uniformly random removable mod gone, optionally from one side only (an Annulment omen) — or, with
+   * `lowest`, only from the mods an Omen of Whittling would take: the lowest-level ones on the real tiers
+   * they rolled (`lowestLevelMods`), uniformly among the tied.
+   */
+  const remove = (item: ItemState, side?: AffixType, lowest?: ReadonlySet<string>): ItemState => {
     const slots: [AffixType, number][] = [];
-    if (side !== 'suffix') item.prefixes.forEach((p, i) => { if (!p.fractured) slots.push(['prefix', i]); });
-    if (side !== 'prefix') item.suffixes.forEach((p, i) => { if (!p.fractured) slots.push(['suffix', i]); });
+    const takes = (p: PlacedMod): boolean => !p.fractured && (!lowest || lowest.has(p.modId));
+    if (side !== 'suffix') item.prefixes.forEach((p, i) => { if (takes(p)) slots.push(['prefix', i]); });
+    if (side !== 'prefix') item.suffixes.forEach((p, i) => { if (takes(p)) slots.push(['suffix', i]); });
     if (slots.length === 0) return item;
     const [sd, drop] = slots[Math.floor(rng() * slots.length)]!;
     return sd === 'prefix'
@@ -372,9 +377,11 @@ export function replayPolicy(ctx: ReplayContext, opts: ReplayOptions): ReplayRep
         return flagged ? { ...item, prefixes: item.prefixes.filter((p) => p !== flagged), suffixes: item.suffixes.filter((p) => p !== flagged) } : undefined;
       }
       case 'chaos': {
-        // Remove, then roll one at base strength on what is left — and if nothing can roll, the
-        // removal stands alone, exactly as `chaosOutcomes` has it.
-        const mid = remove(item);
+        // The Whittling ceiling names its removal, which no real orb does: a measurement, not a move.
+        if (action.named) return undefined;
+        // Remove — the lowest-level mod under an Omen of Whittling — then roll one at base strength on
+        // what is left; if nothing can roll, the removal stands alone, exactly as `chaosOutcomes` has it.
+        const mid = action.whittling ? remove(item, undefined, new Set(lowestLevelMods(data, item))) : remove(item);
         return add(mid, 0, undefined, mid.rarity) ?? mid;
       }
       case 'restart':

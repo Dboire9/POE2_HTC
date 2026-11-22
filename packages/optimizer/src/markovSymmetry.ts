@@ -39,6 +39,8 @@ import {
 } from './markovState.ts';
 import type { StateEncoder } from './markovState.ts';
 import { REACHABLE_FLOORS } from './markovActions.ts';
+import type { LevelDist } from './markovWhittling.ts';
+import { blockedLevels, presentLevels } from './markovWhittling.ts';
 
 /** A candidate as the caller named it: one mod, the tier floor asked of it, and whether it is locked. */
 export interface ResolvedCandidate {
@@ -188,6 +190,12 @@ export interface SymmetryContext {
   readonly level: number;
   /** Each position's same-side family siblings (markovSiblings.ts). Absent ⇒ none. */
   readonly sameSide?: readonly (readonly Mod[])[];
+  /**
+   * The solve plays the Omen of Whittling (`MarkovOptions.whittling === true`), so two positions must also
+   * sit at the same LEVELS to be swapped. Absent ⇒ it does not, and the classes are the ones a solve
+   * without the omen always had.
+   */
+  readonly whittling?: boolean;
 }
 
 /**
@@ -214,6 +222,10 @@ export interface SymmetryContext {
  *   - Neither may have a same-side family SIBLING (markovSiblings.ts): its blocked state then arrives by
  *     rolls of other mods, from pools and boss lists its twin's does not — never swapped, rather than
  *     one more signature to keep equal to the action space.
+ *   - With the Omen of Whittling in play (`ctx.whittling`), the same LEVELS, present and blocked
+ *     (markovWhittling.ts): it takes the lowest-level mod, so two positions whose tiers sit at different
+ *     item levels are removed at different odds even where every windowed weight above agrees. Identical
+ *     tier tables always pass. Without the omen nothing reads a level, so this is not asked.
  *
  * Grouped by a signature rather than compared pairwise: every condition is an equality, so
  * interchangeability is transitive and equal signatures are a class.
@@ -253,6 +265,10 @@ export function permutationClasses(
     }
     for (const ids of bossLists) {
       parts.push(ids.filter((id) => excluded(data.mods.get(id)!, occ)).length);
+    }
+    if (ctx.whittling) {
+      const levels = (d: LevelDist | undefined): string => (d ? d.levels.map((v, k) => `${v}=${d.probs[k]}`).join(',') : '-');
+      parts.push(levels(presentLevels(t, level)), levels(blockedLevels(t, level)));
     }
     return parts.join('|');
   };

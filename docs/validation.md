@@ -5424,6 +5424,101 @@ reported and does not gate:
 | control: an unlisted test reading `loadFrozenPrices()` | allowlist | passes |
 | the Tablets tab's two trade links pointed at `Standard` | Tablets tab, both league checks | fail: `/Standard` ≠ the sheet's league |
 
+## The Omen of Whittling as a level average — built, failed its replay, shipped OFF (2026-11-22, TODO 12b)
+
+**What was built.** The true cost can now play "Chaos Orb + Omen of Whittling" on a Rare, behind
+`MarkovOptions.whittling` (`true`; `'ceiling'` is the 2026-11-13 best-case stand-in, rebuilt from its
+written spec and kept as a bound). The state still holds no levels, so the removal is an AVERAGE
+(`markovWhittling.ts`): each mod on the item gets a level distribution from what the state knows about it
+— a present target one of its tiers at or above the one asked, a blocked position one below it or a
+same-side sibling's, junk its side's junk pool, the bone's flagged junk the carved pool (level 65) — every
+tier inside [0, item level] by weight. The levels are taken as independent, and which mod is lowest is an
+order statistic, ties uniform (`lowestOdds`). The branches are exactly `removeOutcomes`' with these weights,
+then a Chaos's add. The replay (`markovReplay.ts`) plays a whittled Chaos on the real tiers it rolled,
+removing uniformly among `lowestLevelMods`. The symmetry canonicaliser also compares levels, but only
+when the omen is on. Hand-computed tests cover the order statistics, the action, the fold, the replay and
+a small craft whose levels are all known (`markovWhittling.test.ts`); there the average is the game, and
+the replay lands on V.
+
+**The gate** (the plan's, and TODO 12b's): on every craft where the omen plays and the replay finishes,
+the replay of the real-omen plan is within 2% AND 3 standard errors of its V; without ≥ real ≥ ceiling;
+a craft that never plays it is unchanged to the last digit. `scripts/whittling.mts` checks all three and
+ends `GATE PASSED` or `GATE FAILED`. All solves `markovBoneFreeFirst`, from white, item level 82, policy
+iteration, tolerance 1e-9, bones excluded, 300 s a solve; replays 20,000 runs, seed 7, on a 300 s clock.
+
+**Frozen sheet** (`loadFrozenPrices()`: Chaos 33.39 ex, no omen quote, so the omen is priced per row), a
+base at 30 ex, each craft's first prefixes and suffixes at their second tier. Run in five shards side by
+side (`--only frozen`, then one per base):
+
+| craft, omen price | V without | V real omen | V ceiling | whittled Chaos a craft (plan / replay) | replay without | replay real omen |
+|---|---|---|---|---|---|---|
+| Wands 2P+1S, 1 ex | 20,943.60 | 8,537.22 | 3,367.13 | 166.98 / 551.44 | 20,916.09 ± 139.71 (−0.13%) | 32,337.25 ± 237.85 (+278.78%, +100.06 SE) |
+| Wands 2P+1S, 30 ex | 20,943.60 | 12,829.22 | 5,217.04 | 93.96 / 104.57 | same | 16,044.90 ± 106.30 (+25.07%, +30.25 SE) |
+| Wands 2P+1S, 300 ex | 20,943.60 | 20,817.53 | 18,099.36 | 0.98 / 0.99 | same | 21,270.26 ± 139.77 (+2.17%, +3.24 SE) |
+| Rings 2P+1S, 1 ex | 16,596.45 | 8,388.42 | 3,024.31 | 64.18 / 63.27 | 16,605.22 ± 106.67 (+0.05%) | 9,018.27 ± 62.24 (+7.51%, +10.12 SE) |
+| Amulets 1P+2S, 1 ex | 39,794.57 | 19,509.87 | 3,946.70 | 184.40 / 193.86 | 39,761.35 ± 260.84 (−0.08%) | 32,630.51 ± 215.41 (+67.25%, +60.91 SE) |
+| Body Armour (str) 2P+1S, 1 ex | 12,108.48 | 5,704.97 | 2,335.95 | 48.44 / 48.70 | 12,259.65 ± 85.63 (+1.25%) | 6,317.62 ± 42.76 (+10.74%, +14.33 SE) |
+
+Every real-omen replay costs MORE than its V, beyond 2% and 3 SE, while every replay without the omen
+lands within 1.25% and 1.8 SE: the plans are fine, the omen's number is not. Even at 300 ex, where the plan
+whittles less than once a craft, it is just outside (+2.17%, 3.24 SE). The ordering holds on all six.
+
+**Today's sheet** (omen 6,969 ex, Chaos 39.07 ex): the build-up set of `scripts/build-up.mts`, no
+start-over cost. The 11 crafts where the real-omen plan plays it:
+
+| craft | V without | V real omen | V ceiling | whittled Chaos a craft | replay |
+|---|---|---|---|---|---|
+| Wands ×6 T2 | 1,657,958.20 | 1,286,637.27 | 346,921.22 | 62.33 | too long |
+| Wands ×5 T1 | 817,841.83 | 815,398.93 | 595,012.75 | 0.82 | real 814,194.24 ± 19,327.10 (−0.15%), 1,335 runs — too few to count |
+| Wands ×6 T1 | no number in 300 s | 3,206,623.23 | 1,238,975.24 | — | not checked |
+| Rings ×6 T2 | 213,986.42 | 210,813.72 | 183,186.08 | 11.50 | too long |
+| Rings ×6 T1 | 2,554,085.47 | 1,324,658.69 | 516,809.32 | 55.79 | too long |
+| Amulets ×6 T2 | 994,896.48 | 725,638.25 | 296,280.44 | 37.38 | too long |
+| Amulets ×5 T1 | 2,281,379.44 | 2,153,358.44 | 747,849.84 | 53.53 | too long |
+| Amulets ×6 T1 | 15,608,243.20 | 4,626,884.00 | 828,607.00 | 373.63 | too long |
+| Body Armour (str) ×6 T2 | 117,560.75 | 117,288.01 | 112,140.38 | 0.51 | too long |
+| Body Armour (str) ×5 T1 | 325,565.18 | 325,562.00 | 325,562.00 | 0.31 | too long |
+| Body Armour (str) ×6 T1 | 2,093,460.46 | 731,801.93 | 366,335.27 | 49.29 | too long |
+
+Unchanged to the last digit, never played (13): Wands ×4 T2 18,002.59, ×5 T2 133,525.90, ×4 T1
+174,883.02; Rings ×4 T2 19,251.84, ×5 T2 56,633.25, ×4 T1 88,269.19, ×5 T1 442,304.56 (its ceiling,
+442,144.55, is lower); Amulets ×4 T2 57,551.96, ×5 T2 212,334.75, ×4 T1 368,907.78; Body Armour (str) ×4
+T2 10,843.20, ×5 T2 27,881.00, ×4 T1 75,697.63. "Too long" is the replay declining: a craft ran over a
+million orbs and restarts. The four crafts it did play, all never-plays (Wands, Rings and Body Armour ×4
+T2, Body Armour ×5 T2; 2,200–5,300 runs on the clock), land within 3% and 1.5 SE. Without ≥ real ≥
+ceiling on every row (Body Armour ×5 T1's real and ceiling agree to 1e-16). So today's sheet orders the
+three numbers and shows how much the model CLAIMS (up to 70% off Amulets ×6 T1), but measures nothing: the
+one replay where the omen plays (Wands ×5 T1, under one omen a craft) has a standard error of 2.4%, wider
+than the 2% it would be checked to. The script counts an agreement only when 3 SE ≤ 2% of V; a
+disagreement fails at any width.
+
+`npx tsx scripts/whittling.mts`, five shards: **GATE FAILED** — the six frozen-sheet crafts fail check 3;
+the today's-sheet shards fail for having no replay that could measure the model, except the Wands shard,
+which passed on Wands ×5 T1 before that rule was added. Re-run alone with it (`--only "today: Wands x5 T1"`):
+real 821,935.40 ± 20,262.97 (+0.80%, +0.32 SE, 1,242 runs on the clock) — "plays, replay agrees but too few
+runs to count" — and `GATE FAILED`, exit 1.
+
+**Not a code bug: survivor selection.** On the 1 ex Wand the replay whittles 551 times a craft where the
+plan expects 167. A diagnostic replay that draws every mod's level afresh before each whittle — the model's
+own assumption — lands at 9,046 ± 187 against V 8,537 (not kept). What the average forgets: a whittle that
+leaves a junk mod behind has shown that mod is NOT the lowest, so it is a high-level roll and stays; the
+lattice draws its level fresh and expects the next whittle to take it. The policy, told junk goes first,
+keeps whittling, and on the real item the whittle takes a target or a blocked roll instead. The craft whose
+levels are all known (the test) cannot show it; every real craft with mixed-level junk does.
+
+**Why the planned refinement was not tried.** The plan allowed one: a level floor by where a mod came from
+(an Essence, a Greater Exalt place higher). It changes the distribution a mod is drawn from, not the fact
+that it is drawn afresh after every whittle, so it cannot remove survivor selection; the crafts above roll
+everything at base strength, where the floor is 0 anyway.
+
+**Solve time** with it on, measured before the symmetry check was made conditional: Amulets ×6 T2 median
+44.6 → 47.7 s (+7%). Not re-measured since; with it off the solve is the one `beta` had.
+
+**Ships OFF.** `whittling` defaults to `false` (`markovLattice.ts`, `markovActions.ts`), nothing in the app
+passes it, and the guide's FAQ (the true cost does not play Whittling) stays true. The labels and counts are
+ready for the day it is turned on: "Chaos + Omen of Whittling" in `actionLabel`, and the omen as its own row
+in "What you'll use" (`markovUses.ts`). TODO 12b stays open.
+
 ## Still deferred
 - **Confirm the Omen of Whittling TIE rule in game** (2026-09-02): when two or more modifiers share
   the lowest item level, which does the Chaos Orb remove? Modelled as uniform — 50/50 on two — by the

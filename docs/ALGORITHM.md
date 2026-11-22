@@ -178,7 +178,8 @@ move at a time.
 
 **Not modelled in the true expected cost** (the step routes have some of them): the Omen of Whittling and
 the Erasure omens, which need each mod's level (TODO 12b, 12c, 27) — for Whittling a best case is
-measured: nothing on most crafts, up to half the cost or more on the biggest; Greater Exaltation and stronger
+measured: nothing on most crafts, up to half the cost or more on the biggest, and a level model built on
+2026-11-22 failed its replay, so the true cost ships without it; Greater Exaltation and stronger
 Chaos Orbs, built and measured to change no answer (TODO 14a, 5d); Alchemy. Recombinators are not
 modelled anywhere.
 

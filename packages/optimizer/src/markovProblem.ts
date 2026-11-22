@@ -398,7 +398,9 @@ export function resolveProblem(
    * `encode` is `encodeState` itself when nothing qualifies, so every craft that predates this pays
    * nothing — not even a branch.
    */
-  const classes = permutationClasses({ data, pools, level, sameSide: siblings.sameSide }, list, slots);
+  const classes = permutationClasses(
+    { data, pools, level, sameSide: siblings.sameSide, whittling: opts.whittling === true }, list, slots,
+  );
   const encode = encoderFor(classes);
   /*
    * …and an essence twin's position is never blocked (only its own Essence can occupy a crafted family)

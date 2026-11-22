@@ -42,6 +42,7 @@ export function buildLattice(p: McProblem, opts: MarkovOptions, fail: Refuse) {
   const { actionsOf } = createActionSpace({
     data, prices, level, pools, list, side, desecratable, encode, limits, siblings,
     junkFamilies: opts.junkFamilies !== false,
+    whittling: opts.whittling ?? false,
     bossTargetable: bossOmenAllowed(start.base.category),
     ...(opts.policy ? { policy: opts.policy } : {}),
     ...(opts.restartCost === undefined

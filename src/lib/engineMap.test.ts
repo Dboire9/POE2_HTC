@@ -83,6 +83,30 @@ describe('mapMarkov — naming a Desecration', () => {
   });
 });
 
+describe('mapMarkov — naming a Chaos with the Omen of Whittling', () => {
+  it('names the omen in full on the node, the edge and the replay’s bill, as the step planners do', () => {
+    const chaos = { currency: 'chaos' };
+    const whittled = { currency: 'chaos', whittling: true };
+    const node = (key: string, action: object) => ({
+      key, present: [], blocked: [], junkPrefixes: 0, junkSuffixes: 0, isStart: key === 's', isGoal: false,
+      expectedCost: 1, rarity: 'rare', visitRate: 1, depth: 1, action,
+    });
+    const res = {
+      expectedCost: 1, feasible: true, converged: true, bound: 'exact', policy: new Map(),
+      nodes: [node('s', whittled), node('t', chaos)],
+      edges: [{ from: 's', to: 't', action: whittled, prob: 1, regress: false }],
+      replay: {
+        ok: true, runs: 1, seen: [], meanCost: 1, stdErr: 0, costPercentiles: [], movesPerCraft: 1,
+        spendByMove: [{ action: whittled, count: 1, spent: 1 }, { action: chaos, count: 1, spent: 1 }],
+      },
+    } as unknown as Parameters<typeof mapMarkov>[1];
+    const out = mapMarkov({ mods: new Map() } as unknown as Parameters<typeof mapMarkov>[0], res);
+    expect(out.nodes.map((n) => n.action)).toEqual(['Chaos + Omen of Whittling', 'Chaos']);
+    expect(out.edges[0]!.action).toBe('Chaos + Omen of Whittling');
+    expect(out.replay!.spendByMove.map((m) => m.label)).toEqual(['Chaos + Omen of Whittling', 'Chaos']);
+  });
+});
+
 /**
  * Each position of a policy state carries the three facts the graph lays out: the modifier, the SIDE it
  * sits on, and the TIER the target asked for. The last is the ask, not a roll — a present position

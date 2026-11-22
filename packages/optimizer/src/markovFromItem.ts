@@ -28,7 +28,9 @@
 //     pool on average (`junkFamilies`, mean-field) rather than exactly: within 2% of the replay on the 18
 //     crafts measured (TODO 23, 2026-09-24).
 //   • The Omen of Whittling removes the lowest-LEVEL mod, and the state keeps no levels, so the MDP does
-//     not play it (TODO 12b, 27); nor the Erasure omens (12c), nor Greater Exaltation (14a, measured).
+//     not play it (TODO 12b, 27): an average over levels exists (`whittling: true`, markovWhittling.ts)
+//     and is OFF, having failed its replay (scripts/whittling.mts). Nor the Erasure omens (12c), nor
+//     Greater Exaltation (14a, measured).
 
 import type { ItemState, PatchData } from '../../engine/src/types.ts';
 import type { CurrencyPolicy, Prices } from './cost.ts';
@@ -238,6 +240,13 @@ export interface MarkovOptions {
    * high to within 2% (docs/validation.md). `false` is the old model, kept for that comparison.
    */
   readonly junkFamilies?: boolean;
+  /**
+   * Play the Omen of Whittling (`ActionSpaceParams.whittling`, TODO 12b): OFF unless `true` (it fails the
+   * replay, docs/validation.md 2026-11-22), and then offered only
+   * where the sheet prices the omen and the player has not excluded it. `'ceiling'` swaps it for the
+   * best-case stand-in whose removal the player names — a measurement bound the app never asks for.
+   */
+  readonly whittling?: boolean | 'ceiling';
   /**
    * Cost each policy by solving its chain outright (dense elimination) rather than by sweeping it, when
    * the chain has at most `DIRECT_MAX_STATES` states. Exact where sweeping only looks settled — see

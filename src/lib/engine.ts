@@ -39,12 +39,17 @@ import { routeFrom, stepFrom } from '../../packages/optimizer/src/markovRoute.ts
 import { keyOfItem, type Located } from '../../packages/optimizer/src/markovLocate.ts';
 import { markovUses } from '../../packages/optimizer/src/markovUses.ts';
 import {
+  bestValues, checkMethod, methodCraft, methodFromPlan, sameLattice, type Method, type MethodCraft,
+} from '../../packages/optimizer/src/markovMethod.ts';
+import type { ReplayOptions } from '../../packages/optimizer/src/markovReplay.ts';
+import { mapMethod, methodUnavailable } from './methodWords.ts';
+import {
   alternativesFromWhite, alternativesFromItem, type AlternativesOptions,
 } from '../../packages/optimizer/src/alternatives.ts';
 import type {
   EngineBase, EngineMod, EngineBaseMods, EngineResult, TargetInput,
   ExistingItem, CurrencyAction, AltTargetInput, EngineAlternatives, EngineMarkovResult,
-  EnginePriceBasis, RuneChoice,
+  EnginePriceBasis, RuneChoice, EngineMethodBest, EngineMethodResult,
 } from './engineTypes.ts';
 import {
   prettyName, toEngineMod, toTierTargets, toAltTargets, buildItemState, addBlockedReason,
@@ -359,6 +364,51 @@ export function optimizeItemMarkov(
   // resolved for this base, since a bone's price is the base's.
   const uses = countUses && res.routes ? markovUses(res.routes, pricesForBase(prices, state.base)) : undefined;
   return mapMarkov(data, res, usesAssumedPool(item.runes ?? []), asked, uses);
+}
+
+/**
+ * "Check my method": a player's rules costed exactly on the craft the true cost solved, against its best
+ * plan (packages/optimizer/src/markovMethod.ts), worded for the Plan tab (methodWords.ts).
+ *
+ * The lattice is rebuilt from EXACTLY the inputs the solve had — `opts` must be the solve's model options
+ * (restart cost, currency policy, free slots, fill on finish) — with the essence twins `optimizeItemMarkov`
+ * offers, or as asked where that is what the solve settled on. The best plan's values are reused from
+ * `best.routes` when its states are this lattice's, and solved once otherwise (a plan without bones given
+ * as a ceiling, or no table at all). A best plan that is only a bound gives the method's cost alone.
+ */
+export function checkItemMethod(
+  eng: Engine, item: ExistingItem, targets: readonly TargetInput[], opts: MarkovOptions, method: Method,
+  best?: EngineMethodBest, replay?: ReplayOptions,
+): EngineMethodResult {
+  const { data, prices } = eng;
+  const state = buildItemState(data, item);
+  const named = toTierTargets(data, targets);
+  const tiers = twinsFor(data, state, named, buyable(prices, opts.policy));
+  let craft: MethodCraft | { readonly refused: string } = methodCraft(data, prices, state, tiers, opts);
+  // As asked, without the twins: where the solve settled on that craft (`optimizeItemMarkov`), or where the
+  // craft with them cannot be set up at all.
+  const twinsMiss = 'refused' in craft || (best !== undefined && !sameLattice(best.routes, craft.lattice));
+  if (twinsMiss && tiers.length !== named.length) {
+    const plain = methodCraft(data, prices, state, named, opts);
+    if (!('refused' in plain) && ('refused' in craft || sameLattice(best!.routes, plain.lattice))) craft = plain;
+  }
+  if ('refused' in craft) return methodUnavailable(craft.refused);
+  const values = bestValues(craft, best);
+  if ('refused' in values) return methodUnavailable(values.refused);
+  return mapMethod(data, checkMethod(craft, values.V, values.bound, method, replay ? { replay } : {}), targets);
+}
+
+/**
+ * Rules that play the best plan's moves at the given states of its table — the route's main line
+ * (`mainLine`, policyPath.ts), so a method starts from the plan rather than a blank page. Each rule names
+ * its state exactly; `otherwise` starts over where the craft can, else plays the plan's commonest move.
+ * `faithful` is false when two of those states read alike to a rule (see `methodFromPlan`). Null without a
+ * table. A pure lookup: no solve.
+ */
+export function prefillMethod(
+  markov: EngineMarkovResult, keys: readonly string[],
+): { readonly method: Method; readonly faithful: boolean } | null {
+  return markov.routes ? methodFromPlan(markov.routes, keys) : null;
 }
 
 /**

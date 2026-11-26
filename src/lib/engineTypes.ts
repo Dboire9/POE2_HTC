@@ -4,6 +4,7 @@
 import type { CurrencyTier } from '../../packages/engine/src/types.ts';
 import type { PlanStep } from '../../packages/engine/src/plan.ts';
 import type { RouteTable } from '../../packages/optimizer/src/markovRoute.ts';
+import type { NotPossibleWhy } from '../../packages/optimizer/src/markovMethod.ts';
 
 export interface EngineBase {
   readonly id: string;
@@ -549,4 +550,85 @@ export interface EngineMarkovResult {
   readonly replayReason?: string;
   readonly nodes: readonly EnginePolicyNode[];
   readonly edges: readonly EnginePolicyEdge[];
+}
+
+// ── Check my method ───────────────────────────────────────────────────────────
+
+/** A player's method — rules, conditions, moves — as plain JSON (packages/optimizer/src/markovMethod.ts). */
+export type {
+  Method, MethodRule, Condition, MoveSpec, Compare, NotPossibleWhy,
+} from '../../packages/optimizer/src/markovMethod.ts';
+
+/** One item state where the method's move differs from the best plan's, worded. */
+export interface EngineMethodRow {
+  /** Which row chose the move: "Rule 2", or "Otherwise". */
+  readonly rule: string;
+  /** The item at that state, in words (`describeItem`): "Rare · Spell Damage, and one suffix you did not ask for". */
+  readonly where: string;
+  /** The same state as the graph draws it, for a UI that words it its own way. */
+  readonly node: EnginePolicyNode;
+  /** The method's move there ("Chaos") and the best plan's ("Annul (Dextral)"), named as the route names moves. */
+  readonly yourMove: string;
+  readonly bestMove: string;
+  /** How often a finished item passes this state under the method, on average (can exceed 1). */
+  readonly visits: number;
+  /** What playing your move here instead of the best one costs, per finished item: this row's share of the gap. */
+  readonly costsYou: number;
+}
+
+/** Why a method could not be costed: the first state it cannot play, or never finishes from. */
+export interface EngineMethodStop {
+  /**
+   * `not-possible`: a rule's move cannot be played at a state the method reaches. `never-finishes`: from a
+   * state it reaches, nothing it plays ever finishes the item. `unsettled`: it finishes, but its loops are
+   * too large to cost. `invalid`: a rule names a slot this craft does not have. `unavailable`: the craft
+   * itself could not be set up (the same reason the true cost gives), so nothing was checked.
+   */
+  readonly kind: 'not-possible' | 'never-finishes' | 'unsettled' | 'invalid' | 'unavailable';
+  /** The whole report, one or two plain sentences, ready to show. */
+  readonly message: string;
+  /** "Rule 2" / "Otherwise", where a row is to blame. */
+  readonly rule?: string;
+  /** The move that row names ("Regal"), for `not-possible`. */
+  readonly move?: string;
+  /** Why it cannot be played, as a reason code and as the clause the message uses. */
+  readonly why?: NotPossibleWhy;
+  readonly whyWords?: string;
+  /** The item at that state in words, and as a node. */
+  readonly where?: string;
+  readonly node?: EnginePolicyNode;
+}
+
+/** A method checked against the best plan — or why it could not be. */
+export type EngineMethodResult =
+  | { readonly ok: false; readonly stop: EngineMethodStop }
+  | {
+    readonly ok: true;
+    /** Your method's expected cost per finished item, exact (exalt-equivalents). */
+    readonly cost: number;
+    /** The best plan's, with its bound — render it with `formatBoundedCost`. */
+    readonly best: { readonly cost: number; readonly bound: 'exact' | 'lower' | 'upper' };
+    /**
+     * `cost − best.cost`, present only when the best plan is exact. With a bound there is no gap and no rows:
+     * show the method's cost alone and say the best plan is only a bound. Can be a hair below zero on a
+     * method that IS the best plan (the solver's tolerance) — show it as no difference.
+     */
+    readonly gap?: number;
+    /** The states where it costs you, largest first — at most five. With `elsewhere` they add up to `gap`. */
+    readonly where: readonly EngineMethodRow[];
+    /** Every other state where it costs you, summed — absent when the rows above are all of it. */
+    readonly elsewhere?: { readonly states: number; readonly costsYou: number };
+    /** The method played on real items: the spread of what one craft costs, as Play it out shows it. */
+    readonly replay?: NonNullable<EngineMarkovResult['replay']>;
+    readonly replayReason?: string;
+    /** The method plays a Desecration somewhere: it is costed keeping the offer the best plan would keep. */
+    readonly keepsOffers: boolean;
+    /** Plain-sentence caveats the result needs beside it (the offer rule, moves costed at their own price). */
+    readonly notes: readonly string[];
+  };
+
+/** What the best plan's result hands a method check, so it can reuse the solve (`EngineMarkovResult`). */
+export interface EngineMethodBest {
+  readonly routes: RouteTable;
+  readonly bound: 'exact' | 'lower' | 'upper';
 }

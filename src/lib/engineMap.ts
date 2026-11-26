@@ -10,6 +10,9 @@ import type { TierTarget, ParetoResult } from '../../packages/optimizer/src/opti
 import type { Alternative, AlternativeTarget, AlternativesResult, SlotChange } from '../../packages/optimizer/src/alternatives.ts';
 import type { MarkovResult, McAction, PolicyEdge, PolicyNode } from '../../packages/optimizer/src/markovFromItem.ts';
 import type { MarkovUses } from '../../packages/optimizer/src/markovUses.ts';
+import type { ReplayResult } from '../../packages/optimizer/src/markovReplay.ts';
+import type { RouteTable } from '../../packages/optimizer/src/markovRoute.ts';
+import { stepFrom } from '../../packages/optimizer/src/markovRoute.ts';
 import type {
   EngineMod, EngineTier, EngineResult, EnginePlan, EngineStep, EngineSlot, EngineAlternative,
   EngineAlternatives, EngineMarkovResult, EnginePolicyEdge, EnginePolicyNode, ExistingItem, PolicyMod,
@@ -351,7 +354,7 @@ function toEngineSlot(data: PatchData, slot: SlotChange): EngineSlot {
   return slot.kind === 'swapped' ? { ...kept, fromText: text(slot.from) } : kept;
 }
 
-function actionLabel(data: PatchData, action: McAction): string {
+export function actionLabel(data: PatchData, action: McAction): string {
   if (action.currency === 'exalt') {
     const sideLabel = action.side === 'prefix' ? 'Sinistral' : action.side === 'suffix' ? 'Dextral' : null;
     const strengthLabel = action.strength === 'base' ? null : action.strength === 'greater' ? 'Greater' : 'Perfect';
@@ -408,7 +411,7 @@ function actionLabel(data: PatchData, action: McAction): string {
  * An omen named from its sheet id: `OmenofSinistralExaltation` → "Omen of Sinistral Exaltation",
  * `OmenoftheLiege` → "Omen of the Liege" — the spelling `actionLabel` already uses for the omens it names.
  */
-const omenLabel = (id: string): string => id.replace(/^Omenof/, 'Omen of ').replace(/([a-z])([A-Z])/g, '$1 $2');
+export const omenLabel = (id: string): string => id.replace(/^Omenof/, 'Omen of ').replace(/([a-z])([A-Z])/g, '$1 $2');
 
 /** A filled position named: the texts of the ids that could be filling it, joined with "or". */
 const positionLabel = (data: PatchData, ids: readonly string[]): string =>
@@ -593,19 +596,30 @@ export function mapMarkov(
     } : {}),
     // The replay, as plain numbers: the watch shares a caller asked for, and what the policy really
     // costs. A declined replay carries its reason instead, so a panel can say why a column is empty.
-    ...(res.replay?.ok
-      ? { replay: {
-        runs: res.replay.runs, seen: res.replay.seen, meanCost: res.replay.meanCost, stdErr: res.replay.stdErr,
-        costPercentiles: res.replay.costPercentiles, movesPerCraft: res.replay.movesPerCraft,
-        spendByMove: res.replay.spendByMove.map((m) => ({ label: actionLabel(data, m.action), count: m.count, spent: m.spent })),
-        ...(res.replay.sales ? { sales: res.replay.sales } : {}),
-      } }
-      : {}),
+    ...(res.replay?.ok ? { replay: mapReplay(data, res.replay) } : {}),
     ...(res.replay && !res.replay.ok ? { replayReason: res.replay.reason } : {}),
     ...(res.reason ? { reason: res.reason } : {}),
     ...(res.stoppedEarly ? { stoppedEarly: true as const } : {}),
     ...(res.withoutBones ? { withoutBones: true as const } : {}),
   };
+}
+
+/** A replay, as plain numbers with each move named — `EngineMarkovResult.replay`. */
+export function mapReplay(data: PatchData, r: ReplayResult): NonNullable<EngineMarkovResult['replay']> {
+  return {
+    runs: r.runs, seen: r.seen, meanCost: r.meanCost, stdErr: r.stdErr,
+    costPercentiles: r.costPercentiles, movesPerCraft: r.movesPerCraft,
+    spendByMove: r.spendByMove.map((m) => ({ label: actionLabel(data, m.action), count: m.count, spent: m.spent })),
+    ...(r.sales ? { sales: r.sales } : {}),
+  };
+}
+
+/**
+ * One state of a table (`RouteTable`), as the craft's graph would draw it — named through that table, with
+ * the tier each position was asked at. For wording a state no route draws (`describeItem`, stateWords.ts).
+ */
+export function tableNode(data: PatchData, table: RouteTable, i: number, targets: readonly TargetInput[] = []): EnginePolicyNode {
+  return mapNode(data, stepFrom(table, i).nodes[0]!, askedTierOf(targets), namerFor(data, table));
 }
 
 /**

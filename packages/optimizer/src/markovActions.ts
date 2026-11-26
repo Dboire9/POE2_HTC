@@ -102,6 +102,8 @@ export interface ActionDef {
    * `cost` only if they do. Absent means no reroll. Only meaningful with `offer`; see `keepWeights`.
    */
   readonly reroll?: { readonly cost: number };
+  /** Dearer spellings `pusher` folded into this one (same outcomes): a player's move resolves to them, at its own price (markovMethod.ts). */
+  readonly aliases?: McAction[];
 }
 
 /**
@@ -113,7 +115,7 @@ export interface ActionDef {
  * to keep correct. Keeping two is how the D8 desecration mispricing survived: the linear planner
  * charged for a boss omen the MDP did not.
  */
-function pricedStepOf(action: McAction): PricedStep {
+export function pricedStepOf(action: McAction): PricedStep {
   // On exalt and desecrate a side constraint is a Sinistral/Dextral omen on `constrainTo`; on annul
   // and perfect-essence the same idea is spelled `omen`. That split is PlanStep's, and it is load-
   // bearing for probability, so it is mirrored rather than "tidied" here.
@@ -863,7 +865,10 @@ export function createActionSpace(params: ActionSpaceParams): {
       // Replace IN PLACE rather than appending, so the survivor keeps the earlier slot and the solver
       // still sees the push order the tie-breaks above rely on.
       if (at !== undefined) {
-        if (cost < acts[at]!.cost) acts[at] = def;
+        const kept = acts[at]!;
+        if (cost < kept.cost) acts[at] = { ...def, aliases: [...(kept.aliases ?? []), kept.action] };
+        else if (kept.aliases) kept.aliases.push(action);
+        else acts[at] = { ...kept, aliases: [action] };
         return;
       }
       seen.set(sig, acts.length);

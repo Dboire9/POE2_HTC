@@ -94,22 +94,26 @@ function orbOf(a: McAction): McAction {
   }
 }
 
+/** The parts of a `RouteTable` the visit count reads — a plan's moves and where they land. */
+export type VisitTable = Pick<RouteTable, 'keys' | 'act' | 'actions' | 'outStart' | 'outTo' | 'outProb' | 'goal' | 'restartIdx'>;
+
 /**
- * The expected number of each currency the plan in `table` uses from its start, and of start overs.
+ * How often following the plan in `table` from its start passes through each state, on average —
+ * expected VISITS, start overs included (a state a craft passes on every attempt counts once per attempt),
+ * and for a goal the chance of finishing there. `order` is every state the plan reaches from its start.
  *
- * `prices` must be the sheet the plan was solved on, resolved for the base (`pricesForBase`) as the solve
- * resolves it — a Desecration's bone is priced per base. Undefined when the plan from the start reaches a
- * state with no move, never finishes, or a piece of its chain is too large to settle.
+ * Undefined when the plan from the start reaches a state with no move, never finishes, or a piece of its
+ * chain is too large to settle — see `markovUses`, which counts currencies from these.
  */
-export function markovUses(
-  table: RouteTable, prices: Prices,
+export function markovVisits(
+  table: VisitTable,
   /** The largest piece solved by elimination — lowered only by the test that pins the two paths together. */
   opts: { readonly denseMax?: number } = {},
-): MarkovUses | undefined {
+): { readonly visits: Float64Array; readonly order: readonly number[] } | undefined {
   const denseMax = opts.denseMax ?? DENSE_MAX;
   const n = table.keys.length;
   const start = table.restartIdx;
-  const { act, actions, actCost, outStart, outTo, outProb, goal, value } = table;
+  const { act, actions, outStart, outTo, outProb, goal } = table;
   const isRestartIdx = (i: number): boolean => act[i]! >= 0 && actions[act[i]!]!.currency === 'restart';
   const terminal = (i: number): boolean => goal[i] === 1 || isRestartIdx(i);
 
@@ -215,6 +219,28 @@ export function markovUses(
   if (!(q < 1 - 1e-15)) return undefined; // never finishes
   const attempts = 1 / (1 - q);
 
+  const visits = new Float64Array(n);
+  for (const i of order) visits[i] = x[i]! * attempts;
+  return { visits, order };
+}
+
+/**
+ * The expected number of each currency the plan in `table` uses from its start, and of start overs.
+ *
+ * `prices` must be the sheet the plan was solved on, resolved for the base (`pricesForBase`) as the solve
+ * resolves it — a Desecration's bone is priced per base. Undefined when the plan from the start reaches a
+ * state with no move, never finishes, or a piece of its chain is too large to settle.
+ */
+export function markovUses(
+  table: RouteTable, prices: Prices,
+  /** The largest piece solved by elimination — lowered only by the test that pins the two paths together. */
+  opts: { readonly denseMax?: number } = {},
+): MarkovUses | undefined {
+  const counted = markovVisits(table, opts);
+  if (!counted) return undefined;
+  const { visits: seen, order } = counted;
+  const { act, actions, actCost, goal, value } = table;
+
   // ── Counts: each state's visits, charged to what its move spends. ──
   const byKey = new Map<string, { kind: 'orb' | 'omen'; action?: McAction; count: number; price: number }>();
   const add = (key: string, kind: 'orb' | 'omen', price: number, count: number, action?: McAction): void => {
@@ -227,7 +253,7 @@ export function markovUses(
   let restarts = 0;
   let restartCost = 0;
   for (const i of order) {
-    const visits = x[i]! * attempts;
+    const visits = seen[i]!;
     if (!(visits > 0)) continue;
     if (goal[i] === 1) {
       // What finishing here costs: nothing, or one Exalt per empty slot (`fillOnFinish`).
@@ -270,7 +296,7 @@ function upFront(prices: Prices, a: McAction): number {
  * (1 − p(r→r)) until no state moves by more than `SWEEP_TOL` of itself. False if it does not settle.
  */
 function sweepPiece(
-  table: RouteTable, piece: readonly number[], inPiece: Int32Array, inflow: Float64Array, x: Float64Array,
+  table: VisitTable, piece: readonly number[], inPiece: Int32Array, inflow: Float64Array, x: Float64Array,
 ): boolean {
   const { outStart, outTo, outProb } = table;
   const m = piece.length;

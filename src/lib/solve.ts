@@ -11,9 +11,12 @@
 // jsdom has no Worker at all.
 
 import type { Engine } from './engine.ts';
-import { optimize, optimizeItem, optimizeItemMarkov, alternatives, alternativesForItem, priceBasis } from './engine.ts';
+import {
+  optimize, optimizeItem, optimizeItemMarkov, alternatives, alternativesForItem, priceBasis, checkItemMethod,
+} from './engine.ts';
 import type {
-  AltTargetInput, EngineAlternatives, EngineMarkovResult, EnginePriceBasis, EngineResult, ExistingItem, TargetInput,
+  AltTargetInput, EngineAlternatives, EngineMarkovResult, EngineMethodBest, EngineMethodResult, EnginePriceBasis,
+  EngineResult, ExistingItem, Method, TargetInput,
 } from './engineTypes.ts';
 import { FOUND_BASE_WEIGHT, FOUND_PRICES } from '../../packages/optimizer/src/foundPrices.ts';
 import type { MarkovProgress, WatchMod } from '../../packages/optimizer/src/markovFromItem.ts';
@@ -137,6 +140,24 @@ export type SolveRequest =
       readonly kind: 'item';
       readonly item: ExistingItem;
       readonly targets: readonly TargetInput[];
+    } & ExcludingRequest)
+  /**
+   * "Check my method" (markovMethod.ts): the player's rules costed against the best plan, on the craft a
+   * `lab` request solved. `from`, `targets`, `baseCost`, `rebuyable`, `fillOnFinish` and the shared fields
+   * (`excluded`, `runes`, `spare`, `effort`) must be that request's, so the lattice is rebuilt exactly; `best`
+   * hands back its result's table (`EngineMarkovResult.routes`) and bound, so the best plan is not solved
+   * again. Always played out too, as Play it out is. A found-sheet craft is not checked: its costs are
+   * scarcity weights, not prices.
+   */
+  | ({
+      readonly kind: 'method';
+      readonly from: { readonly baseId: string; readonly level: number } | { readonly item: ExistingItem };
+      readonly targets: readonly TargetInput[];
+      readonly baseCost?: number;
+      readonly rebuyable?: boolean;
+      readonly fillOnFinish?: boolean;
+      readonly method: Method;
+      readonly best?: EngineMethodBest;
     } & ExcludingRequest);
 
 export type SolveResult =
@@ -153,7 +174,8 @@ export type SolveResult =
        */
       readonly basis?: EnginePriceBasis;
     }
-  | { readonly kind: 'item'; readonly plan: EngineResult; readonly markov: EngineMarkovResult };
+  | { readonly kind: 'item'; readonly plan: EngineResult; readonly markov: EngineMarkovResult }
+  | { readonly kind: 'method'; readonly method: EngineMethodResult };
 
 /**
  * Every phase that can report. `item` runs the MDP's three; `lab` runs planning, the MDP (on a big
@@ -329,7 +351,17 @@ function frontierOrReason(run: () => EngineResult): EngineResult {
   }
 }
 
-/** Perform one solve. Pure compute — no Worker, no DOM — so tests can call it directly. */
+type MethodRequest = Extract<SolveRequest, { readonly kind: 'method' }>;
+
+/** Perform one solve. Pure compute — no Worker, no DOM — so tests can call it directly. Its result is of
+ *  the request's kind: a method check answers a method check, a craft a craft. */
+export function runSolve(
+  eng: Engine, req: MethodRequest, onProgress?: (p: SolveProgress) => void,
+): Extract<SolveResult, { readonly kind: 'method' }>;
+export function runSolve(
+  eng: Engine, req: Exclude<SolveRequest, MethodRequest>, onProgress?: (p: SolveProgress) => void,
+): Exclude<SolveResult, { readonly kind: 'method' }>;
+export function runSolve(eng: Engine, req: SolveRequest, onProgress?: (p: SolveProgress) => void): SolveResult;
 export function runSolve(eng: Engine, req: SolveRequest, onProgress?: (p: SolveProgress) => void): SolveResult {
   // Built once per solve, then shared by every planner below — they must all run under the same rules,
   // or the frontier and the MDP could recommend plans the other considers unbuildable.
@@ -423,6 +455,30 @@ export function runSolve(eng: Engine, req: SolveRequest, onProgress?: (p: SolveP
       remaining === undefined ? mdpOpts : { ...mdpOpts, maxMillis: remaining }));
     if (req.playOut) onProgress?.({ phase: 'playout', fraction: 1 });
     return { kind: 'item', plan, markov };
+  }
+
+  if (req.kind === 'method') {
+    // The lattice is built over the first half of the bar (and a solve, when the best plan's table is not
+    // this craft's); the play-out takes the rest.
+    const fromWhite = !('item' in req.from);
+    const item: ExistingItem = runed('item' in req.from
+      ? req.from.item
+      : { baseId: req.from.baseId, level: req.from.level, rarity: 'normal', prefixes: [], suffixes: [] });
+    const half: Span = [0, 0.5];
+    const opts = spared(withSweepLimit(withPolicy({
+      ...(fromWhite || req.rebuyable ? { restartCost: req.baseCost ?? WHITE_BASE_COST } : {}),
+      ...(req.fillOnFinish ? { fillOnFinish: true } : {}),
+      ...(eff ? { maxMillis: eff.maxMillis } : {}),
+      ...(onProgress
+        ? { onProgress: (p: MarkovProgress): void => onProgress({ phase: p.phase, fraction: within(half, toFraction(p) * 1000, 1000) }) }
+        : {}),
+    })));
+    const method = checkItemMethod(eng, item, req.targets, opts, req.method, req.best, {
+      runs: REPLAY_RUNS, seed: 1, maxMillis: PLAYOUT_MILLIS,
+      onProgress: (fraction: number): void => onProgress?.({ phase: 'playout', fraction: within([half[1], 1], fraction, 1) }),
+    });
+    onProgress?.({ phase: 'playout', fraction: 1 });
+    return { kind: 'method', method };
   }
 
   const from = req.from;

@@ -18,14 +18,45 @@ import type { Answer, McProblem, Refuse } from './markovProblem.ts';
 import type { CompiledAction, McLattice } from './markovLattice.ts';
 import type { McSolved } from './markovSolve.ts';
 
+/** A plan's table without the plan: the lattice's states, goals and positions, as every `RouteTable` carries them. */
+export type TableFrame = Omit<RouteTable, 'value' | 'act' | 'actions' | 'actCost' | 'outStart' | 'outTo' | 'outProb' | 'rerollAbove'>;
+
+/** The frame of any plan over this lattice — the solved one (`readOut`) or a player's (markovMethod.ts). */
+export function tableFrame(p: McProblem, l: McLattice): TableFrame {
+  const { start, level, locked, list, slotMasks, siblings, idsOf, classes, restartKey } = p;
+  const { allStates, goalKey, idxOfState, isGoalIdx, canRestart } = l;
+  return {
+    keys: allStates, goal: isGoalIdx, goalIdx: idxOfState.get(goalKey)!,
+    restartIdx: idxOfState.get(restartKey)!, canRestart,
+    positions: list.map(idsOf), slotMasks, obstacles: siblings.obstacles,
+    locate: {
+      baseId: start.base.id, level,
+      floors: list.map((t) => t.mods.map((m) => m.minIndex)),
+      fractured: list.map((t) => t.fractured),
+      blocks: [...siblings.blocks],
+      classes,
+      locked: locked.map((lk) => lk.mod.id).sort(),
+    },
+  };
+}
+
+/** A frame and a plan, as one `RouteTable` — its fields in the order the solve has always written them. */
+export function planTable(f: TableFrame, plan: Omit<RouteTable, keyof TableFrame>): RouteTable {
+  return {
+    keys: f.keys, value: plan.value, act: plan.act, actions: plan.actions, actCost: plan.actCost,
+    outStart: plan.outStart, outTo: plan.outTo, outProb: plan.outProb,
+    goal: f.goal, goalIdx: f.goalIdx, restartIdx: f.restartIdx, canRestart: f.canRestart, rerollAbove: plan.rerollAbove,
+    positions: f.positions, slotMasks: f.slotMasks, obstacles: f.obstacles, locate: f.locate,
+  };
+}
+
 export function readOut(
   p: McProblem, l: McLattice, s: McSolved, opts: MarkovOptions, bones: MarkovResult['bones'], fail: Refuse,
 ): MarkovResult | Answer {
   const {
-    data, start, prices, level, baseLimits, spare, locked, list, slotMasks, siblings, idsOf, idxOf, exaltPrice, classes,
-    encode, s0, restartKey,
+    data, start, prices, baseLimits, spare, list, slotMasks, siblings, idxOf, exaltPrice, encode, s0, restartKey,
   } = p;
-  const { N, allStates, rarities, goalKeys, goalKey, idxOfState, compiled, isGoalIdx, canRestart, canReach } = l;
+  const { N, allStates, rarities, goalKeys, idxOfState, compiled, canReach } = l;
   const { V, converged, bound, offers: { keepWeights, valueOf, scratch, last } } = s;
   // ── Extract policy + reachable graph from the start ─────────────────────────
   const startKey = restartKey;
@@ -132,21 +163,10 @@ export function readOut(
     }
   }
   outStart[N] = outTo.length;
-  const table: RouteTable = {
-    keys: allStates, value: V, act, actions, actCost,
-    outStart, outTo: Int32Array.from(outTo), outProb: Float64Array.from(outProb),
-    goal: isGoalIdx, goalIdx: idxOfState.get(goalKey)!,
-    restartIdx: startIdx, canRestart, rerollAbove,
-    positions: list.map(idsOf), slotMasks, obstacles: siblings.obstacles,
-    locate: {
-      baseId: start.base.id, level,
-      floors: list.map((t) => t.mods.map((m) => m.minIndex)),
-      fractured: list.map((t) => t.fractured),
-      blocks: [...siblings.blocks],
-      classes,
-      locked: locked.map((l) => l.mod.id).sort(),
-    },
-  };
+  const table = planTable(tableFrame(p, l), {
+    value: V, act, actions, actCost,
+    outStart, outTo: Int32Array.from(outTo), outProb: Float64Array.from(outProb), rerollAbove,
+  });
 
   // The craft's own route: the walk any other root gets too, from the start (markovRoute.ts).
   const { nodes, edges } = routeFrom(table, startIdx);

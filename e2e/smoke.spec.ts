@@ -107,6 +107,28 @@ test('2b — craft along: the plan is followed one move at a time from the resul
   expect(errors.filter(cspish), 'CSP refusals').toEqual([]);
 });
 
+test('2g — check my method: the best plan as rules is checked in the Worker and gets a cost', async ({ page }) => {
+  const errors = watchForErrors(page);
+  await page.goto('/');
+  await waitForReady(page);
+
+  await addFirstMod(page);
+  await page.getByRole('button', { name: 'Find plans' }).click();
+
+  // Folded under the true cost until asked for; the best plan's rules are checked as soon as they fill.
+  const fold = page.getByRole('button', { name: /^Check my method your own rules/ });
+  await expect(fold).toBeVisible({ timeout: 60_000 });
+  await fold.click();
+  const panel = page.getByRole('region', { name: 'Check my method' });
+  await panel.getByRole('button', { name: 'Start from the best plan' }).click();
+  await expect(panel.getByText(/^Rule 1$/)).toBeVisible();
+  // A cost appears — never its value, which moves with the price sheet.
+  await expect(panel.getByText(/^Your method:/)).toBeVisible({ timeout: 60_000 });
+  await expect(panel.getByText('Your method could not be costed')).toHaveCount(0);
+
+  expect(errors.filter(cspish), 'CSP refusals').toEqual([]);
+});
+
 test('2c — an example craft on the empty Plan tab loads and solves in one click', async ({ page }) => {
   const errors = watchForErrors(page);
   await page.goto('/');

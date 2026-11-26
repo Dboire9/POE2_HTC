@@ -7,10 +7,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-Since 1.2.0 (2026-11-15). Nothing changes on the site except fresh prices; the rest is tooling.
+Since 1.2.0 (2026-11-15).
 
 ### Added
 
+- **Check my method, on the Plan tab.** Under the true expected cost, write how you craft as rules — if the
+  item looks like this, play that orb; otherwise, this one — and the app prices your way exactly against the
+  best plan: what it costs per finished item, how much more than the best plan, the spread of one craft, and
+  **where it costs you** — the few items where your move is not the best one, and what each costs you.
+  **Start from the best plan** fills in rules to edit. A rule asking for a move the item cannot take, or
+  rules that never finish, stop the check at that item with one sentence saying why. Your rules are kept per
+  craft in this browser. Trade-market prices only.
 - **A market sweep, for contributors.** `scripts/market-sweep.mts` runs every test that reads the live
   price sheet against every sheet the site has shipped and four made-up markets, and must end
   `GATE PASSED`. `src/test/liveSheetReaders.test.ts` lists the tests allowed to read the live sheet, and

@@ -1376,6 +1376,31 @@ Enforced in `packages/engine` (mostly `probability.ts`).
   useLabCraft.ts), never saved and never in a share link; Reset, a build-type example, a share link and
   a Streamer gear craft all put it back on trade.
 
+- **"Check my method" costs a player's rules over the solve's own states (2026-11-26,
+  `packages/optimizer/src/markovMethod.ts`, `CheckMyMethod.tsx`).** A method is rules read top to bottom —
+  tests on the item, then a move — and an Otherwise row; it is plain JSON (worker message, localStorage).
+  The check rebuilds the Plan-tab solve's lattice from the same request (`methodRequest`), walks the states
+  the method reaches, and finds each move among that state's compiled moves: exactly, through a fold alias
+  (`pusher` records the dearer spelling of an identical outcome distribution; costed at the player's price),
+  or — where the solve offers every Desecration with an Omen of Abyssal Echoes — as that move never thrown
+  back. **The stop rule (the maintainer's ruling, 2026-11-26): a move that is not there, or a method that
+  cannot finish from a state it reaches, STOPS the check at the first such state, in one sentence. Never
+  fill in the best move** — a check that quietly repaired the method would cost a method nobody wrote.
+  Visits are exact (`markovVisits`), so V^π = Σ visits × cost per play, and "where it costs you" is
+  visits(s) × (Q*(s, a_π) − V*(s)): by the performance-difference identity these sum to V^π − V*(start),
+  asserted to 1e-9. That needs an exact V*: against a bound the panel shows the method's cost alone.
+  **Tests are per SLOT, never per alternative or per junk mod,** because the state cannot tell them apart —
+  same-family alternatives share a bit, interchangeable ones keep one spelling (markovSymmetry.ts), junk is
+  a count — so a rule naming one alternative would read the same at states the plan treats alike. A
+  Desecration's offer is kept as V* keeps it; choosing among offers is not a rule yet. One solve at a
+  time: the worker terminates the solve in flight for a new one, and `cancel` stops WHATEVER is in flight,
+  so the check is disabled while the Plan tab's solve runs, a Compute during a check simply supersedes it,
+  a check is shown only beside the solve it was made for (`markovRun`), and leaving the tab cancels only a
+  check still in flight (the runner's `cancel` is a no-op once its own run settled). Open: on a method that
+  Annuls while a Desecrated modifier is on the item, the replay's mean sits ~17% under the exact cost on
+  every seed (the best plan's replay, and the same method binning instead, agree) — the lattice and the
+  replay read that Annulment differently; copy-audit row 134.
+
 ## Tablets
 
 `src/features/tablets/`, `src/lib/tablet*.ts`. The tablet DATA — bases, weights, the curated watch list —

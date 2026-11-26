@@ -2,6 +2,7 @@ import { describe, it, expect } from 'vitest';
 import type { ItemState } from '../../engine/src/index.ts';
 import { loadPatch } from '../../engine/src/index.ts';
 import { solveDenseInPlace } from './denseSolve.ts';
+import { ECHOES_OMEN, type Prices } from './cost.ts';
 import { loadFrozenPrices } from './frozenPrices.ts';
 import { actionCostOf, type McAction } from './markovActions.ts';
 import { markovFromItem, type MarkovOptions, type MarkovResult } from './markovFromItem.ts';
@@ -9,6 +10,7 @@ import {
   actionId, bestValues, checkMethod, methodCraft, methodFromPlan, reachedFrom, specOf,
   type Condition, type Method, type MethodCheck, type MethodChecked, type MethodCraft,
 } from './markovMethod.ts';
+import type { CompiledAction } from './markovLattice.ts';
 import type { RouteTable } from './markovRoute.ts';
 import { decodeState } from './markovState.ts';
 import type { TierTarget } from './optimize.ts';
@@ -335,5 +337,105 @@ describe('what a rule reads', () => {
     expect(faithful).toBe(true);
     expect(method.otherwise).toEqual({ currency: 'restart' });
     expect(method.rules.length).toBeGreaterThan(0);
+  });
+});
+
+describe('a Desecration where the solve plays every one with an Omen of Abyssal Echoes', () => {
+  // The frozen sheet prices no Abyssal Echoes omen, so this copy does — cheap, so the best plan throws
+  // offers back. Then every Desecration the solve offers carries the omen (it is paid only when used),
+  // and a player's plain Desecration is that move never thrown back.
+  const ECHOES_PRICE = 0.01;
+  const withEchoes: Prices = { ...prices, omens: { ...prices.omens, [ECHOES_OMEN]: ECHOES_PRICE } };
+  const r = markovFromItem(data, withEchoes, white, THREE, FROM_WHITE);
+  const craft = methodCraft(data, withEchoes, white, THREE, FROM_WHITE);
+  if ('refused' in craft) throw new Error(craft.refused);
+  const best = bestValues(craft, { routes: r.routes!, bound: r.bound });
+  if ('refused' in best) throw new Error(best.refused);
+  const V = best.V;
+  /** Up to a clean Rare, then Desecrate while no Desecrated modifier is on it; bin what misses. */
+  const desecrating = (move: Method['otherwise']): Method => ({
+    rules: [
+      { when: [{ kind: 'rarity', is: 'normal' }], move: { currency: 'transmute', strength: 'base' } },
+      { when: [{ kind: 'rarity', is: 'magic' }, { kind: 'junk', side: 'total', op: '>=', n: 1 }], move: { currency: 'restart' } },
+      { when: [{ kind: 'rarity', is: 'magic' }], move: { currency: 'regal', strength: 'base' } },
+      { when: [{ kind: 'junk', side: 'total', op: '>=', n: 1 }], move: { currency: 'restart' } },
+      { when: [{ kind: 'bone', is: 'none' }], move },
+    ],
+    otherwise: { currency: 'exalt', strength: 'base' },
+  });
+  const bone = actionCostOf(craft.problem.prices, { currency: 'desecrate' });
+
+  /**
+   * The keep rule worked by hand from the offer's draw odds (markovOffer.ts states it): of `offer` draws
+   * the one cheapest to finish from by V is kept, P(keep k) = T_k^m − T_(k+1)^m over outcomes sorted by
+   * V, T the tail sums; τ = Σ P(keep k)·V_k. With a reroll at price c the first offer goes back when even
+   * its best costs more than c + τ — with chance q^m, q the odds of a draw above that bar — and the fresh
+   * offer is kept as above. Returns the chance of keeping each destination and of a throw.
+   */
+  function byHand(i: number, ca: CompiledAction, c?: number): { keep: Map<number, number>; thrown: number } {
+    const outs = Array.from(ca.to, (t, j) => ({ t, p: ca.prob[j]! }));
+    if (ca.selfProb > 0) outs.push({ t: i, p: ca.selfProb });
+    outs.sort((a, b) => V[a.t]! - V[b.t]!);
+    const m = ca.offer;
+    const tail = outs.map((_, k) => outs.slice(k).reduce((sum, o) => sum + o.p, 0));
+    const plain = outs.map((_, k) => tail[k]! ** m - (tail[k + 1] ?? 0) ** m);
+    const tau = outs.reduce((sum, o, k) => sum + plain[k]! * V[o.t]!, 0);
+    const bar = c === undefined ? Infinity : c + tau;
+    const above = outs.reduce((sum, o) => sum + (V[o.t]! > bar ? o.p : 0), 0);
+    const thrown = c === undefined ? 0 : above ** m;
+    const keep = new Map<number, number>();
+    outs.forEach((o, k) => keep.set(o.t, (keep.get(o.t) ?? 0) + (V[o.t]! <= bar ? plain[k]! : 0) + thrown * plain[k]!));
+    return { keep, thrown };
+  }
+  /** What the method's table keeps at state `i`: its realized odds, by destination. */
+  const keptAt = (c: MethodChecked, i: number): Map<number, number> => {
+    const kept = new Map<number, number>();
+    for (let o = c.table.outStart[i]!; o < c.table.outStart[i + 1]!; o++) {
+      kept.set(c.table.outTo[o]!, (kept.get(c.table.outTo[o]!) ?? 0) + c.table.outProb[o]!);
+    }
+    return kept;
+  };
+  const sameOdds = (a: Map<number, number>, b: Map<number, number>): void => {
+    for (const k of new Set([...a.keys(), ...b.keys()])) expect(a.get(k) ?? 0).toBeCloseTo(b.get(k) ?? 0, 12);
+  };
+  /** The states the method reaches where it Desecrates, with the solve's own Desecration there. */
+  const desecratedAt = (c: MethodChecked): { i: number; ca: CompiledAction }[] =>
+    c.table.keys.map((_, i) => i).filter((i) => c.visits[i]! > 0 && c.table.actions[c.table.act[i]!]?.currency === 'desecrate')
+      .map((i) => {
+        const omened = actionId({ currency: 'desecrate', echoes: true });
+        return { i, ca: craft.lattice.compiled[i]!.find((x) => actionId(x.def.action) === omened)! };
+      });
+
+  it('a plain Desecration is the Echoes move with no reroll: the bone alone, the best of three kept', () => {
+    expect(r.bound).toBe('exact');
+    const plain = ok(checkMethod(craft, V, 'exact', desecrating({ currency: 'desecrate' })));
+    const at = desecratedAt(plain);
+    expect(at.length).toBeGreaterThan(0);
+    for (const { i, ca } of at) {
+      // The solve has no plain Desecration here — each one it offers carries the omen.
+      const offered = craft.lattice.compiled[i]!.filter((x) => x.def.action.currency === 'desecrate');
+      expect(offered.every((x) => x.def.action.currency === 'desecrate' && x.def.action.echoes === true)).toBe(true);
+      expect(ca.offer).toBe(3);
+      expect(plain.table.actCost[i]).toBe(bone);
+      expect(plain.table.rerollAbove[i]).toBeNaN();
+      sameOdds(keptAt(plain, i), byHand(i, ca).keep);
+    }
+    expect(plain.keepsOffers).toBe(true);
+  });
+
+  it('with the omen, it throws the offer back where the best plan would, and pays the omen only then', () => {
+    const echoes = ok(checkMethod(craft, V, 'exact', desecrating({ currency: 'desecrate', echoes: true })));
+    const at = desecratedAt(echoes);
+    expect(at.length).toBeGreaterThan(0);
+    let rerolls = 0;
+    for (const { i, ca } of at) {
+      const hand = byHand(i, ca, ECHOES_PRICE);
+      // One play: the bone, and the omen times the chance it is used.
+      expect(echoes.table.actCost[i]).toBeCloseTo(bone + hand.thrown * ECHOES_PRICE, 12);
+      sameOdds(keptAt(echoes, i), hand.keep);
+      if (hand.thrown > 0) { rerolls++; expect(Number.isFinite(echoes.table.rerollAbove[i])).toBe(true); }
+    }
+    // Somewhere it goes the omen is worth using, so the reroll is really exercised.
+    expect(rerolls).toBeGreaterThan(0);
   });
 });

@@ -9,6 +9,8 @@ import AlternativesView from './AlternativesView';
 import StartFromItem from './StartFromItem';
 import TrueCostCard from './TrueCostCard';
 import CraftToSell from './CraftToSell';
+import CheckMyMethod from './CheckMyMethod';
+import { methodSig } from '../../lib/methodRules';
 import { FOCUS_RING } from './ui';
 import { cn } from '../../lib/utils';
 import type { LabCraft } from './useLabCraft';
@@ -41,7 +43,7 @@ const LabResults: React.FC<{ lab: LabCraft }> = ({ lab }) => {
     stale, runErr, markov, result, engine, solvedFor, alongSig, markovSpare, markovRun, fractured, markovEffort,
     computing, compute, playOut, desecrationNeedsRare, normalTargets, excludedKeys, freeSlots, alts, altBudget,
     budget, sale, setSale, saleKey, trueCostAnswered, showRoutes, setShowRoutes,
-    foundResult, starterResult, shownBasis, solveOn,
+    foundResult, starterResult, shownBasis, solveOn, solvedReq,
   } = lab;
   // On the found sheet every cost is a weight, not an amount of any currency: whatever only means
   // something on a market — the step routes and their costs, the items to buy instead, the budget
@@ -116,6 +118,13 @@ const LabResults: React.FC<{ lab: LabCraft }> = ({ lab }) => {
             <CraftToSell
               engine={engine} markov={markov} solvedFor={solvedFor} rates={rates}
               sale={sale} saleKey={saleKey} onSale={setSale}
+            />
+          )}
+          // Keyed by the craft: another craft starts from its own saved rules (CheckMyMethod.tsx).
+          method={engine && solvedReq?.kind === 'lab' && solvedReq.priceBasis !== 'found' && (
+            <CheckMyMethod
+              key={methodSig(solvedReq)} engine={engine} markov={markov} req={solvedReq} run={markovRun}
+              busy={computing} rates={rates} budget={budgetEx} sale={sale?.ex}
             />
           )}
         >

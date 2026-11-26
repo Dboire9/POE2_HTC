@@ -20,6 +20,42 @@ export const spreadOf = (markov: EngineMarkovResult): readonly number[] | undefi
 };
 
 /**
+ * The spread itself, read off a play-out's percentiles (`first` already added): the median, the luckiest
+ * and unluckiest 1 in 10, the share of crafts a Budget covers, the curve, and how many crafts it rests on.
+ * Shared by the plan's spread and Check my method's (`following` names whose moves were played).
+ */
+export const SpreadLines: React.FC<{
+  spread: readonly number[];
+  mean: number;
+  runs: number;
+  first: number;
+  fmt: (ex: number) => string;
+  budget?: number | undefined;
+  sale?: number | undefined;
+  following: string;
+}> = ({ spread, mean, runs, first, fmt, budget, sale, following }) => (
+  <>
+    <p>
+      Half the crafts cost less than <strong className="tabular-nums">{fmt(spread[50]!)}</strong>. The luckiest
+      1 in 10 costs under <span className="tabular-nums">{fmt(spread[10]!)}</span>; the unluckiest 1 in 10
+      more than <strong className="tabular-nums">{fmt(spread[90]!)}</strong>.
+    </p>
+    {budget !== undefined && budget > 0 && (
+      <p>
+        Your budget of <span className="tabular-nums">{fmt(budget)}</span> covers{' '}
+        <strong className="tabular-nums">{Math.round(shareWithin(spread, budget) * 100)}%</strong> of crafts.
+      </p>
+    )}
+    <RiskChart percentiles={spread} mean={mean} salePrice={sale} fmt={fmt} />
+    <p className="text-[11px] text-muted-foreground">
+      {runs.toLocaleString('en')} crafts played out, following {following}
+      {runs < 500 ? ' — a long craft, so a rough read' : ''}
+      {first > 0 ? `; each counts the ${fmt(first)} base it starts from` : ''}.
+    </p>
+  </>
+);
+
+/**
  * What a craft can cost — not only on average. One craft is a draw with a long tail: half of them land
  * well under the average and one in ten several times it, and the average alone cannot say which the
  * player is about to start. The plan played out on real items (markovReplay.ts) can.
@@ -54,25 +90,7 @@ const CostSpread: React.FC<{
     <section aria-label="What a craft can cost" className="space-y-2 rounded-md border border-border/60 bg-muted/30 p-3 text-sm">
       <h4 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">What a craft can cost</h4>
       {replay && spread ? (
-        <>
-          <p>
-            Half the crafts cost less than <strong className="tabular-nums">{fmt(spread[50]!)}</strong>. The luckiest
-            1 in 10 costs under <span className="tabular-nums">{fmt(spread[10]!)}</span>; the unluckiest 1 in 10
-            more than <strong className="tabular-nums">{fmt(spread[90]!)}</strong>.
-          </p>
-          {budget !== undefined && budget > 0 && (
-            <p>
-              Your budget of <span className="tabular-nums">{fmt(budget)}</span> covers{' '}
-              <strong className="tabular-nums">{Math.round(shareWithin(spread, budget) * 100)}%</strong> of crafts.
-            </p>
-          )}
-          <RiskChart percentiles={spread} mean={mean} salePrice={sale} fmt={fmt} />
-          <p className="text-[11px] text-muted-foreground">
-            {replay.runs.toLocaleString('en')} crafts played out, following the plan below
-            {replay.runs < 500 ? ' — a long craft, so a rough read' : ''}
-            {first > 0 ? `; each counts the ${fmt(first)} base it starts from` : ''}.
-          </p>
-        </>
+        <SpreadLines spread={spread} mean={mean} runs={replay.runs} first={first} fmt={fmt} budget={budget} sale={sale} following="the plan below" />
       ) : markov.replayReason ? (
         <p className="text-xs text-muted-foreground">
           Not played out: {markov.replayReason}. The average above stands on its own.

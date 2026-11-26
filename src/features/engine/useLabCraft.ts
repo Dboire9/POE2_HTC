@@ -515,6 +515,8 @@ export function useLabCraft(engine: Engine | null) {
     regularEssenceUsed, desecratedUsed, normalTargets, bossTargetable, desecrationNeedsRare,
     essenceFractureConflict, excludedKeys,
     result, alts, altBudget, markov, markovRun, markovEffort, markovSpare, solvedFor, alongSig, runErr, stale,
+    // The request behind the result on screen — what Check my method checks a method on, exactly.
+    solvedReq: solved?.req ?? null,
     trueCostAnswered, showRoutes, setShowRoutes,
     sale, setSale, saleKey,
     computing: runner.computing, progress: runner.progress, cancel: runner.cancel, compute, playOut, canCompute,

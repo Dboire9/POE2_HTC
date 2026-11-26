@@ -51,7 +51,7 @@ export function whyWords(why: NotPossibleWhy, rarity: 'normal' | 'magic' | 'rare
     case 'boss-not-modelled': return 'the true cost only plays a boss omen whose modifiers include one you asked for';
     case 'no-essence': return 'no Essence gives that slot’s modifier in this craft';
     case 'no-perfect-essence': return 'no Perfect Essence gives that slot’s modifier in this craft';
-    case 'cannot-start-over': return 'this craft starts from an item you hold, which cannot be bought again';
+    case 'cannot-start-over': return 'this craft starts from an item you hold, and the true cost never buys another';
     case 'no-effect': return 'it cannot be played on this item';
   }
 }

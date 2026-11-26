@@ -70,3 +70,15 @@ describe('the header actions survive a narrow screen', () => {
     expect(app).toContain('aria-hidden="true"');
   });
 });
+
+// Check my method's rows hold up to a dozen selects (a prefilled rule names every slot): each line wraps,
+// and a select whose option is a long modifier name may shrink below it rather than push the page sideways.
+describe('Check my method wraps on a phone', () => {
+  it('lays each rule out in wrapping lines, every select allowed to shrink', () => {
+    const src = read('MethodRuleRow.tsx');
+    expect(src).toContain("const sel = cn(selectCls, 'max-w-full');");
+    expect(src).not.toMatch(/className=\{selectCls\}/);
+    expect(src.match(/flex flex-wrap items-center gap-1\.5 text-sm/g)).toHaveLength(2);
+    expect(read('CheckMyMethod.tsx')).toContain('flex flex-wrap items-center gap-2');
+  });
+});

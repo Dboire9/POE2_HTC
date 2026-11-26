@@ -24,6 +24,7 @@ that one are meant to agree; if they ever don't, ALGORITHM.md is the one that's 
   - [Craft along](#craft-along)
   - [What a craft can cost](#what-a-craft-can-cost)
   - [Craft to sell](#craft-to-sell)
+  - [Check my method](#check-my-method)
   - [Start from an item you buy instead](#start-from-an-item-you-buy-instead)
 - [I have an item](#i-have-an-item)
   - [Quick currency check](#quick-currency-check)
@@ -265,6 +266,11 @@ and where it does not, the policy simply restarts, so it is never the worse answ
 are the readable version: a sequence you can follow without consulting the app after every orb. Use the
 cards to understand the route, the true cost to understand the price.
 
+Under the true expected cost sit the tools that read it: [Craft along](#craft-along) follows the plan move by
+move, [What a craft can cost](#what-a-craft-can-cost) shows the spread, [Craft to sell](#craft-to-sell) says
+whether crafting pays, and — on the Plan tab — [Check my method](#check-my-method) costs your own way of
+crafting against the plan.
+
 ### The bound markers: "≥ x" and "≤ x"
 
 Sometimes the cost is printed as **"≥ 480 ex"** or **"≤ 480 ex"** rather than a bare number. This is
@@ -374,6 +380,51 @@ whether crafting it pays:
 The price is kept in this browser for that item, so solving the same craft again finds it. On a carved
 base, what the base cost you is not counted: add it yourself. A cost shown as "≥ x" or "≤ x" gets no
 verdict — a bound is not a cost to subtract — so raise Search effort first.
+
+### Check my method
+
+You already craft a certain way — "Transmute, Regal, Exalt; annul a bad suffix; bin it on two junk mods".
+**Check my method**, under the true expected cost on the Plan tab, prices that way exactly and shows where
+it loses money against the best plan.
+
+Open it and write your method as **rules**, read top to bottom. Each rule is one or more tests on the item
+and a move: *if* the tests all hold, play that move. The first rule whose tests all hold wins; the
+**Otherwise** row, always last, plays where no rule does. A test reads:
+
+- a **modifier you want** — on the item, missing, or blocked (rolled below your tier, or its family taken);
+- how many **prefixes / suffixes / modifiers you did not ask for**, or how many **open** prefixes or
+  suffixes, compared with = ≥ ≤ and a number;
+- the **rarity**; and, on a craft with Desecration, whether a **Desecrated modifier** is on the item and
+  whether it is one you asked for.
+
+A move is any orb the true cost plays — Transmutation, Augmentation, Regal and Exalted Orbs at each strength,
+Exalts and Annulments with their side omens or the Omen of Light, Chaos, an Essence or Perfect Essence for a
+modifier you want, a Desecration with its omens — or **Start over with a new base**. Only what you have is
+offered: anything ticked in [Currency I don't have](#currency-i-dont-have) is left out. Add rules, move them
+with ↑ ↓, remove them with ✕. Your rules are kept in this browser for that craft; another craft starts empty.
+
+Not sure where to begin? **Start from the best plan** fills in rules that play the best plan's moves along
+its main line, and checks them straight away — then change what you would do differently.
+
+Press **Check my method**:
+
+- **Your method: X · Best plan: Y · It costs you Z (N%) more per finished item.**
+- **What a craft can cost with your method** — the spread, as in [What a craft can cost](#what-a-craft-can-cost).
+- **Where it costs you** — up to five items your method reaches where its move is not the best plan's, each
+  with your move, the best move, and what that costs you per finished item. Each figure is how often your
+  method reaches that item times what your move there costs over the best move, both played on from there
+  the best way, so the rows add up to the whole gap (the rest is summed in one **Elsewhere** line).
+
+**When the check stops.** If a rule asks for a move the item cannot take there — a Regal on a Rare, an
+Exalt with no room left — or your rules can go round in circles and never finish, the check stops at the
+first item where that happens and says so in one sentence, with the rule marked. It never fills in a move
+for you: fix the rule and check again.
+
+**What it cannot do (yet).** A test reads a modifier you want as a whole slot — any of its alternatives —
+and junk only as a count: the true cost cannot tell those apart, so neither can a rule. Where your method
+Desecrates, it keeps the offered modifier the best plan would keep. It is on the Plan tab only, and on
+trade-market prices only — not on a starter recipe counted in what drops. When the best plan is shown as
+"≤ x", your method's cost is shown alone: the gap cannot be measured against a bound.
 
 ### Start from an item you buy instead
 

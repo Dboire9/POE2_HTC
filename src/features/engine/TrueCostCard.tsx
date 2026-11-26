@@ -17,7 +17,7 @@ import PriceBasisNote from './PriceBasisNote';
  * Each tab puts its own lines under the figure (`children`): what it says about a bound and, on the
  * Item tab, the trade search for the finished item and what the held item is worth. Then what every
  * answer shows — what one craft can cost once played out, the Plan tab's "Craft to sell" (`sell`, which
- * carries that tab's trade search), Craft along, the route. One card rather than two copies, so what
+ * carries that tab's trade search), Craft along, the Plan tab's "Check my method" (`method`), the route. One card rather than two copies, so what
  * every true-cost answer shows is added once.
  *
  * On the FOUND sheet (`basis.found`, a starter recipe counted in what drops) every cost is a weight, not
@@ -42,10 +42,12 @@ const TrueCostCard: React.FC<{
   sale?: number | undefined;
   /** Under the spread, reading the same play-out: the Plan tab's "Craft to sell". */
   sell?: React.ReactNode;
+  /** Under Craft along: the Plan tab's "Check my method" (`CheckMyMethod`), market sheet only. */
+  method?: React.ReactNode;
   /** The sheet the solve ran on, when it is not the trade sheet (`SolveResult.basis`). */
   basis?: EnginePriceBasis | undefined;
   children?: React.ReactNode;
-}> = ({ markov, rates, spare, along, playOut, budget, sale, sell, basis, children }) => {
+}> = ({ markov, rates, spare, along, playOut, budget, sale, sell, method, basis, children }) => {
   const craftAlong = (found: boolean) => along && markov.routes && (
     <CraftAlong
       key={along.sig} engine={along.engine} markov={markov} tab={along.tab} sig={along.sig} rates={rates}
@@ -80,6 +82,7 @@ const TrueCostCard: React.FC<{
       <CostSpread markov={markov} rates={rates} playOut={playOut} budget={budget} sale={sale} />
       {sell}
       {craftAlong(false)}
+      {method}
       {/* The graph's legend lives IN PolicyGraph, which is the only place that knows whether the
           picture or the route list is on screen. */}
       <PolicyGraph result={markov} rates={rates} spare={spare} />

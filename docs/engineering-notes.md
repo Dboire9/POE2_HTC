@@ -1428,6 +1428,60 @@ Enforced in `packages/engine` (mostly `probability.ts`).
   in `markovSplit.test.ts` / `siblings.test.ts` (costs bit-identical) — the maintainer's call. Regression:
   markovMethod.test.ts, "a method that desecrates … costs what its replay does".
 
+- **"Check my method" answers in seconds on a five-target T1 craft: the shortening is incremental and on a
+  clock, and a ceiling without bones is read off its own table (2026-11-26).** A maintainer pressed "Start
+  from the best plan" on a white Wand, item level 82, five T1 targets (Chaos Damage, the Spell Damage +
+  Mana hybrid, Spell Damage, Cast Speed, Critical Hit Chance for Spells) and the panel sat at "Preparing the
+  solver… 23%" past 101 s. Two causes, measured headless through `runSolve` with the requests the UI sends
+  (`scripts/method-check.mts`):
+  - **The prefill walked every step from scratch.** On the exact best plan (6,557 states; the best plan
+    reaches ~3,800) the exact method has 1,255 rules / 11,295 tests, and the shortening tries ~18,000
+    steps; each walked every reached state through every rule. It had not finished after six minutes. The
+    bar sat still because nothing between the rebuild and the play-out reported. Now a JUDGE keeps which
+    rule each state picks and reads a step's effect off it: a state before the rule keeps its pick, a state
+    after it moves only where the new tests hold (for a wider rule, found among the reached states every
+    new test holds at — one bit set per test over the walk). A step that changes no reached state's move is
+    kept without a walk; a changed state whose ancestors on the walk's breadth-first tree all kept their
+    moves is still reached, so a move there it may not play rejects the step without a walk (most of the
+    ~13,000 rejections); anything else is walked once, picks read in constant time, stopping at the first
+    loss. Tests are read off two integers packed per state (`markovMethodReading.ts`). **It keeps exactly
+    the steps the full walk kept** — same rules, compared on six crafts and pinned against the old judge
+    (`byWalking`, markovMethodPrefill.test.ts) — and it is on a clock (`SHORTEN_MILLIS`, 8 s): every kept
+    step is exact, so where the clock runs out the rules so far stand and the panel says they may keep
+    tests they do not need (`complete`). The five-target prefill: >6 min → 1.1–1.5 s; a four-target T3
+    Wand with bones 13 s → 0.13 s.
+  - **A ceiling without bones re-solved the best plan for the whole clock.** At Standard this craft answers
+    with the plan WITHOUT Desecration as a ceiling (`withoutBones`, ≤ 22.8M ex on the live sheet of the
+    day; Exhaustive settles it exactly at 970,749 ex in 21 s). That table is the craft without bones; the
+    check rebuilt the craft with them, found other states, and solved the best plan from nothing on the
+    request's 15-s clock — then answered "raise Search effort". The request now says `withoutBones`
+    (`methodRequest`), and `checkItemMethod` rebuilds the crafts the solve could have settled on — with or
+    without the essence twins, without bones as `markovBoneFreeFirst` built it — keeping the first whose
+    states are the table's. The best plan's values are then always read, never solved, when the Plan tab
+    gave a table. A Desecration in a method on that craft stops with its own reason ("the best plan above is
+    the one without Desecration"), not "your currency I don't have" list. A craft that drops a carved
+    target is used only when its slots number as the Plan tab's rows (`sameSlots`).
+  - **The panel names the stage** (Rebuilding the craft / Reading the best plan / Shortening the rules /
+    Checking your method / Playing your method out — METHOD_SPANS, solve.ts) and the bar only moves forward.
+    Cancel terminates the worker (engineClient.ts), so it stops at once; the panel's runner clears and the
+    Plan tab's result, held on the main thread, is untouched (CheckMyMethod.test.tsx).
+
+  Medians of three, interleaved, before → after (seconds; the play-out is 2–3 s of its 4-s clock in each):
+
+  | Request | Before | After (rebuild · read · shorten · check · play-out) |
+  |---|---|---|
+  | Five T1, Standard (ceiling), Start from the best plan | 16.5, "raise Search effort" | 2.7 (0.3 · 0.05 · 0.25 · 0.04 · 2.1), 181 rules, faithful |
+  | Five T1, Standard (ceiling), a hand-written method | 16.0, "raise Search effort" | 3.6 (0.3 · 0 · — · 0.02 · 3.1) |
+  | Five T1, Exhaustive (exact), Start from the best plan | > 360, never answered | 5.5 (1.2 · 0.3 · 1.5 · 0.1 · 2.2) |
+  | Five T1, Exhaustive (exact), a hand-written method | 4.5 | 4.5 |
+  | Three T1 (Spell Damage, Cast Speed, Spell Crit), Standard, Start from the best plan | 2.1 | 2.5 |
+  | The same, a hand-written method | 2.6 | 3.1 |
+
+  The three-target rows are the play-out's clock either way (single runs spread ~40%). **Left open:** on the
+  exact five-target plan the shortened rules are long (457 rules, 2,694 tests) and only in part the best
+  plan (+409,617 ex, 42%): many of its states read alike to every rule. That is what rules can say, not the
+  speed; the panel says "only in part" and shows the gap.
+
 ## Tablets
 
 `src/features/tablets/`, `src/lib/tablet*.ts`. The tablet DATA — bases, weights, the curated watch list —

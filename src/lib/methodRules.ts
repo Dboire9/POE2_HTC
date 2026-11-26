@@ -359,7 +359,9 @@ export function methodRequest(req: LabRequest, method: Method | 'best', markov: 
     ...(req.excluded && req.excluded.length > 0 ? { excluded: req.excluded } : {}),
     ...(req.runes && req.runes.length > 0 ? { runes: req.runes } : {}),
     ...(req.spare ? { spare: req.spare } : {}),
-    ...(markov.routes ? { best: { routes: markov.routes, bound: markov.bound } } : {}),
+    ...(markov.routes
+      ? { best: { routes: markov.routes, bound: markov.bound, ...(markov.withoutBones ? { withoutBones: true as const } : {}) } }
+      : {}),
   };
 }
 

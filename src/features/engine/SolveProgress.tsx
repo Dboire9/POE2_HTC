@@ -20,6 +20,11 @@ const PHASE_LABEL: Record<Progress['phase'], string> = {
   withoutBones: 'Solving it without Desecration first…',
   plan: 'Weighing every crafting order…',
   alternatives: 'Checking what your budget buys…',
+  rebuild: 'Rebuilding the craft…',
+  bestPlan: 'Reading the best plan…',
+  shorten: 'Shortening the rules…',
+  check: 'Checking your method…',
+  playMethod: 'Playing your method out…',
 };
 
 const SolveProgress: React.FC<{ progress: Progress | null; onCancel: () => void }> = ({ progress, onCancel }) => {

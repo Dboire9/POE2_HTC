@@ -57,7 +57,7 @@ const CheckMyMethod: React.FC<{
   const sig = methodSig(req);
   const [open, setOpen] = useState(false);
   const [method, setMethodState] = useState<Method>(() => readMethod(sig) ?? emptyMethod(info));
-  const [prefilled, setPrefilled] = useState<{ readonly faithful: boolean } | null>(null);
+  const [prefilled, setPrefilled] = useState<{ readonly faithful: boolean; readonly complete: boolean } | null>(null);
   const [checked, setChecked] = useState<Checked | null>(null);
   const [error, setError] = useState<string | null>(null);
   const runner = useSolveRunner();
@@ -86,7 +86,7 @@ const CheckMyMethod: React.FC<{
         if (res.kind !== 'method') return;
         if (res.prefilled) {
           setMethod(res.prefilled.method);
-          setPrefilled({ faithful: res.prefilled.faithful });
+          setPrefilled({ faithful: res.prefilled.faithful, complete: res.prefilled.complete });
         }
         setChecked({ run, method: JSON.stringify(res.prefilled?.method ?? asked), result: res.method });
       },
@@ -175,6 +175,7 @@ const CheckMyMethod: React.FC<{
               {prefilled.faithful
                 ? 'These rules play a move as good as the best plan’s at every item they reach, so they cost what it costs. Each rule keeps only the tests needed to tell those items apart.'
                 : 'These rules follow the best plan only in part: some of its items read alike to every rule, so the earlier rule plays at both.'}
+              {!prefilled.complete && ' Shortening them took too long and stopped early, so some rules may keep tests they could do without.'}
             </p>
           )}
           {busy && !runner.computing && (

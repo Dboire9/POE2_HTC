@@ -10,13 +10,13 @@
 // it (engine.worker.ts) is then thin enough to hold no logic worth testing, which matters because
 // jsdom has no Worker at all.
 
-import type { Engine } from './engine.ts';
+import type { Engine, MethodPhase } from './engine.ts';
 import {
   optimize, optimizeItem, optimizeItemMarkov, alternatives, alternativesForItem, priceBasis, checkItemMethod,
 } from './engine.ts';
 import type {
   AltTargetInput, EngineAlternatives, EngineMarkovResult, EngineMethodBest, EngineMethodResult, EnginePriceBasis,
-  EngineResult, ExistingItem, Method, TargetInput,
+  EnginePrefilled, EngineResult, ExistingItem, Method, TargetInput,
 } from './engineTypes.ts';
 import { FOUND_BASE_WEIGHT, FOUND_PRICES } from '../../packages/optimizer/src/foundPrices.ts';
 import type { MarkovProgress, WatchMod } from '../../packages/optimizer/src/markovFromItem.ts';
@@ -180,7 +180,7 @@ export type SolveResult =
   | {
       readonly kind: 'method'; readonly method: EngineMethodResult;
       /** On `method: 'best'`: the rules that were checked — the best plan, each rule only the tests it needs. */
-      readonly prefilled?: { readonly method: Method; readonly faithful: boolean };
+      readonly prefilled?: EnginePrefilled;
     };
 
 /**
@@ -190,7 +190,9 @@ export type SolveResult =
  * search.
  */
 export type SolvePhase =
-  | MarkovProgress['phase'] | 'plan' | 'replay' | 'playout' | 'smaller' | 'withoutBones' | 'alternatives';
+  | MarkovProgress['phase'] | 'plan' | 'replay' | 'playout' | 'smaller' | 'withoutBones' | 'alternatives' | MethodPhase
+  /** A checked method played out on real items. */
+  | 'playMethod';
 
 /**
  * How far along a solve is, as a single 0–1 fraction the UI can render directly.
@@ -307,6 +309,17 @@ const LAB_MDP_ALONE: Span = [0.3, 1];
 const LAB_PLAN_THEN_SEARCH: Span = [0, 0.05];
 const LAB_MDP_THEN_SEARCH: Span = [0.05, 0.35];
 const LAB_SEARCH: Span = [0.35, 1];
+
+/**
+ * A method check's stages over the bar (engine.ts `checkItemMethod`), roughly as long as each takes.
+ * Measured 2026-11-26 on a five-target T1 Wand (scripts/method-check.mts): rebuilding the craft 0.3–1.3 s,
+ * reading the best plan off the solve's table up to 0.3 s, shortening its rules 0.3–1.5 s, the check
+ * under 0.2 s, the play-out 2–3 s of its clock (PLAYOUT_MILLIS).
+ */
+const METHOD_SPANS: Record<'best' | 'check', Record<MethodPhase | 'playMethod', Span>> = {
+  best: { rebuild: [0, 0.2], bestPlan: [0.2, 0.25], shorten: [0.25, 0.55], check: [0.55, 0.6], playMethod: [0.6, 1] },
+  check: { rebuild: [0, 0.3], bestPlan: [0.3, 0.35], shorten: [0.35, 0.35], check: [0.35, 0.4], playMethod: [0.4, 1] },
+};
 
 /** Map the MDP's raw counts onto one monotone 0–1 fraction. */
 export function toFraction(p: MarkovProgress): number {
@@ -464,26 +477,35 @@ export function runSolve(eng: Engine, req: SolveRequest, onProgress?: (p: SolveP
   }
 
   if (req.kind === 'method') {
-    // The lattice is built over the first half of the bar (and a solve, when the best plan's table is not
-    // this craft's); the play-out takes the rest.
+    // Each stage over its own slice of the bar (METHOD_SPANS), the play-out last; the panel names the stage.
     const fromWhite = !('item' in req.from);
     const item: ExistingItem = runed('item' in req.from
       ? req.from.item
       : { baseId: req.from.baseId, level: req.from.level, rarity: 'normal', prefixes: [], suffixes: [] });
-    const half: Span = [0, 0.5];
+    const spans = req.method === 'best' ? METHOD_SPANS.best : METHOD_SPANS.check;
     const opts = spared(withSweepLimit(withPolicy({
       ...(fromWhite || req.rebuyable ? { restartCost: req.baseCost ?? WHITE_BASE_COST } : {}),
       ...(req.fillOnFinish ? { fillOnFinish: true } : {}),
       ...(eff ? { maxMillis: eff.maxMillis } : {}),
-      ...(onProgress
-        ? { onProgress: (p: MarkovProgress): void => onProgress({ phase: p.phase, fraction: within(half, toFraction(p) * 1000, 1000) }) }
-        : {}),
     })));
+    // The bar only moves forward: a second rebuild (the first was not the solve's craft) starts its own
+    // count over, and is shown at the furthest point reached.
+    // Sent only when what the panel shows changes (a phase, or a tenth of a percent).
+    let furthest = 0;
+    let said = '';
+    const report = onProgress
+      ? (phase: MethodPhase, fraction: number): void => {
+        furthest = Math.max(furthest, within(spans[phase], fraction, 1));
+        const now = `${phase}:${Math.round(furthest * 1000)}`;
+        if (now !== said) { said = now; onProgress({ phase, fraction: furthest }); }
+      }
+      : undefined;
+    report?.('rebuild', 0);
     const { result, prefilled } = checkItemMethod(eng, item, req.targets, opts, req.method, req.best, {
       runs: REPLAY_RUNS, seed: 1, maxMillis: PLAYOUT_MILLIS,
-      onProgress: (fraction: number): void => onProgress?.({ phase: 'playout', fraction: within([half[1], 1], fraction, 1) }),
-    });
-    onProgress?.({ phase: 'playout', fraction: 1 });
+      onProgress: (fraction: number): void => onProgress?.({ phase: 'playMethod', fraction: within(spans.playMethod, fraction, 1) }),
+    }, report);
+    onProgress?.({ phase: 'playMethod', fraction: 1 });
     return { kind: 'method', method: result, ...(prefilled ? { prefilled } : {}) };
   }
 

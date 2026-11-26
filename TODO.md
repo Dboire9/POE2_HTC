@@ -1797,6 +1797,20 @@ A `PlacedMod` carries a `tierName`, and these read it back as the FIRST tier wit
 Not fixed. What a fix needs: a placed mod that names its tier unambiguously (an index, or names made
 unique in `tools/refresh/`), and a measurement of which of these readers a real craft reaches.
 
+## 34. At Standard a big craft can answer a ceiling 23x its exact cost — OPEN, found 2026-11-27
+
+Found while timing Check my method (docs/validation.md, 2026-11-27). A Wand at item level 82, five top-tier
+targets (Chaos Damage, Spell Damage + Mana, Spell Damage; Cast Speed, Spell Critical Hit Chance), live sheet
+of that day: at **Standard** the Plan tab answers the plan without Desecration as a ceiling, **≤ 22.8M ex**
+(1,345 states, `markovBoneFreeFirst`'s `withoutBones`); at **Exhaustive** it settles exactly at **970,749 ex**
+(6,557 states). The player sees a number 23 times too high, labelled as a bound but with nothing saying a
+higher effort would cut it that much.
+
+First step: measure how often the build-up set (`scripts/build-up.mts`) answers a bone-free ceiling at
+Standard while Exhaustive settles, and by how much. Then choose: a longer Standard clock for crafts that
+fall back, a note on a bone-free ceiling ("Exhaustive may find a much cheaper plan"), or the bone solve
+seeded harder so it settles within Standard.
+
 ## What 1.0 means — ALL FIVE SHIPPED, prepared 2026-09-02
 
 The definition written on 2026-09-01 was: §7 the docs describe the app that exists, §8 prices refresh

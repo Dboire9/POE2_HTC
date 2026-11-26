@@ -4,9 +4,9 @@ import userEvent from '@testing-library/user-event';
 import { loadShippedPatch } from '../../../packages/engine/src/loadPatch.ts';
 import { loadFrozenPrices } from '../../../packages/optimizer/src/frozenPrices.ts';
 import { SolveCancelled } from '../../lib/engineClient';
-import type { EngineMarkovResult, EngineMethodResult, Method, TargetInput } from '../../lib/engineTypes';
+import type { EngineMarkovResult, EngineMethodResult, EnginePrefilled, Method, TargetInput } from '../../lib/engineTypes';
 import { methodRequest, methodSig, readMethod, type LabRequest } from '../../lib/methodRules';
-import { runSolve, type SolveRequest, type SolveResult } from '../../lib/solve';
+import { runSolve, type SolveProgress, type SolveRequest, type SolveResult } from '../../lib/solve';
 import CheckMyMethod from './CheckMyMethod';
 
 // The panel against a real solve on the frozen sheet; only the worker is stood in for, so each test says
@@ -35,7 +35,7 @@ function nextCheck() {
   const cancel = vi.fn(() => fail(new SolveCancelled()));
   mocks.solve.mockReturnValueOnce({ promise, cancel });
   return {
-    answer: (method: EngineMethodResult, prefilled?: { method: Method; faithful: boolean }) =>
+    answer: (method: EngineMethodResult, prefilled?: EnginePrefilled) =>
       answer({ kind: 'method', method, ...(prefilled ? { prefilled } : {}) }),
     fail, cancel,
   };
@@ -93,7 +93,7 @@ describe('Check my method', () => {
     expect(screen.getByRole('button', { name: 'Check my method' })).toBeDisabled();
 
     const pre = fromBest.prefilled!;
-    check.answer(ok, { method: pre.method, faithful: true });
+    check.answer(ok, { method: pre.method, faithful: true, complete: true });
     await waitFor(() => expect(rules()).toHaveLength(pre.method.rules.length));
     // Saved for this craft as soon as it is written.
     expect(readMethod(methodSig(req))).toEqual(pre.method);
@@ -232,6 +232,42 @@ describe('Check my method', () => {
     again.unmount();
     // The worker may be running the Plan tab's next solve by now; a stale cancel would stop it.
     expect(done.cancel).not.toHaveBeenCalled();
+  });
+
+  it('says which stage the check is in, and Cancel stops it: the panel is as it was, ready to check again', async () => {
+    const user = userEvent.setup();
+    const check = nextCheck();
+    render(<CheckMyMethod {...props} />);
+    await open(user);
+    await user.click(screen.getByRole('button', { name: 'Start from the best plan' }));
+    await waitFor(() => expect(mocks.solve).toHaveBeenCalledTimes(1));
+    const report = mocks.solve.mock.calls[0]![1] as (p: SolveProgress) => void;
+    report({ phase: 'shorten', fraction: 0.4 });
+    expect(await screen.findByText('Shortening the rules…')).toBeInTheDocument();
+    expect(screen.getByRole('status')).toHaveTextContent(/40% ·/);
+    report({ phase: 'playMethod', fraction: 0.7 });
+    expect(await screen.findByText('Playing your method out…')).toBeInTheDocument();
+
+    await user.click(screen.getByRole('button', { name: 'Cancel' }));
+    expect(check.cancel).toHaveBeenCalledTimes(1);
+    await waitFor(() => expect(screen.queryByRole('status')).toBeNull());
+    expect(screen.getByRole('button', { name: 'Start from the best plan' })).toBeEnabled();
+    expect(screen.getByRole('button', { name: 'Check my method' })).toBeEnabled();
+    expect(rules()).toHaveLength(0);
+    expect(screen.queryByText(/The check failed/)).toBeNull();
+  });
+
+  it('rules whose shortening ran out of time say so, beside the rules', async () => {
+    const user = userEvent.setup();
+    const check = nextCheck();
+    render(<CheckMyMethod {...props} />);
+    await open(user);
+    await user.click(screen.getByRole('button', { name: 'Start from the best plan' }));
+    const pre = fromBest.prefilled!;
+    check.answer(ok, { method: pre.method, faithful: true, complete: false });
+    await waitFor(() => expect(rules()).toHaveLength(pre.method.rules.length));
+    expect(screen.getByText(/These rules play a move as good as the best plan’s/)).toHaveTextContent(
+      'Shortening them took too long and stopped early, so some rules may keep tests they could do without.');
   });
 
   it('adds, moves and removes rules, and keeps them for this craft only', async () => {

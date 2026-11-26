@@ -4,7 +4,7 @@
 import type { CurrencyTier } from '../../packages/engine/src/types.ts';
 import type { PlanStep } from '../../packages/engine/src/plan.ts';
 import type { RouteTable } from '../../packages/optimizer/src/markovRoute.ts';
-import type { NotPossibleWhy } from '../../packages/optimizer/src/markovMethod.ts';
+import type { Method, NotPossibleWhy } from '../../packages/optimizer/src/markovMethod.ts';
 
 export interface EngineBase {
   readonly id: string;
@@ -628,8 +628,22 @@ export type EngineMethodResult =
     readonly notes: readonly string[];
   };
 
+/** "Start from the best plan": the rules it wrote (markovMethodPrefill.ts), as the check hands them back. */
+export interface EnginePrefilled {
+  readonly method: Method;
+  /** They play a move as good as the best plan's everywhere they go, so they cost what it costs. */
+  readonly faithful: boolean;
+  /** The shortening ran to its end; false when its clock ran out (the rules are exact, only longer). */
+  readonly complete: boolean;
+}
+
 /** What the best plan's result hands a method check, so it can reuse the solve (`EngineMarkovResult`). */
 export interface EngineMethodBest {
   readonly routes: RouteTable;
   readonly bound: 'exact' | 'lower' | 'upper';
+  /**
+   * The result is the plan without Desecration given as a ceiling (`EngineMarkovResult.withoutBones`): its
+   * table is that craft's, so the check rebuilds the craft without bones to read it.
+   */
+  readonly withoutBones?: true;
 }

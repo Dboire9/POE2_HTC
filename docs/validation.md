@@ -5519,6 +5519,28 @@ passes it, and the guide's FAQ (the true cost does not play Whittling) stays tru
 ready for the day it is turned on: "Chaos + Omen of Whittling" in `actionLabel`, and the omen as its own row
 in "What you'll use" (`markovUses.ts`). TODO 12b stays open.
 
+## Check my method on a five-target T1 Wand — the prefill and the ceiling (2026-11-26)
+
+`scripts/method-check.mts`: a white Wand, item level 82, five T1 targets (Chaos Damage, the Spell Damage +
+Mana hybrid, Spell Damage, Cast Speed, Critical Hit Chance for Spells), live sheet of the day, the Plan tab's
+solve then the two requests the panel sends (`methodRequest`). Medians of three, interleaved with the tree
+before the change (single runs spread ~40%), each run alone. Seconds.
+
+| Craft, effort, request | Before | After |
+|---|---|---|
+| Five T1, Standard — the plan without Desecration as a ceiling (≤ 22.8M ex) — Start from the best plan | 16.5, "raise Search effort" (a 15-s solve of the best plan from nothing) | 2.7, 181 rules, faithful |
+| the same, a hand-written method | 16.0, "raise Search effort" | 3.6 |
+| Five T1, Exhaustive — exact, 970,749 ex, 6,557 states — Start from the best plan | > 360, never answered (stopped) | 5.5 (rebuild 1.2, read 0.3, shorten 1.5, check 0.1, play-out 2.2) |
+| the same, a hand-written method | 4.5 | 4.5 |
+| Three T1 (Spell Damage, Cast Speed, Spell Crit), Standard, Start from the best plan | 2.1 | 2.5 |
+| the same, a hand-written method | 2.6 | 3.1 |
+
+The shortening alone, frozen sheet, tight tolerance, the walking judge (as before) against the new one, same
+rules out of both every time: three mods with bones 7 → 4 ms; four mods T3 with bones 13.0 s → 0.13 s; five
+mods at their top two tiers without bones 33.9 s → 0.18 s; five mods any tier with bones 5.3 s → 0.15 s.
+The exact five-target plan's rules stay long (457 rules, 2,694 tests) and only in part the best plan (+42%):
+many of its states read alike to every rule. Why: engineering-notes, "Check my method answers in seconds".
+
 ## Still deferred
 - **Confirm the Omen of Whittling TIE rule in game** (2026-09-02): when two or more modifiers share
   the lowest item level, which does the Chaos Orb remove? Modelled as uniform — 50/50 on two — by the

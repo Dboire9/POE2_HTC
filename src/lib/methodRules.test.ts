@@ -113,6 +113,11 @@ describe('the request a check sends', () => {
     });
   });
 
+  it('a ceiling without bones says so, so the check rebuilds the craft its table is of', () => {
+    const got = methodRequest(req, emptyMethod(methodCraftInfo(data, req, lab.markov.routes)), { ...lab.markov, withoutBones: true });
+    expect(got.best).toEqual({ routes: lab.markov.routes, bound: lab.markov.bound, withoutBones: true });
+  });
+
   it('without a table, asks the check to solve the best plan itself', () => {
     const { routes: _r, ...bare } = lab.markov;
     expect(methodRequest(req, emptyMethod(methodCraftInfo(data, req, undefined)), bare)).not.toHaveProperty('best');

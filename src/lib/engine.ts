@@ -34,7 +34,8 @@ import { withEssenceTwins } from '../../packages/optimizer/src/essenceTwins.ts';
 import { limitsOf } from '../../packages/engine/src/item.ts';
 import type { TierTarget } from '../../packages/optimizer/src/optimize.ts';
 import { markovFromItem, type MarkovOptions } from '../../packages/optimizer/src/markovFromItem.ts';
-import { markovBoneFreeFirst, type BoneFreeOptions } from '../../packages/optimizer/src/markovBoneFree.ts';
+import { boneFreeCraft, markovBoneFreeFirst, type BoneFreeOptions } from '../../packages/optimizer/src/markovBoneFree.ts';
+import { slotIndexGroups } from '../../packages/optimizer/src/slots.ts';
 import { routeFrom, stepFrom } from '../../packages/optimizer/src/markovRoute.ts';
 import { keyOfItem, type Located } from '../../packages/optimizer/src/markovLocate.ts';
 import { markovUses } from '../../packages/optimizer/src/markovUses.ts';
@@ -50,7 +51,7 @@ import {
 import type {
   EngineBase, EngineMod, EngineBaseMods, EngineResult, TargetInput,
   ExistingItem, CurrencyAction, AltTargetInput, EngineAlternatives, EngineMarkovResult,
-  EnginePriceBasis, RuneChoice, EngineMethodBest, EngineMethodResult,
+  EnginePriceBasis, RuneChoice, EngineMethodBest, EngineMethodResult, EnginePrefilled,
 } from './engineTypes.ts';
 import {
   prettyName, toEngineMod, toTierTargets, toAltTargets, buildItemState, addBlockedReason,
@@ -367,47 +368,84 @@ export function optimizeItemMarkov(
   return mapMarkov(data, res, usesAssumedPool(item.runes ?? []), asked, uses);
 }
 
+/** The stages of a method check, in order (`checkItemMethod`). */
+export type MethodPhase = 'rebuild' | 'bestPlan' | 'shorten' | 'check';
+
 /**
  * "Check my method": a player's rules costed exactly on the craft the true cost solved, against its best
  * plan (packages/optimizer/src/markovMethod.ts), worded for the Plan tab (methodWords.ts).
  *
  * The lattice is rebuilt from EXACTLY the inputs the solve had — `opts` must be the solve's model options
- * (restart cost, currency policy, free slots, fill on finish) — with the essence twins `optimizeItemMarkov`
- * offers, or as asked where that is what the solve settled on. The best plan's values are reused from
- * `best.routes` when its states are this lattice's, and solved once otherwise (a plan without bones given
- * as a ceiling, or no table at all). A best plan that is only a bound gives the method's cost alone.
+ * (restart cost, currency policy, free slots, fill on finish) — on the craft the solve settled on: with
+ * the essence twins `optimizeItemMarkov` offers, or as asked; and, where the result is the plan without
+ * Desecration given as a ceiling (`best.withoutBones`), without bones, as `markovBoneFreeFirst` solved it.
+ * The first of those whose states are `best.routes`' is the one checked, and the best plan's values are
+ * read off that table — never solved again. Only where no table was given (or none fits) is the best plan
+ * solved, once, on the request's own clock. A best plan that is only a bound gives the method's cost alone.
  *
  * `method: 'best'` is "Start from the best plan": the best plan written as short rules (`methodFromBest`,
  * markovMethodPrefill.ts) — each keeping only the tests it needs, and costing exactly what the best plan
  * costs — and checked at once. It is worked out here, on the lattice, because what a rule needs is judged
  * at the states the method reaches. `prefilled` carries those rules; absent where the craft would not set up.
+ *
+ * `report` hears each stage as it goes (`MethodPhase`, 0–1 within it); the play-out reports through `replay`.
  */
 export function checkItemMethod(
   eng: Engine, item: ExistingItem, targets: readonly TargetInput[], opts: MarkovOptions, method: Method | 'best',
-  best?: EngineMethodBest, replay?: ReplayOptions,
-): { readonly result: EngineMethodResult; readonly prefilled?: { readonly method: Method; readonly faithful: boolean } } {
+  best?: EngineMethodBest, replay?: ReplayOptions, report?: (phase: MethodPhase, fraction: number) => void,
+): { readonly result: EngineMethodResult; readonly prefilled?: EnginePrefilled } {
   const { data, prices } = eng;
   const state = buildItemState(data, item);
   const named = toTierTargets(data, targets);
   const tiers = twinsFor(data, state, named, buyable(prices, opts.policy));
-  let craft: MethodCraft | { readonly refused: string } = methodCraft(data, prices, state, tiers, opts);
-  // As asked, without the twins: where the solve settled on that craft (`optimizeItemMarkov`), or where the
-  // craft with them cannot be set up at all.
-  const twinsMiss = 'refused' in craft || (best !== undefined && !sameLattice(best.routes, craft.lattice));
-  if (twinsMiss && tiers.length !== named.length) {
-    const plain = methodCraft(data, prices, state, named, opts);
-    if (!('refused' in plain) && ('refused' in craft || sameLattice(best!.routes, plain.lattice))) craft = plain;
+  const { onProgress: _solveProgress, ...model } = opts;
+  // Rebuilding reports per lattice: a second one (when the first is not the solve's) starts the bar over.
+  const building: MarkovOptions = report
+    ? { ...model, onProgress: (p) => { report('rebuild', p.phase === 'actions' ? 0.9 * p.done / p.total : p.phase === 'compile' ? 0.9 + 0.1 * p.done / p.total : 1); } }
+    : model;
+  // The crafts the solve could have settled on, likeliest first.
+  const kinds: { readonly targets: readonly TierTarget[]; readonly withoutBones: boolean }[] = [];
+  const add = (t: readonly TierTarget[], withoutBones: boolean): void => {
+    if (!withoutBones) { kinds.push({ targets: t, withoutBones }); return; }
+    const free = boneFreeCraft(data, prices, state, t, opts);
+    if (free && sameSlots(t, free.targets)) kinds.push({ targets: free.targets, withoutBones });
+  };
+  for (const t of tiers.length !== named.length ? [tiers, named] : [tiers]) add(t, best?.withoutBones === true);
+  if (best?.withoutBones) for (const t of tiers.length !== named.length ? [tiers, named] : [tiers]) add(t, false);
+  let craft: MethodCraft | { readonly refused: string } = { refused: 'no plan' };
+  let first: MethodCraft | undefined;
+  for (const k of kinds) {
+    const c = methodCraft(data, prices, state, k.targets, building, k.withoutBones);
+    if ('refused' in c) { if (!first) craft = c; continue; }
+    first ??= c;
+    if (!best || sameLattice(best.routes, c.lattice)) { craft = c; break; }
   }
+  if ('refused' in craft && first) craft = first;
   if ('refused' in craft) return { result: methodUnavailable(craft.refused) };
-  const values = bestValues(craft, best);
+  const values = bestValues(craft, best, report ? (p) => { report('bestPlan', p.phase === 'solve' ? p.done / p.total : 0); } : undefined);
   if ('refused' in values) return { result: methodUnavailable(values.refused) };
+  report?.('bestPlan', 1);
   const pl = methodPlayer(craft, values.V);
-  const pre = method === 'best' ? methodFromBest(pl) : undefined;
+  const pre = method === 'best' ? methodFromBest(pl, report ? { onProgress: (f) => { report('shorten', f); } } : {}) : undefined;
+  report?.('check', 0);
   const check = checkWith(pl, values.bound, method === 'best' ? pre!.method : method, replay ? { replay } : {});
   return {
     result: mapMethod(data, check, targets),
-    ...(pre ? { prefilled: { method: pre.method, faithful: pre.faithful } } : {}),
+    ...(pre ? { prefilled: { method: pre.method, faithful: pre.faithful, complete: pre.complete } } : {}),
   };
+}
+
+/**
+ * Whether `rest` (a target list with some targets dropped) numbers its slots as `all` does: every slot of
+ * `rest` in the same order. A method names slots by the Plan tab's rows, so a craft that renumbers them
+ * cannot be the one it is checked on.
+ */
+function sameSlots(all: readonly TierTarget[], rest: readonly TierTarget[]): boolean {
+  if (rest === all) return true;
+  const groupOf = new Map<TierTarget, number>();
+  slotIndexGroups(all).forEach((g, k) => { for (const i of g) groupOf.set(all[i]!, k); });
+  const order = slotIndexGroups(rest).map((g) => groupOf.get(rest[g[0]!]!) ?? -1);
+  return order.length === slotIndexGroups(all).length && order.every((k, n) => k === n);
 }
 
 /**

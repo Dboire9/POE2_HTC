@@ -38,7 +38,7 @@ import { ECHOES_OMEN, cheapestEssenceLevel, essenceLevelOf, stepIsPriced } from 
 import type { ExaltStrength, McAction } from './markovActions.ts';
 import { actionCostOf, allowsAction, pricedStepOf } from './markovActions.ts';
 import type { MarkovOptions, MarkovResult } from './markovFromItem.ts';
-import { boneRole } from './markovFromItem.ts';
+import { BONE_KEYS, boneRole } from './markovFromItem.ts';
 import type { CompiledAction, McLattice } from './markovLattice.ts';
 import { buildLattice } from './markovLattice.ts';
 import { offerValuer, type OfferValuer } from './markovOffer.ts';
@@ -113,7 +113,9 @@ export type RuleRef = number | 'otherwise';
 export type NotPossibleWhy =
   | 'excluded' | 'unpriced' | 'needs-normal' | 'needs-magic' | 'needs-rare' | 'no-room' | 'nothing-to-remove'
   | 'no-desecrated-mod' | 'already-desecrated' | 'no-desecration' | 'boss-not-here' | 'boss-not-modelled'
-  | 'no-essence' | 'no-perfect-essence' | 'cannot-start-over' | 'no-effect';
+  | 'no-essence' | 'no-perfect-essence' | 'cannot-start-over' | 'no-effect'
+  /** A Desecration, on a craft checked without bones: the best plan on screen is the one without them. */
+  | 'without-desecration';
 
 export type MethodStop =
   /** The rule's move is not one the item can take at `state` (an index into the table's `keys`). */
@@ -250,16 +252,27 @@ export function actionId(a: McAction): string {
 export interface MethodCraft {
   readonly problem: McProblem;
   readonly lattice: McLattice;
+  /** The options the lattice was built with — with the bones excluded on a craft rebuilt `withoutBones`. */
   readonly opts: MarkovOptions;
+  /**
+   * Rebuilt without bones, as the solve without them was (markovBoneFree.ts): the best plan on screen is
+   * that solve's, given as a ceiling. `asked` is the player's own exclusions, without the bones.
+   */
+  readonly withoutBones?: { readonly asked: CurrencyPolicy | undefined };
 }
 
 /**
  * Resolve and build the lattice exactly as `markovFromItem` does for these inputs — or the reason it
  * cannot be (the same refusal the solve gives, or a finished item, where there is nothing to check).
+ * `withoutBones`: as the solve without bones built it (`markovBoneFreeFirst`), the bones excluded.
  */
 export function methodCraft(
-  data: PatchData, prices: Prices, start: ItemState, targets: readonly TierTarget[], opts: MarkovOptions,
+  data: PatchData, prices: Prices, start: ItemState, targets: readonly TierTarget[], given: MarkovOptions,
+  withoutBones = false,
 ): MethodCraft | { readonly refused: string } {
+  const opts: MarkovOptions = withoutBones
+    ? { ...given, policy: { excluded: new Set([...(given.policy?.excluded ?? []), ...BONE_KEYS]) } }
+    : given;
   const bones = boneRole(data, prices, start, targets, opts.policy);
   const refuse = (reason: string): { answer: MarkovResult } => ({
     answer: { expectedCost: Infinity, feasible: false, converged: true, bound: 'exact', reason, nodes: [], edges: [], policy: new Map() },
@@ -270,7 +283,7 @@ export function methodCraft(
   }
   const lattice = buildLattice(problem, opts, refuse);
   if ('answer' in lattice) return { refused: lattice.answer.reason ?? 'no plan' };
-  return { problem, lattice, opts };
+  return { problem, lattice, opts, ...(withoutBones ? { withoutBones: { asked: given.policy } } : {}) };
 }
 
 /** Whether a solved table is over exactly this lattice — the same states in the same order. */
@@ -282,15 +295,20 @@ export function sameLattice(routes: RouteTable, lattice: McLattice): boolean {
   return true;
 }
 
-/** The best plan's values over the craft: the table already solved when it is this lattice's, else one solve. */
+/**
+ * The best plan's values over the craft: the table already solved when it is this lattice's, else one
+ * solve — on the craft's own clock (`opts.maxMillis`), reporting through `onProgress` when given.
+ */
 export function bestValues(
   craft: MethodCraft, best?: { readonly routes: RouteTable; readonly bound: 'exact' | 'lower' | 'upper' },
+  onProgress?: MarkovOptions['onProgress'],
 ): { readonly V: Float64Array; readonly bound: 'exact' | 'lower' | 'upper'; readonly reused: boolean } | { readonly refused: string } {
   if (best && sameLattice(best.routes, craft.lattice)) return { V: best.routes.value, bound: best.bound, reused: true };
   const refuse = (reason: string, why: { stoppedEarly?: true } = {}): { answer: MarkovResult } => ({
     answer: { expectedCost: Infinity, feasible: false, converged: true, bound: 'exact', reason, ...why, nodes: [], edges: [], policy: new Map() },
   });
-  const solved = solveLattice(craft.problem, craft.lattice, craft.opts, refuse);
+  const { onProgress: _built, ...opts } = craft.opts;
+  const solved = solveLattice(craft.problem, craft.lattice, onProgress ? { ...opts, onProgress } : opts, refuse);
   if ('answer' in solved) return { refused: solved.answer.reason ?? 'no plan' };
   return { V: solved.V, bound: solved.bound, reused: false };
 }
@@ -342,7 +360,7 @@ export function methodPlayer(craft: MethodCraft, V: Float64Array): MethodPlayer 
     const action = toAction(p, craft.opts, policy, move);
     if (action === undefined) return { spec: move, why: move.currency === 'essence' ? 'no-essence' : 'no-perfect-essence' };
     const found = resolve(l.compiled[i]!, action, p.prices);
-    if (!found) return { spec: move, action, why: whyNot(p, l, policy, state(i), action) };
+    if (!found) return { spec: move, action, why: whyNot(p, l, policy, state(i), action, craft.withoutBones) };
     const { ca, cost: own, folded } = found;
     const to: number[] = [];
     const prob: number[] = [];
@@ -547,6 +565,9 @@ export function checkWith(
   losses.sort((a, b) => b.loss - a.loss);
   const bestCost = V[start]!;
 
+  // The play-out says it has begun: its first report comes only once a craft is played, and one long
+  // craft can take seconds.
+  opts.replay?.onProgress?.(0);
   const replay = opts.replay ? replayMethod(pl, method, walk.moves, opts.replay) : undefined;
   return {
     ok: true, table, cost, bestCost, bound, ...(bound === 'exact' ? { gap: cost - bestCost } : {}),
@@ -603,8 +624,12 @@ function resolve(
 }
 
 /** Why the action space has no such move at `st` — the first of its gates the move fails. */
-function whyNot(p: McProblem, l: McLattice, policy: CurrencyPolicy | undefined, st: McState, a: McAction): NotPossibleWhy {
+function whyNot(
+  p: McProblem, l: McLattice, policy: CurrencyPolicy | undefined, st: McState, a: McAction,
+  withoutBones?: MethodCraft['withoutBones'],
+): NotPossibleWhy {
   if (a.currency === 'restart') return l.canRestart ? 'no-effect' : 'cannot-start-over';
+  if (withoutBones && a.currency === 'desecrate' && allowsAction(withoutBones.asked, a)) return 'without-desecration';
   if (!allowsAction(policy, a)) return 'excluded';
   if (!stepIsPriced(p.prices, pricedStepOf(a))) return 'unpriced';
   const needs: McRarity = a.currency === 'transmute' ? 'normal'

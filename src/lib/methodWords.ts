@@ -47,6 +47,8 @@ export function whyWords(why: NotPossibleWhy, rarity: 'normal' | 'magic' | 'rare
     case 'no-desecrated-mod': return 'no modifier on the item came from a Desecration';
     case 'already-desecrated': return 'the item already carries a modifier a Desecration placed, and it can hold only one';
     case 'no-desecration': return 'Desecration is not part of this craft’s plan';
+    case 'without-desecration':
+      return 'the best plan above is the one without Desecration (the solver ran out of time with it), so your method is checked without it too';
     case 'boss-not-here': return 'a boss omen cannot be used on this base';
     case 'boss-not-modelled': return 'the true cost only plays a boss omen whose modifiers include one you asked for';
     case 'no-essence': return 'no Essence gives that slot’s modifier in this craft';

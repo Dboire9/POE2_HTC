@@ -62,7 +62,7 @@ describe('a method request, end to end', () => {
     // Played out as Play it out plays: the percentiles of what one craft costs.
     expect(m.replay?.costPercentiles).toHaveLength(101);
     expect(m.notes).toEqual([]);
-    expect(seen[seen.length - 1]).toEqual({ phase: 'playout', fraction: 1 });
+    expect(seen[seen.length - 1]).toEqual({ phase: 'playMethod', fraction: 1 });
     for (let i = 1; i < seen.length; i++) expect(seen[i]!.fraction).toBeGreaterThanOrEqual(seen[i - 1]!.fraction);
   });
 
@@ -170,5 +170,64 @@ describe('Start from the best plan', () => {
     expect(got.stop).toMatchObject({ kind: 'never-finishes', rule: `Rule ${r + 1}`, move: 'Annul' });
     expect(got.stop.message).toMatch(new RegExp(
       `^Your method never finishes: Rule ${r + 1} plays Annul at the nearest it gets to the finished item, and from what follows, your rules only ever start over\\. That item: Magic · `));
+  });
+});
+
+describe('a check says what it is doing, and never solves the best plan again', () => {
+  /** The stages a check reported, each once, in the order it reported them. */
+  const stages = (seen: readonly SolveProgress[]): string[] => seen.map((p) => p.phase).filter((p, k, a) => p !== a[k - 1]);
+
+  it('Start from the best plan: rebuilding, reading the best plan, shortening, checking, playing it out — forward only', () => {
+    const seen: SolveProgress[] = [];
+    runSolve(eng, { kind: 'method', from, targets, baseCost: 1, method: 'best', best }, (p) => seen.push(p));
+    expect(stages(seen)).toEqual(['rebuild', 'bestPlan', 'shorten', 'check', 'playMethod']);
+    for (let i = 1; i < seen.length; i++) expect(seen[i]!.fraction).toBeGreaterThanOrEqual(seen[i - 1]!.fraction);
+    // The bar moves inside the stages, not only between them.
+    expect(new Set(seen.filter((p) => p.phase === 'shorten').map((p) => p.fraction)).size).toBeGreaterThan(2);
+    expect(seen.at(-1)).toEqual({ phase: 'playMethod', fraction: 1 });
+  });
+
+  it('a plain check has no shortening', () => {
+    const seen: SolveProgress[] = [];
+    runSolve(eng, { kind: 'method', from, targets, baseCost: 1, method: expert, best }, (p) => seen.push(p));
+    expect(stages(seen)).toEqual(['rebuild', 'bestPlan', 'check', 'playMethod']);
+  });
+
+  // The Plan tab's answer was the plan WITHOUT Desecration, given as a ceiling (markovBoneFree.ts): its
+  // table is the craft without bones. The check rebuilt the craft with them, found no match, and solved the
+  // best plan again from nothing on the request's clock — 15 s, then "raise Search effort", on a five-mod
+  // T1 Wand at Standard (2026-11-26). A clock of 1 ms here leaves no room for such a solve.
+  const NO_CLOCK = { maxMillis: 1, maxNodes: 1, maxSweeps: 1, solver: 'policy' as const };
+  const free = runSolve(eng, { kind: 'lab', from, targets, baseCost: 1, excluded: ['desecrate', 'desecrate_ancient'] });
+  const ceiling = { routes: free.markov.routes!, bound: 'upper' as const, withoutBones: true as const };
+
+  it('a ceiling without bones is read off its own table, on the craft without bones', () => {
+    expect(free.markov.bound).toBe('exact');
+    const m = okOf(runSolve(eng, { kind: 'method', from, targets, baseCost: 1, method: expert, best: ceiling, effort: NO_CLOCK }).method);
+    expect(m.best).toEqual({ cost: free.markov.expectedCost, bound: 'upper' });
+    expect(m.gap).toBeUndefined();
+    const got = runSolve(eng, { kind: 'method', from, targets, baseCost: 1, method: 'best', best: ceiling, effort: NO_CLOCK });
+    expect(got.prefilled!.method.rules.length).toBeGreaterThan(0);
+    // The plan's own value at the app's tolerance against the rules' exact cost: alike to its rounding.
+    expect(okOf(got.method).cost / free.markov.expectedCost).toBeCloseTo(1, 3);
+  });
+
+  it('a Desecration on that craft stops the check, saying the plan above is the one without it', () => {
+    const desecrates: Method = {
+      rules: [
+        { when: [{ kind: 'rarity', is: 'normal' }], move: { currency: 'transmute', strength: 'base' } },
+        { when: [{ kind: 'rarity', is: 'magic' }], move: { currency: 'regal', strength: 'base' } },
+      ],
+      otherwise: { currency: 'desecrate' },
+    };
+    const got = runSolve(eng, { kind: 'method', from, targets, baseCost: 1, method: desecrates, best: ceiling, effort: NO_CLOCK }).method;
+    if (got.ok) throw new Error('costed a Desecration on the craft without bones');
+    expect(got.stop).toMatchObject({ kind: 'not-possible', rule: 'Otherwise', why: 'without-desecration' });
+    expect(got.stop.message).toContain('the best plan above is the one without Desecration');
+    // The player's own exclusion still reads as theirs.
+    const theirs = runSolve(eng, {
+      kind: 'method', from, targets, baseCost: 1, method: desecrates, best: ceiling, effort: NO_CLOCK, excluded: ['desecrate'],
+    }).method;
+    expect(!theirs.ok && theirs.stop).toMatchObject({ why: 'excluded' });
   });
 });

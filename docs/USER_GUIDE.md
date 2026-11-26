@@ -403,8 +403,11 @@ modifier you want, a Desecration with its omens — or **Start over with a new b
 offered: anything ticked in [Currency I don't have](#currency-i-dont-have) is left out. Add rules, move them
 with ↑ ↓, remove them with ✕. Your rules are kept in this browser for that craft; another craft starts empty.
 
-Not sure where to begin? **Start from the best plan** fills in rules that play the best plan's moves along
-its main line, and checks them straight away — then change what you would do differently.
+Not sure where to begin? **Start from the best plan** fills in the best plan as rules and checks them
+straight away — then change what you would do differently. Each rule keeps only the tests it needs, and
+together they cost exactly what the best plan costs. On a few crafts two of the plan's items read alike to
+every rule (a test reads a slot, not which of its alternatives is on the item); then it says the rules
+follow the plan only in part, and the check shows what that costs.
 
 Press **Check my method**:
 
@@ -416,9 +419,11 @@ Press **Check my method**:
   the best way, so the rows add up to the whole gap (the rest is summed in one **Elsewhere** line).
 
 **When the check stops.** If a rule asks for a move the item cannot take there — a Regal on a Rare, an
-Exalt with no room left — or your rules can go round in circles and never finish, the check stops at the
-first item where that happens and says so in one sentence, with the rule marked. It never fills in a move
-for you: fix the rule and check again.
+Exalt with no room left — the check stops at the first item where that happens. If your rules can go round
+in circles and never finish, it stops where they lose their progress: the item nearest to finished that
+your method reaches — the one the best plan could finish most cheaply — and the rule that plays there,
+whose move never gets any closer. Either way it says so in one sentence, with the rule marked. It never
+fills in a move for you: fix the rule and check again.
 
 **What it cannot do (yet).** A test reads a modifier you want as a whole slot — any of its alternatives —
 and junk only as a count: the true cost cannot tell those apart, so neither can a rule. Where your method

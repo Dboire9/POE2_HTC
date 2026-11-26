@@ -115,15 +115,16 @@ test('2g — check my method: the best plan as rules is checked in the Worker an
   await addFirstMod(page);
   await page.getByRole('button', { name: 'Find plans' }).click();
 
-  // Folded under the true cost until asked for; the best plan's rules are checked as soon as they fill.
+  // Folded under the true cost until asked for; the Worker writes the best plan's rules and checks them,
+  // and they fill in with the check.
   const fold = page.getByRole('button', { name: /^Check my method your own rules/ });
   await expect(fold).toBeVisible({ timeout: 60_000 });
   await fold.click();
   const panel = page.getByRole('region', { name: 'Check my method' });
   await panel.getByRole('button', { name: 'Start from the best plan' }).click();
-  await expect(panel.getByText(/^Rule 1$/)).toBeVisible();
   // A cost appears — never its value, which moves with the price sheet.
   await expect(panel.getByText(/^Your method:/)).toBeVisible({ timeout: 60_000 });
+  await expect(panel.getByText(/^Rule 1$/)).toBeVisible();
   await expect(panel.getByText('Your method could not be costed')).toHaveCount(0);
 
   expect(errors.filter(cspish), 'CSP refusals').toEqual([]);

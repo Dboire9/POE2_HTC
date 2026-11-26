@@ -346,9 +346,10 @@ export function emptyMethod(info: MethodCraftInfo): Method {
 
 /**
  * The check of `method` on the craft a Plan-tab solve ran: the same inputs, so the lattice is rebuilt
- * exactly, and its table and bound, so the best plan is not solved again.
+ * exactly, and its table and bound, so the best plan is not solved again. `'best'`: write the best plan
+ * as rules there and check those ("Start from the best plan").
  */
-export function methodRequest(req: LabRequest, method: Method, markov: EngineMarkovResult): MethodRequest {
+export function methodRequest(req: LabRequest, method: Method | 'best', markov: EngineMarkovResult): MethodRequest {
   return {
     kind: 'method', from: req.from, targets: req.targets, method,
     ...(req.baseCost !== undefined ? { baseCost: req.baseCost } : {}),

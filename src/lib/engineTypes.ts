@@ -576,11 +576,12 @@ export interface EngineMethodRow {
   readonly costsYou: number;
 }
 
-/** Why a method could not be costed: the first state it cannot play, or never finishes from. */
+/** Why a method could not be costed: the first state it cannot play, or where it gets stuck for good. */
 export interface EngineMethodStop {
   /**
-   * `not-possible`: a rule's move cannot be played at a state the method reaches. `never-finishes`: from a
-   * state it reaches, nothing it plays ever finishes the item. `unsettled`: it finishes, but its loops are
+   * `not-possible`: a rule's move cannot be played at a state the method reaches. `never-finishes`: it can
+   * play forever without finishing, named where it loses its progress — the item nearest finished it
+   * reaches, and the rule there (markovMethod.ts, `MethodStop`). `unsettled`: it finishes, but its loops are
    * too large to cost. `invalid`: a rule names a slot this craft does not have. `unavailable`: the craft
    * itself could not be set up (the same reason the true cost gives), so nothing was checked.
    */

@@ -1384,8 +1384,26 @@ Enforced in `packages/engine` (mostly `probability.ts`).
   (`pusher` records the dearer spelling of an identical outcome distribution; costed at the player's price),
   or — where the solve offers every Desecration with an Omen of Abyssal Echoes — as that move never thrown
   back. **The stop rule (the maintainer's ruling, 2026-11-26): a move that is not there, or a method that
-  cannot finish from a state it reaches, STOPS the check at the first such state, in one sentence. Never
-  fill in the best move** — a check that quietly repaired the method would cost a method nobody wrote.
+  cannot finish from a state it reaches, STOPS the check, in one sentence. Never fill in the best move** — a
+  check that quietly repaired the method would cost a method nobody wrote. A move that is not there stops
+  at the first such state. **A method that never finishes is reported where it LOSES ITS PROGRESS, never
+  at the first stuck state** (2026-11-26): when nothing finishes, the first state reached is always the
+  start, so a player who took the best plan's rules and changed Rule 4 was told "never finishes from: A
+  white base (Rule 1 plays Transmute …)". `stuckIn` names, of the reached states that cannot finish, the
+  one with the lowest V* — nearest the finished item — and the rule playing there; every outcome of that
+  move is stuck and no nearer, so it is the move the craft never gets past. Measured on the best plan's
+  rules with one rule's move changed (to Chaos, Annul, Exalt, a side Exalt, Start over): every stop named
+  the changed rule. The same report covers a method that finishes on some paths and is trapped on others
+  ("Some crafts never finish"). **"Start from the best plan" writes SHORT rules, on the worker**
+  (`methodFromBest`, markovMethodPrefill.ts; `method: 'best'` on the request): one exact rule per state the
+  plan reaches was the best plan but read as eight tests on every rule. It is shortened greedily — drop a
+  test, merge the junk counts, widen "= n" to "≥ n", remove a rule — each step kept only if at every state
+  the method THEN reaches its move is as good as the best (Q* ≤ the best move's) and it finishes, so the
+  gap stays zero. That judgement needs the lattice, hence the worker. Two drop orders (counts first, slots
+  first) are tried and the shorter kept: the 3-mod frozen-sheet Wand goes from 7 rules / 49 tests to 4 / 10.
+  Where two states the plan plays differently read alike to every rule (an Essence twin present while the
+  rolled mod below tier blocks the same slot) no rule set is exact; it says "only in part" and the check
+  shows the gap.
   Visits are exact (`markovVisits`), so V^π = Σ visits × cost per play, and "where it costs you" is
   visits(s) × (Q*(s, a_π) − V*(s)): by the performance-difference identity these sum to V^π − V*(start),
   asserted to 1e-9. That needs an exact V*: against a bound the panel shows the method's cost alone.

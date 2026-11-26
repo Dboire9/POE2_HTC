@@ -147,7 +147,9 @@ export type SolveRequest =
    * (`excluded`, `runes`, `spare`, `effort`) must be that request's, so the lattice is rebuilt exactly; `best`
    * hands back its result's table (`EngineMarkovResult.routes`) and bound, so the best plan is not solved
    * again. Always played out too, as Play it out is. A found-sheet craft is not checked: its costs are
-   * scarcity weights, not prices.
+   * scarcity weights, not prices. `method: 'best'` is "Start from the best plan": the worker writes the
+   * best plan as short rules (markovMethodPrefill.ts) and checks them, and the result carries them in
+   * `prefilled`.
    */
   | ({
       readonly kind: 'method';
@@ -156,7 +158,7 @@ export type SolveRequest =
       readonly baseCost?: number;
       readonly rebuyable?: boolean;
       readonly fillOnFinish?: boolean;
-      readonly method: Method;
+      readonly method: Method | 'best';
       readonly best?: EngineMethodBest;
     } & ExcludingRequest);
 
@@ -175,7 +177,11 @@ export type SolveResult =
       readonly basis?: EnginePriceBasis;
     }
   | { readonly kind: 'item'; readonly plan: EngineResult; readonly markov: EngineMarkovResult }
-  | { readonly kind: 'method'; readonly method: EngineMethodResult };
+  | {
+      readonly kind: 'method'; readonly method: EngineMethodResult;
+      /** On `method: 'best'`: the rules that were checked — the best plan, each rule only the tests it needs. */
+      readonly prefilled?: { readonly method: Method; readonly faithful: boolean };
+    };
 
 /**
  * Every phase that can report. `item` runs the MDP's three; `lab` runs planning, the MDP (on a big
@@ -473,12 +479,12 @@ export function runSolve(eng: Engine, req: SolveRequest, onProgress?: (p: SolveP
         ? { onProgress: (p: MarkovProgress): void => onProgress({ phase: p.phase, fraction: within(half, toFraction(p) * 1000, 1000) }) }
         : {}),
     })));
-    const method = checkItemMethod(eng, item, req.targets, opts, req.method, req.best, {
+    const { result, prefilled } = checkItemMethod(eng, item, req.targets, opts, req.method, req.best, {
       runs: REPLAY_RUNS, seed: 1, maxMillis: PLAYOUT_MILLIS,
       onProgress: (fraction: number): void => onProgress?.({ phase: 'playout', fraction: within([half[1], 1], fraction, 1) }),
     });
     onProgress?.({ phase: 'playout', fraction: 1 });
-    return { kind: 'method', method };
+    return { kind: 'method', method: result, ...(prefilled ? { prefilled } : {}) };
   }
 
   const from = req.from;

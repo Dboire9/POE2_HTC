@@ -56,6 +56,22 @@ export function whyWords(why: NotPossibleWhy, rarity: 'normal' | 'magic' | 'rare
   }
 }
 
+/**
+ * A method that never finishes, said where it loses its progress: the nearest it gets to the finished
+ * item (`MethodStop` 'never-finishes', markovMethod.ts), the row that plays there, and what follows.
+ */
+export function neverFinishes(
+  rule: string, move: string | undefined, then: 'restart' | 'starts-over' | 'loops', always: boolean, item: string,
+): string {
+  const head = always ? 'Your method never finishes' : 'Some crafts never finish with your method';
+  const nearest = `the nearest ${always ? 'it gets' : 'they get'} to the finished item`;
+  if (then === 'restart' || move === undefined) return `${head}: ${rule} starts over at ${nearest}. That item: ${item}.`;
+  const after = then === 'starts-over'
+    ? 'from what follows, your rules only ever start over'
+    : 'from what follows, your rules only go round in a loop';
+  return `${head}: ${rule} plays ${move} at ${nearest}, and ${after}. That item: ${item}.`;
+}
+
 /** A method that could not be checked at all — the craft itself would not set up. */
 export const methodUnavailable = (reason: string): EngineMethodResult => ({
   ok: false, stop: { kind: 'unavailable', message: `The method could not be checked: ${reason}.` },
@@ -83,7 +99,7 @@ export function mapMethod(data: PatchData, check: MethodCheck, targets: readonly
       const move = a >= 0 ? actionLabel(data, t.actions[a]!) : undefined;
       stop = {
         kind: s.kind, rule: ruleLabel(s.rule), ...(move ? { move } : {}), where: item, node: node(s.state),
-        message: `Your method never finishes from: ${item}${move ? ` (${ruleLabel(s.rule)} plays ${move} there)` : ''}.`,
+        message: neverFinishes(ruleLabel(s.rule), move, s.then, s.always, item),
       };
     } else if (s.kind === 'invalid') {
       stop = { kind: s.kind, rule: ruleLabel(s.rule), message: `${ruleLabel(s.rule)} names slot ${s.slot + 1}, which this craft does not have.` };

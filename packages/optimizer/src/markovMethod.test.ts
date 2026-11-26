@@ -7,9 +7,10 @@ import { loadFrozenPrices } from './frozenPrices.ts';
 import { actionCostOf, type McAction } from './markovActions.ts';
 import { markovFromItem, type MarkovOptions, type MarkovResult } from './markovFromItem.ts';
 import {
-  actionId, bestValues, checkMethod, methodCraft, methodFromPlan, reachedFrom, specOf,
+  actionId, bestValues, checkMethod, methodCraft, methodFromPlan, methodPlayer, reachedFrom, specOf,
   type Condition, type Method, type MethodCheck, type MethodChecked, type MethodCraft,
 } from './markovMethod.ts';
+import { methodFromBest } from './markovMethodPrefill.ts';
 import type { CompiledAction } from './markovLattice.ts';
 import { offerValuer } from './markovOffer.ts';
 import type { RouteTable } from './markovRoute.ts';
@@ -101,6 +102,24 @@ function costIndependently(t: RouteTable, finish: Float64Array): number {
   });
   expect(solveDenseInPlace(A, m, [b])).toBe(true);
   return b[at.get(t.restartIdx)!]!;
+}
+
+/**
+ * Of the states a method's table reaches that cannot finish, the one(s) nearest the finished item by V* —
+ * worked out from the table alone, by backward reachability from its goals.
+ */
+function nearest(t: RouteTable, V: Float64Array): number[] {
+  const live = reachedFrom(t, t.restartIdx);
+  const into = new Map<number, number[]>();
+  for (const i of live) {
+    for (let o = t.outStart[i]!; o < t.outStart[i + 1]!; o++) into.set(t.outTo[o]!, [...(into.get(t.outTo[o]!) ?? []), i]);
+  }
+  const can = new Set(live.filter((i) => t.goal[i] === 1));
+  const queue = [...can];
+  for (let k = 0; k < queue.length; k++) for (const u of into.get(queue[k]!) ?? []) if (!can.has(u)) { can.add(u); queue.push(u); }
+  const stuck = live.filter((i) => !can.has(i));
+  const low = Math.min(...stuck.map((i) => V[i]!));
+  return stuck.filter((i) => V[i] === low).slice(0, 1);
 }
 
 describe('a method costed against the best plan', () => {
@@ -309,8 +328,9 @@ describe('a method that cannot be costed stops where it fails, and says why', ()
     expect(c.stop).toMatchObject({ kind: 'not-possible', rule: 1, why: 'excluded' });
   });
 
-  it('a method that loops forever: never finishes, from the first state it cannot finish from', () => {
-    // Transmute, then Augment an empty Magic item and Annul a full one: it never leaves Magic.
+  it('a method that loops forever: never finishes, said where it loses its progress', () => {
+    // Transmute, then Augment an empty Magic item and Annul a full one: it never leaves Magic. It gets
+    // nearest the finished item on a Magic item holding a wanted mod — and Annuls it there.
     const method: Method = {
       rules: [
         { when: [{ kind: 'rarity', is: 'normal' }], move: { currency: 'transmute', strength: 'base' } },
@@ -319,15 +339,64 @@ describe('a method that cannot be costed stops where it fails, and says why', ()
       otherwise: { currency: 'annul' },
     };
     const c = checkMethod(three.craft, three.V, 'exact', method);
-    expect(c.ok).toBe(false);
-    if (c.ok) return;
-    expect(c.stop).toEqual({ kind: 'never-finishes', rule: 0, state: three.routes.restartIdx });
+    if (c.ok) throw new Error('costed a method that never finishes');
+    expect(c.stop).toMatchObject({ kind: 'never-finishes', rule: 'otherwise', then: 'loops', always: true });
+    if (c.stop.kind !== 'never-finishes') return;
+    const st = decodeState(c.table.keys[c.stop.state]!);
+    expect(st.rarity).toBe('magic');
+    expect(st.present).not.toBe(0);
+    expect(nearest(c.table, three.V)).toEqual([c.stop.state]);
   });
 
   it('starting over on a white base never moves on', () => {
     const c = checkMethod(three.craft, three.V, 'exact', { rules: [], otherwise: { currency: 'restart' } });
     expect(c.ok).toBe(false);
-    if (!c.ok) expect(c.stop).toMatchObject({ kind: 'never-finishes', rule: 'otherwise' });
+    if (!c.ok) {
+      expect(c.stop).toEqual({ kind: 'never-finishes', rule: 'otherwise', state: three.routes.restartIdx, then: 'restart', always: true });
+    }
+  });
+
+  it('the best plan as rules with one later rule changed to start over: that rule is named, not the first', () => {
+    // A player's report (2026-11-26): "Start from the best plan", one later rule changed, and the check
+    // blamed Rule 1 on the white base — the first state of a method where nothing finishes is always the
+    // start. It must name where the method loses its progress: here the Magic item the changed rule bins.
+    const pre = methodFromBest(methodPlayer(three.craft, three.V));
+    const r = pre.method.rules.findIndex((x) => x.move.currency === 'regal');
+    expect(r).toBeGreaterThan(0);
+    const changed: Method = { ...pre.method, rules: pre.method.rules.map((x, k) => (k === r ? { ...x, move: { currency: 'restart' } } : x)) };
+    const c = checkMethod(three.craft, three.V, 'exact', changed);
+    if (c.ok) throw new Error('costed a method that never finishes');
+    expect(c.stop).toMatchObject({ kind: 'never-finishes', rule: r, then: 'restart', always: true });
+    if (c.stop.kind !== 'never-finishes') return;
+    expect(c.stop.state).not.toBe(three.routes.restartIdx);
+    expect(decodeState(c.table.keys[c.stop.state]!).rarity).toBe('magic');
+    expect(nearest(c.table, three.V)).toEqual([c.stop.state]);
+  });
+
+  it('some crafts finish and some go round for good: the loop is named, where it gets nearest', () => {
+    // Up to a Rare as an expert would — but a Rare missing the first prefix with a junk prefix on it only
+    // ever Exalts and Annuls SUFFIXES, so that junk is never removed and the slot never filled.
+    const trap: Condition[] = [{ kind: 'rarity', is: 'rare' }, { kind: 'slot', slot: 0, is: 'missing' }, { kind: 'junk', side: 'prefix', op: '>=', n: 1 }];
+    const method: Method = {
+      rules: [
+        { when: [{ kind: 'rarity', is: 'normal' }], move: { currency: 'transmute', strength: 'base' } },
+        { when: [{ kind: 'rarity', is: 'magic' }, { kind: 'junk', side: 'total', op: '>=', n: 1 }], move: { currency: 'restart' } },
+        { when: [{ kind: 'rarity', is: 'magic' }], move: { currency: 'regal', strength: 'base' } },
+        { when: [...trap, { kind: 'open', side: 'suffix', op: '>=', n: 1 }], move: { currency: 'exalt', strength: 'base', side: 'suffix' } },
+        { when: trap, move: { currency: 'annul', side: 'suffix' } },
+        { when: [{ kind: 'junk', side: 'total', op: '>=', n: 2 }], move: { currency: 'restart' } },
+        { when: [{ kind: 'junk', side: 'total', op: '=', n: 1 }], move: { currency: 'annul' } },
+      ],
+      otherwise: { currency: 'exalt', strength: 'base' },
+    };
+    const c = checkMethod(three.craft, three.V, 'exact', method);
+    if (c.ok) throw new Error('costed a method that can loop for good');
+    expect(c.stop).toMatchObject({ kind: 'never-finishes', then: 'loops', always: false });
+    if (c.stop.kind !== 'never-finishes') return;
+    expect([3, 4]).toContain(c.stop.rule);
+    const st = decodeState(c.table.keys[c.stop.state]!);
+    expect(st.rarity).toBe('rare');
+    expect(nearest(c.table, three.V)).toEqual([c.stop.state]);
   });
 
   it('a slot the craft does not have', () => {

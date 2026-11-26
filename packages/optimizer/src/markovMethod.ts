@@ -15,8 +15,10 @@
 //     move (the maintainer's ruling, 2026-11-26).
 //   • EVALUATE: the method as a `RouteTable`, its expected visits per state from `markovVisits`
 //     (markovUses.ts — exact, a renewal over strongly connected pieces), so its cost is Σ visits × what
-//     each play costs. A method that can loop forever is caught BEFORE that, by reachability: the first
-//     state it reaches from which no finish is reachable is reported.
+//     each play costs. A method that can loop forever is caught BEFORE that, by reachability, and
+//     reported where it loses its progress: of the states it reaches that cannot finish, the one nearest
+//     the finished item by V* (`MethodStop`, 'never-finishes') — never simply the first, which, when
+//     nothing finishes, is always the start.
 //   • COMPARE: where the method's move differs from the best plan's, what that costs per finished item:
 //     loss(s) = visits(s) × (Q*(s, your move) − V*(s)), Q* = cost + Σ p·V* over every outcome, the
 //     self-loop included. These add up to the whole gap — the performance-difference identity, asserted
@@ -39,7 +41,7 @@ import type { MarkovOptions, MarkovResult } from './markovFromItem.ts';
 import { boneRole } from './markovFromItem.ts';
 import type { CompiledAction, McLattice } from './markovLattice.ts';
 import { buildLattice } from './markovLattice.ts';
-import { offerValuer } from './markovOffer.ts';
+import { offerValuer, type OfferValuer } from './markovOffer.ts';
 import type { McProblem } from './markovProblem.ts';
 import { resolveProblem } from './markovProblem.ts';
 import { planTable, tableFrame } from './markovReadout.ts';
@@ -120,8 +122,19 @@ export type MethodStop =
     /** The move as an action, when the spec names one in this craft (an Essence slot may not). */
     readonly action?: McAction; readonly why: NotPossibleWhy;
   }
-  /** From `state` (the first such state the method reaches) nothing the method plays ever finishes. */
-  | { readonly kind: 'never-finishes'; readonly rule: RuleRef; readonly state: number }
+  /**
+   * The method can play forever without finishing. `state` is where it LOSES its progress: of the states it
+   * reaches that cannot finish, the one nearest the finished item — the cheapest for the best plan to
+   * finish from (lowest V*), the first reached among ties — and `rule` is the row that plays there. Every
+   * outcome of that move is a stuck state no nearer, so it is the move the craft never gets past. `then`
+   * says what follows it: the move IS a start over (`restart`); every path from its outcomes comes back to
+   * the start (`starts-over`); or some go round a loop that never reaches the start (`loops`). `always`:
+   * no craft finishes (the start itself cannot); false when some finish and others get caught.
+   */
+  | {
+    readonly kind: 'never-finishes'; readonly rule: RuleRef; readonly state: number;
+    readonly then: 'restart' | 'starts-over' | 'loops'; readonly always: boolean;
+  }
   /** The method finishes, but its chain is too large to settle (`markovVisits`). */
   | { readonly kind: 'unsettled' }
   /** The method names a slot this craft does not have. */
@@ -285,8 +298,7 @@ export function bestValues(
 // ── The check ──────────────────────────────────────────────────────────────────────────────────────
 
 /** A move found among a state's moves: what it is, what one play costs, where it lands. */
-interface Played {
-  readonly rule: RuleRef;
+export interface Resolved {
   readonly action: McAction;
   readonly cost: number;
   readonly to: readonly number[];
@@ -296,78 +308,41 @@ interface Played {
   readonly folded: boolean;
   readonly rerollAbove: number;
 }
-interface Unplayable { readonly rule: RuleRef; readonly spec: MoveSpec; readonly action?: McAction; readonly why: NotPossibleWhy }
+/** A move a state cannot take, and why. */
+export interface Unresolved { readonly spec: MoveSpec; readonly action?: McAction; readonly why: NotPossibleWhy }
 
 export function methodFrame(p: McProblem): MethodFrame {
   return { slotMasks: p.slotMasks, obstacles: p.siblings.obstacles, side: p.side, limits: p.limits };
 }
 
 /**
- * Check `method` on a craft against the best plan's values `V` (`bestValues`). Stops on the first state
- * the method reaches where its move is not possible, or from which it never finishes; otherwise costs it.
+ * Moves played at the craft's states against the best plan's values V*. Each (state, move) is worked out
+ * once — keyed by the move OBJECT, so a caller that walks many methods sharing their moves (the prefill's
+ * shortening, markovMethodPrefill.ts) resolves each pair only once.
  */
-export function checkMethod(
-  craft: MethodCraft, V: Float64Array, bound: 'exact' | 'lower' | 'upper', method: Method,
-  opts: { readonly replay?: ReplayOptions } = {},
-): MethodCheck {
+export interface MethodPlayer {
+  readonly craft: MethodCraft;
+  readonly V: Float64Array;
+  readonly frame: MethodFrame;
+  /** The start's index in the lattice. */
+  readonly start: number;
+  readonly valuer: OfferValuer;
+  /** State `i`, decoded once. */
+  state(i: number): McState;
+  play(i: number, move: MoveSpec): Resolved | Unresolved;
+}
+
+export function methodPlayer(craft: MethodCraft, V: Float64Array): MethodPlayer {
   const { problem: p, lattice: l } = craft;
   const policy = craft.opts.policy;
-  const { N, allStates, compiled, isGoalIdx, finishCost } = l;
-  const frame = methodFrame(p);
-  const start = l.idxOfState.get(p.restartKey)!;
   const valuer = offerValuer(V, l.widestOffer);
-  const played: (Played | undefined)[] = new Array<Played | undefined>(N);
-
-  /** The method's moves as a `RouteTable` over the whole lattice (V* as its values). */
-  const tableOf = (): RouteTable => {
-    const act = new Int32Array(N).fill(-1);
-    const actCost = new Float64Array(N);
-    const rerollAbove = new Float64Array(N).fill(NaN);
-    const outStart = new Int32Array(N + 1);
-    const outTo: number[] = [];
-    const outProb: number[] = [];
-    const actions: McAction[] = [];
-    const ids = new Map<string, number>();
-    for (let i = 0; i < N; i++) {
-      outStart[i] = outTo.length;
-      const pl = played[i];
-      if (!pl) continue;
-      const id = actionId(pl.action);
-      let a = ids.get(id);
-      if (a === undefined) { a = actions.length; actions.push(pl.action); ids.set(id, a); }
-      act[i] = a;
-      actCost[i] = pl.cost;
-      rerollAbove[i] = pl.rerollAbove;
-      for (let j = 0; j < pl.to.length; j++) { outTo.push(pl.to[j]!); outProb.push(pl.prob[j]!); }
-    }
-    outStart[N] = outTo.length;
-    return planTable(tableFrame(p, l), {
-      value: V, act, actions, actCost, outStart, outTo: Int32Array.from(outTo), outProb: Float64Array.from(outProb), rerollAbove,
-    });
-  };
-  const stopped = (stop: MethodStop): MethodCheck => ({ ok: false, table: tableOf(), stop });
-
-  // A slot the method names must exist; checked once, up front, rather than at whichever state reads it.
-  const slots = p.slotMasks.length;
-  const badSlot = (s: number): boolean => !Number.isInteger(s) || s < 0 || s >= slots;
-  const rows: { rule: RuleRef; rr: MethodRule }[] = [
-    ...method.rules.map((rr, r) => ({ rule: r, rr })), { rule: 'otherwise', rr: { when: [], move: method.otherwise } },
-  ];
-  for (const { rule, rr } of rows) {
-    for (const c of rr.when) if (c.kind === 'slot' && badSlot(c.slot)) return stopped({ kind: 'invalid', rule, slot: c.slot });
-    const m = rr.move;
-    if ((m.currency === 'essence' || m.currency === 'perfect-essence') && badSlot(m.slot)) {
-      return stopped({ kind: 'invalid', rule, slot: m.slot });
-    }
-  }
-
-  const playAt = (i: number): Played | Unplayable => {
-    const st = decodeState(allStates[i]!);
-    const { rule, move } = ruleFor(method, st, frame);
+  const decoded = new Array<McState | undefined>(l.N);
+  const state = (i: number): McState => (decoded[i] ??= decodeState(l.allStates[i]!));
+  const work = (i: number, move: MoveSpec): Resolved | Unresolved => {
     const action = toAction(p, craft.opts, policy, move);
-    if (action === undefined) return { rule, spec: move, why: move.currency === 'essence' ? 'no-essence' : 'no-perfect-essence' };
-    const found = resolve(compiled[i]!, action, p.prices);
-    if (!found) return { rule, spec: move, action, why: whyNot(p, l, policy, st, action) };
+    if (action === undefined) return { spec: move, why: move.currency === 'essence' ? 'no-essence' : 'no-perfect-essence' };
+    const found = resolve(l.compiled[i]!, action, p.prices);
+    if (!found) return { spec: move, action, why: whyNot(p, l, policy, state(i), action) };
     const { ca, cost: own, folded } = found;
     const to: number[] = [];
     const prob: number[] = [];
@@ -386,38 +361,161 @@ export function checkMethod(
     }
     let q = cost;
     for (let j = 0; j < to.length; j++) q += prob[j]! * V[to[j]!]!;
-    return { rule, action, cost, to, prob, q, folded, rerollAbove };
+    return { action, cost, to, prob, q, folded, rerollAbove };
   };
+  const cache = new WeakMap<MoveSpec, Map<number, Resolved | Unresolved>>();
+  const play = (i: number, move: MoveSpec): Resolved | Unresolved => {
+    let at = cache.get(move);
+    if (!at) { at = new Map(); cache.set(move, at); }
+    let got = at.get(i);
+    if (got === undefined) { got = work(i, move); at.set(i, got); }
+    return got;
+  };
+  return { craft, V, frame: methodFrame(p), start: l.idxOfState.get(p.restartKey)!, valuer, state, play };
+}
 
-  // ── Compile: the states the method reaches, breadth first, stopping at the first move it cannot play. ──
-  const reached = new Uint8Array(N);
-  const order: number[] = [start];
-  reached[start] = 1;
+/** A method walked over the lattice: the move and rule at every state it reaches (by index), in reach order. */
+export interface MethodWalk {
+  readonly moves: readonly (Resolved | undefined)[];
+  readonly rules: readonly (RuleRef | undefined)[];
+  /** The states it reaches from the start, breadth first, goals included. */
+  readonly order: readonly number[];
+}
+type NotPossible = Extract<MethodStop, { readonly kind: 'not-possible' }>;
+
+/** Walk the states `method` reaches from the start, breadth first — stopping at the first move it cannot play. */
+export function walkMethod(pl: MethodPlayer, method: Method): MethodWalk & { readonly stop?: NotPossible } {
+  const l = pl.craft.lattice;
+  const moves = new Array<Resolved | undefined>(l.N);
+  const rules = new Array<RuleRef | undefined>(l.N);
+  const reached = new Uint8Array(l.N);
+  const order: number[] = [pl.start];
+  reached[pl.start] = 1;
   for (let k = 0; k < order.length; k++) {
     const i = order[k]!;
-    if (isGoalIdx[i] === 1) continue;
-    const got = playAt(i);
+    if (l.isGoalIdx[i] === 1) continue;
+    const { rule, move } = ruleFor(method, pl.state(i), pl.frame);
+    const got = pl.play(i, move);
     if (!('q' in got)) {
-      return stopped({ kind: 'not-possible', rule: got.rule, state: i, spec: got.spec, ...(got.action ? { action: got.action } : {}), why: got.why });
+      const stop: NotPossible = { kind: 'not-possible', rule, state: i, spec: got.spec, ...(got.action ? { action: got.action } : {}), why: got.why };
+      return { moves, rules, order, stop };
     }
-    played[i] = got;
+    moves[i] = got;
+    rules[i] = rule;
     for (const j of got.to) if (reached[j] === 0) { reached[j] = 1; order.push(j); }
   }
-  const table = tableOf();
+  return { moves, rules, order };
+}
 
-  // ── A method that can loop forever: the first state it reaches with no finish reachable from it. ──
-  const finishes = new Uint8Array(N);
-  const into: number[][] = new Array<number[]>(N);
-  for (const i of order) {
-    for (const j of played[i]?.to ?? []) (into[j] ??= []).push(i);
+/**
+ * Where a walked method gets stuck, if it can — `MethodStop` 'never-finishes' says what is reported and
+ * why. Backward reachability from the goals over the method's own moves marks what can finish.
+ */
+export function stuckIn(pl: MethodPlayer, walk: MethodWalk): Extract<MethodStop, { readonly kind: 'never-finishes' }> | undefined {
+  const { lattice: l } = pl.craft;
+  const { moves, rules, order } = walk;
+  const V = pl.V;
+  const into = new Array<number[] | undefined>(l.N);
+  for (const i of order) for (const j of moves[i]?.to ?? []) (into[j] ??= []).push(i);
+  /** Every state that can reach one of `from` over the method's moves. */
+  const reaching = (from: readonly number[]): Uint8Array => {
+    const mark = new Uint8Array(l.N);
+    const queue = [...from];
+    for (const i of queue) mark[i] = 1;
+    for (let k = 0; k < queue.length; k++) {
+      for (const u of into[queue[k]!] ?? []) if (mark[u] === 0) { mark[u] = 1; queue.push(u); }
+    }
+    return mark;
+  };
+  const finishes = reaching(order.filter((i) => l.isGoalIdx[i] === 1));
+  let at = -1;
+  for (const i of order) if (finishes[i] === 0 && (at < 0 || V[i]! < V[at]!)) at = i;
+  if (at < 0) return undefined;
+  const move = moves[at]!;
+  let then: 'restart' | 'starts-over' | 'loops' = 'restart';
+  if (move.action.currency !== 'restart') {
+    // What follows the move: everything the method reaches from its outcomes.
+    const seen = new Uint8Array(l.N);
+    const after: number[] = [];
+    for (const j of move.to) if (seen[j] === 0) { seen[j] = 1; after.push(j); }
+    for (let k = 0; k < after.length; k++) {
+      for (const j of moves[after[k]!]?.to ?? []) if (seen[j] === 0) { seen[j] = 1; after.push(j); }
+    }
+    const back = reaching([pl.start]);
+    then = seen[pl.start] === 1 && after.every((j) => back[j] === 1) ? 'starts-over' : 'loops';
   }
-  const queue = order.filter((i) => isGoalIdx[i] === 1);
-  for (const i of queue) finishes[i] = 1;
-  for (let k = 0; k < queue.length; k++) {
-    for (const u of into[queue[k]!] ?? []) if (finishes[u] === 0) { finishes[u] = 1; queue.push(u); }
+  return { kind: 'never-finishes', rule: rules[at]!, state: at, then, always: finishes[pl.start] === 0 };
+}
+
+/**
+ * Check `method` on a craft against the best plan's values `V` (`bestValues`). Stops on the first state
+ * the method reaches where its move is not possible, or where it loses its progress for good when it can
+ * never finish; otherwise costs it.
+ */
+export function checkMethod(
+  craft: MethodCraft, V: Float64Array, bound: 'exact' | 'lower' | 'upper', method: Method,
+  opts: { readonly replay?: ReplayOptions } = {},
+): MethodCheck {
+  return checkWith(methodPlayer(craft, V), bound, method, opts);
+}
+
+/** `checkMethod` on a player already set up — one that may have played other methods on this craft. */
+export function checkWith(
+  pl: MethodPlayer, bound: 'exact' | 'lower' | 'upper', method: Method, opts: { readonly replay?: ReplayOptions } = {},
+): MethodCheck {
+  const { craft, V, start } = pl;
+  const { problem: p, lattice: l } = craft;
+  const { N, compiled, isGoalIdx, finishCost } = l;
+
+  /** The method's moves as a `RouteTable` over the whole lattice (V* as its values). */
+  const tableOf = (moves: readonly (Resolved | undefined)[]): RouteTable => {
+    const act = new Int32Array(N).fill(-1);
+    const actCost = new Float64Array(N);
+    const rerollAbove = new Float64Array(N).fill(NaN);
+    const outStart = new Int32Array(N + 1);
+    const outTo: number[] = [];
+    const outProb: number[] = [];
+    const actions: McAction[] = [];
+    const ids = new Map<string, number>();
+    for (let i = 0; i < N; i++) {
+      outStart[i] = outTo.length;
+      const mv = moves[i];
+      if (!mv) continue;
+      const id = actionId(mv.action);
+      let a = ids.get(id);
+      if (a === undefined) { a = actions.length; actions.push(mv.action); ids.set(id, a); }
+      act[i] = a;
+      actCost[i] = mv.cost;
+      rerollAbove[i] = mv.rerollAbove;
+      for (let j = 0; j < mv.to.length; j++) { outTo.push(mv.to[j]!); outProb.push(mv.prob[j]!); }
+    }
+    outStart[N] = outTo.length;
+    return planTable(tableFrame(p, l), {
+      value: V, act, actions, actCost, outStart, outTo: Int32Array.from(outTo), outProb: Float64Array.from(outProb), rerollAbove,
+    });
+  };
+
+  // A slot the method names must exist; checked once, up front, rather than at whichever state reads it.
+  const slots = p.slotMasks.length;
+  const badSlot = (s: number): boolean => !Number.isInteger(s) || s < 0 || s >= slots;
+  const rows: { rule: RuleRef; rr: MethodRule }[] = [
+    ...method.rules.map((rr, r) => ({ rule: r, rr })), { rule: 'otherwise', rr: { when: [], move: method.otherwise } },
+  ];
+  for (const { rule, rr } of rows) {
+    const invalid = (slot: number): MethodCheck => ({ ok: false, table: tableOf([]), stop: { kind: 'invalid', rule, slot } });
+    for (const c of rr.when) if (c.kind === 'slot' && badSlot(c.slot)) return invalid(c.slot);
+    const m = rr.move;
+    if ((m.currency === 'essence' || m.currency === 'perfect-essence') && badSlot(m.slot)) return invalid(m.slot);
   }
-  const stuck = order.find((i) => finishes[i] === 0);
-  if (stuck !== undefined) return { ok: false, table, stop: { kind: 'never-finishes', rule: played[stuck]!.rule, state: stuck } };
+
+  // ── Compile: the states the method reaches, stopping at the first move it cannot play. ──
+  const walk = walkMethod(pl, method);
+  const table = tableOf(walk.moves);
+  if (walk.stop) return { ok: false, table, stop: walk.stop };
+
+  // ── A method that can loop forever: reported where it loses its progress. ──
+  const stuck = stuckIn(pl, walk);
+  if (stuck) return { ok: false, table, stop: stuck };
 
   const counted = markovVisits(table);
   if (!counted) return { ok: false, table, stop: { kind: 'unsettled' } };
@@ -432,20 +530,24 @@ export function checkMethod(
   for (const i of counted.order) {
     const v = visits[i]!;
     if (isGoalIdx[i] === 1) { cost += v * finishCost[i]!; continue; }
-    const pl = played[i]!;
-    cost += v * pl.cost;
-    if (pl.folded) folded.set(actionId(pl.action), pl.action);
-    if (pl.action.currency === 'desecrate') keepsOffers = true;
+    const mv = walk.moves[i]!;
+    cost += v * mv.cost;
+    if (mv.folded) folded.set(actionId(mv.action), mv.action);
+    if (mv.action.currency === 'desecrate') keepsOffers = true;
     if (bound !== 'exact') continue;
     // Where the method plays the plan's own move this is ≤ 0 up to rounding: an exact V* is that plan's
-    // value (policy iteration costs it in closed form; value iteration's phase B descends, T(V) ≤ V).
-    const loss = v * (pl.q - V[i]!);
-    if (loss > tiny) losses.push({ state: i, rule: pl.rule, move: pl.action, best: bestMove(compiled[i]!, valuer), visits: v, loss });
+    // value (policy iteration costs it in closed form; value iteration's phase B descends, T(V) ≤ V). That
+    // rounding is not a row: with a free base, V* is consistent only to ~1e-11 a play, and a state passed
+    // fifteen times read "your move Transmute · the best move Transmute" (2026-11-26).
+    const loss = v * (mv.q - V[i]!);
+    if (loss <= tiny) continue;
+    const best = bestMove(compiled[i]!, pl.valuer);
+    if (actionId(best) !== actionId(mv.action)) losses.push({ state: i, rule: walk.rules[i]!, move: mv.action, best, visits: v, loss });
   }
   losses.sort((a, b) => b.loss - a.loss);
   const bestCost = V[start]!;
 
-  const replay = opts.replay ? replayMethod(craft, V, played, playAt, opts.replay) : undefined;
+  const replay = opts.replay ? replayMethod(pl, method, walk.moves, opts.replay) : undefined;
   return {
     ok: true, table, cost, bestCost, bound, ...(bound === 'exact' ? { gap: cost - bestCost } : {}),
     losses, visits, ...(replay ? { replay } : {}), keepsOffers, folded: [...folded.values()],
@@ -532,7 +634,7 @@ function whyNot(p: McProblem, l: McLattice, policy: CurrencyPolicy | undefined, 
 }
 
 /** The best plan's move at a state: the cheapest by V*, an Echoes offer that never rerolls named plain. */
-function bestMove(acts: readonly CompiledAction[], valuer: ReturnType<typeof offerValuer>): McAction {
+export function bestMove(acts: readonly CompiledAction[], valuer: OfferValuer): McAction {
   let best: CompiledAction | undefined;
   let bestVal = Infinity;
   for (const a of acts) {
@@ -549,9 +651,9 @@ function bestMove(acts: readonly CompiledAction[], valuer: ReturnType<typeof off
 
 /** The method played on real items: every state it can play gets its move, the keep rule reads V*. */
 function replayMethod(
-  craft: MethodCraft, V: Float64Array, played: readonly (Played | undefined)[],
-  playAt: (i: number) => Played | Unplayable, opts: ReplayOptions,
+  pl: MethodPlayer, method: Method, played: readonly (Resolved | undefined)[], opts: ReplayOptions,
 ): ReplayReport {
+  const { craft, V } = pl;
   const { problem: p, lattice: l, opts: mo } = craft;
   // The lattice walk reached what the abstraction can; a real item may stray further, so every state the
   // method can play is in the table the replay reads, not only the ones the walk met.
@@ -559,7 +661,7 @@ function replayMethod(
   const reroll = new Map<StateKey, number>();
   for (let i = 0; i < l.N; i++) {
     if (l.isGoalIdx[i] === 1) continue;
-    const got = played[i] ?? playAt(i);
+    const got = played[i] ?? pl.play(i, ruleFor(method, pl.state(i), pl.frame).move);
     if (!('q' in got)) continue;
     moves.set(l.allStates[i]!, got.action);
     if (Number.isFinite(got.rerollAbove)) reroll.set(l.allStates[i]!, got.rerollAbove);
@@ -594,8 +696,23 @@ export function reachedFrom(t: RouteTable, root: number): number[] {
   return order;
 }
 
+/**
+ * Tests that name state `st` as closely as a rule can: every slot's reading, the junk on each side, the
+ * rarity, and — on a craft with bones — where the Desecration's mark sits.
+ */
+export function exactly(st: McState, f: MethodFrame, bones: boolean): Condition[] {
+  const junk = junkOf(st, f.obstacles);
+  return [
+    { kind: 'rarity', is: st.rarity },
+    ...f.slotMasks.map((m, slot): Condition => ({ kind: 'slot', slot, is: slotIs(st, m) })),
+    { kind: 'junk', side: 'prefix', op: '=', n: junk.prefix },
+    { kind: 'junk', side: 'suffix', op: '=', n: junk.suffix },
+    ...(bones ? [{ kind: 'bone', is: boneOf(st, f.obstacles) } as const] : []),
+  ];
+}
+
 /** The spec a player would write for a move the plan plays — undefined for one no spec names. */
-export function specOf(t: RouteTable, a: McAction): MoveSpec | undefined {
+export function specOf(t: Pick<RouteTable, 'positions' | 'slotMasks'>, a: McAction): MoveSpec | undefined {
   const slotOfMod = (id: string): number => {
     const pos = t.positions.findIndex((ids) => ids.includes(id));
     return t.slotMasks.findIndex((m) => pos >= 0 && (m & (1 << pos)) !== 0);
@@ -613,8 +730,11 @@ export function specOf(t: RouteTable, a: McAction): MoveSpec | undefined {
 }
 
 /**
- * Rules that play the best plan's move at each of `keys` (its states, e.g. the main line a route draws),
- * each rule naming its state exactly: every slot's reading, the junk on each side, the rarity, and — on a
+ * Rules that play the best plan's move at each of `keys` (its states, e.g. every state it reaches) — one
+ * EXACT rule per state, the tests' oracle; the app's "Start from the best plan" is `methodFromBest`
+ * (markovMethodPrefill.ts), which shortens such rules over the states the method reaches.
+ *
+ * Each rule names its state `exactly`: every slot's reading, the junk on each side, the rarity, and — on a
  * craft with bones — where the Desecration's mark sits. `otherwise` is a start over where the craft
  * can start over, else the move the plan plays most often.
  *
@@ -637,14 +757,7 @@ export function methodFromPlan(t: RouteTable, keys: readonly string[]): { readon
     const move = specOf(t, t.actions[t.act[i]!]!);
     if (!move) continue;
     const st = decodeState(t.keys[i]!);
-    const junk = junkOf(st, t.obstacles);
-    const when: Condition[] = [
-      ...t.slotMasks.map((m, slot): Condition => ({ kind: 'slot', slot, is: slotIs(st, m) })),
-      { kind: 'junk', side: 'prefix', op: '=', n: junk.prefix },
-      { kind: 'junk', side: 'suffix', op: '=', n: junk.suffix },
-      { kind: 'rarity', is: st.rarity },
-      ...(bones ? [{ kind: 'bone', is: boneOf(st, t.obstacles) } as const] : []),
-    ];
+    const when = exactly(st, frame, bones);
     wanted.push({ st, move });
     const id = JSON.stringify(when);
     if (seen.has(id)) continue;

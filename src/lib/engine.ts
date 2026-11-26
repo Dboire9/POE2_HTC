@@ -39,8 +39,9 @@ import { routeFrom, stepFrom } from '../../packages/optimizer/src/markovRoute.ts
 import { keyOfItem, type Located } from '../../packages/optimizer/src/markovLocate.ts';
 import { markovUses } from '../../packages/optimizer/src/markovUses.ts';
 import {
-  bestValues, checkMethod, methodCraft, methodFromPlan, sameLattice, type Method, type MethodCraft,
+  bestValues, checkWith, methodCraft, methodPlayer, sameLattice, type Method, type MethodCraft,
 } from '../../packages/optimizer/src/markovMethod.ts';
+import { methodFromBest } from '../../packages/optimizer/src/markovMethodPrefill.ts';
 import type { ReplayOptions } from '../../packages/optimizer/src/markovReplay.ts';
 import { mapMethod, methodUnavailable } from './methodWords.ts';
 import {
@@ -375,11 +376,16 @@ export function optimizeItemMarkov(
  * offers, or as asked where that is what the solve settled on. The best plan's values are reused from
  * `best.routes` when its states are this lattice's, and solved once otherwise (a plan without bones given
  * as a ceiling, or no table at all). A best plan that is only a bound gives the method's cost alone.
+ *
+ * `method: 'best'` is "Start from the best plan": the best plan written as short rules (`methodFromBest`,
+ * markovMethodPrefill.ts) — each keeping only the tests it needs, and costing exactly what the best plan
+ * costs — and checked at once. It is worked out here, on the lattice, because what a rule needs is judged
+ * at the states the method reaches. `prefilled` carries those rules; absent where the craft would not set up.
  */
 export function checkItemMethod(
-  eng: Engine, item: ExistingItem, targets: readonly TargetInput[], opts: MarkovOptions, method: Method,
+  eng: Engine, item: ExistingItem, targets: readonly TargetInput[], opts: MarkovOptions, method: Method | 'best',
   best?: EngineMethodBest, replay?: ReplayOptions,
-): EngineMethodResult {
+): { readonly result: EngineMethodResult; readonly prefilled?: { readonly method: Method; readonly faithful: boolean } } {
   const { data, prices } = eng;
   const state = buildItemState(data, item);
   const named = toTierTargets(data, targets);
@@ -392,23 +398,16 @@ export function checkItemMethod(
     const plain = methodCraft(data, prices, state, named, opts);
     if (!('refused' in plain) && ('refused' in craft || sameLattice(best!.routes, plain.lattice))) craft = plain;
   }
-  if ('refused' in craft) return methodUnavailable(craft.refused);
+  if ('refused' in craft) return { result: methodUnavailable(craft.refused) };
   const values = bestValues(craft, best);
-  if ('refused' in values) return methodUnavailable(values.refused);
-  return mapMethod(data, checkMethod(craft, values.V, values.bound, method, replay ? { replay } : {}), targets);
-}
-
-/**
- * Rules that play the best plan's moves at the given states of its table — the route's main line
- * (`mainLine`, policyPath.ts), so a method starts from the plan rather than a blank page. Each rule names
- * its state exactly; `otherwise` starts over where the craft can, else plays the plan's commonest move.
- * `faithful` is false when two of those states read alike to a rule (see `methodFromPlan`). Null without a
- * table. A pure lookup: no solve.
- */
-export function prefillMethod(
-  markov: EngineMarkovResult, keys: readonly string[],
-): { readonly method: Method; readonly faithful: boolean } | null {
-  return markov.routes ? methodFromPlan(markov.routes, keys) : null;
+  if ('refused' in values) return { result: methodUnavailable(values.refused) };
+  const pl = methodPlayer(craft, values.V);
+  const pre = method === 'best' ? methodFromBest(pl) : undefined;
+  const check = checkWith(pl, values.bound, method === 'best' ? pre!.method : method, replay ? { replay } : {});
+  return {
+    result: mapMethod(data, check, targets),
+    ...(pre ? { prefilled: { method: pre.method, faithful: pre.faithful } } : {}),
+  };
 }
 
 /**

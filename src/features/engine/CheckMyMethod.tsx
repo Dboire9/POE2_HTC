@@ -1,9 +1,8 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { Button } from '../../components/ui/button';
-import { prefillMethod, type Engine, type EngineMarkovResult } from '../../lib/engine';
+import type { Engine, EngineMarkovResult } from '../../lib/engine';
 import type { EngineMethodResult, Method, MethodRule, MoveSpec } from '../../lib/engineTypes';
 import type { Rates } from '../../lib/currency';
-import { mainLine } from '../../lib/policyPath';
 import {
   emptyMethod, methodCraftInfo, methodRequest, methodSig, newRule, readMethod, writeMethod, type LabRequest,
 } from '../../lib/methodRules';
@@ -78,11 +77,18 @@ const CheckMyMethod: React.FC<{
     setPrefilled(null);
   };
 
-  const check = (m: Method): void => {
+  /** Check `m` — or, for 'best', have the worker write the best plan as rules, fill them in and check them. */
+  const check = (m: Method | 'best'): void => {
     setError(null);
+    const asked = m === 'best' ? method : m;
     runner.run(methodRequest(req, m, markov), {
       onResult: (res) => {
-        if (res.kind === 'method') setChecked({ run, method: JSON.stringify(m), result: res.method });
+        if (res.kind !== 'method') return;
+        if (res.prefilled) {
+          setMethod(res.prefilled.method);
+          setPrefilled({ faithful: res.prefilled.faithful });
+        }
+        setChecked({ run, method: JSON.stringify(res.prefilled?.method ?? asked), result: res.method });
       },
       onError: (e, appUpdated) => setError(appUpdated
         ? 'The site was updated since this tab was opened. Reload the page to check your method.'
@@ -90,13 +96,7 @@ const CheckMyMethod: React.FC<{
     });
   };
 
-  const startFromBest = (): void => {
-    const got = prefillMethod(markov, mainLine(markov).steps.map((s) => s.node.key));
-    if (!got) return;
-    setMethod(got.method);
-    setPrefilled({ faithful: got.faithful });
-    check(got.method);
-  };
+  const startFromBest = (): void => check('best');
 
   const shown = checked && checked.run === run ? checked : null;
   const stale = shown !== null && shown.method !== JSON.stringify(method);
@@ -173,8 +173,8 @@ const CheckMyMethod: React.FC<{
           {prefilled && (
             <p className="text-[11px] text-muted-foreground">
               {prefilled.faithful
-                ? 'These rules play the best plan’s moves along its main line — the way most crafts that finish go.'
-                : 'These rules follow only the best plan’s main line, and not all of it: two of its items read alike to a rule, so the earlier rule plays at both.'}
+                ? 'These rules play a move as good as the best plan’s at every item they reach, so they cost what it costs. Each rule keeps only the tests needed to tell those items apart.'
+                : 'These rules follow the best plan only in part: some of its items read alike to every rule, so the earlier rule plays at both.'}
             </p>
           )}
           {busy && !runner.computing && (

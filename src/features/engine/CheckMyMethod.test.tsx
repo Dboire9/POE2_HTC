@@ -4,10 +4,8 @@ import userEvent from '@testing-library/user-event';
 import { loadShippedPatch } from '../../../packages/engine/src/loadPatch.ts';
 import { loadFrozenPrices } from '../../../packages/optimizer/src/frozenPrices.ts';
 import { SolveCancelled } from '../../lib/engineClient';
-import type { EngineMarkovResult, EngineMethodResult, TargetInput } from '../../lib/engineTypes';
-import { prefillMethod } from '../../lib/engine';
-import { mainLine } from '../../lib/policyPath';
-import { methodSig, readMethod, type LabRequest } from '../../lib/methodRules';
+import type { EngineMarkovResult, EngineMethodResult, Method, TargetInput } from '../../lib/engineTypes';
+import { methodRequest, methodSig, readMethod, type LabRequest } from '../../lib/methodRules';
 import { runSolve, type SolveRequest, type SolveResult } from '../../lib/solve';
 import CheckMyMethod from './CheckMyMethod';
 
@@ -26,6 +24,8 @@ const anyTier = (modId: string): TargetInput => ({ modId, tierDisplay: data.mods
 const targets = [anyTier('Wands/IncreasedMana'), anyTier('Wands/WeaponSpellDamage'), anyTier('Wands/Intelligence')];
 const req: LabRequest = { kind: 'lab', from: { baseId: 'Wands', level: 82 }, targets, baseCost: 1 };
 const markov = (runSolve(engine, req) as { markov: EngineMarkovResult }).markov;
+/** What the worker answers to "Start from the best plan" on this craft: the short rules, checked. */
+const fromBest = runSolve(engine, methodRequest(req, 'best', markov));
 
 /** The next check the panel sends: answer it, fail it, or watch it be cancelled. */
 function nextCheck() {
@@ -34,7 +34,11 @@ function nextCheck() {
   const promise = new Promise<SolveResult>((res, rej) => { answer = res; fail = rej; });
   const cancel = vi.fn(() => fail(new SolveCancelled()));
   mocks.solve.mockReturnValueOnce({ promise, cancel });
-  return { answer: (method: EngineMethodResult) => answer({ kind: 'method', method }), fail, cancel };
+  return {
+    answer: (method: EngineMethodResult, prefilled?: { method: Method; faithful: boolean }) =>
+      answer({ kind: 'method', method, ...(prefilled ? { prefilled } : {}) }),
+    fail, cancel,
+  };
 }
 const sent = (): SolveRequest => mocks.solve.mock.calls.at(-1)![0] as SolveRequest;
 
@@ -73,27 +77,29 @@ describe('Check my method', () => {
     expect(rules()).toHaveLength(0);
   });
 
-  it('starts from the best plan: fills its rules and checks them at once, on the solve’s own craft', async () => {
+  it('starts from the best plan: the worker writes its rules, they fill in, checked at once on the solve’s craft', async () => {
     const user = userEvent.setup();
     const check = nextCheck();
     render(<CheckMyMethod {...props} />);
     await open(user);
     await user.click(screen.getByRole('button', { name: 'Start from the best plan' }));
 
-    const pre = prefillMethod(markov, mainLine(markov).steps.map((s) => s.node.key))!;
     await waitFor(() => expect(mocks.solve).toHaveBeenCalledTimes(1));
-    expect(rules()).toHaveLength(pre.method.rules.length);
     expect(sent()).toMatchObject({
-      kind: 'method', from: req.from, targets, baseCost: 1, method: pre.method,
+      kind: 'method', from: req.from, targets, baseCost: 1, method: 'best',
       best: { routes: markov.routes, bound: markov.bound },
     });
-    // Saved for this craft as soon as it is written.
-    expect(readMethod(methodSig(req))).toEqual(pre.method);
     expect(screen.getByRole('status')).toHaveTextContent('Working…');
     expect(screen.getByRole('button', { name: 'Check my method' })).toBeDisabled();
-    expect(screen.getByText(/These rules play the best plan’s moves along its main line/)).toBeInTheDocument();
 
-    check.answer(ok);
+    const pre = fromBest.prefilled!;
+    check.answer(ok, { method: pre.method, faithful: true });
+    await waitFor(() => expect(rules()).toHaveLength(pre.method.rules.length));
+    // Saved for this craft as soon as it is written.
+    expect(readMethod(methodSig(req))).toEqual(pre.method);
+    expect(screen.getByText(/These rules play a move as good as the best plan’s at every item they reach/)).toBeInTheDocument();
+    expect(screen.queryByText(/You have changed your method since this check/)).toBeNull();
+
     expect(await screen.findByText(/^Your method:/)).toHaveTextContent(
       'Your method: 120 ex · Best plan: 100 ex · It costs you 20 ex (20%) more per finished item.');
     const where = screen.getByRole('region', { name: 'Where it costs you' });
@@ -143,6 +149,37 @@ describe('Check my method', () => {
     await user.selectOptions(screen.getByRole('combobox', { name: 'Rule 2, then play' }), 'exalt');
     await waitFor(() => expect(screen.queryByText('The check stopped on this rule')).toBeNull());
     expect(screen.getByText(/You have changed your method since this check/)).toBeInTheDocument();
+  });
+
+  it('the best plan’s rules with a later rule changed to never finish: that rule is marked, not Rule 1', async () => {
+    // A player's report (2026-11-26): the mark sat on Rule 1 whatever rule was changed.
+    const user = userEvent.setup();
+    const filled = nextCheck();
+    render(<CheckMyMethod {...props} />);
+    await open(user);
+    await user.click(screen.getByRole('button', { name: 'Start from the best plan' }));
+    const pre = fromBest.prefilled!;
+    filled.answer(fromBest.method, pre);
+    await waitFor(() => expect(rules()).toHaveLength(pre.method.rules.length));
+    // This craft's Essence twin lets two of the plan's items read alike (methodCheck.test.ts), and it says so.
+    expect(pre.faithful).toBe(false);
+    expect(screen.getByText(/These rules follow the best plan only in part/)).toBeInTheDocument();
+
+    const r = pre.method.rules.findIndex((x) => x.move.currency === 'essence');
+    expect(r).toBeGreaterThan(0);
+    await user.selectOptions(screen.getByRole('combobox', { name: `Rule ${r + 1}, then play` }), 'annul');
+    const check = nextCheck();
+    await user.click(screen.getByRole('button', { name: 'Check my method' }));
+    await waitFor(() => expect(mocks.solve).toHaveBeenCalledTimes(2));
+    const changed = (sent() as Extract<SolveRequest, { kind: 'method' }>).method as Method;
+    expect(changed.rules.map((x) => x.move.currency)).toEqual(pre.method.rules.map((x, k) => (k === r ? 'annul' : x.move.currency)));
+    // The worker's own answer to that method.
+    check.answer(runSolve(engine, methodRequest(req, changed, markov)).method);
+
+    expect(await screen.findByText(/^Your method never finishes: Rule \d+ plays Annul/)).toBeInTheDocument();
+    const flagged = screen.getByText('The check stopped on this rule');
+    expect(flagged.closest('li')).toHaveTextContent(new RegExp(`^Rule ${r + 1}`));
+    expect(screen.getAllByText('The check stopped on this rule')).toHaveLength(1);
   });
 
   it('waits while the Plan tab’s own solve runs, so it never cuts that solve short', async () => {

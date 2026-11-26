@@ -1,9 +1,9 @@
 import { describe, it, expect } from 'vitest';
 import { loadPatch } from '../../packages/engine/src/loadPatch.ts';
 import { loadFrozenPrices } from '../../packages/optimizer/src/frozenPrices.ts';
-import { listMods, prefillMethod } from './engine.ts';
+import { listMods } from './engine.ts';
 import type { EngineMethodResult, Method, TargetInput } from './engineTypes.ts';
-import { mainLine } from './policyPath.ts';
+import { neverFinishes } from './methodWords.ts';
 import { runSolve, type SolveProgress } from './solve.ts';
 
 // "Check my method" end to end through `runSolve`, as the worker runs it: a Plan-tab solve first, then the
@@ -110,21 +110,65 @@ describe('a method request, end to end', () => {
     const got = runSolve(eng, { kind: 'method', from, targets, baseCost: 1, method: loop, best }).method;
     expect(got.ok).toBe(false);
     if (!got.ok) {
-      expect(got.stop.kind).toBe('never-finishes');
-      expect(got.stop.message).toBe('Your method never finishes from: A white base (Rule 1 plays Transmute there).');
+      expect(got.stop).toMatchObject({ kind: 'never-finishes', rule: 'Otherwise', move: 'Annul' });
+      expect(got.stop.message).toMatch(
+        /^Your method never finishes: Otherwise plays Annul at the nearest it gets to the finished item, and from what follows, your rules only go round in a loop\. That item: Magic · /);
     }
   });
+});
 
-  it('a method pre-filled from the best plan’s main line can be checked as it stands', () => {
-    const line = mainLine(lab.markov).steps.map((s) => s.node.key);
-    expect(line.length).toBeGreaterThan(0);
-    const pre = prefillMethod(lab.markov, line)!;
+describe('a method that never finishes, in words', () => {
+  it('names the rule where it loses its progress, what follows it, and whether any craft finishes', () => {
+    expect(neverFinishes('Otherwise', 'Start over with a new base', 'restart', true, 'Magic · +# to Intelligence')).toBe(
+      'Your method never finishes: Otherwise starts over at the nearest it gets to the finished item. That item: Magic · +# to Intelligence.');
+    expect(neverFinishes('Rule 4', 'Chaos', 'loops', false, 'Rare · #% increased Spell Damage')).toBe(
+      'Some crafts never finish with your method: Rule 4 plays Chaos at the nearest they get to the finished item, and from what follows, your rules only go round in a loop. That item: Rare · #% increased Spell Damage.');
+    expect(neverFinishes('Rule 3', 'Annul', 'starts-over', true, 'Magic · +# to maximum Mana')).toBe(
+      'Your method never finishes: Rule 3 plays Annul at the nearest it gets to the finished item, and from what follows, your rules only ever start over. That item: Magic · +# to maximum Mana.');
+  });
+});
+
+describe('Start from the best plan', () => {
+  it('the worker writes the best plan as short rules and checks them at once: no gap', () => {
+    // A craft whose states every rule can tell apart (no Essence twin sharing a slot with a rolled mod).
+    const plain = [any('Wands/IncreasedMana'), any('Wands/Intelligence'), any('Wands/IncreasedCastSpeed')];
+    const solved = runSolve(eng, { kind: 'lab', from, targets: plain, baseCost: 1 });
+    expect(solved.markov.bound).toBe('exact');
+    const got = runSolve(eng, {
+      kind: 'method', from, targets: plain, baseCost: 1, method: 'best',
+      best: { routes: solved.markov.routes!, bound: solved.markov.bound },
+    });
+    const pre = got.prefilled!;
     expect(pre.faithful).toBe(true);
+    // Each rule keeps only some of what an exact rule says: the rarity, every slot, both junk counts, the bone.
+    const exactTests = 1 + plain.length + 2 + 1;
+    for (const rule of pre.method.rules) expect(rule.when.length).toBeLessThan(exactTests);
     expect(pre.method.otherwise).toEqual({ currency: 'restart' });
-    const m = okOf(runSolve(eng, { kind: 'method', from, targets, baseCost: 1, method: pre.method, best }).method);
-    expect(m.gap!).toBeGreaterThanOrEqual(-1e-9 * m.best.cost);
-    // The main line itself is the best plan's: anything it loses, it loses off the line.
-    const onLine = new Set(line);
-    for (const row of m.where) expect(onLine.has(row.node.key)).toBe(false);
+    // At the app's own tolerance, the gap is the solver's rounding: the panel says "nothing more".
+    const m = okOf(got.method);
+    expect(m.where).toEqual([]);
+    expect(m.gap!).toBeLessThanOrEqual(1e-6 * m.best.cost);
+    expect(m.replay?.costPercentiles).toHaveLength(101);
+  });
+
+  it('where two of the plan’s items read alike to every rule, it says so, and the check shows the gap', () => {
+    const got = runSolve(eng, { kind: 'method', from, targets, baseCost: 1, method: 'best', best });
+    expect(got.prefilled!.faithful).toBe(false);
+    expect(okOf(got.method).gap!).toBeGreaterThan(0);
+  });
+
+  it('one later rule changed so every craft ends in a start over: the check names that rule, not Rule 1', () => {
+    // A player's report (2026-11-26): the best plan's rules, Rule 4 changed, and "never finishes from: A
+    // white base (Rule 1 plays Transmute (Greater) there)" — the start is the first state of any method
+    // where nothing finishes. The rule that Annuls the Magic item the Essence would have made Rare is.
+    const pre = runSolve(eng, { kind: 'method', from, targets, baseCost: 1, method: 'best', best }).prefilled!;
+    const r = pre.method.rules.findIndex((x) => x.move.currency === 'essence');
+    expect(r).toBeGreaterThan(0);
+    const changed: Method = { ...pre.method, rules: pre.method.rules.map((x, k) => (k === r ? { ...x, move: { currency: 'annul' } } : x)) };
+    const got = runSolve(eng, { kind: 'method', from, targets, baseCost: 1, method: changed, best }).method;
+    if (got.ok) throw new Error('costed a method that never finishes');
+    expect(got.stop).toMatchObject({ kind: 'never-finishes', rule: `Rule ${r + 1}`, move: 'Annul' });
+    expect(got.stop.message).toMatch(new RegExp(
+      `^Your method never finishes: Rule ${r + 1} plays Annul at the nearest it gets to the finished item, and from what follows, your rules only ever start over\\. That item: Magic · `));
   });
 });

@@ -7,6 +7,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+Since 1.2.0 (2026-11-15). Nothing changes on the site except fresh prices; the rest is tooling.
+
+### Added
+
+- **A market sweep, for contributors.** `scripts/market-sweep.mts` runs every test that reads the live
+  price sheet against every sheet the site has shipped and four made-up markets, and must end
+  `GATE PASSED`. `src/test/liveSheetReaders.test.ts` lists the tests allowed to read the live sheet, and
+  why; any other fails.
+- **The Omen of Whittling in the true cost, built and switched off.** A model of the omen's removal by
+  item level exists behind an option the app does not pass: played out on real items it cost up to four
+  times what it promised, so the true cost still does not use the omen (the step-by-step routes do, as
+  before). `scripts/whittling.mts` is the check a next attempt must pass.
+
 ### Fixed
 
 - **Prices refresh every day again.** The daily price update had been held since 2026-11-10 by tests

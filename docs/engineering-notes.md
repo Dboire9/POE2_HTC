@@ -1396,10 +1396,19 @@ Enforced in `packages/engine` (mostly `probability.ts`).
   time: the worker terminates the solve in flight for a new one, and `cancel` stops WHATEVER is in flight,
   so the check is disabled while the Plan tab's solve runs, a Compute during a check simply supersedes it,
   a check is shown only beside the solve it was made for (`markovRun`), and leaving the tab cancels only a
-  check still in flight (the runner's `cancel` is a no-op once its own run settled). Open: on a method that
-  Annuls while a Desecrated modifier is on the item, the replay's mean sits ~17% under the exact cost on
-  every seed (the best plan's replay, and the same method binning instead, agree) — the lattice and the
-  replay read that Annulment differently; copy-audit row 134.
+  check still in flight (the runner's `cancel` is a no-op once its own run settled). **An offer's TIES must
+  be kept the way the replay keeps them** (2026-11-26). Every state the best plan starts over from is worth
+  `restartCost + V(start)` to the bit, so a Desecration's offer routinely holds several outcomes V* values
+  exactly alike. The best plan is indifferent among them; a method is not (bone junk → start over, a bone on
+  a target → carry on). `keepWeights` split a tie by outcome INDEX (a flagged target before any junk), the
+  replay keeps the FIRST tied draw — i.e. in proportion to draw odds — and a method that Annuls around a
+  bone read 12,837.6 against a replay of ~10,500 ± 170 on every seed. It was never the Annulment: measured
+  per (state, move), every Annul, Exalt and Regal matched the replay; only the Desecrations' kept odds
+  differed (from a clean Rare: junk kept 51% in the lattice, 67% on real items). The check now splits a
+  tie by draw odds (`keepWeights`' `splitTies`); the value cannot move. The best plan's published odds
+  still split by index: its cost cannot depend on a tie, and changing them re-hashes the recorded results
+  in `markovSplit.test.ts` / `siblings.test.ts` (costs bit-identical) — the maintainer's call. Regression:
+  markovMethod.test.ts, "a method that desecrates … costs what its replay does".
 
 ## Tablets
 

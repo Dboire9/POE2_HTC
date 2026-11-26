@@ -7,7 +7,7 @@ import type { CompiledAction } from './markovLattice.ts';
 
 export interface OfferValuer {
   /** Fills `w` with the chance of ending on each outcome (indexed like `a.to`); returns Σ w·V. */
-  readonly keepWeights: (a: CompiledAction, w: Float64Array, fromStart?: boolean) => number;
+  readonly keepWeights: (a: CompiledAction, w: Float64Array, fromStart?: boolean, splitTies?: boolean) => number;
   /** The action's value: its cost plus what it leads to, its self-loop divided out. */
   readonly valueOf: (a: CompiledAction) => number;
   /** Sized for the widest offer, reused so the hot loop allocates nothing. */
@@ -59,8 +59,17 @@ export function offerValuer(V: Float64Array, widestOffer: number): OfferValuer {
    * insertion sort is close to linear. The value does not depend on how outcomes tied on V are ordered;
    * their individual weights do, so a caller that PUBLISHES or FREEZES the weights passes `fromStart`,
    * and ties split by index every time rather than by the history of the solve.
+   *
+   * `splitTies` splits a tie's share instead in proportion to the tied outcomes' draw odds — the player
+   * keeps whichever of them was drawn FIRST, which is the rule the replay plays (`offer`,
+   * markovReplay.ts). The value cannot move; only which tied outcome the weights land on. That matters
+   * wherever the outcomes are then followed by anything but the plan that valued them: "Check my method"
+   * keeps the offer V* keeps and plays its own moves after, and ties are common, not a corner — every
+   * state the best plan starts over from is worth `restartCost + V(start)` to the bit. Split by index (a
+   * flagged target before any junk), a method that starts over on bone junk and carries on otherwise read
+   * 12,837.6 against a replay of ~10,500 (2026-11-26).
    */
-  const keepWeights = (a: CompiledAction, w: Float64Array, fromStart = false): number => {
+  const keepWeights = (a: CompiledAction, w: Float64Array, fromStart = false, splitTies = false): number => {
     const K = a.to.length;
     const order = a.order;
     if (fromStart) for (let j = 0; j < K; j++) order[j] = j;
@@ -82,6 +91,22 @@ export function offerValuer(V: Float64Array, widestOffer: number): OfferValuer {
       w[idx] = tailPow - nextPow;
       fresh += V[a.to[idx]!]! * w[idx];
       tailPow = nextPow;
+    }
+    // Outcomes tied on V share what their tie keeps in proportion to their draw odds: the first of the
+    // equally good draws is kept. Linear in `w`, so the reroll below preserves it.
+    if (splitTies) {
+      for (let j = 0; j < K;) {
+        const v = V[a.to[order[j]!]!]!;
+        let e = j + 1;
+        while (e < K && V[a.to[order[e]!]!]! === v) e++;
+        if (e - j > 1) {
+          let kept = 0;
+          let drawn = 0;
+          for (let q = j; q < e; q++) { kept += w[order[q]!]!; drawn += a.prob[order[q]!]!; }
+          if (drawn > 0) for (let q = j; q < e; q++) w[order[q]!] = kept * (a.prob[order[q]!]! / drawn);
+        }
+        j = e;
+      }
     }
     last.throw = 0;
     last.bar = Infinity;

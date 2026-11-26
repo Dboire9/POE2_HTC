@@ -11,6 +11,7 @@ import {
   type Condition, type Method, type MethodCheck, type MethodChecked, type MethodCraft,
 } from './markovMethod.ts';
 import type { CompiledAction } from './markovLattice.ts';
+import { offerValuer } from './markovOffer.ts';
 import type { RouteTable } from './markovRoute.ts';
 import { decodeState } from './markovState.ts';
 import type { TierTarget } from './optimize.ts';
@@ -202,6 +203,49 @@ describe('a method costed against the best plan', () => {
     expect(r.costPercentiles).toHaveLength(101);
   });
 
+  /*
+   * A Desecration whose offer holds several outcomes the best plan values EXACTLY alike — every state it
+   * starts over from is worth `restartCost + V(start)` to the bit. The best plan is indifferent among
+   * them; this method is not (a flagged junk mod starts over, a flagged target carries on). The check and
+   * the replay must break that tie the same way: it once kept the tied outcome with the lowest index (a
+   * flagged target before any junk) while the replay kept the first one drawn, and the check read
+   * 12,837.6 against a replay of ~10,500 ± 170 on every seed.
+   */
+  it('a method that desecrates, keeping what the best plan would keep, costs what its replay does', () => {
+    const bone: Method = {
+      rules: [
+        { when: [{ kind: 'rarity', is: 'normal' }], move: { currency: 'transmute', strength: 'base' } },
+        { when: [{ kind: 'rarity', is: 'magic' }, { kind: 'junk', side: 'total', op: '>=', n: 1 }], move: { currency: 'restart' } },
+        { when: [{ kind: 'rarity', is: 'magic' }], move: { currency: 'regal', strength: 'base' } },
+        { when: [{ kind: 'junk', side: 'total', op: '>=', n: 2 }], move: { currency: 'restart' } },
+        { when: [{ kind: 'bone', is: 'junk' }], move: { currency: 'restart' } },
+        { when: [{ kind: 'junk', side: 'total', op: '=', n: 1 }], move: { currency: 'annul' } },
+        { when: [{ kind: 'bone', is: 'none' }], move: { currency: 'desecrate' } },
+      ],
+      otherwise: { currency: 'exalt', strength: 'base' },
+    };
+    const c = ok(checkMethod(three.craft, three.V, 'exact', bone, { replay: { runs: 4_000, seed: 3 } }));
+    expect(c.keepsOffers).toBe(true);
+    const r = c.replay!;
+    if (!r.ok) throw new Error(r.reason);
+    expect(Math.abs(r.meanCost - c.cost)).toBeLessThan(3 * r.stdErr);
+  });
+
+  it('outcomes tied on value are kept in proportion to their draw odds — the first of them drawn', () => {
+    // Three outcomes, the first two worth the same: the pair is kept unless all three draws miss it.
+    const V = Float64Array.from([5, 5, 9]);
+    const a = {
+      to: Int32Array.from([0, 1, 2]), prob: Float64Array.from([0.2, 0.3, 0.5]), offer: 3, rerollCost: Infinity,
+      order: Int32Array.from([0, 1, 2]),
+    } as unknown as CompiledAction;
+    const w = new Float64Array(3);
+    offerValuer(V, 3).keepWeights(a, w, true, true);
+    const pair = 1 - 0.5 ** 3;
+    expect(w[0]!).toBeCloseTo(pair * 0.4, 12);
+    expect(w[1]!).toBeCloseTo(pair * 0.6, 12);
+    expect(w[2]!).toBeCloseTo(0.5 ** 3, 12);
+  });
+
   it('a folded spelling resolves, and is costed at its own price', () => {
     const { routes, craft, V } = three;
     // A Magic state the best plan passes where an Annulment has nothing to choose between the sides: the
@@ -379,6 +423,15 @@ describe('a Desecration where the solve plays every one with an Omen of Abyssal 
     const m = ca.offer;
     const tail = outs.map((_, k) => outs.slice(k).reduce((sum, o) => sum + o.p, 0));
     const plain = outs.map((_, k) => tail[k]! ** m - (tail[k + 1] ?? 0) ** m);
+    // Outcomes tied on V: the first of them drawn is kept, so their tie's share splits by draw odds.
+    for (let k = 0; k < outs.length;) {
+      let e = k + 1;
+      while (e < outs.length && V[outs[e]!.t] === V[outs[k]!.t]) e++;
+      const share = plain.slice(k, e).reduce((s, x) => s + x, 0);
+      const drawn = outs.slice(k, e).reduce((s, o) => s + o.p, 0);
+      for (let q = k; q < e; q++) plain[q] = share * (outs[q]!.p / drawn);
+      k = e;
+    }
     const tau = outs.reduce((sum, o, k) => sum + plain[k]! * V[o.t]!, 0);
     const bar = c === undefined ? Infinity : c + tau;
     const above = outs.reduce((sum, o) => sum + (V[o.t]! > bar ? o.p : 0), 0);

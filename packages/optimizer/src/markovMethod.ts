@@ -375,7 +375,9 @@ export function checkMethod(
     let rerollAbove = NaN;
     if (ca.offer > 1) {
       const w = new Float64Array(ca.to.length);
-      valuer.keepWeights(ca, w, true);
+      // Ties on V* are kept as the replay keeps them — the first drawn — since the method may treat
+      // states the best plan values alike quite differently (`keepWeights`).
+      valuer.keepWeights(ca, w, true, true);
       if (valuer.last.throw > 0) { cost += valuer.last.throw * ca.rerollCost; rerollAbove = valuer.last.bar; }
       for (let j = 0; j < ca.to.length; j++) if (w[j]! > 0) { to.push(ca.to[j]!); prob.push(w[j]!); }
     } else {

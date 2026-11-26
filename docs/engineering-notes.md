@@ -1258,6 +1258,17 @@ Enforced in `packages/engine` (mostly `probability.ts`).
 
 `src/`.
 
+- **A translated page must not crash on React's next update — `src/lib/translateGuard.ts` (2026-11-26).**
+  Chrome and Edge translate by replacing text nodes with `<font>` elements, so React later removes (or
+  inserts before) a node that is no longer a child, the DOM throws `NotFoundError`, and the error boundary
+  takes the page down. Reported twice from Chinese-reading players: 2026-09-04 (the loading placeholder,
+  fixed in that component, `translateSafety.test.tsx`) and 2026-11-25 (opening the step-by-step routes).
+  Per-component fixes do not hold, so `main.tsx` installs a guard on `Node.prototype` before React renders:
+  such a removal or insertion is skipped with a `console.warn` (a Sentry breadcrumb) instead of thrown.
+  Cost: on a translated page a stale translated word can stay until that area renders again. Do not
+  remove it, and do not "fix" a translation report by adding `translate="no"`: those players read the
+  app through the translation.
+
 - **The Search-effort control must be rendered on every tab that obeys it.** `ItemActions` passed
   `limitsFor(effort)` to the solver while the picker lived inside EngineLab's lab-mode branch, so a
   from-item craft ran under a setting its own tab could not show. It is `SearchEffort.tsx` now, with

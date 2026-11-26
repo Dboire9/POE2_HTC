@@ -22,6 +22,10 @@ Since 1.2.0 (2026-11-15). Nothing changes on the site except fresh prices; the r
 
 ### Fixed
 
+- **A page your browser translates no longer crashes.** With Chrome or Edge translating the site (into
+  Chinese, in the report), opening the step-by-step routes ended in "Something went wrong": the
+  translator replaces the page's text, and the app's next update tripped over it. The page now carries
+  on; at worst a translated word stays on screen a moment longer than it should.
 - **Prices refresh every day again.** The daily price update had been held since 2026-11-10 by tests
   that pinned one day's market and by a check that stopped on any essence without a fresh quote. Now
   poe.ninja is the reference: a market move never holds the update. A price too thin to trust keeps its

@@ -5,10 +5,14 @@ import "./index.css"
 import { initSentry, ErrorBoundary } from "./lib/sentry"
 import { ErrorFallback } from "./ErrorFallback"
 import { PREFS_PREFIX } from "./lib/currencyPrefs"
+import { installTranslateGuard } from "./lib/translateGuard"
 import { Analytics } from '@vercel/analytics/react';
 
 // Off unless VITE_SENTRY_DSN was set at BUILD time; loads in its own chunk when it is.
 initSentry();
+
+// Before React renders anything: a page the browser translates must not crash on React's next update.
+installTranslateGuard();
 
 // Force cache clear - version 2.1
 const CACHE_VERSION = '2.1';
